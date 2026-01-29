@@ -16,5 +16,16 @@ impl Program{
         }
         None
     }
+
+    pub fn to_string(&self) -> String{
+        let mut buffer = String::new();
+
+        self.statements.iter().for_each(|statement|{
+            buffer.push_str(&statement.to_string());
+            buffer.push('\n');
+        });
+
+        buffer
+    }
 }
 

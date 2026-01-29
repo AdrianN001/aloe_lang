@@ -1,4 +1,5 @@
 pub mod token_type;
+pub mod display;
 
 use crate::token::token_type::TokenType;
 

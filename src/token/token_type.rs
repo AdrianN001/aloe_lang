@@ -1,4 +1,5 @@
 
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum TokenType{
     Illegal, 

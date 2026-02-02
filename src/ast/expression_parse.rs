@@ -57,6 +57,13 @@ impl Parser{
         expression.right = Box::new(right_from_prefix);
 
         Ok(Expression::Prefix(expression))
+    }
 
+    fn parse_inflix_expression(&mut self, left: Expression) -> Result<Expression, String>{
+
+
+
+
+        Err("")
     }
 }

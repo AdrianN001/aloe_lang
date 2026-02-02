@@ -9,7 +9,7 @@ use integer_literal::IntegerLiteral;
 use prefix_expression::PrefixExpression;
 use infix::InfixExpression;
 
-#[derive(Default)]
+#[derive(Default, Clone)]
 pub enum Expression {
     Identifier(Identifier),
     IntegerLiteral(IntegerLiteral),

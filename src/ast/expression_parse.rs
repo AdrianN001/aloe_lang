@@ -1,12 +1,12 @@
 
-use crate::{ast::{Parser, expression::{Expression, integer_literal::IntegerLiteral, prefix_expression::PrefixExpression}, precedence::OperationPrecedence}, token::token_type::TokenType};
+use crate::{ast::{Parser, expression::{Expression, infix::InfixExpression, integer_literal::IntegerLiteral, prefix_expression::PrefixExpression}, precedence::{OperationPrecedence, get_precedence_of_operator}}, token::token_type::TokenType};
 use crate::ast::expression::identifier::Identifier;
 
 
 impl Parser{
     
     pub fn parse_expression(&mut self, prec: OperationPrecedence) -> Result<Expression, String>{
-        let left_expression = match self.current_token.token_type{
+        let mut left_expression = match self.current_token.token_type{
             TokenType::Identifier => Ok(self.parse_identifier()),
             TokenType::Integer => self.parse_integer_literal(),
             TokenType::Bang |
@@ -14,9 +14,23 @@ impl Parser{
             _ => {
                 return Err("".to_string());
             }
-        };
-        print!("");
-        left_expression
+        }.unwrap();
+
+        while self.peek_token.token_type != TokenType::Semicolon && prec < get_precedence_of_operator(&self.peek_token){
+            match self.peek_token.token_type{
+                TokenType::Plus | TokenType::Minus | TokenType::Slash |
+                    TokenType::Asterisk | TokenType::Eq | TokenType::NotEq | 
+                    TokenType::LT | TokenType::GT => {
+                        self.next_token();
+                        left_expression = self.parse_infix_expression(&left_expression)?;
+                    }
+                    _ => {
+                        return Ok(left_expression);  
+                    }
+            };
+        }
+
+        Ok(left_expression)
     }
 
     fn parse_identifier(&self) -> Expression{
@@ -59,11 +73,23 @@ impl Parser{
         Ok(Expression::Prefix(expression))
     }
 
-    fn parse_inflix_expression(&mut self, left: Expression) -> Result<Expression, String>{
+    fn parse_infix_expression(&mut self, left: &Expression) -> Result<Expression, String>{
+
+        let infix_expression = InfixExpression{
+            token: self.current_token.clone(), 
+            operator: self.current_token.literal.clone(),
+            left: Box::new(left.to_owned()),
+            right: {
+                let precedence = get_precedence_of_operator(&self.current_token);
+                self.next_token();
+                match self.parse_expression(precedence){
+                    Ok(expr) => Box::new(expr),
+                    Err(error) => return Err(error)
+                }
+            }
+        };
 
 
-
-
-        Err("")
-    }
+        Ok(Expression::Infix(infix_expression))
+    } 
 }

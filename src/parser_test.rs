@@ -1,5 +1,5 @@
 use crate::ast::expression::Expression;
-use crate::ast::{Parser};
+use crate::ast::{Parser, program};
 use crate::ast::statement::Statement;
 use crate::ast::statement::let_statement::LetStatement;
 use crate::lexer::Lexer;
@@ -169,4 +169,52 @@ fn test_prefix_operator_parsing(){
 
 
     });
+}
+
+#[test]
+fn test_parsing_infix_expression(){
+    let testcases = [
+        ("5 + 5;", 5, "+", 5),
+        ("5 - 5;", 5, "-", 5),
+        ("5 * 5;", 5, "*", 5),
+        ("5 / 5;", 5, "/", 5),
+        ("5 > 5;", 5, ">", 5),
+        ("5 < 5;", 5, "<", 5),
+        ("5 == 5;", 5, "==", 5),
+        ("5 != 5;", 5, "!=", 5)
+    ];
+
+    testcases.iter().for_each(|test_case|{
+        let expression = test_case.0.to_string();
+        let expected_left = test_case.1;
+        let exprected_op  = test_case.2.to_string();
+        let exptected_right = test_case.3;
+
+        let lexer = Lexer::new(expression);
+        let parser = Parser::new(lexer);
+        let program = parser.into_a_program().unwrap();
+
+        assert_eq!(program.statements.len(), 1);
+
+        let parsed_statement_expression = match &program.statements[0]{
+            Statement::Expression(expr) => expr, 
+            _ => panic!()
+        };
+
+        let parsed_expression = match &parsed_statement_expression.expression { 
+                Expression::Infix(infix_expr) => infix_expr, 
+                _ => panic!()
+        };
+
+        match (*parsed_expression.left.clone(), *parsed_expression.right.clone()){ 
+            (Expression::IntegerLiteral(left_expression), Expression::IntegerLiteral(right_expression)) => {
+                assert_eq!(left_expression.value, expected_left);
+                assert_eq!(right_expression.value, exptected_right);
+            },
+            _ => panic!()
+        }
+        assert_eq!(parsed_expression.operator, exprected_op);
+
+
+    })
 }

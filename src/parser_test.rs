@@ -354,3 +354,41 @@ fn test_operator_precedence(){
         
     });
 }
+
+#[test]
+fn test_if_parsing(){
+    let input = "if (x<y) { x }".to_string();
+
+    let lexer = Lexer::new(input);
+    let parser = Parser::new(lexer);
+    let program = parser.into_a_program().unwrap();
+    assert_eq!(program.statements.len(), 1);
+
+    let expression = match &program.statements[0]{
+        Statement::Expression(expr) => expr,
+        _ => panic!()
+    };
+
+    let if_expr = match &expression.expression{
+        Expression::If(if_expression) => if_expression, 
+        _ => panic!()
+    };
+
+    let condition = match *if_expr.condition.clone(){
+        Expression::Infix(infix_expr) => infix_expr, 
+        _ => panic!()
+    };
+
+    match (*condition.left.clone(), *condition.right.clone()){
+        (Expression::Identifier(left_identifier), Expression::Identifier(right_identifier)) => {
+            assert_eq!(left_identifier.token.literal, "x".to_string());
+            assert_eq!(right_identifier.token.literal, "y".to_string());
+        },
+        _ => panic!("")
+    }
+
+    assert_eq!(condition.operator, "<".to_string());
+
+
+    assert!(if_expr.alternative.is_none());
+}

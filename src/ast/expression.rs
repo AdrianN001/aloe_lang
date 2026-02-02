@@ -4,7 +4,9 @@ pub mod integer_literal;
 pub mod prefix_expression;
 pub mod infix;
 pub mod boolean;
+pub mod if_expression;
 
+use if_expression::IfExpression;
 use boolean::Boolean;
 use identifier::{Identifier};
 use integer_literal::IntegerLiteral;
@@ -18,6 +20,8 @@ pub enum Expression {
     Prefix(PrefixExpression),
     Infix(InfixExpression),
     Bool(Boolean),
+
+    If(IfExpression),
 
     #[default]
     InvalidExpression

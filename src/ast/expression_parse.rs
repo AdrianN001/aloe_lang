@@ -1,5 +1,5 @@
 
-use crate::{ast::{Parser, expression::{Expression, infix::InfixExpression, integer_literal::IntegerLiteral, prefix_expression::PrefixExpression}, precedence::{OperationPrecedence, get_precedence_of_operator}}, token::token_type::TokenType};
+use crate::{ast::{Parser, expression::{Expression, if_expression::IfExpression, infix::InfixExpression, integer_literal::IntegerLiteral, prefix_expression::PrefixExpression}, precedence::{OperationPrecedence, get_precedence_of_operator}, statement::block_statement::BlockStatement}, token::token_type::TokenType};
 use crate::ast::expression::boolean::Boolean;
 use crate::ast::expression::identifier::Identifier;
 
@@ -11,6 +11,7 @@ impl Parser{
             TokenType::Identifier => Ok(self.parse_identifier()),
             TokenType::Integer => self.parse_integer_literal(),
             TokenType::LParen => self.parse_grouped_expression(),
+            TokenType::KwIf => self.parse_if_expression(),
             
             TokenType::Bang |
             TokenType::Minus  =>  self.parse_prefix_expression(),
@@ -58,7 +59,7 @@ impl Parser{
 
         let expression = self.parse_expression(OperationPrecedence::Lowest);
         if self.peek_token.token_type == TokenType::RParen{
-            return Err("expected 'expression', got 'RPare'".to_string())
+            return Err("expected 'expression', got 'RParen'".to_string())
         }
 
         expression
@@ -115,4 +116,77 @@ impl Parser{
 
         Ok(Expression::Infix(infix_expression))
     } 
+
+    fn parse_if_expression(&mut self) -> Result<Expression, String>{
+        let mut expr = IfExpression{
+            token: self.current_token.clone(),
+            ..Default::default()
+        };
+
+        if self.peek_token.token_type != TokenType::LParen{
+
+            return Err("unexpected token. Expected 'LParen'".to_string());
+        }
+        self.next_token();
+
+        self.next_token();
+        expr.condition = match self.parse_expression(OperationPrecedence::Lowest){
+            Ok(valid_expr) => Box::new(valid_expr),
+            Err(error_feedback) => return Err(error_feedback)
+        };
+
+        if self.peek_token.token_type != TokenType::RParen{
+            return Err("unexpected token: Expected 'RParen'".to_string());
+        }
+        self.next_token();
+
+        if self.peek_token.token_type != TokenType::LBrace{
+            return Err("unexpected token: Expected 'LBrace'".to_string());
+        }
+        self.next_token();
+        
+        expr.consequence = self.parse_block_statement()?;
+
+        if self.peek_token.token_type == TokenType::KwElse{
+            self.next_token();
+
+            if self.peek_token.token_type != TokenType::LBrace{
+                return Err("unexpected token: Expected 'LBrace'".to_string());
+            }
+
+            expr.alternative = match self.parse_block_statement(){
+                Ok(block_statement) => Some(block_statement),
+                Err(error_feedback) => return Err(error_feedback)
+            };
+        }
+
+        Ok(Expression::If(expr))
+    }
+
+    fn parse_block_statement(&mut self) -> Result<BlockStatement, String>{
+        let mut block = BlockStatement{
+            token: self.current_token.clone(),
+            statements: Vec::new()
+        };
+
+        self.next_token();
+
+        while self.current_token.token_type != TokenType::RBrace && self.current_token.token_type != TokenType::Eof{
+            let statement = self.parse_statement();
+            
+            match statement{
+                Ok(valid_statement) => block.statements.push(valid_statement),
+                Err(error_feedback) => return Err(error_feedback)
+            }
+            self.next_token();
+        }
+
+        Ok(block)
+    }
 }
+
+
+
+
+
+

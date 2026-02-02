@@ -8,6 +8,6 @@ pub struct ExpressionStatement{
 
 impl ExpressionStatement{
     pub fn to_string(&self) -> String{
-        return "".to_string();
+        self.expression.to_string()
     }
 }

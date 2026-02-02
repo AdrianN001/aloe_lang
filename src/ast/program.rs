@@ -22,7 +22,7 @@ impl Program{
 
         self.statements.iter().for_each(|statement|{
             buffer.push_str(&statement.to_string());
-            buffer.push('\n');
+            //buffer.push('\n');
         });
 
         buffer

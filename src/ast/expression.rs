@@ -3,7 +3,9 @@ pub mod identifier;
 pub mod integer_literal;
 pub mod prefix_expression;
 pub mod infix;
+pub mod boolean;
 
+use boolean::Boolean;
 use identifier::{Identifier};
 use integer_literal::IntegerLiteral;
 use prefix_expression::PrefixExpression;
@@ -15,6 +17,7 @@ pub enum Expression {
     IntegerLiteral(IntegerLiteral),
     Prefix(PrefixExpression),
     Infix(InfixExpression),
+    Bool(Boolean),
 
     #[default]
     InvalidExpression
@@ -23,6 +26,7 @@ pub enum Expression {
 impl Expression {
     pub fn token_literal(&self) -> &str {
         match self {
+            Expression::Bool(i) => &i.token.literal,
             Expression::Identifier(i) => &i.token.literal,
             Expression::IntegerLiteral(i) => &i.token.literal,
             _ => ""

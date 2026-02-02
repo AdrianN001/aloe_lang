@@ -1,5 +1,6 @@
 
 use crate::{ast::{Parser, expression::{Expression, infix::InfixExpression, integer_literal::IntegerLiteral, prefix_expression::PrefixExpression}, precedence::{OperationPrecedence, get_precedence_of_operator}}, token::token_type::TokenType};
+use crate::ast::expression::boolean::Boolean;
 use crate::ast::expression::identifier::Identifier;
 
 
@@ -9,10 +10,15 @@ impl Parser{
         let mut left_expression = match self.current_token.token_type{
             TokenType::Identifier => Ok(self.parse_identifier()),
             TokenType::Integer => self.parse_integer_literal(),
+            TokenType::LParen => self.parse_grouped_expression(),
+            
             TokenType::Bang |
             TokenType::Minus  =>  self.parse_prefix_expression(),
+
+            TokenType::KwTrue |
+                TokenType::KwFalse => Ok(self.parse_boolean()),
             _ => {
-                return Err("".to_string());
+                return Err(format!("no prefix function for {} found", &self.current_token.token_type));
             }
         }.unwrap();
 
@@ -40,6 +46,23 @@ impl Parser{
         })
     }
 
+    fn parse_boolean(&self) -> Expression{
+        Expression::Bool(Boolean{
+            token: self.current_token.clone(),
+            value: self.current_token.token_type == TokenType::KwTrue
+        })
+    }
+
+    fn parse_grouped_expression(&mut self) -> Result<Expression, String>{
+        self.next_token();
+
+        let expression = self.parse_expression(OperationPrecedence::Lowest);
+        if self.peek_token.token_type == TokenType::RParen{
+            return Err("expected 'expression', got 'RPare'".to_string())
+        }
+
+        expression
+    }
     fn parse_integer_literal(&self) -> Result<Expression, String>{
         match self.current_token.literal.parse::<i64>(){
             Ok(integer_value) => Ok(

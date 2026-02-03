@@ -28,6 +28,8 @@ pub fn get_precedence_of_operator(token: &Token) -> OperationPrecedence{
         TokenType::Slash =>     OperationPrecedence::Mul,
         TokenType::Asterisk =>  OperationPrecedence::Mul,
 
+        TokenType::LParen =>    OperationPrecedence::Call,
+
         _ => OperationPrecedence::Lowest
     }
 }

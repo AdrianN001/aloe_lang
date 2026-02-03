@@ -392,3 +392,45 @@ fn test_if_parsing(){
 
     assert!(if_expr.alternative.is_none());
 }
+
+#[test]
+fn test_function_parameter_parsing(){
+    let testcases = [
+        ("fn(){};", Vec::new()),
+        ("fn(a){};", ["a"].to_vec()),
+        ("fn(a,b){};", ["a","b"].to_vec()),
+        ("fn(a, b, c){};", ["a","b","c"].to_vec())
+    ];
+
+    testcases.iter().for_each(|testcase|{
+        let input = testcase.0.to_string();
+        let expected_parameters: Vec<String> = testcase.1.iter().map(|str_ref| str_ref.to_string()).collect();
+
+        println!("{}", &input);
+        
+        let lexer = Lexer::new(input);
+        let parser = Parser::new(lexer);
+        let program = parser.into_a_program().unwrap();
+
+        assert_eq!(program.statements.len(), 1);
+
+        let expr_statement = match &program.statements[0]{
+            Statement::Expression(expr) => expr,
+            _ => panic!()
+        };
+
+        let func_expr = match &expr_statement.expression{
+            Expression::Function(func_expression) => func_expression,
+            _ => panic!()
+        };
+
+        assert_eq!(func_expr.parameters.len(), expected_parameters.len());
+        
+        func_expr.parameters
+            .iter()
+            .zip(expected_parameters.iter())
+            .for_each(|(func_parameter, expected_parameter)|{
+                assert_eq!(&func_parameter.token.literal, expected_parameter);
+            });
+    });
+}

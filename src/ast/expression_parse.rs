@@ -1,5 +1,5 @@
 
-use crate::{ast::{Parser, expression::{Expression, if_expression::IfExpression, infix::InfixExpression, integer_literal::IntegerLiteral, prefix_expression::PrefixExpression}, precedence::{OperationPrecedence, get_precedence_of_operator}, statement::block_statement::BlockStatement}, token::token_type::TokenType};
+use crate::{ast::{Parser, expression::{Expression, function_expression::{self, FunctionExpression}, if_expression::IfExpression, infix::InfixExpression, integer_literal::IntegerLiteral, prefix_expression::PrefixExpression}, precedence::{OperationPrecedence, get_precedence_of_operator}, statement::block_statement::BlockStatement}, token::token_type::TokenType};
 use crate::ast::expression::boolean::Boolean;
 use crate::ast::expression::identifier::Identifier;
 
@@ -12,6 +12,7 @@ impl Parser{
             TokenType::Integer => self.parse_integer_literal(),
             TokenType::LParen => self.parse_grouped_expression(),
             TokenType::KwIf => self.parse_if_expression(),
+            TokenType::KwFunction => self.parse_function_expression(),
             
             TokenType::Bang |
             TokenType::Minus  =>  self.parse_prefix_expression(),
@@ -182,6 +183,69 @@ impl Parser{
         }
 
         Ok(block)
+    }
+
+    fn parse_function_expression(&mut self) -> Result<Expression, String>{
+
+        let mut function_expr = FunctionExpression{
+            token: self.current_token.clone(),
+            ..Default::default()
+        };
+
+        if self.peek_token.token_type != TokenType::LParen{
+            return Err("unexpected token. Expected 'LParen'".into());
+        }
+        self.next_token();
+
+        function_expr.parameters = self.parse_function_parameters()?;
+        
+        if self.peek_token.token_type != TokenType::LBrace{
+            return Err("unexpected token. Expected 'LBrace'".into());
+        }
+        self.next_token();
+
+        function_expr.block = self.parse_block_statement()?;
+
+
+        Ok(Expression::Function(function_expr))
+    }
+
+    fn parse_function_parameters(&mut self) -> Result<Vec<Identifier>, String>{
+        let mut parameters = Vec::new();
+        
+        if self.peek_token.token_type == TokenType::RParen{
+            self.next_token();
+            return Ok(parameters);
+        }
+
+        self.next_token();
+
+        let identifier = Identifier{
+            token: self.current_token.clone(),
+            value: self.current_token.literal.clone()
+        };
+            
+        parameters.push(identifier);
+
+        while self.peek_token.token_type == TokenType::Comma{ 
+
+            self.next_token();
+            self.next_token();
+
+            let identifier = Identifier{
+                token: self.current_token.clone(),
+                value: self.current_token.literal.clone()
+            };
+            
+            parameters.push(identifier);
+        }
+
+        if self.peek_token.token_type != TokenType::RParen{
+            return Err("unexpected token. Got: 'RBrace'".into());
+        }
+        self.next_token();
+
+        Ok(parameters)
     }
 }
 

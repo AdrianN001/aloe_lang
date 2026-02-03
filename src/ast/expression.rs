@@ -5,7 +5,11 @@ pub mod prefix_expression;
 pub mod infix;
 pub mod boolean;
 pub mod if_expression;
+pub mod function_expression;
+pub mod call_expression;
 
+use call_expression::CallExpression;
+use function_expression::FunctionExpression;
 use if_expression::IfExpression;
 use boolean::Boolean;
 use identifier::{Identifier};
@@ -20,6 +24,8 @@ pub enum Expression {
     Prefix(PrefixExpression),
     Infix(InfixExpression),
     Bool(Boolean),
+    Function(FunctionExpression),
+    Call(CallExpression),
 
     If(IfExpression),
 

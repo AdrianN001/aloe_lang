@@ -37,6 +37,45 @@ let foobar = 838383;
 }
 
 #[test]
+fn test_let_statement(){
+    let testcases = [
+        ("let x = 5;", "x", 5),
+        ("let y = 20;", "y", 20)
+    ];
+
+    testcases.iter().for_each(|testcase|{
+        let input = testcase.0.to_string();
+        let expected_identifier_name = testcase.1.to_string();
+        let expected_variable_value  = testcase.2;
+
+        let lexer = Lexer::new(input);
+        let parser = Parser::new(lexer);
+        let program = parser.into_a_program().unwrap();
+
+        assert_eq!(program.statements.len(), 1);
+
+
+        let let_statement = match &program.statements[0]{
+            Statement::Let(expr) => expr, 
+            _ => panic!()
+        };
+
+
+        let variable_name = &let_statement.name.value;
+        
+        assert_eq!(variable_name, &expected_identifier_name);
+
+        let variable_value_expression = match &let_statement.value{
+            Expression::IntegerLiteral(integer_expression) => integer_expression,
+            _ => panic!()
+        };
+
+        assert_eq!(variable_value_expression.value, expected_variable_value);
+
+    });
+}
+
+#[test]
 fn test_basic_error_recognision(){
     let input = "
 let x = 5;
@@ -63,6 +102,41 @@ return add(10,12);
 
     assert_eq!(program.statements.len(), 3);
 }
+
+#[test]
+fn test_return_statement(){
+    let testcases = [
+        ("return 5;", 5),
+        ("return 20;", 20)
+    ];
+
+    testcases.iter().for_each(|testcase|{
+        let input = testcase.0.to_string();
+        let expected_variable_value  = testcase.1;
+
+        let lexer = Lexer::new(input);
+        let parser = Parser::new(lexer);
+        let program = parser.into_a_program().unwrap();
+
+        assert_eq!(program.statements.len(), 1);
+
+
+        let return_statement = match &program.statements[0]{
+            Statement::Return(expr) => expr, 
+            _ => panic!()
+        };
+
+
+        let variable_value_expression = match &return_statement.value{
+            Expression::IntegerLiteral(integer_expression) => integer_expression,
+            _ => panic!()
+        };
+
+        assert_eq!(variable_value_expression.value, expected_variable_value);
+
+    });
+}
+
 
 #[test]
 fn test_identiefier_expression_parsing(){
@@ -338,7 +412,10 @@ fn test_operator_precedence(){
         ("a+b+c;","((a + b) + c)"),
         ("a*b*c;", "((a * b) * c)"),
         ("a+b/c;", "(a + (b / c))"),
-        ("5>4 == 3<4;", "((5 > 4) == (3 < 4))")
+        ("5>4 == 3<4;", "((5 > 4) == (3 < 4))"),
+
+        ("a + add(b * c) + d;", "((a + add((b * c))) + d)"),
+        ("add(a, b, 1, 2 * 3, 4 + 5, add(6, 7 * 8))", "add(a, b, 1, (2 * 3), (4 + 5), add(6, (7 * 8)))")
     ];
 
     testcases.iter().for_each(|test_case|{
@@ -433,4 +510,9 @@ fn test_function_parameter_parsing(){
                 assert_eq!(&func_parameter.token.literal, expected_parameter);
             });
     });
+}
+
+#[test]
+fn pase_basic_call_expression_parsing(){
+    
 }

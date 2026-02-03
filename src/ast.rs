@@ -74,8 +74,7 @@ impl Parser{
     fn parse_let(&mut self) -> Result<Statement, String>{
         let mut statement = LetStatement{
             token: self.current_token.clone(),
-            name: Identifier::default(),
-            value: Expression::default()
+            ..Default::default()
         };
 
 
@@ -97,8 +96,11 @@ impl Parser{
             self.next_token();
         }
 
+        self.next_token();
+        statement.value = self.parse_expression(OperationPrecedence::Lowest)?;
 
-        while self.current_token.token_type != TokenType::Semicolon{
+
+        if self.peek_token.token_type == TokenType::Semicolon{
             self.next_token();
         }
 
@@ -108,16 +110,15 @@ impl Parser{
     fn parse_return(&mut self) -> Result<Statement, String>{
         let statement = ReturnStatement{
             token: self.current_token.clone(),
-            value: Expression::default()
+            value: {
+                self.next_token();
+                self.parse_expression(OperationPrecedence::Lowest)?
+            }
         };
 
-
-        self.next_token();
-
-        while self.current_token.token_type != TokenType::Semicolon{
+        if self.peek_token.token_type == TokenType::Semicolon{
             self.next_token();
         }
-
 
         Ok(Statement::Return(statement))
     }

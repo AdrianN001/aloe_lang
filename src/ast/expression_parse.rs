@@ -1,5 +1,5 @@
 
-use crate::{ast::{Parser, expression::{Expression, function_expression::{self, FunctionExpression}, if_expression::IfExpression, infix::InfixExpression, integer_literal::IntegerLiteral, prefix_expression::PrefixExpression}, precedence::{OperationPrecedence, get_precedence_of_operator}, statement::block_statement::BlockStatement}, token::token_type::TokenType};
+use crate::{ast::{Parser, expression::{Expression, call_expression::CallExpression, function_expression::{self, FunctionExpression}, if_expression::IfExpression, infix::InfixExpression, integer_literal::IntegerLiteral, prefix_expression::PrefixExpression}, precedence::{OperationPrecedence, get_precedence_of_operator}, statement::block_statement::BlockStatement}, token::token_type::TokenType};
 use crate::ast::expression::boolean::Boolean;
 use crate::ast::expression::identifier::Identifier;
 
@@ -26,12 +26,16 @@ impl Parser{
 
         while self.peek_token.token_type != TokenType::Semicolon && prec < get_precedence_of_operator(&self.peek_token){
             match self.peek_token.token_type{
-                TokenType::Plus | TokenType::Minus | TokenType::Slash |
-                    TokenType::Asterisk | TokenType::Eq | TokenType::NotEq | 
-                    TokenType::LT | TokenType::GT => {
+                    TokenType::Plus     | TokenType::Minus  | TokenType::Slash |
+                    TokenType::Asterisk | TokenType::Eq     | TokenType::NotEq | 
+                    TokenType::LT       | TokenType::GT  => {
                         self.next_token();
                         left_expression = self.parse_infix_expression(&left_expression)?;
-                    }
+                    },
+                    TokenType::LParen => {
+                        self.next_token();
+                        left_expression = self.parse_call_expression(&left_expression)?;
+                    },
                     _ => {
                         return Ok(left_expression);  
                     }
@@ -246,6 +250,47 @@ impl Parser{
         self.next_token();
 
         Ok(parameters)
+    }
+
+    fn parse_call_expression(&mut self, function: &Expression) -> Result<Expression, String>{
+        let expr = CallExpression{
+            token: self.current_token.clone(),
+            function: Box::new(function.clone()),
+            arguments: self.parse_call_arguments()?
+        };
+
+        Ok(Expression::Call(expr))
+    }
+
+    fn parse_call_arguments(&mut self) -> Result<Vec<Expression>, String>{
+        let mut args = Vec::new();
+
+        if self.peek_token.token_type == TokenType::RParen{
+            self.next_token();
+            return Ok(args);
+        }
+
+        self.next_token();
+
+        args.push(
+            self.parse_expression(OperationPrecedence::Lowest)?
+        );
+
+        while self.peek_token.token_type == TokenType::Comma{
+            self.next_token();
+            self.next_token();
+
+            args.push(
+                self.parse_expression(OperationPrecedence::Lowest)?
+            );
+        }
+
+        if self.peek_token.token_type != TokenType::RParen{
+            return Err("unexpected token. Got: 'RParen'".into());
+        }
+        self.next_token();
+        
+        Ok(args)
     }
 }
 

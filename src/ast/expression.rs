@@ -47,6 +47,7 @@ impl Expression {
         match self{ 
             Expression::Prefix(s) => s.to_string(),
             Expression::Infix(s) => s.to_string(),
+            Expression::Call(s) => s.to_string(),
             other => other.token_literal().to_string()
         }
     }

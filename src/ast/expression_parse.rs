@@ -63,9 +63,10 @@ impl Parser{
         self.next_token();
 
         let expression = self.parse_expression(OperationPrecedence::Lowest);
-        if self.peek_token.token_type == TokenType::RParen{
-            return Err("expected 'expression', got 'RParen'".to_string())
+        if self.peek_token.token_type != TokenType::RParen{
+            return Err("unexpected Token. expected 'RParen'".to_string())
         }
+        self.next_token();
 
         expression
     }

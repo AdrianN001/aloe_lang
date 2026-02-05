@@ -1,4 +1,5 @@
 
+#[derive(PartialEq, Eq, PartialOrd, Ord, Debug)]
 pub struct Null{}
 
 impl Null{

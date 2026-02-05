@@ -1,5 +1,5 @@
 
-
+#[derive(Eq, PartialEq, PartialOrd, Ord, Debug)]
 pub struct Boolean{
     pub value: bool
 }
@@ -13,3 +13,5 @@ impl Boolean{
         self.value.to_string()
     }
 }
+
+

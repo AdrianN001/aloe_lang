@@ -3,6 +3,7 @@ pub mod integer;
 pub mod boolean;
 pub mod null;
 pub mod return_value;
+pub mod function;
 pub mod truthy;
 pub mod stack_environment;
 
@@ -10,11 +11,14 @@ use return_value::ReturnValue;
 use null::Null;
 use boolean::Boolean;
 use integer::Integer;
+use function::Function;
 
-#[derive(Debug, PartialEq, Eq, Clone)]
+#[derive(PartialEq, Eq, Clone)]
 pub enum Object{
     Int(Integer),
     Bool(Boolean),
+
+    Func(Function),
     ReturnVal(ReturnValue),
 
     Null(Null)
@@ -45,6 +49,7 @@ impl Object{
             Object::Int(obj) => obj.get_type(),
             Object::Bool(obj) => obj.get_type(),
             Object::Null(obj) => obj.get_type(),
+            Object::Func(obj) => obj.get_type(),
             Object::ReturnVal(obj) => obj.get_type(),
         }
     }
@@ -54,6 +59,7 @@ impl Object{
             Object::Int(obj) => obj.inspect(),
             Object::Bool(obj) => obj.inspect(),
             Object::Null(obj) => obj.inspect(),
+            Object::Func(function) => function.inspect(),
             Object::ReturnVal(obj) => obj.inspect(),
         }
     }

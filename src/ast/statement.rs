@@ -10,7 +10,7 @@ use let_statement::LetStatement;
 use return_statement::ReturnStatement;
 use expression_statement::ExpressionStatement;
 
-#[derive(Clone)]
+#[derive(Clone, PartialEq, Eq)]
 pub enum Statement {
     Let(LetStatement),
     Return(ReturnStatement),

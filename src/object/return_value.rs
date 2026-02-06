@@ -2,7 +2,7 @@ use crate::object::Object;
 
 
 
-#[derive(PartialEq, Eq, Clone, Debug)]
+#[derive(PartialEq, Eq, Clone)]
 pub struct ReturnValue{
     pub value: Box<Object>
 }

@@ -17,7 +17,7 @@ use integer_literal::IntegerLiteral;
 use prefix_expression::PrefixExpression;
 use infix::InfixExpression;
 
-#[derive(Default, Clone)]
+#[derive(Default, Clone, PartialEq, Eq)]
 pub enum Expression {
     Identifier(Identifier),
     IntegerLiteral(IntegerLiteral),

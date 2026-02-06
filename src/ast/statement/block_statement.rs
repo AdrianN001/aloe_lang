@@ -1,7 +1,7 @@
 use crate::{ast::statement::Statement, token::Token};
 
 
-#[derive(Default, Clone)]
+#[derive(Default, Clone, PartialEq, Eq)]
 pub struct BlockStatement{
     pub token: Token,
     pub statements: Vec<Statement>,

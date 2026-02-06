@@ -6,6 +6,7 @@ mod identifier;
 mod block_statement;
 
 use crate::ast::program::Program;
+use crate::object::function::Function;
 use crate::object::integer::Integer;
 use crate::object::null::Null;
 use crate::object::return_value::ReturnValue;
@@ -20,7 +21,6 @@ use super::ast::statement::Statement;
 
 impl Expression{
     pub fn evaluate(&self, environ: &mut StackEnvironment) -> Result<Object, String>{
-
         
         match self{
             Expression::IntegerLiteral(literal) => Ok(Object::Int(Integer{
@@ -32,6 +32,9 @@ impl Expression{
                 let right_side = prefix_expr.right.evaluate(environ)?;
                 right_side.evaluate_prefix(&prefix_expr.operator)
             },
+            Expression::Function(func_expr) => {
+                Ok(Object::Func(Function::from_function_expression(func_expr)))
+            }
             Expression::If(if_expression) => if_expression.evaluate(environ),
             Expression::Infix(infix_expr) =>{
                 let right_side = infix_expr.right.evaluate(environ)?;
@@ -54,7 +57,7 @@ impl Statement{
             Statement::Let(let_stmt) => {
                 let value = let_stmt.value.evaluate(environ)?;
                 environ.set(&let_stmt.name.value, value);
-                return Ok(Object::Null(Null {  }));
+                Ok(Object::Null(Null {  }))
             },
             Statement::Return(return_stmt) => {
                 let val = return_stmt.value.evaluate(environ)?;

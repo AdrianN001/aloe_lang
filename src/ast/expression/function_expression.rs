@@ -2,7 +2,7 @@ use crate::{ast::{expression::identifier::Identifier, statement::block_statement
 
 
 
-#[derive(Clone, Default)]
+#[derive(Clone, Default, PartialEq, Eq)]
 pub struct FunctionExpression{
     pub token: Token,
     pub parameters: Vec<Identifier>,

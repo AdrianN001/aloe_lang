@@ -159,6 +159,7 @@ impl Parser{
             if self.peek_token.token_type != TokenType::LBrace{
                 return Err("unexpected token: Expected 'LBrace'".to_string());
             }
+            self.next_token();
 
             expr.alternative = match self.parse_block_statement(){
                 Ok(block_statement) => Some(block_statement),

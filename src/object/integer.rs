@@ -1,6 +1,6 @@
 
 
-#[derive(PartialEq, Eq, Debug)]
+#[derive(PartialEq, Eq,Clone, Debug)]
 pub struct Integer{
     pub value: i64
 }

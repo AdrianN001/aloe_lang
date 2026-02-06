@@ -1,8 +1,15 @@
 
 mod prefix_expr;
 mod infix_expr;
+mod if_expression;
+mod identifier;
+mod block_statement;
 
+use crate::ast::program::Program;
 use crate::object::integer::Integer;
+use crate::object::null::Null;
+use crate::object::return_value::ReturnValue;
+use crate::object::stack_environment::StackEnvironment;
 
 use super::object::Object;
 
@@ -12,28 +19,27 @@ use super::ast::statement::Statement;
 
 
 impl Expression{
-    pub fn evaluate(&self) -> Result<Object, String>{
+    pub fn evaluate(&self, environ: &mut StackEnvironment) -> Result<Object, String>{
+
         
         match self{
             Expression::IntegerLiteral(literal) => Ok(Object::Int(Integer{
                 value: literal.value
             })),
-            Expression::Bool(bool_literal) => Ok(if bool_literal.value { 
-                Object::TRUE_BOOL_OBJECT 
-            } else{ 
-                Object::FALSE_BOOL_OBJECT 
-            }),
+            Expression::Identifier(identifier) => identifier.evaluate(environ), 
+            Expression::Bool(bool_literal) => Ok(Object::get_native_boolean_object(bool_literal.value)),
             Expression::Prefix(prefix_expr) => {
-                let right_side = prefix_expr.right.evaluate()?;
+                let right_side = prefix_expr.right.evaluate(environ)?;
                 right_side.evaluate_prefix(&prefix_expr.operator)
             },
+            Expression::If(if_expression) => if_expression.evaluate(environ),
             Expression::Infix(infix_expr) =>{
-                let right_side = infix_expr.right.evaluate()?;
-                let left_side =  infix_expr.left.evaluate()?;
+                let right_side = infix_expr.right.evaluate(environ)?;
+                let left_side =  infix_expr.left.evaluate(environ)?;
 
                 left_side.evaluate_infix_expression(&right_side, &infix_expr.operator)
-            }
-            _ => panic!()
+            },
+            _ => panic!("unexpected expression type")
         }
     }
 }
@@ -41,10 +47,40 @@ impl Expression{
 
 impl Statement{
 
-    pub fn evaluate(&self) -> Result<Object, String>{
+    pub fn evaluate(&self, environ: &mut StackEnvironment) -> Result<Object, String>{
         match self{
-            Statement::Expression(expr) => expr.expression.evaluate(),
-            _ => panic!()
+            Statement::Expression(expr) => expr.expression.evaluate(environ),
+            Statement::Block(block_stmt) => block_stmt.evaluate(environ),
+            Statement::Let(let_stmt) => {
+                let value = let_stmt.value.evaluate(environ)?;
+                environ.set(&let_stmt.name.value, value);
+                return Ok(Object::Null(Null {  }));
+            },
+            Statement::Return(return_stmt) => {
+                let val = return_stmt.value.evaluate(environ)?;
+                
+                Ok(Object::ReturnVal(ReturnValue{
+                    value: Box::new(val)
+                }))
+            }
         }
+    }
+}
+
+impl Program{
+
+    pub fn evaluate(&self) -> Result<Object, String>{
+        let mut result = Object::Null(Null{});
+        let mut environ = StackEnvironment::new();
+
+        for stmt in self.statements.iter(){
+            result = stmt.evaluate(&mut environ)?;
+
+            if let Object::ReturnVal(ret_val) = result{
+                return Ok(*ret_val.value);
+            }
+        }
+
+        Ok(result)
     }
 }

@@ -15,4 +15,8 @@ impl ReturnValue{
     pub fn inspect(&self) -> String{
         self.value.inspect()
     }
+
+    pub fn unwrap_to_value(&self) -> Object{
+        *self.value.clone()
+    }
 }

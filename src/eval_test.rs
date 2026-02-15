@@ -256,3 +256,85 @@ fn test_variable_evaluate(){
     });
 
 }
+
+#[test]
+fn test_function_evaluation(){
+    let testcases = [
+        ("fn(x){x+2;}", ["x"].to_vec(), "(x + 2)"),
+        ("fn(){3-4;}", Vec::new(), "(3 - 4)"),
+        ("fn(y,z){y*z;}", ["y","z"].to_vec(), "(y * z)")
+    ];
+
+    testcases.iter().for_each(|test_case|{
+        let input = test_case.0.to_string();
+        let expected_parameters = &test_case.1;
+        let expected_body = test_case.2.to_string();
+
+        let lexer = Lexer::new(input);
+        let parser = Parser::new(lexer);
+        let program = parser.into_a_program().unwrap();
+
+        let last_object = program.evaluate().unwrap();
+
+        let function_object = match last_object{
+            Object::Func(func) => func,
+            _ => panic!("")
+        };
+
+        assert_eq!(function_object.body.to_string(), expected_body);
+
+        assert_eq!(function_object.parameters.len(), expected_parameters.len());
+        
+        function_object.parameters
+            .iter()
+            .enumerate()
+            .for_each(|(index, identifier)|{
+                assert_eq!(identifier.value, expected_parameters[index]);
+            })
+    })
+}
+
+#[test]
+fn test_calling_expression(){
+    let testcases = [
+        ("let double = fn(x){2*x;}; double(16);", 32),
+        ("let square = fn(y){y*y;}; square(5);", 25),
+        ("let two = fn(){2;};two();", 2),
+
+        //bools 
+        ("fn(x){x == 2;}(2);", 1),
+        ("fn(y){y == 2;}(1);", 0),
+
+        // closure
+        ("let newAdder = fn(base){ 
+            return fn(x){ 
+                base + x; 
+            }; 
+        }; 
+        let addTwo = newAdder(2);
+        addTwo(5);", 7)
+    ];
+
+    testcases
+        .iter()
+        .for_each(|test_case|{
+            let input = test_case.0.into();
+            let expected_value = test_case.1;
+
+            let lexer = Lexer::new(input);
+            let parser = Parser::new(lexer);
+            let program = parser.into_a_program().unwrap();
+
+            let last_object = match program.evaluate(){
+                Ok(x) => x, 
+                Err(err) => panic!("{}",err)
+            };
+
+            match last_object{
+                Object::Int(integer_value) => assert_eq!(integer_value.value, expected_value),
+                Object::Bool(bool_value) => assert_eq!(bool_value.value, expected_value == 1),
+                _ => panic!()
+            };
+        });
+}
+

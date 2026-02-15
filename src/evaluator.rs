@@ -3,6 +3,7 @@ mod prefix_expr;
 mod infix_expr;
 mod if_expression;
 mod identifier;
+mod call_expr;
 mod block_statement;
 
 use crate::ast::program::Program;
@@ -33,8 +34,18 @@ impl Expression{
                 right_side.evaluate_prefix(&prefix_expr.operator)
             },
             Expression::Function(func_expr) => {
-                Ok(Object::Func(Function::from_function_expression(func_expr)))
-            }
+                Ok(Object::Func(Function::from_function_expression(func_expr, environ)))
+            },
+            Expression::Call(call_expr) => {
+                let function_object = call_expr.function.evaluate(environ)?;
+                
+                let args = call_expr.evaluate_arguments(environ)?;
+
+                match function_object{
+                    Object::Func(function) => function.apply(&args),
+                    _ => Err("not a function".into())
+                }
+            },
             Expression::If(if_expression) => if_expression.evaluate(environ),
             Expression::Infix(infix_expr) =>{
                 let right_side = infix_expr.right.evaluate(environ)?;

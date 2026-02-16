@@ -1,4 +1,4 @@
-use crate::object::{Object, boolean::Boolean, integer::Integer};
+use crate::object::{Object, boolean::Boolean, integer::Integer, string_obj::StringObj};
 
 
 
@@ -11,8 +11,13 @@ impl Object{
             (Object::Int(left_int), Object::Int(right_int)) => {
                 Self::eval_int_int_infix_expression(left_int, right_int, operator)
             }
+
             (Object::Bool(left_bool), Object::Bool(right_bool)) => {
                 Self::eval_bool_bool_infix_expression(left_bool, right_bool, operator)
+            }
+            
+            (Object::String(left_str), Object::String(right_str)) => {
+                Self::eval_str_str_infix_expression(left_str, right_str, operator)
             }
             _ => Err("unexpected operand types".into())
         }
@@ -38,6 +43,18 @@ impl Object{
 
     fn eval_bool_bool_infix_expression(left: &Boolean, right: &Boolean, operator: &str) -> Result<Object, String>{
         match operator{
+            "==" => Ok(Object::get_native_boolean_object(left.value == right.value)),
+            "!=" => Ok(Object::get_native_boolean_object(left.value != right.value)),
+
+            _ => Err("unexpected operator".into())
+        }
+    }
+
+    fn eval_str_str_infix_expression(left: &StringObj, right: &StringObj, operator: &str) -> Result<Object, String>{
+
+        match operator{
+            "+" => Ok(Object::String(StringObj { value: left.value.clone() + &right.value })),
+
             "==" => Ok(Object::get_native_boolean_object(left.value == right.value)),
             "!=" => Ok(Object::get_native_boolean_object(left.value != right.value)),
 

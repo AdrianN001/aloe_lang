@@ -338,3 +338,35 @@ fn test_calling_expression(){
         });
 }
 
+#[test]
+fn test_basic_string_evaluation(){
+    let testcases = [
+        (r#"let hi = "hello, world"; hi;"#, "hello, world"),
+        (r#"fn(){"random_string";}();"#, "random_string"),
+        (r#"fn(){"";}();"#, ""),
+
+    ];
+
+
+    testcases
+        .iter()
+        .for_each(|test_case|{
+            let input = test_case.0.into();
+            let expected_value = test_case.1.to_string();
+
+            let lexer = Lexer::new(input);
+            let parser = Parser::new(lexer);
+            let program = parser.into_a_program().unwrap();
+
+            let last_object = match program.evaluate(){
+                Ok(x) => x, 
+                Err(err) => panic!("{}",err)
+            };
+
+            match last_object{
+                Object::String(string_value) => assert_eq!(string_value.value, expected_value),
+                _ => panic!()
+            };
+        });
+
+}

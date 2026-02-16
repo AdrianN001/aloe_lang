@@ -7,7 +7,9 @@ pub mod boolean;
 pub mod if_expression;
 pub mod function_expression;
 pub mod call_expression;
+pub mod string_expr;
 
+use string_expr::StringExpr;
 use call_expression::CallExpression;
 use function_expression::FunctionExpression;
 use if_expression::IfExpression;
@@ -26,6 +28,7 @@ pub enum Expression {
     Bool(Boolean),
     Function(FunctionExpression),
     Call(CallExpression),
+    String(StringExpr),
 
     If(IfExpression),
 
@@ -39,6 +42,7 @@ impl Expression {
             Expression::Bool(i) => &i.token.literal,
             Expression::Identifier(i) => &i.token.literal,
             Expression::IntegerLiteral(i) => &i.token.literal,
+            Expression::String(str_expr) => &str_expr.value,
             _ => ""
         }
     }

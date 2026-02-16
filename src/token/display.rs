@@ -11,6 +11,7 @@ impl fmt::Display for TokenType {
 
             TokenType::Identifier  => "IDENT",
             TokenType::Integer     => "INT",
+            TokenType::String      => "STRING",
 
             TokenType::Assign      => "=",
             TokenType::Plus        => "+",

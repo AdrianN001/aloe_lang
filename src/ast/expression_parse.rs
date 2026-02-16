@@ -1,5 +1,5 @@
 
-use crate::{ast::{Parser, expression::{Expression, call_expression::CallExpression, function_expression::{self, FunctionExpression}, if_expression::IfExpression, infix::InfixExpression, integer_literal::IntegerLiteral, prefix_expression::PrefixExpression}, precedence::{OperationPrecedence, get_precedence_of_operator}, statement::block_statement::BlockStatement}, token::token_type::TokenType};
+use crate::{ast::{Parser, expression::{Expression, call_expression::CallExpression, function_expression::{self, FunctionExpression}, if_expression::IfExpression, infix::InfixExpression, integer_literal::IntegerLiteral, prefix_expression::PrefixExpression, string_expr::StringExpr}, precedence::{OperationPrecedence, get_precedence_of_operator}, statement::block_statement::BlockStatement}, token::token_type::TokenType};
 use crate::ast::expression::boolean::Boolean;
 use crate::ast::expression::identifier::Identifier;
 
@@ -14,6 +14,8 @@ impl Parser{
             TokenType::KwIf => self.parse_if_expression(),
             TokenType::KwFunction => self.parse_function_expression(),
             
+            TokenType::String => Ok(self.parse_string_literal()),
+
             TokenType::Bang |
             TokenType::Minus  =>  self.parse_prefix_expression(),
 
@@ -81,6 +83,13 @@ impl Parser{
             Err(_) => Err(format!("could convert int literal \"{}\" to int", &self.current_token.literal))
         } 
     } 
+
+    fn parse_string_literal(&self) -> Expression{
+        Expression::String(StringExpr{
+            token: self.current_token.clone(),
+            value: self.current_token.literal.clone()
+        })
+    }
 
     fn parse_prefix_expression(&mut self) -> Result<Expression, String>{
         let mut expression = PrefixExpression{

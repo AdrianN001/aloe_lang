@@ -95,6 +95,25 @@ impl Lexer{
         self.input[start_pos..self.position].iter().copied().collect()
     }
 
+    fn read_string(&mut self) -> String{
+        self.advance();
+        self.read_char();
+
+        let start_pos = self.position;
+
+        while let Some(current_char) = self.read_char(){
+            
+            if current_char == '"' || current_char == '\0'{
+                break;
+            }
+
+            self.advance();
+        }
+
+
+        self.input[start_pos..self.position].iter().copied().collect()
+    }
+
 
 
     pub fn next_token(&mut self) -> Token{
@@ -130,6 +149,11 @@ impl Lexer{
             },
             '{' => Token::simple(TokenType::LBrace, "{"),
             '}' => Token::simple(TokenType::RBrace, "}"),
+            '"' => {
+                let string_content = self.read_string();
+
+                Token::simple(TokenType::String, &string_content)
+            }
 
             '\0' => Token::simple(TokenType::Eof, ""),
 

@@ -6,7 +6,9 @@ pub mod return_value;
 pub mod function;
 pub mod truthy;
 pub mod stack_environment;
+pub mod string_obj;
 
+use string_obj::StringObj;
 use return_value::ReturnValue;
 use null::Null;
 use boolean::Boolean;
@@ -17,6 +19,7 @@ use function::Function;
 pub enum Object{
     Int(Integer),
     Bool(Boolean),
+    String(StringObj),
 
     Func(Function),
     ReturnVal(ReturnValue),
@@ -51,6 +54,7 @@ impl Object{
             Object::Null(obj) => obj.get_type(),
             Object::Func(obj) => obj.get_type(),
             Object::ReturnVal(obj) => obj.get_type(),
+            Object::String(obj) => obj.get_type(),
         }
     }
 
@@ -61,6 +65,7 @@ impl Object{
             Object::Null(obj) => obj.inspect(),
             Object::Func(function) => function.inspect(),
             Object::ReturnVal(obj) => obj.inspect(),
+            Object::String(obj) => obj.inspect(),
         }
     }
 }

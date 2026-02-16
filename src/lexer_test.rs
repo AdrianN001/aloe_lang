@@ -24,12 +24,15 @@ fn test_basic_lexer() {
 
 #[test]
 fn test_basic_keywords_and_whitespaces_in_lexer(){
-    let input = "let five = 5;
+    let input = r#"let five = 5;
 let ten = 10;
 let add = fn(x, y) {
 x + y;
 };
-let result = add(five, ten);";
+let result = add(five, ten);
+"foo bar"
+"valami06"
+"#;
     let mut lexer = Lexer::new(input.to_string());
 
     let expected_tokens = [
@@ -74,6 +77,9 @@ let result = add(five, ten);";
         Token::simple(TokenType::Identifier, "ten"),
         Token::simple(TokenType::RParen, ")"),
         Token::simple(TokenType::Semicolon, ";"),
+
+        Token::simple(TokenType::String, "foo bar"),
+        Token::simple(TokenType::String, "valami06"),
 
         Token::simple(TokenType::Eof, ""),
     ];

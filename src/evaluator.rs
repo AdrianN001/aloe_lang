@@ -12,6 +12,7 @@ use crate::object::integer::Integer;
 use crate::object::null::Null;
 use crate::object::return_value::ReturnValue;
 use crate::object::stack_environment::StackEnvironment;
+use crate::object::string_obj::StringObj;
 
 use super::object::Object;
 
@@ -33,6 +34,9 @@ impl Expression{
                 let right_side = prefix_expr.right.evaluate(environ)?;
                 right_side.evaluate_prefix(&prefix_expr.operator)
             },
+            Expression::String(str_exr) => Ok(Object::String(StringObj{
+                value: str_exr.value.clone() 
+            })),
             Expression::Function(func_expr) => {
                 Ok(Object::Func(Function::from_function_expression(func_expr, environ)))
             },

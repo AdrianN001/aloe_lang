@@ -1,8 +1,15 @@
 use crate::ast::expression::Expression;
+use crate::ast::expression::boolean::Boolean;
+use crate::ast::expression::integer_literal::IntegerLiteral;
+use crate::ast::expression::string_expr::StringExpr;
 use crate::ast::{Parser, program};
 use crate::ast::statement::Statement;
 use crate::ast::statement::let_statement::LetStatement;
 use crate::lexer::Lexer;
+use crate::object::Object;
+use crate::object::integer::Integer;
+use crate::token::{self, Token};
+use crate::token::token_type::TokenType;
 
 #[test]
 fn test_basic_let_statement_parse(){
@@ -513,6 +520,97 @@ fn test_function_parameter_parsing(){
 }
 
 #[test]
-fn pase_basic_call_expression_parsing(){
-    
+fn test_array_liter_parsing(){
+    let testcases = [
+        ("[1, 2];", [
+         Expression::IntegerLiteral(IntegerLiteral{token: Token::simple(TokenType::Integer, "1"), value: 1}),
+         Expression::IntegerLiteral(IntegerLiteral{token: Token::simple(TokenType::Integer, "2"), value: 2}),
+        ].to_vec()),
+        (r#"[true, "hello, world", 1];"#, [
+         Expression::Bool(Boolean{token: Token::simple(TokenType::KwTrue, "true"), value: true}),
+         Expression::String(StringExpr{token: Token::simple(TokenType::String, "hello, world"), value: "hello, world".into()}),
+         Expression::IntegerLiteral(IntegerLiteral{token: Token::simple(TokenType::Integer, "1"), value: 1}),
+        ].to_vec()),
+        ("[]", Vec::new()),
+    ];
+
+    testcases
+        .iter()
+        .for_each(|test_case|{
+            let input = test_case.0.into();
+            let expected_expressions = &test_case.1;
+
+            let lexer = Lexer::new(input);
+            let parser = Parser::new(lexer);
+            let program = parser.into_a_program().unwrap();
+
+            assert_eq!(program.statements.len(), 1);
+
+            let expr_statement = match &program.statements[0]{
+                Statement::Expression(expr) => expr,
+                _ => panic!()
+            };
+
+            let array_expr = match &expr_statement.expression{
+                Expression::Array(arr) => arr,
+                _ => panic!()
+            };
+
+            assert_eq!(array_expr.elements.len(), expected_expressions.len());
+
+            array_expr.elements
+                .iter()
+                .zip(expected_expressions)
+                .for_each(|(expression, expected_expr)|{
+                    assert_eq!(expression.to_string(), expected_expr.to_string());
+                });
+
+        });
+}
+
+#[test]
+fn test_index_parsing(){
+    let input = "myArray[1+1];";
+
+    let lexer = Lexer::new(input.into());
+    let parser = Parser::new(lexer);
+    let program = parser.into_a_program().unwrap();
+
+    assert_eq!(program.statements.len(), 1);
+
+    let expr_statement = match &program.statements[0]{
+        Statement::Expression(expr) => expr,
+        _ => panic!()
+    };
+
+
+    let index_expr = match &expr_statement.expression{
+        Expression::Index(indx) => indx,
+        _ => panic!()
+    };
+
+
+    match &*index_expr.left{
+        Expression::Identifier(identifier) => {
+            assert_eq!(identifier.value, "myArray");
+        },
+        _ => panic!()
+    }
+
+    match &*index_expr.right{
+        Expression::Infix(infix_expr) => {
+            match &*infix_expr.right{
+                Expression::IntegerLiteral(left_integer) => assert_eq!(left_integer.value, 1),
+                _ => panic!()
+            };
+
+            match &*infix_expr.left{
+                Expression::IntegerLiteral(right_integer) => assert_eq!(right_integer.value, 1),
+                _ => panic!()
+            };
+            assert_eq!(infix_expr.operator, "+");
+        },
+        _ => panic!()
+    }
+
 }

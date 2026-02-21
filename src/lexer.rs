@@ -132,6 +132,8 @@ impl Lexer{
             ';' => Token::simple(TokenType::Semicolon, ";"),
             '(' => Token::simple(TokenType::LParen, "("),
             ')' => Token::simple(TokenType::RParen, ")"),
+            '[' => Token::simple(TokenType::LBraket, "["),
+            ']' => Token::simple(TokenType::RBraket, "]"),
             ',' => Token::simple(TokenType::Comma, ","),
             '+' => Token::simple(TokenType::Plus, "+"),
             '-' => Token::simple(TokenType::Minus, "-"),

@@ -32,6 +32,9 @@ impl fmt::Display for TokenType {
             TokenType::RParen      => ")",
             TokenType::LBrace      => "{",
             TokenType::RBrace      => "}",
+            TokenType::LBraket     => "[",
+            TokenType::RBraket     => "]",
+
 
             TokenType::KwFunction  => "fn",
             TokenType::KwLet       => "let",

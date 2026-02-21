@@ -370,3 +370,102 @@ fn test_basic_string_evaluation(){
         });
 
 }
+
+
+#[test]
+fn eval_string_concat(){
+    let testcases = [
+        (r#" "hello"+"world";  "#, "helloworld"),
+        (r#" "hello"+" " + "world";  "#, "hello world")
+    ];
+
+
+    testcases
+        .iter()
+        .for_each(|testcase|{
+            let input = testcase.0.into();
+            let expected_value = testcase.1.to_string();
+
+            let lexer = Lexer::new(input);
+            let parser = Parser::new(lexer);
+            let program = parser.into_a_program().unwrap();
+
+            let last_object = match program.evaluate(){
+                Ok(x) => x, 
+                Err(err) => panic!("{}",err)
+            };
+
+            match last_object{
+                Object::String(string_value) => assert_eq!(string_value.value, expected_value),
+                _ => panic!()
+            };
+
+        })
+}
+
+
+#[test]
+fn eval_len_for_strings(){
+    let testcases = [
+        (r#" len("hi") "#, 2),
+        (r#" len("hello, world");  "#, 12),
+        (r#" len("");"#, 0)
+    ];
+
+
+    testcases
+        .iter()
+        .for_each(|testcase|{
+            let input = testcase.0.into();
+            let expected_value = testcase.1;
+
+            let lexer = Lexer::new(input);
+            let parser = Parser::new(lexer);
+            let program = parser.into_a_program().unwrap();
+
+            let last_object = match program.evaluate(){
+                Ok(x) => x, 
+                Err(err) => panic!("{}",err)
+            };
+
+            match last_object{
+                Object::Int(integer) => assert_eq!(integer.value, expected_value as i64),
+                _ => panic!()
+            };
+
+        })
+}
+
+
+
+#[test]
+fn eval_len_for_arrays(){
+    let testcases = [
+        (r#" len([]) "#, 0),
+        (r#" len([1]);  "#, 1),
+        (r#" len([1,"a", true]);"#, 3)
+    ];
+
+
+    testcases
+        .iter()
+        .for_each(|testcase|{
+            let input = testcase.0.into();
+            let expected_value = testcase.1;
+
+            let lexer = Lexer::new(input);
+            let parser = Parser::new(lexer);
+            let program = parser.into_a_program().unwrap();
+
+            let last_object = match program.evaluate(){
+                Ok(x) => x, 
+                Err(err) => panic!("{}",err)
+            };
+
+            match last_object{
+                Object::Int(integer) => assert_eq!(integer.value, expected_value as i64),
+                _ => panic!()
+            };
+
+        })
+}

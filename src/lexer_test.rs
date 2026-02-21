@@ -2,7 +2,7 @@ use crate::{lexer::Lexer, token::Token, token::token_type::TokenType};
 
 #[test]
 fn test_basic_lexer() {
-    let input = "=+(){};";
+    let input = "=+(){}[];";
     let mut lexer = Lexer::new(input.to_string());
 
     let expected_tokens = [
@@ -11,7 +11,9 @@ fn test_basic_lexer() {
         Token::simple(TokenType::LParen, "("),
         Token::simple(TokenType::RParen, ")"),
         Token::simple(TokenType::LBrace, "{"),
-        Token::simple(TokenType::RBrace, "}")
+        Token::simple(TokenType::RBrace, "}"),
+        Token::simple(TokenType::LBraket,"["),
+        Token::simple(TokenType::RBraket,"]")
     ];
 
     expected_tokens.iter().for_each(|expected_token|{
@@ -32,6 +34,7 @@ x + y;
 let result = add(five, ten);
 "foo bar"
 "valami06"
+[1,"asd"]
 "#;
     let mut lexer = Lexer::new(input.to_string());
 
@@ -80,6 +83,12 @@ let result = add(five, ten);
 
         Token::simple(TokenType::String, "foo bar"),
         Token::simple(TokenType::String, "valami06"),
+
+        Token::simple(TokenType::LBraket, "["),
+        Token::simple(TokenType::Integer, "1"),
+        Token::simple(TokenType::Comma, ","),
+        Token::simple(TokenType::String, "asd"),
+        Token::simple(TokenType::RBraket, "]"),
 
         Token::simple(TokenType::Eof, ""),
     ];

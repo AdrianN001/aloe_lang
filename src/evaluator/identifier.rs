@@ -1,13 +1,26 @@
-use crate::{ast::expression::identifier::Identifier, object::{Object, stack_environment::StackEnvironment}};
+use crate::{ast::expression::identifier::Identifier, object::{Object, built_in::BuiltIn, stack_environment::StackEnvironment}};
 
 
 
 impl Identifier{
 
+    fn get_builtin_from_identifier(&self) -> Option<BuiltIn>{
+        match self.value.as_str(){
+            "len" => Some(BuiltIn::Len),
+            _ => None
+        }
+    }
+
     pub fn evaluate(&self, environ: &StackEnvironment) -> Result<Object, String>{
         match environ.get_owned(&self.value){
             Some(obj) => Ok(obj),
-            None => Err(format!("unknown identifier: {}", &self.value))
+            None => {
+                if let Some(built_in) = self.get_builtin_from_identifier(){
+                    return Ok(Object::BuiltIn(built_in));
+                }
+
+                Err(format!("unknown identifier: {}", &self.value))
+            }
         }
     } 
 }

@@ -8,7 +8,11 @@ pub mod if_expression;
 pub mod function_expression;
 pub mod call_expression;
 pub mod string_expr;
+pub mod array_literal;
+pub mod index_expression;
 
+use index_expression::IndexExpression;
+use array_literal::ArrayLiteral;
 use string_expr::StringExpr;
 use call_expression::CallExpression;
 use function_expression::FunctionExpression;
@@ -29,6 +33,8 @@ pub enum Expression {
     Function(FunctionExpression),
     Call(CallExpression),
     String(StringExpr),
+    Array(ArrayLiteral),
+    Index(IndexExpression),
 
     If(IfExpression),
 
@@ -52,6 +58,8 @@ impl Expression {
             Expression::Prefix(s) => s.to_string(),
             Expression::Infix(s) => s.to_string(),
             Expression::Call(s) => s.to_string(),
+            Expression::Array(s) => s.to_string(),
+            Expression::Index(s) => s.to_string(),
             other => other.token_literal().to_string()
         }
     }

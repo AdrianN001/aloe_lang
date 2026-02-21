@@ -12,6 +12,7 @@ pub enum OperationPrecedence{
     Mul,            // *, / 
     Prefix,         // -x, !x 
     Call,           // add(x,y)
+    Index,          // array[index]
 }
 
 pub fn get_precedence_of_operator(token: &Token) -> OperationPrecedence{
@@ -29,6 +30,8 @@ pub fn get_precedence_of_operator(token: &Token) -> OperationPrecedence{
         TokenType::Asterisk =>  OperationPrecedence::Mul,
 
         TokenType::LParen =>    OperationPrecedence::Call,
+
+        TokenType::LBraket =>   OperationPrecedence::Index,
 
         _ => OperationPrecedence::Lowest
     }

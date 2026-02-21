@@ -7,6 +7,7 @@ mod call_expr;
 mod block_statement;
 
 use crate::ast::program::Program;
+use crate::object::array::Array;
 use crate::object::function::Function;
 use crate::object::integer::Integer;
 use crate::object::null::Null;
@@ -47,8 +48,22 @@ impl Expression{
 
                 match function_object{
                     Object::Func(function) => function.apply(&args),
+                    Object::BuiltIn(built_in_function) => Ok(built_in_function.call(&args)),
                     _ => Err("not a function".into())
                 }
+            },
+            Expression::Array(array) => {
+                let mut objects = Vec::new();
+
+                for element in &array.elements{
+                    objects.push(
+                        element.evaluate(environ)?
+                    );
+                }
+
+                Ok(Object::Array(Array{
+                    items: objects
+                }))
             },
             Expression::If(if_expression) => if_expression.evaluate(environ),
             Expression::Infix(infix_expr) =>{

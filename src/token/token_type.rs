@@ -31,6 +31,8 @@ pub enum TokenType{
     RParen,
     LBrace,
     RBrace,
+    LBraket,
+    RBraket,
 
     // Keywords
     KwFunction,

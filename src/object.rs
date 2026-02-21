@@ -7,7 +7,14 @@ pub mod function;
 pub mod truthy;
 pub mod stack_environment;
 pub mod string_obj;
+pub mod built_in;
+pub mod error;
+pub mod array;
 
+
+use array::Array;
+use error::Error;
+use built_in::BuiltIn;
 use string_obj::StringObj;
 use return_value::ReturnValue;
 use null::Null;
@@ -21,8 +28,12 @@ pub enum Object{
     Bool(Boolean),
     String(StringObj),
 
+    BuiltIn(BuiltIn),
+
     Func(Function),
     ReturnVal(ReturnValue),
+    Err(Error),
+    Array(Array),
 
     Null(Null)
 }
@@ -47,6 +58,10 @@ impl Object{
         }
     }
 
+    pub fn new_error(error_value: String) -> Self{
+        Self::Err(Error { value: error_value })
+    }
+
     pub fn get_type(&self) -> String{
         match self{
             Object::Int(obj) => obj.get_type(),
@@ -55,6 +70,9 @@ impl Object{
             Object::Func(obj) => obj.get_type(),
             Object::ReturnVal(obj) => obj.get_type(),
             Object::String(obj) => obj.get_type(),
+            Object::BuiltIn(obj) => obj.get_type(),
+            Object::Err(obj) => obj.get_type(),
+            Object::Array(obj) => obj.get_type(),
         }
     }
 
@@ -66,6 +84,9 @@ impl Object{
             Object::Func(function) => function.inspect(),
             Object::ReturnVal(obj) => obj.inspect(),
             Object::String(obj) => obj.inspect(),
+            Object::BuiltIn(obj) => obj.inspect(),
+            Object::Err(obj) => obj.inspect(),
+            Object::Array(obj) => obj.inspect(),
         }
     }
 }

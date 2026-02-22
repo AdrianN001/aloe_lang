@@ -1,4 +1,5 @@
 
+mod index_expr;
 mod prefix_expr;
 mod infix_expr;
 mod if_expression;
@@ -6,6 +7,7 @@ mod identifier;
 mod call_expr;
 mod block_statement;
 
+use crate::ast::expression::index_expression;
 use crate::ast::program::Program;
 use crate::object::array::Array;
 use crate::object::function::Function;
@@ -14,6 +16,7 @@ use crate::object::null::Null;
 use crate::object::return_value::ReturnValue;
 use crate::object::stack_environment::StackEnvironment;
 use crate::object::string_obj::StringObj;
+
 
 use super::object::Object;
 
@@ -35,6 +38,7 @@ impl Expression{
                 let right_side = prefix_expr.right.evaluate(environ)?;
                 right_side.evaluate_prefix(&prefix_expr.operator)
             },
+            Expression::Index(indx_expr) => indx_expr.evaluate(environ),
             Expression::String(str_exr) => Ok(Object::String(StringObj{
                 value: str_exr.value.clone() 
             })),

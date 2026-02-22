@@ -7,6 +7,11 @@ impl Identifier{
     fn get_builtin_from_identifier(&self) -> Option<BuiltIn>{
         match self.value.as_str(){
             "len" => Some(BuiltIn::Len),
+
+            "rest" => Some(BuiltIn::Rest),
+            "first"=> Some(BuiltIn::First),
+            "last" => Some(BuiltIn::Last),
+            "push" => Some(BuiltIn::Push),
             _ => None
         }
     }

@@ -10,7 +10,9 @@ pub mod call_expression;
 pub mod string_expr;
 pub mod array_literal;
 pub mod index_expression;
+pub mod hash_map_literal;
 
+use hash_map_literal::HashMapLiteral;
 use index_expression::IndexExpression;
 use array_literal::ArrayLiteral;
 use string_expr::StringExpr;
@@ -23,7 +25,8 @@ use integer_literal::IntegerLiteral;
 use prefix_expression::PrefixExpression;
 use infix::InfixExpression;
 
-#[derive(Default, Clone, PartialEq, Eq)]
+
+#[derive(Default, PartialOrd, Ord, Clone, PartialEq, Eq, Hash)]
 pub enum Expression {
     Identifier(Identifier),
     IntegerLiteral(IntegerLiteral),
@@ -35,6 +38,7 @@ pub enum Expression {
     String(StringExpr),
     Array(ArrayLiteral),
     Index(IndexExpression),
+    HashMapLiteral(HashMapLiteral),
 
     If(IfExpression),
 
@@ -60,6 +64,7 @@ impl Expression {
             Expression::Call(s) => s.to_string(),
             Expression::Array(s) => s.to_string(),
             Expression::Index(s) => s.to_string(),
+            Expression::HashMapLiteral(s) => s.to_string(),
             other => other.token_literal().to_string()
         }
     }

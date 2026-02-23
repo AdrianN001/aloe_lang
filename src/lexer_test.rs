@@ -12,8 +12,8 @@ fn test_basic_lexer() {
         Token::simple(TokenType::RParen, ")"),
         Token::simple(TokenType::LBrace, "{"),
         Token::simple(TokenType::RBrace, "}"),
-        Token::simple(TokenType::LBraket,"["),
-        Token::simple(TokenType::RBraket,"]")
+        Token::simple(TokenType::LBracket,"["),
+        Token::simple(TokenType::RBracket,"]")
     ];
 
     expected_tokens.iter().for_each(|expected_token|{
@@ -34,7 +34,8 @@ x + y;
 let result = add(five, ten);
 "foo bar"
 "valami06"
-[1,"asd"]
+[1,"asd"];
+{"foo": "bar"}
 "#;
     let mut lexer = Lexer::new(input.to_string());
 
@@ -84,11 +85,18 @@ let result = add(five, ten);
         Token::simple(TokenType::String, "foo bar"),
         Token::simple(TokenType::String, "valami06"),
 
-        Token::simple(TokenType::LBraket, "["),
+        Token::simple(TokenType::LBracket, "["),
         Token::simple(TokenType::Integer, "1"),
         Token::simple(TokenType::Comma, ","),
         Token::simple(TokenType::String, "asd"),
-        Token::simple(TokenType::RBraket, "]"),
+        Token::simple(TokenType::RBracket, "]"),
+        Token::simple(TokenType::Semicolon, ";"),
+
+        Token::simple(TokenType::LBrace, "{"),
+        Token::simple(TokenType::String, "foo"),
+        Token::simple(TokenType::Colon, ":"),
+        Token::simple(TokenType::String, "bar"),
+        Token::simple(TokenType::RBrace, "}"),
 
         Token::simple(TokenType::Eof, ""),
     ];

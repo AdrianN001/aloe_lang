@@ -2,7 +2,7 @@ use crate::{ast::expression::Expression, token::Token};
 
 
 
-#[derive(Default, Clone, PartialEq, Eq)]
+#[derive(Default, Hash, PartialOrd, Ord, Clone, PartialEq, Eq)]
 pub struct IndexExpression{
     pub token: Token,
     pub left:  Box<Expression>,

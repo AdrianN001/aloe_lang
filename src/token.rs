@@ -3,7 +3,7 @@ pub mod display;
 
 use crate::token::token_type::TokenType;
 
-#[derive(Debug, PartialEq, Clone, Eq)]
+#[derive(Debug, PartialOrd, Ord, PartialEq, Clone, Eq, Hash)]
 pub struct Token{
     pub token_type: TokenType,
     pub literal:    String

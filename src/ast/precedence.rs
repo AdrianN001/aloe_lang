@@ -31,7 +31,7 @@ pub fn get_precedence_of_operator(token: &Token) -> OperationPrecedence{
 
         TokenType::LParen =>    OperationPrecedence::Call,
 
-        TokenType::LBraket =>   OperationPrecedence::Index,
+        TokenType::LBracket =>   OperationPrecedence::Index,
 
         _ => OperationPrecedence::Lowest
     }

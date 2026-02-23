@@ -1,6 +1,6 @@
 
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Hash, PartialOrd, Ord, Clone, PartialEq, Eq)]
 pub enum TokenType{
     Illegal, 
     Eof,
@@ -24,6 +24,7 @@ pub enum TokenType{
     GT,     // >
 
     // Delimiters 
+    Colon,
     Comma,
     Semicolon,
 
@@ -31,8 +32,8 @@ pub enum TokenType{
     RParen,
     LBrace,
     RBrace,
-    LBraket,
-    RBraket,
+    LBracket,
+    RBracket,
 
     // Keywords
     KwFunction,

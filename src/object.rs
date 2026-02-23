@@ -10,8 +10,10 @@ pub mod string_obj;
 pub mod built_in;
 pub mod error;
 pub mod array;
+pub mod hashmap;
+pub mod hashable;
 
-
+use hashmap::HashMap;
 use array::Array;
 use error::Error;
 use built_in::BuiltIn;
@@ -33,7 +35,10 @@ pub enum Object{
     Func(Function),
     ReturnVal(ReturnValue),
     Err(Error),
+    
     Array(Array),
+    HashMap(HashMap),
+
 
     Null(Null)
 }
@@ -73,6 +78,7 @@ impl Object{
             Object::BuiltIn(obj) => obj.get_type(),
             Object::Err(obj) => obj.get_type(),
             Object::Array(obj) => obj.get_type(),
+            Object::HashMap(obj) => obj.get_type()
         }
     }
 
@@ -87,6 +93,14 @@ impl Object{
             Object::BuiltIn(obj) => obj.inspect(),
             Object::Err(obj) => obj.inspect(),
             Object::Array(obj) => obj.inspect(),
+            Object::HashMap(obj) => obj.inspect()
+        }
+    }
+
+    pub fn is_hashable(&self) -> bool{
+        match self{ 
+            Object::String(_) | Object::Int(_) | Object::Bool(_) => true,
+            _ => false
         }
     }
 }

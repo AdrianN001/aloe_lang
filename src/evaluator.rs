@@ -6,8 +6,8 @@ mod if_expression;
 mod identifier;
 mod call_expr;
 mod block_statement;
+mod hash_literal;
 
-use crate::ast::expression::index_expression;
 use crate::ast::program::Program;
 use crate::object::array::Array;
 use crate::object::function::Function;
@@ -38,6 +38,7 @@ impl Expression{
                 let right_side = prefix_expr.right.evaluate(environ)?;
                 right_side.evaluate_prefix(&prefix_expr.operator)
             },
+            Expression::HashMapLiteral(hashmap) => hashmap.evaluate(environ),
             Expression::Index(indx_expr) => indx_expr.evaluate(environ),
             Expression::String(str_exr) => Ok(Object::String(StringObj{
                 value: str_exr.value.clone() 

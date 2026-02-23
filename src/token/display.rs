@@ -25,6 +25,7 @@ impl fmt::Display for TokenType {
             TokenType::Eq          => "==",
             TokenType::NotEq       => "!=",
 
+            TokenType::Colon       => ":",
             TokenType::Comma       => ",",
             TokenType::Semicolon  => ";",
 
@@ -32,8 +33,8 @@ impl fmt::Display for TokenType {
             TokenType::RParen      => ")",
             TokenType::LBrace      => "{",
             TokenType::RBrace      => "}",
-            TokenType::LBraket     => "[",
-            TokenType::RBraket     => "]",
+            TokenType::LBracket     => "[",
+            TokenType::RBracket     => "]",
 
 
             TokenType::KwFunction  => "fn",

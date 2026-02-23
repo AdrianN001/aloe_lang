@@ -1,7 +1,7 @@
 
 use crate::{ast::expression::Expression, token::Token};
 
-#[derive(Default, Clone, PartialEq, Eq)]
+#[derive(Default, Hash, PartialOrd, Ord, Clone, PartialEq, Eq)]
 pub struct ArrayLiteral {
     pub token: Token,
     pub elements: Vec<Expression>,

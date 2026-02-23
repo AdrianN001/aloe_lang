@@ -132,8 +132,8 @@ impl Lexer{
             ';' => Token::simple(TokenType::Semicolon, ";"),
             '(' => Token::simple(TokenType::LParen, "("),
             ')' => Token::simple(TokenType::RParen, ")"),
-            '[' => Token::simple(TokenType::LBraket, "["),
-            ']' => Token::simple(TokenType::RBraket, "]"),
+            '[' => Token::simple(TokenType::LBracket, "["),
+            ']' => Token::simple(TokenType::RBracket, "]"),
             ',' => Token::simple(TokenType::Comma, ","),
             '+' => Token::simple(TokenType::Plus, "+"),
             '-' => Token::simple(TokenType::Minus, "-"),
@@ -141,6 +141,7 @@ impl Lexer{
             '*' => Token::simple(TokenType::Asterisk, "*"),
             '<' => Token::simple(TokenType::LT, "<"),
             '>' => Token::simple(TokenType::GT, ">"),
+            ':' => Token::simple(TokenType::Colon, ":"),
             '!' => {
                 if let Some(next_char) = self.peek() && next_char == '='{
                     self.advance();

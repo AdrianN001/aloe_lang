@@ -407,7 +407,7 @@ fn eval_string_concat(){
 fn eval_index_operator(){
     let testcases = [
         ("[1,2,3][0]", "1"),
-        (r#"[true, 3, "asd", false, true][1+1]"#, r#"asd"#),
+        (r#"[true, 3, "asd", false, true][1+1]"#, r#""asd""#),
         ("let i = 0; [i][i];", "0"),
         ("[][1];", "null"),
         ("[(fn(){return 15;})()][0];", "15")
@@ -505,10 +505,10 @@ fn eval_len_for_arrays(){
 fn eval_rest_builtin(){
   let testcases = [
         (r#" rest([1,2,3]) "#, "[2, 3]"),
-        (r#" rest("abcd");  "#, "bcd"),
+        (r#" rest("abcd");  "#, r#""bcd""#),
         
         (r#" rest([1]);"#, "[]"),
-        (r#" rest("a");"#, r#""#)
+        (r#" rest("a");"#, r#""""#)
     ];
 
 
@@ -541,10 +541,10 @@ fn eval_rest_builtin(){
 fn eval_first_builtin(){
   let testcases = [
         (r#" first([1,2,3]) "#, "1"),
-        (r#" first("abcd");  "#, "a"),
+        (r#" first("abcd");  "#, "\"a\""),
         
         (r#" first([1]);"#, "1"),
-        (r#" first("a");"#, r#"a"#)
+        (r#" first("a");"#, "\"a\"")
     ];
 
 
@@ -576,8 +576,8 @@ fn eval_push_builtin(){
         (r#" push([], [1,2,3,4]);"#, "[1, 2, 3, 4]"),
 
 
-        (r#" push("a", "bc");"#, r#"abc"#),
-        (r#" push("", "abc");"#, r#"abc"#)
+        (r#" push("a", "bc");"#, r#""abc""#),
+        (r#" push("", "abc");"#, r#""abc""#)
     ];
 
 
@@ -599,4 +599,38 @@ fn eval_push_builtin(){
             assert_eq!(last_object.inspect(), expected_value);
 
         })
+}
+
+#[test]
+fn eval_hashmap_pair_count(){
+    let testcases = [
+        (r#"{"asd": 123, true: "abc"}"#, 2),
+        (r#"{}"#, 0), 
+        (r#"{false: fn(){return 5;}()}"#, 1),
+
+    ];
+
+
+    testcases
+        .iter()
+        .for_each(|testcase|{
+            let input = testcase.0.into();
+            let expected_value = testcase.1;
+
+            let lexer = Lexer::new(input);
+            let parser = Parser::new(lexer);
+            let program = parser.into_a_program().unwrap();
+
+            let last_object = match program.evaluate(){
+                Ok(x) => x,         
+                Err(err) => panic!("{}",err)
+            };
+
+            match last_object{
+                Object::HashMap(hashmap) => assert_eq!(hashmap.pairs.len(), expected_value),
+                _ => panic!("unexpected last object")
+            }
+
+        })
+
 }

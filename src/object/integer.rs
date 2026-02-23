@@ -1,3 +1,5 @@
+use crate::object::{hashable::Hashable, hashmap::HashKey};
+
 
 
 #[derive(PartialEq, Eq,Clone, Debug)]
@@ -12,5 +14,14 @@ impl Integer{
 
     pub fn inspect(&self) -> String{
         self.value.to_string()
+    }
+}
+
+impl Hashable for Integer{
+    fn hash(&self) -> HashKey{
+        HashKey { 
+            obj_type: self.get_type(), 
+            value: self.value as u64 
+        }
     }
 }

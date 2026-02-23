@@ -1,7 +1,7 @@
 use crate::{ast::expression::Expression, token::Token};
 
 
-#[derive(Clone, PartialEq,Eq)]
+#[derive(Clone, Hash, PartialOrd, Ord, PartialEq,Eq)]
 pub struct PrefixExpression{
     pub token:      Token, 
     pub operator:   String, 

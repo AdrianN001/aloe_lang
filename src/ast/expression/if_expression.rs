@@ -1,7 +1,7 @@
 use crate::{ast::{expression::Expression, statement::block_statement::BlockStatement}, token::Token};
 
 
-#[derive(Clone, Default, PartialEq, Eq)]
+#[derive(Clone, Hash, PartialOrd, Ord, Default, PartialEq, Eq)]
 pub struct IfExpression{
     pub token: Token,
     pub condition: Box<Expression>,

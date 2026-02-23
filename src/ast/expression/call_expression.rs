@@ -2,7 +2,7 @@ use crate::{ast::expression::Expression, token::Token};
 
 
 
-#[derive(Clone, Default, PartialEq, Eq)]
+#[derive(Clone, Hash, PartialOrd, Ord, Default, PartialEq, Eq)]
 pub struct CallExpression{
     pub token:      Token,
     pub function:   Box<Expression>,

@@ -1,5 +1,7 @@
 
-use crate::{ast::{Parser, expression::{Expression, array_literal::ArrayLiteral, call_expression::CallExpression, function_expression::{self, FunctionExpression}, if_expression::IfExpression, index_expression::IndexExpression, infix::InfixExpression, integer_literal::IntegerLiteral, prefix_expression::PrefixExpression, string_expr::StringExpr}, precedence::{OperationPrecedence, get_precedence_of_operator}, statement::block_statement::BlockStatement}, token::token_type::TokenType};
+use std::collections::BTreeMap;
+
+use crate::{ast::{Parser, expression::{Expression, array_literal::ArrayLiteral, call_expression::CallExpression, function_expression::{self, FunctionExpression}, hash_map_literal::HashMapLiteral, if_expression::IfExpression, index_expression::IndexExpression, infix::InfixExpression, integer_literal::IntegerLiteral, prefix_expression::PrefixExpression, string_expr::StringExpr}, precedence::{OperationPrecedence, get_precedence_of_operator}, statement::block_statement::BlockStatement}, token::token_type::TokenType};
 use crate::ast::expression::boolean::Boolean;
 use crate::ast::expression::identifier::Identifier;
 
@@ -13,7 +15,8 @@ impl Parser{
             TokenType::LParen => self.parse_grouped_expression(),
             TokenType::KwIf => self.parse_if_expression(),
             TokenType::KwFunction => self.parse_function_expression(),
-            TokenType::LBraket => self.parse_array_literal(),
+            TokenType::LBracket => self.parse_array_literal(),
+            TokenType::LBrace => self.parse_hashmap_literal(),
             
             TokenType::String => Ok(self.parse_string_literal()),
 
@@ -35,7 +38,7 @@ impl Parser{
                         self.next_token();
                         left_expression = self.parse_infix_expression(&left_expression)?;
                     },
-                    TokenType::LBraket => {
+                    TokenType::LBracket => {
                         self.next_token();
                         left_expression = self.parse_index_operator(&left_expression)?;
                     },
@@ -90,7 +93,7 @@ impl Parser{
     } 
 
     fn parse_array_literal(&mut self) -> Result<Expression, String>{
-        match self.parse_expression_list(TokenType::RBraket){
+        match self.parse_expression_list(TokenType::RBracket){
             Ok(expressions) => Ok(Expression::Array(ArrayLiteral { token: self.current_token.clone(), elements: expressions })),
             Err(err) => Err(err)
         }
@@ -108,8 +111,8 @@ impl Parser{
             self.parse_expression(OperationPrecedence::Lowest)?
         );
 
-        if self.peek_token.token_type != TokenType::RBraket{
-            return Err("unexpected token: RBraket".into());
+        if self.peek_token.token_type != TokenType::RBracket{
+            return Err("unexpected token: RBracket".into());
         }
         self.next_token();
 
@@ -162,7 +165,45 @@ impl Parser{
 
 
         Ok(Expression::Infix(infix_expression))
-    } 
+    }
+
+    fn parse_hashmap_literal(&mut self) -> Result<Expression, String>{
+        let mut hash_expression = HashMapLiteral{
+            token: self.current_token.clone(), 
+            pairs: BTreeMap::new()
+        };
+
+        while self.peek_token.token_type != TokenType::RBrace{
+            self.next_token();
+            
+            let key = self.parse_expression(OperationPrecedence::Lowest)?;
+
+            if self.peek_token.token_type != TokenType::Colon{
+                return Err("unexpected character, expected: ':'".into())
+            }
+            self.next_token();
+
+            self.next_token();
+            let value = self.parse_expression(OperationPrecedence::Lowest)?;
+
+            hash_expression.pairs.insert(key, value);
+            
+            if self.peek_token.token_type != TokenType::RBrace{
+                if self.peek_token.token_type != TokenType::Comma{
+                    return Err("unexpected character: expected: '}' or ','".into());
+                }
+                self.next_token();
+            }
+        }
+
+        if self.peek_token.token_type != TokenType::RBrace{
+            return Err("unexpected character: expected '}'".into());
+        }
+        self.next_token();
+
+
+        Ok(Expression::HashMapLiteral(hash_expression))
+    }
 
     fn parse_if_expression(&mut self) -> Result<Expression, String>{
         let mut expr = IfExpression{

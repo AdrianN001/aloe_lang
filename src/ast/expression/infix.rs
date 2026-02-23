@@ -1,7 +1,7 @@
 use crate::{ast::expression::Expression, token::Token};
 
 
-#[derive(Clone, PartialEq, Eq)]
+#[derive(Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
 pub struct InfixExpression{
     pub token:      Token,
     pub left:       Box<Expression>,

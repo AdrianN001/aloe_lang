@@ -1,4 +1,4 @@
-use crate::object::{Object, integer::Integer, null::Null};
+use crate::object::{Object, integer::Integer};
 
 pub fn len_builtin_function(args: &[Object]) -> Object {
     if args.len() != 1 {

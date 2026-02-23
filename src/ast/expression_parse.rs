@@ -9,7 +9,7 @@ use crate::{
             Expression,
             array_literal::ArrayLiteral,
             call_expression::CallExpression,
-            function_expression::{self, FunctionExpression},
+            function_expression::FunctionExpression,
             hash_map_literal::HashMapLiteral,
             if_expression::IfExpression,
             index_expression::IndexExpression,

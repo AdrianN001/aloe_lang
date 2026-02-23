@@ -1,5 +1,5 @@
 use crate::{
-    ast::expression::{Expression, index_expression::IndexExpression},
+    ast::expression::index_expression::IndexExpression,
     object::{Object, hashable::Hashable, stack_environment::StackEnvironment},
 };
 

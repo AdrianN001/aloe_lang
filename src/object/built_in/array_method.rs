@@ -94,7 +94,10 @@ pub fn push_builtin_function(args: &[Object]) -> Object{
         return Object::new_error(format!("expected 2 value, got {} value.", args.len()));
     }
 
-    if !matches!(&args[0], Object::Array(_)| Object::String(_)){
+    if !matches!(
+        &args[0], 
+        Object::Array(_)| Object::String(_)
+        ){
         return Object::new_error(format!("expected the first value to be array or string, got {}.", args[0].get_type()));
     }
 

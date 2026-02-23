@@ -1,4 +1,4 @@
-use crate::{ast::expression::{Expression, index_expression::IndexExpression}, object::{Object, stack_environment::StackEnvironment}};
+use crate::{ast::expression::{Expression, index_expression::IndexExpression}, object::{Object, hashable::Hashable, stack_environment::StackEnvironment}};
 
 
 
@@ -26,9 +26,29 @@ impl IndexExpression{
                     arr_interior_value[index_interior_value as usize].clone()
                 )
             },
+            (Object::HashMap(map), key_object) => {
+                if !key_object.is_hashable(){
+                    return Err(format!("key object is not hashable: {}", index.get_type()));
+                }
+
+                let hashed_object = match key_object{
+                    Object::String(str) => str.hash(),
+                    Object::Int(int) => int.hash(),
+                    Object::Bool(bool) => bool.hash(),
+                    _ => panic!()
+                };
+
+                if !map.pairs.contains_key(&hashed_object){
+                    return Ok(Object::NULL_OBJECT);
+                }
+
+                Ok(
+                    map.pairs[&hashed_object].value.clone()
+                )
+            }
             _ => Err(format!("index operator not supported: {}", index.get_type()))
         }
-
+        
     }
 
 }

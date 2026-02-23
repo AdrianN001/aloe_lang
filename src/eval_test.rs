@@ -634,3 +634,32 @@ fn eval_hashmap_pair_count(){
         })
 
 }
+
+#[test]
+fn eval_hashmap_indexing(){
+    let testcases = [
+        (r#"{"asd": 123, true: "abc"}["asd"]"#, "123"),
+        (r#"{}["asd"]"#, "null"), 
+        (r#"{false: fn(){return 5;}()}[false]"#, "5"),
+    ];
+
+
+    testcases
+        .iter()
+        .for_each(|testcase|{
+            let input = testcase.0.into();
+            let expected_value = testcase.1;
+
+            let lexer = Lexer::new(input);
+            let parser = Parser::new(lexer);
+            let program = parser.into_a_program().unwrap();
+
+            let last_object = match program.evaluate(){
+                Ok(x) => x,         
+                Err(err) => panic!("{}",err)
+            };
+
+            assert_eq!(last_object.inspect(), expected_value)
+        })
+
+}

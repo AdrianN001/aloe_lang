@@ -1,0 +1,10 @@
+
+
+let a = 15;
+let b = 3;
+
+
+print({"a+b":a+b});
+print(a*b);
+print(a-b);
+print(a/b);

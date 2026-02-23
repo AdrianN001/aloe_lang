@@ -1,4 +1,3 @@
-
 use crate::ast::expression::Expression;
 use crate::token::Token;
 
@@ -8,17 +7,15 @@ pub struct ReturnStatement {
     pub value: Expression,
 }
 
-impl ReturnStatement{
-    pub fn to_string(&self) -> String{
-        let mut buffer = String::new(); 
+impl ReturnStatement {
+    pub fn to_string(&self) -> String {
+        let mut buffer = String::new();
 
         buffer.push_str("return ");
 
-        //TODO add expression 
-        
+        //TODO add expression
 
         buffer.push(';');
-
 
         buffer
     }

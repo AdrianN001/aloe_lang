@@ -1,18 +1,14 @@
-
-
 #[derive(PartialEq, Eq, Clone)]
-pub struct Error{
-    pub value: String
+pub struct Error {
+    pub value: String,
 }
 
-
-impl Error{
-
-    pub fn get_type(&self) -> String{
+impl Error {
+    pub fn get_type(&self) -> String {
         "error".into()
     }
 
-    pub fn inspect(&self) -> String{
+    pub fn inspect(&self) -> String {
         self.value.clone()
     }
 }

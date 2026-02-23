@@ -1,31 +1,33 @@
-use crate::{ast::expression::identifier::Identifier, object::{Object, built_in::BuiltIn, stack_environment::StackEnvironment}};
+use crate::{
+    ast::expression::identifier::Identifier,
+    object::{Object, built_in::BuiltIn, stack_environment::StackEnvironment},
+};
 
-
-
-impl Identifier{
-
-    fn get_builtin_from_identifier(&self) -> Option<BuiltIn>{
-        match self.value.as_str(){
+impl Identifier {
+    fn get_builtin_from_identifier(&self) -> Option<BuiltIn> {
+        match self.value.as_str() {
             "len" => Some(BuiltIn::Len),
 
             "rest" => Some(BuiltIn::Rest),
-            "first"=> Some(BuiltIn::First),
+            "first" => Some(BuiltIn::First),
             "last" => Some(BuiltIn::Last),
             "push" => Some(BuiltIn::Push),
-            _ => None
+
+            "print" => Some(BuiltIn::Print),
+            _ => None,
         }
     }
 
-    pub fn evaluate(&self, environ: &StackEnvironment) -> Result<Object, String>{
-        match environ.get_owned(&self.value){
+    pub fn evaluate(&self, environ: &StackEnvironment) -> Result<Object, String> {
+        match environ.get_owned(&self.value) {
             Some(obj) => Ok(obj),
             None => {
-                if let Some(built_in) = self.get_builtin_from_identifier(){
+                if let Some(built_in) = self.get_builtin_from_identifier() {
                     return Ok(Object::BuiltIn(built_in));
                 }
 
                 Err(format!("unknown identifier: {}", &self.value))
             }
         }
-    } 
+    }
 }

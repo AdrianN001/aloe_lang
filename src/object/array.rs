@@ -1,35 +1,31 @@
 use crate::object::Object;
 
-
-
 #[derive(PartialEq, Eq, Clone)]
-pub struct Array{
-    pub items: Vec<Object>
+pub struct Array {
+    pub items: Vec<Object>,
 }
 
-
-impl Array{
-    pub fn get_type(&self) -> String{
+impl Array {
+    pub fn get_type(&self) -> String {
         "array".into()
     }
 
-    pub fn inspect(&self) -> String{
+    pub fn inspect(&self) -> String {
         let mut buffer = String::new();
 
         buffer.push('[');
 
         buffer.push_str(
-            &self.items
+            &self
+                .items
                 .iter()
-                .map(|item| item.inspect() )
+                .map(|item| item.inspect())
                 .collect::<Vec<_>>()
-                .join(", ")
+                .join(", "),
         );
 
         buffer.push(']');
-        
+
         buffer
     }
-
- 
 }

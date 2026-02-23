@@ -1,29 +1,27 @@
-
-
 #[derive(Debug, Hash, PartialOrd, Ord, Clone, PartialEq, Eq)]
-pub enum TokenType{
-    Illegal, 
+pub enum TokenType {
+    Illegal,
     Eof,
 
-    // Identifiers + literals 
-    Identifier, 
+    // Identifiers + literals
+    Identifier,
     Integer,
     String,
 
-    // Operators 
+    // Operators
     Assign,
     Plus,
-    Minus, 
-    Bang, 
+    Minus,
+    Bang,
     Asterisk,
-    Slash, 
+    Slash,
 
-    Eq, 
+    Eq,
     NotEq,
-    LT,     // < 
-    GT,     // >
+    LT, // <
+    GT, // >
 
-    // Delimiters 
+    // Delimiters
     Colon,
     Comma,
     Semicolon,
@@ -38,15 +36,15 @@ pub enum TokenType{
     // Keywords
     KwFunction,
     KwLet,
-    KwTrue, 
+    KwTrue,
     KwFalse,
-    KwIf, 
+    KwIf,
     KwElse,
-    KwReturn
+    KwReturn,
 }
 
-pub fn lookup_identifiers(identifier: &str) -> TokenType{
-    match identifier{
+pub fn lookup_identifiers(identifier: &str) -> TokenType {
+    match identifier {
         "fn" => TokenType::KwFunction,
         "let" => TokenType::KwLet,
         "true" => TokenType::KwTrue,
@@ -55,6 +53,6 @@ pub fn lookup_identifiers(identifier: &str) -> TokenType{
         "else" => TokenType::KwElse,
         "return" => TokenType::KwReturn,
 
-        _ => TokenType::Identifier
+        _ => TokenType::Identifier,
     }
 }

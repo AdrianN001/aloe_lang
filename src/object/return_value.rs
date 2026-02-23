@@ -1,22 +1,20 @@
 use crate::object::Object;
 
-
-
 #[derive(PartialEq, Eq, Clone)]
-pub struct ReturnValue{
-    pub value: Box<Object>
+pub struct ReturnValue {
+    pub value: Box<Object>,
 }
 
-impl ReturnValue{
-    pub fn get_type(&self) -> String{
+impl ReturnValue {
+    pub fn get_type(&self) -> String {
         "return value".into()
     }
 
-    pub fn inspect(&self) -> String{
+    pub fn inspect(&self) -> String {
         self.value.inspect()
     }
 
-    pub fn unwrap_to_value(&self) -> Object{
+    pub fn unwrap_to_value(&self) -> Object {
         *self.value.clone()
     }
 }

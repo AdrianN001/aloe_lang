@@ -1,30 +1,28 @@
-
+pub mod array_literal;
+pub mod boolean;
+pub mod call_expression;
+pub mod function_expression;
+pub mod hash_map_literal;
 pub mod identifier;
+pub mod if_expression;
+pub mod index_expression;
+pub mod infix;
 pub mod integer_literal;
 pub mod prefix_expression;
-pub mod infix;
-pub mod boolean;
-pub mod if_expression;
-pub mod function_expression;
-pub mod call_expression;
 pub mod string_expr;
-pub mod array_literal;
-pub mod index_expression;
-pub mod hash_map_literal;
 
-use hash_map_literal::HashMapLiteral;
-use index_expression::IndexExpression;
 use array_literal::ArrayLiteral;
-use string_expr::StringExpr;
+use boolean::Boolean;
 use call_expression::CallExpression;
 use function_expression::FunctionExpression;
+use hash_map_literal::HashMapLiteral;
+use identifier::Identifier;
 use if_expression::IfExpression;
-use boolean::Boolean;
-use identifier::{Identifier};
+use index_expression::IndexExpression;
+use infix::InfixExpression;
 use integer_literal::IntegerLiteral;
 use prefix_expression::PrefixExpression;
-use infix::InfixExpression;
-
+use string_expr::StringExpr;
 
 #[derive(Default, PartialOrd, Ord, Clone, PartialEq, Eq, Hash)]
 pub enum Expression {
@@ -43,7 +41,7 @@ pub enum Expression {
     If(IfExpression),
 
     #[default]
-    InvalidExpression
+    InvalidExpression,
 }
 
 impl Expression {
@@ -53,20 +51,19 @@ impl Expression {
             Expression::Identifier(i) => &i.token.literal,
             Expression::IntegerLiteral(i) => &i.token.literal,
             Expression::String(str_expr) => &str_expr.value,
-            _ => ""
+            _ => "",
         }
     }
 
-    pub fn to_string(&self) -> String{
-        match self{ 
+    pub fn to_string(&self) -> String {
+        match self {
             Expression::Prefix(s) => s.to_string(),
             Expression::Infix(s) => s.to_string(),
             Expression::Call(s) => s.to_string(),
             Expression::Array(s) => s.to_string(),
             Expression::Index(s) => s.to_string(),
             Expression::HashMapLiteral(s) => s.to_string(),
-            other => other.token_literal().to_string()
+            other => other.token_literal().to_string(),
         }
     }
 }
-

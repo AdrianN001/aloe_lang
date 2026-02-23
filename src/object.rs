@@ -1,31 +1,30 @@
-
-pub mod integer;
+pub mod array;
 pub mod boolean;
-pub mod null;
-pub mod return_value;
-pub mod function;
-pub mod truthy;
-pub mod stack_environment;
-pub mod string_obj;
 pub mod built_in;
 pub mod error;
-pub mod array;
-pub mod hashmap;
+pub mod function;
 pub mod hashable;
+pub mod hashmap;
+pub mod integer;
+pub mod null;
+pub mod return_value;
+pub mod stack_environment;
+pub mod string_obj;
+pub mod truthy;
 
-use hashmap::HashMap;
 use array::Array;
-use error::Error;
-use built_in::BuiltIn;
-use string_obj::StringObj;
-use return_value::ReturnValue;
-use null::Null;
 use boolean::Boolean;
-use integer::Integer;
+use built_in::BuiltIn;
+use error::Error;
 use function::Function;
+use hashmap::HashMap;
+use integer::Integer;
+use null::Null;
+use return_value::ReturnValue;
+use string_obj::StringObj;
 
 #[derive(PartialEq, Eq, Clone)]
-pub enum Object{
+pub enum Object {
     Int(Integer),
     Bool(Boolean),
     String(StringObj),
@@ -35,40 +34,32 @@ pub enum Object{
     Func(Function),
     ReturnVal(ReturnValue),
     Err(Error),
-    
+
     Array(Array),
     HashMap(HashMap),
 
-
-    Null(Null)
+    Null(Null),
 }
 
-impl Object{
+impl Object {
+    pub const TRUE_BOOL_OBJECT: Object = Object::Bool(Boolean { value: true });
+    pub const FALSE_BOOL_OBJECT: Object = Object::Bool(Boolean { value: false });
+    pub const NULL_OBJECT: Object = Object::Null(Null {});
 
-    pub const TRUE_BOOL_OBJECT: Object = Object::Bool(Boolean{
-        value: true
-    });
-    pub const FALSE_BOOL_OBJECT: Object = Object::Bool(Boolean { 
-        value: false 
-    });
-    pub const NULL_OBJECT: Object = Object::Null(Null{});
-
-
-
-    pub fn get_native_boolean_object(value: bool) -> Self{
+    pub fn get_native_boolean_object(value: bool) -> Self {
         if value {
             Self::TRUE_BOOL_OBJECT
-        }else{
+        } else {
             Self::FALSE_BOOL_OBJECT
         }
     }
 
-    pub fn new_error(error_value: String) -> Self{
+    pub fn new_error(error_value: String) -> Self {
         Self::Err(Error { value: error_value })
     }
 
-    pub fn get_type(&self) -> String{
-        match self{
+    pub fn get_type(&self) -> String {
+        match self {
             Object::Int(obj) => obj.get_type(),
             Object::Bool(obj) => obj.get_type(),
             Object::Null(obj) => obj.get_type(),
@@ -78,12 +69,12 @@ impl Object{
             Object::BuiltIn(obj) => obj.get_type(),
             Object::Err(obj) => obj.get_type(),
             Object::Array(obj) => obj.get_type(),
-            Object::HashMap(obj) => obj.get_type()
+            Object::HashMap(obj) => obj.get_type(),
         }
     }
 
-    pub fn inspect(&self) -> String{
-        match self{
+    pub fn inspect(&self) -> String {
+        match self {
             Object::Int(obj) => obj.inspect(),
             Object::Bool(obj) => obj.inspect(),
             Object::Null(obj) => obj.inspect(),
@@ -93,17 +84,14 @@ impl Object{
             Object::BuiltIn(obj) => obj.inspect(),
             Object::Err(obj) => obj.inspect(),
             Object::Array(obj) => obj.inspect(),
-            Object::HashMap(obj) => obj.inspect()
+            Object::HashMap(obj) => obj.inspect(),
         }
     }
 
-    pub fn is_hashable(&self) -> bool{
-        match self{ 
+    pub fn is_hashable(&self) -> bool {
+        match self {
             Object::String(_) | Object::Int(_) | Object::Bool(_) => true,
-            _ => false
+            _ => false,
         }
     }
 }
-
-
-

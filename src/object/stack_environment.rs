@@ -1,11 +1,13 @@
-use std::collections::HashMap;
+use std::{cell::RefCell, collections::HashMap, rc::Rc};
 
-use crate::object::Object;
+use crate::object::{Object, ObjectRef};
+
+pub type EnvRef = Rc<RefCell<StackEnvironment>>;
 
 #[derive(Default, Clone, PartialEq, Eq)]
 pub struct StackEnvironment {
-    pub map: HashMap<String, Object>,
-    outer: Option<Box<StackEnvironment>>,
+    pub map: HashMap<String, ObjectRef>,
+    outer: Option<EnvRef>,
 }
 
 impl StackEnvironment {
@@ -16,33 +18,26 @@ impl StackEnvironment {
         }
     }
 
-    pub fn new_enclosed(outer: &StackEnvironment) -> Self {
+    pub fn new_enclosed(outer: &EnvRef) -> Self {
         StackEnvironment {
             map: HashMap::new(),
-            outer: Some(Box::new(outer.clone())),
+            outer: Some(outer.clone()),
         }
     }
 
-    pub fn set(&mut self, identifier: &str, value: Object) {
-        self.map.insert(identifier.into(), value);
+    pub fn set(&mut self, identifier: &str, value: &ObjectRef) {
+        self.map.insert(identifier.into(), value.clone());
     }
 
-    pub fn get(&self, identifier: &str) -> Option<&Object> {
+    pub fn get(&self, identifier: &str) -> Option<ObjectRef> {
         match self.map.get(identifier) {
-            Some(val) => Some(val),
+            Some(val) => Some(val.clone()),
             None => {
                 if let Some(outer_scope) = &self.outer {
-                    return outer_scope.get(identifier);
+                    return outer_scope.borrow().get(identifier);
                 }
                 None
             }
-        }
-    }
-
-    pub fn get_owned(&self, identifier: &str) -> Option<Object> {
-        match self.get(identifier) {
-            Some(obj) => Some(obj.clone()),
-            None => None,
         }
     }
 }

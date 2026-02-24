@@ -1,12 +1,14 @@
-use crate::object::{Object, boolean::Boolean, integer::Integer, string_obj::StringObj};
+use std::{cell::RefCell, rc::Rc};
+
+use crate::object::{Object, ObjectRef, boolean::Boolean, integer::Integer, string_obj::StringObj};
 
 impl Object {
     pub fn evaluate_infix_expression(
         &self,
-        right: &Object,
+        right: ObjectRef,
         operator: &str,
-    ) -> Result<Object, String> {
-        match (self, right) {
+    ) -> Result<ObjectRef, String> {
+        match (self, &*right.borrow()) {
             (Object::Int(left_int), Object::Int(right_int)) => {
                 Self::eval_int_int_infix_expression(left_int, right_int, operator)
             }
@@ -26,27 +28,35 @@ impl Object {
         left: &Integer,
         right: &Integer,
         operator: &str,
-    ) -> Result<Object, String> {
+    ) -> Result<ObjectRef, String> {
         match operator {
-            "+" => Ok(Object::Int(Integer {
+            "+" => Ok(Rc::new(RefCell::new(Object::Int(Integer {
                 value: left.value + right.value,
-            })),
-            "-" => Ok(Object::Int(Integer {
+            })))),
+            "-" => Ok(Rc::new(RefCell::new(Object::Int(Integer {
                 value: left.value - right.value,
-            })),
+            })))),
 
-            "*" => Ok(Object::Int(Integer {
+            "*" => Ok(Rc::new(RefCell::new(Object::Int(Integer {
                 value: left.value * right.value,
-            })),
-            "/" => Ok(Object::Int(Integer {
+            })))),
+            "/" => Ok(Rc::new(RefCell::new(Object::Int(Integer {
                 value: left.value / right.value,
-            })),
+            })))),
 
-            "<" => Ok(Object::get_native_boolean_object(left.value < right.value)),
-            ">" => Ok(Object::get_native_boolean_object(left.value > right.value)),
+            "<" => Ok(Rc::new(RefCell::new(Object::get_native_boolean_object(
+                left.value < right.value,
+            )))),
+            ">" => Ok(Rc::new(RefCell::new(Object::get_native_boolean_object(
+                left.value > right.value,
+            )))),
 
-            "==" => Ok(Object::get_native_boolean_object(left.value == right.value)),
-            "!=" => Ok(Object::get_native_boolean_object(left.value != right.value)),
+            "==" => Ok(Rc::new(RefCell::new(Object::get_native_boolean_object(
+                left.value == right.value,
+            )))),
+            "!=" => Ok(Rc::new(RefCell::new(Object::get_native_boolean_object(
+                left.value != right.value,
+            )))),
 
             _ => Err("unexpected operator.".into()),
         }
@@ -56,10 +66,14 @@ impl Object {
         left: &Boolean,
         right: &Boolean,
         operator: &str,
-    ) -> Result<Object, String> {
+    ) -> Result<ObjectRef, String> {
         match operator {
-            "==" => Ok(Object::get_native_boolean_object(left.value == right.value)),
-            "!=" => Ok(Object::get_native_boolean_object(left.value != right.value)),
+            "==" => Ok(Rc::new(RefCell::new(Object::get_native_boolean_object(
+                left.value == right.value,
+            )))),
+            "!=" => Ok(Rc::new(RefCell::new(Object::get_native_boolean_object(
+                left.value != right.value,
+            )))),
 
             _ => Err("unexpected operator".into()),
         }
@@ -69,14 +83,18 @@ impl Object {
         left: &StringObj,
         right: &StringObj,
         operator: &str,
-    ) -> Result<Object, String> {
+    ) -> Result<ObjectRef, String> {
         match operator {
-            "+" => Ok(Object::String(StringObj {
+            "+" => Ok(Rc::new(RefCell::new(Object::String(StringObj {
                 value: left.value.clone() + &right.value,
-            })),
+            })))),
 
-            "==" => Ok(Object::get_native_boolean_object(left.value == right.value)),
-            "!=" => Ok(Object::get_native_boolean_object(left.value != right.value)),
+            "==" => Ok(Rc::new(RefCell::new(Object::get_native_boolean_object(
+                left.value == right.value,
+            )))),
+            "!=" => Ok(Rc::new(RefCell::new(Object::get_native_boolean_object(
+                left.value != right.value,
+            )))),
 
             _ => Err("unexpected operator".into()),
         }

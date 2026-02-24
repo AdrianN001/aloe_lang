@@ -3,7 +3,7 @@ mod console;
 mod len;
 
 use crate::object::{
-    Object,
+    Object, ObjectRef,
     built_in::{
         array_method::{
             first_builtin_function, last_builtin_function, push_builtin_function,
@@ -35,7 +35,7 @@ impl BuiltIn {
         "built-in function".into()
     }
 
-    pub fn call(&self, args: &[Object]) -> Object {
+    pub fn call(&self, args: &[ObjectRef]) -> ObjectRef {
         match self {
             Self::Len => len_builtin_function(args),
 

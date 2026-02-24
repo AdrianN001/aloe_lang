@@ -1,6 +1,6 @@
 use std::collections::BTreeMap;
 
-use crate::object::Object;
+use crate::object::{Object, ObjectRef};
 
 #[derive(PartialEq, Eq, Clone)]
 pub struct HashMap {
@@ -20,7 +20,7 @@ impl HashMap {
             &self
                 .pairs
                 .values()
-                .map(|v| v.key.inspect() + ":" + &v.value.inspect())
+                .map(|v| v.key.borrow().inspect() + ":" + &v.value.borrow().inspect())
                 .collect::<Vec<String>>()
                 .join(", "),
         );
@@ -38,6 +38,6 @@ pub struct HashKey {
 
 #[derive(PartialEq, Eq, Clone)]
 pub struct HashPair {
-    pub key: Object,
-    pub value: Object,
+    pub key: ObjectRef,
+    pub value: ObjectRef,
 }

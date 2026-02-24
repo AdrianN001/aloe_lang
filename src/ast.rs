@@ -96,8 +96,10 @@ impl Parser {
         };
 
         if self.peek_token.token_type != TokenType::Assign {
-            return Err(self
-                .create_unexpected_error_feedback(&TokenType::Assign, &self.peek_token.token_type));
+            return Err(self.create_unexpected_error_feedback(
+                &TokenType::Assign,
+                &self.peek_token.token_type,
+            ));
         } else {
             self.next_token();
         }

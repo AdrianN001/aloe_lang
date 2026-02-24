@@ -1,4 +1,10 @@
+
+use std::cell::RefCell;
+use std::rc::Rc;
+
 use crate::ast::expression::function_expression::FunctionExpression;
+use crate::object::ObjectRef;
+use crate::object::stack_environment::EnvRef;
 use crate::{
     ast::{expression::identifier::Identifier, statement::block_statement::BlockStatement},
     object::{Object, stack_environment::StackEnvironment},
@@ -8,7 +14,7 @@ use crate::{
 pub struct Function {
     pub parameters: Vec<Identifier>,
     pub body: BlockStatement,
-    pub env: StackEnvironment,
+    pub env: EnvRef,
 }
 
 impl Function {
@@ -38,7 +44,7 @@ impl Function {
         buffer
     }
 
-    pub fn from_function_expression(expr: &FunctionExpression, environ: &StackEnvironment) -> Self {
+    pub fn from_function_expression(expr: &FunctionExpression, environ: EnvRef) -> Self {
         Self {
             parameters: expr.parameters.clone(),
             body: expr.block.clone(),
@@ -48,27 +54,28 @@ impl Function {
 
     // Function calling
 
-    pub fn apply(&self, arguments: &[Object]) -> Result<Object, String> {
-        let mut env = self.extend_environment_with_args(arguments);
+    pub fn apply(&self, arguments: &[ObjectRef]) -> Result<ObjectRef, String> {
+        let env = self.extend_environment_with_args(arguments);
 
-        let last_expr = self.body.evaluate(&mut env)?;
+        let last_expr = self.body.evaluate(env)?;
+        let content_of_last_expr = last_expr.borrow();
 
-        match last_expr {
-            Object::ReturnVal(ret) => Ok(ret.unwrap_to_value()),
-            other => Ok(other),
+        match &*content_of_last_expr{
+            Object::ReturnVal(ret_val) => Ok( ret_val.unwrap_to_value() ),
+            _ => Ok(last_expr.clone())
         }
     }
 
-    fn extend_environment_with_args(&self, args: &[Object]) -> StackEnvironment {
+    fn extend_environment_with_args(&self, args: &[ObjectRef]) -> EnvRef {
         let mut new_env = StackEnvironment::new_enclosed(&self.env);
 
         self.parameters
             .iter()
             .enumerate()
             .for_each(|(indx, parameter)| {
-                new_env.set(&parameter.value, args[indx].clone());
+                new_env.set(&parameter.value, &args[indx]);
             });
 
-        new_env
+        Rc::new(RefCell::new(new_env))
     }
 }

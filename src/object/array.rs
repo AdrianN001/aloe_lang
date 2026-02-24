@@ -1,8 +1,8 @@
-use crate::object::Object;
+use crate::object::{Object, ObjectRef};
 
 #[derive(PartialEq, Eq, Clone)]
 pub struct Array {
-    pub items: Vec<Object>,
+    pub items: Vec<ObjectRef>,
 }
 
 impl Array {
@@ -19,7 +19,7 @@ impl Array {
             &self
                 .items
                 .iter()
-                .map(|item| item.inspect())
+                .map(|item| item.borrow().inspect())
                 .collect::<Vec<_>>()
                 .join(", "),
         );

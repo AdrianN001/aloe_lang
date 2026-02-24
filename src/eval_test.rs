@@ -22,7 +22,7 @@ fn test_eval_integer_object() {
 
         assert_eq!(program.statements.len(), 1);
 
-        match program.evaluate().unwrap() {
+        match &*program.evaluate().unwrap().borrow() {
             Object::Int(int) => assert_eq!(int.value, expected_value),
             _ => panic!(),
         }
@@ -44,7 +44,7 @@ fn test_eval_bool_object() {
 
         assert_eq!(program.statements.len(), 1);
 
-        match program.evaluate().unwrap() {
+        match &*program.evaluate().unwrap().borrow() {
             Object::Bool(bool) => assert_eq!(bool.value, expected_value),
             _ => panic!(),
         }
@@ -73,7 +73,7 @@ fn test_eval_bang_prefix() {
 
         assert_eq!(program.statements.len(), 1);
 
-        match program.evaluate().unwrap() {
+        match &*program.evaluate().unwrap().borrow() {
             Object::Bool(bool) => assert_eq!(bool.value, expected_value),
             _ => panic!(),
         }
@@ -95,7 +95,7 @@ fn test_eval_minus_prefix_operator() {
 
         assert_eq!(program.statements.len(), 1);
 
-        match program.evaluate().unwrap() {
+        match &*program.evaluate().unwrap().borrow() {
             Object::Int(int) => assert_eq!(int.value, expected_value),
             _ => panic!(),
         }
@@ -129,7 +129,7 @@ fn test_eval_int_and_bool_operations() {
 
         println!("{:?}", &program.to_string());
 
-        match program.evaluate().unwrap() {
+        match &*program.evaluate().unwrap().borrow() {
             Object::Int(int) => assert_eq!(int.value, expected_value),
             Object::Bool(bool) => assert_eq!(bool.value, expected_value == 1),
             _ => panic!(),
@@ -155,7 +155,7 @@ fn test_if_statement_evalulation() {
 
         assert_eq!(program.statements.len(), 1);
 
-        match program.evaluate().unwrap() {
+        match &*program.evaluate().unwrap().borrow() {
             Object::Int(int) => assert_eq!(int.value, expected_value),
             _ => panic!(),
         }
@@ -176,7 +176,10 @@ fn test_if_statement_null_eval() {
 
         assert_eq!(program.statements.len(), 1);
 
-        assert!(matches!(program.evaluate().unwrap(), Object::Null(_)));
+        assert!(matches!(
+            &*program.evaluate().unwrap().borrow(),
+            Object::Null(_)
+        ));
     })
 }
 
@@ -206,7 +209,7 @@ fn test_return_statement() {
 
         let program = parser.into_a_program().unwrap();
 
-        match program.evaluate().unwrap() {
+        match &*program.evaluate().unwrap().borrow() {
             Object::Int(int_val) => assert_eq!(int_val.value, expected_ret_value),
             _ => panic!(),
         }
@@ -230,7 +233,7 @@ fn test_variable_evaluate() {
 
         let program = parser.into_a_program().unwrap();
 
-        match program.evaluate().unwrap() {
+        match &*program.evaluate().unwrap().borrow() {
             Object::Int(int_val) => assert_eq!(int_val.value, expected_value),
             _ => panic!(),
         }
@@ -256,7 +259,8 @@ fn test_function_evaluation() {
 
         let last_object = program.evaluate().unwrap();
 
-        let function_object = match last_object {
+        let binding = last_object.borrow();
+        let function_object = match &*binding {
             Object::Func(func) => func,
             _ => panic!(""),
         };
@@ -301,6 +305,8 @@ fn test_calling_expression() {
         let input = test_case.0.into();
         let expected_value = test_case.1;
 
+        println!("{}", &input);
+
         let lexer = Lexer::new(input);
         let parser = Parser::new(lexer);
         let program = parser.into_a_program().unwrap();
@@ -310,7 +316,7 @@ fn test_calling_expression() {
             Err(err) => panic!("{}", err),
         };
 
-        match last_object {
+        match &*last_object.borrow() {
             Object::Int(integer_value) => assert_eq!(integer_value.value, expected_value),
             Object::Bool(bool_value) => assert_eq!(bool_value.value, expected_value == 1),
             _ => panic!(),
@@ -339,7 +345,7 @@ fn test_basic_string_evaluation() {
             Err(err) => panic!("{}", err),
         };
 
-        match last_object {
+        match &*last_object.borrow() {
             Object::String(string_value) => assert_eq!(string_value.value, expected_value),
             _ => panic!(),
         };
@@ -366,7 +372,7 @@ fn eval_string_concat() {
             Err(err) => panic!("{}", err),
         };
 
-        match last_object {
+        match &*last_object.borrow() {
             Object::String(string_value) => assert_eq!(string_value.value, expected_value),
             _ => panic!(),
         };
@@ -396,7 +402,7 @@ fn eval_index_operator() {
             Err(err) => panic!("{}", err),
         };
 
-        assert_eq!(last_object.inspect(), expected_value);
+        assert_eq!(last_object.borrow().inspect(), expected_value);
     })
 }
 
@@ -421,7 +427,7 @@ fn eval_len_for_strings() {
             Err(err) => panic!("{}", err),
         };
 
-        match last_object {
+        match &*last_object.borrow() {
             Object::Int(integer) => assert_eq!(integer.value, expected_value as i64),
             _ => panic!(),
         };
@@ -449,7 +455,7 @@ fn eval_len_for_arrays() {
             Err(err) => panic!("{}", err),
         };
 
-        match last_object {
+        match &*last_object.borrow() {
             Object::Int(integer) => assert_eq!(integer.value, expected_value as i64),
             _ => panic!(),
         };
@@ -478,7 +484,7 @@ fn eval_rest_builtin() {
             Err(err) => panic!("{}", err),
         };
 
-        match last_object {
+        match &*last_object.borrow() {
             Object::Array(arr) => assert_eq!(arr.inspect(), expected_value),
             Object::String(str) => assert_eq!(str.inspect(), expected_value),
             _ => panic!(),
@@ -508,7 +514,7 @@ fn eval_first_builtin() {
             Err(err) => panic!("{}", err),
         };
 
-        assert_eq!(last_object.inspect(), expected_value);
+        assert_eq!(last_object.borrow().inspect(), expected_value);
     })
 }
 
@@ -535,7 +541,7 @@ fn eval_push_builtin() {
             Err(err) => panic!("{}", err),
         };
 
-        assert_eq!(last_object.inspect(), expected_value);
+        assert_eq!(last_object.borrow().inspect(), expected_value);
     })
 }
 
@@ -560,7 +566,7 @@ fn eval_hashmap_pair_count() {
             Err(err) => panic!("{}", err),
         };
 
-        match last_object {
+        match &*last_object.borrow() {
             Object::HashMap(hashmap) => assert_eq!(hashmap.pairs.len(), expected_value),
             _ => panic!("unexpected last object"),
         }
@@ -588,6 +594,6 @@ fn eval_hashmap_indexing() {
             Err(err) => panic!("{}", err),
         };
 
-        assert_eq!(last_object.inspect(), expected_value)
+        assert_eq!(last_object.borrow().inspect(), expected_value)
     })
 }

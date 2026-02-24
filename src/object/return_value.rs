@@ -1,8 +1,8 @@
-use crate::object::Object;
+use crate::object::{Object, ObjectRef};
 
 #[derive(PartialEq, Eq, Clone)]
 pub struct ReturnValue {
-    pub value: Box<Object>,
+    pub value: Box<ObjectRef>,
 }
 
 impl ReturnValue {
@@ -11,10 +11,10 @@ impl ReturnValue {
     }
 
     pub fn inspect(&self) -> String {
-        self.value.inspect()
+        self.value.borrow().inspect()
     }
 
-    pub fn unwrap_to_value(&self) -> Object {
+    pub fn unwrap_to_value(&self) -> ObjectRef {
         *self.value.clone()
     }
 }

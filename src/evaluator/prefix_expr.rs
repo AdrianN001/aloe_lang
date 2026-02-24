@@ -1,7 +1,9 @@
-use crate::object::{Object, integer::Integer};
+use std::{cell::RefCell, rc::Rc};
+
+use crate::object::{Object, ObjectRef, integer::Integer};
 
 impl Object {
-    pub fn evaluate_prefix(&self, operator: &str) -> Result<Object, String> {
+    pub fn evaluate_prefix(&self, operator: &str) -> Result<ObjectRef, String> {
         match operator {
             "!" => self.evaluate_bang_operator_expression(),
             "-" => self.evaluate_minus_prefix_operator_expression(),
@@ -9,20 +11,24 @@ impl Object {
         }
     }
 
-    fn evaluate_bang_operator_expression(&self) -> Result<Object, String> {
+    fn evaluate_bang_operator_expression(&self) -> Result<ObjectRef, String> {
         if *self == Object::TRUE_BOOL_OBJECT {
-            return Ok(Object::get_native_boolean_object(false));
+            return Ok(Rc::new(RefCell::new(Object::get_native_boolean_object(
+                false,
+            ))));
         } else if *self == Object::FALSE_BOOL_OBJECT || *self == Object::NULL_OBJECT {
-            return Ok(Object::get_native_boolean_object(true));
+            return Ok(Rc::new(RefCell::new(Object::get_native_boolean_object(
+                true,
+            ))));
         }
         Err("unexpected expression on the right side".into())
     }
 
-    fn evaluate_minus_prefix_operator_expression(&self) -> Result<Object, String> {
+    fn evaluate_minus_prefix_operator_expression(&self) -> Result<ObjectRef, String> {
         match self {
-            Object::Int(integer) => Ok(Object::Int(Integer {
+            Object::Int(integer) => Ok(Rc::new(RefCell::new(Object::Int(Integer {
                 value: -integer.value,
-            })),
+            })))),
             _ => Err("unexpected expression on the right side".into()),
         }
     }

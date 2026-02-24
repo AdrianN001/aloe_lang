@@ -1,6 +1,8 @@
+use std::{cell::RefCell, rc::Rc};
+
 use crate::{
     ast::expression::identifier::Identifier,
-    object::{Object, built_in::BuiltIn, stack_environment::StackEnvironment},
+    object::{Object, ObjectRef, built_in::BuiltIn, stack_environment::{EnvRef, StackEnvironment}},
 };
 
 impl Identifier {
@@ -18,12 +20,12 @@ impl Identifier {
         }
     }
 
-    pub fn evaluate(&self, environ: &StackEnvironment) -> Result<Object, String> {
-        match environ.get_owned(&self.value) {
-            Some(obj) => Ok(obj),
+    pub fn evaluate(&self, environ: EnvRef) -> Result<ObjectRef, String> {
+        match environ.borrow().get(&self.value) {
+            Some(obj) => Ok(obj.clone()),
             None => {
                 if let Some(built_in) = self.get_builtin_from_identifier() {
-                    return Ok(Object::BuiltIn(built_in));
+                    return Ok(Rc::new(RefCell::new(Object::BuiltIn(built_in))));
                 }
 
                 Err(format!("unknown identifier: {}", &self.value))

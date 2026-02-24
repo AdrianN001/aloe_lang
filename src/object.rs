@@ -12,6 +12,8 @@ pub mod stack_environment;
 pub mod string_obj;
 pub mod truthy;
 
+use std::{cell::RefCell, rc::Rc};
+
 use array::Array;
 use boolean::Boolean;
 use built_in::BuiltIn;
@@ -22,6 +24,8 @@ use integer::Integer;
 use null::Null;
 use return_value::ReturnValue;
 use string_obj::StringObj;
+
+pub type ObjectRef = Rc<RefCell<Object>>;
 
 #[derive(PartialEq, Eq, Clone)]
 pub enum Object {

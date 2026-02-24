@@ -6,9 +6,8 @@ use crate::{
     object::{Object, ObjectRef, hashable::Hashable, stack_environment::StackEnvironment},
 };
 
-
 impl IndexExpression {
-    pub fn evaluate(&self, environ: EnvRef ) -> Result<ObjectRef, String> {
+    pub fn evaluate(&self, environ: EnvRef) -> Result<ObjectRef, String> {
         let left_expr = self.left.evaluate(environ.clone())?;
         let index = self.right.evaluate(environ.clone())?;
 

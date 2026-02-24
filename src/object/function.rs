@@ -1,4 +1,3 @@
-
 use std::cell::RefCell;
 use std::rc::Rc;
 
@@ -60,9 +59,9 @@ impl Function {
         let last_expr = self.body.evaluate(env)?;
         let content_of_last_expr = last_expr.borrow();
 
-        match &*content_of_last_expr{
-            Object::ReturnVal(ret_val) => Ok( ret_val.unwrap_to_value() ),
-            _ => Ok(last_expr.clone())
+        match &*content_of_last_expr {
+            Object::ReturnVal(ret_val) => Ok(ret_val.unwrap_to_value()),
+            _ => Ok(last_expr.clone()),
         }
     }
 

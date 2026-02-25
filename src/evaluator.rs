@@ -6,6 +6,7 @@ mod if_expression;
 mod index_expr;
 mod infix_expr;
 mod prefix_expr;
+mod member_expr;
 
 use std::cell::RefCell;
 use std::rc::Rc;
@@ -82,8 +83,9 @@ impl Expression {
                 left_side
                     .borrow()
                     .evaluate_infix_expression(right_side.clone(), &infix_expr.operator)
-            }
-            _ => panic!("unexpected expression type"),
+            },
+            Expression::Member(member_expression) => member_expression.evaluate(environ.clone()),
+            Expression::InvalidExpression => panic!("unexpected expression type"),
         }
     }
 }

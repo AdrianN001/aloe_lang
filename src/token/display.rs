@@ -18,6 +18,8 @@ impl fmt::Display for TokenType {
             TokenType::Asterisk => "*",
             TokenType::Slash => "/",
 
+            TokenType::Dot => ".",
+
             TokenType::LT => "<",
             TokenType::GT => ">",
             TokenType::Eq => "==",

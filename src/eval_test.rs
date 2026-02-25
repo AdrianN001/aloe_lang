@@ -597,3 +597,28 @@ fn eval_hashmap_indexing() {
         assert_eq!(last_object.borrow().inspect(), expected_value)
     })
 }
+
+#[test]
+fn eval_member_operator(){
+    let testcases = [
+        (r#"let str = "abc"; str.length;"#, "3"),
+        (r#" "valami".random_method(3); "#, r#"unknown method for string: 'random_method'"#),
+        (r#" "abc".reversed(); "#, r#""cba""#)
+    ];
+
+    testcases.iter().for_each(|testcase| {
+        let input = testcase.0.into();
+        let expected_value = testcase.1;
+
+        let lexer = Lexer::new(input);
+        let parser = Parser::new(lexer);
+        let program = parser.into_a_program().unwrap();
+
+        let last_object = match program.evaluate() {
+            Ok(x) => x,
+            Err(err) => panic!("{}", err),
+        };
+
+        assert_eq!(last_object.borrow().inspect(), expected_value)
+    })
+}

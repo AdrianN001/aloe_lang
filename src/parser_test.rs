@@ -584,3 +584,39 @@ fn test_index_parsing() {
         _ => panic!(),
     }
 }
+
+#[test]
+fn test_member_operator(){
+    let testcases = [
+        ("string.length;",   "string", "length"),
+        ("array.max();",     "array",  "max()"),
+        ("hashmap.get(123);","hashmap","get(123)")
+    ];
+
+    testcases.iter().for_each(|test_case| {
+        let input = test_case.0.into();
+        let expected_object_name = test_case.1;
+        let expected_member_name = test_case.2;
+
+        let lexer = Lexer::new(input);
+        let parser = Parser::new(lexer);
+        let program = parser.into_a_program().unwrap();
+
+        assert_eq!(program.statements.len(), 1);
+
+        let last_expr = match &program.statements[0]{
+            Statement::Expression(expr) => expr, 
+            _ => panic!()
+        };
+        
+        let member_expression = match &last_expr.expression{
+            Expression::Member(member) => member,
+            _ => panic!("not a member expression"),
+        };
+
+        assert_eq!(member_expression.left.to_string(),  expected_object_name);
+        assert_eq!(member_expression.right.to_string(), expected_member_name);
+    })
+
+
+}

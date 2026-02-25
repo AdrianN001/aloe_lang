@@ -11,6 +11,7 @@ pub mod return_value;
 pub mod stack_environment;
 pub mod string_obj;
 pub mod truthy;
+pub mod member;
 
 use std::{cell::RefCell, rc::Rc};
 
@@ -93,9 +94,9 @@ impl Object {
     }
 
     pub fn is_hashable(&self) -> bool {
-        match self {
-            Object::String(_) | Object::Int(_) | Object::Bool(_) => true,
-            _ => false,
-        }
+        matches!(
+            self,
+            Object::String(_) | Object::Int(_) | Object::Bool(_)
+        )
     }
 }

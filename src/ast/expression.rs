@@ -10,7 +10,9 @@ pub mod infix;
 pub mod integer_literal;
 pub mod prefix_expression;
 pub mod string_expr;
+pub mod member;
 
+use member::MemberExpression;
 use array_literal::ArrayLiteral;
 use boolean::Boolean;
 use call_expression::CallExpression;
@@ -38,6 +40,8 @@ pub enum Expression {
     Index(IndexExpression),
     HashMapLiteral(HashMapLiteral),
 
+    Member(MemberExpression),
+    
     If(IfExpression),
 
     #[default]
@@ -63,6 +67,7 @@ impl Expression {
             Expression::Array(s) => s.to_string(),
             Expression::Index(s) => s.to_string(),
             Expression::HashMapLiteral(s) => s.to_string(),
+            Expression::Member(s) => s.to_string(),
             other => other.token_literal().to_string(),
         }
     }

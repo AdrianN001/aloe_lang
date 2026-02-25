@@ -2,6 +2,7 @@ use std::collections::BTreeMap;
 
 use crate::ast::expression::boolean::Boolean;
 use crate::ast::expression::identifier::Identifier;
+use crate::ast::expression::member::MemberExpression;
 use crate::{
     ast::{
         Parser,
@@ -57,6 +58,10 @@ impl Parser {
                 | TokenType::GT => {
                     self.next_token();
                     left_expression = self.parse_infix_expression(&left_expression)?;
+                },
+                TokenType::Dot => {
+                    self.next_token();
+                    left_expression = self.parse_member_operator_expression(&left_expression)?;
                 }
                 TokenType::LBracket => {
                     self.next_token();
@@ -87,6 +92,33 @@ impl Parser {
             token: self.current_token.clone(),
             value: self.current_token.token_type == TokenType::KwTrue,
         })
+    }
+
+    fn parse_member_operator_expression(&mut self, left: &Expression) -> Result<Expression, String>{
+        let mut expr = MemberExpression{
+            token: self.current_token.clone(),
+            left: Box::new(left.to_owned()),
+            ..MemberExpression::default()
+        };
+
+        self.next_token();
+        let right_expr = self.parse_expression(OperationPrecedence::Lowest)?;
+
+        match &right_expr{
+            Expression::Identifier(identifier) => expr.member_name = identifier.value.clone(),
+            Expression::Call(call_expr) => {
+                match &*call_expr.function{
+                    Expression::Identifier(call_identifier) => expr.member_name = call_identifier.value.clone(),
+                    _ => return Err("invalid member".to_string())
+                }
+            },
+            _ => return Err("invalid member".to_string())
+        }
+
+        expr.right = Box::new(right_expr);
+
+
+        Ok(Expression::Member(expr))
     }
 
     fn parse_grouped_expression(&mut self) -> Result<Expression, String> {

@@ -1,6 +1,7 @@
 use std::{cell::RefCell, rc::Rc};
 
 use crate::object::stack_environment::EnvRef;
+use crate::object::string_obj::StringObj;
 use crate::{
     ast::expression::index_expression::IndexExpression,
     object::{Object, ObjectRef, hashable::Hashable, stack_environment::StackEnvironment},
@@ -25,6 +26,23 @@ impl IndexExpression {
                 }
 
                 Ok(arr_interior_value[index_interior_value as usize].clone())
+            },
+            (Object::String(str), Object::Int(index)) => {
+                let arr_interior_value = &str.value;
+                let mut index_interior_value = index.value;
+
+                if index_interior_value < 0 {
+                    index_interior_value = str.value.len() as i64 - index_interior_value;
+                }
+
+                if index_interior_value > (arr_interior_value.len() as i64) - 1 {
+                    return Ok(Rc::new(RefCell::new(Object::NULL_OBJECT)));
+                }
+
+                Ok(Rc::new(RefCell::new(Object::String(StringObj{
+                    value: arr_interior_value.chars().nth(index_interior_value as usize).unwrap().to_string()
+                }))))
+
             }
             (Object::HashMap(map), key_object) => {
                 if !key_object.is_hashable() {

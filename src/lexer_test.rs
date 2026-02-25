@@ -34,7 +34,8 @@ let result = add(five, ten);
 "foo bar"
 "valami06"
 [1,"asd"];
-{"foo": "bar"}
+{"foo": "bar"};
+string.length
 "#;
     let mut lexer = Lexer::new(input.to_string());
 
@@ -88,7 +89,13 @@ let result = add(five, ten);
         Token::simple(TokenType::Colon, ":"),
         Token::simple(TokenType::String, "bar"),
         Token::simple(TokenType::RBrace, "}"),
-        Token::simple(TokenType::Eof, ""),
+        Token::simple(TokenType::Semicolon, ";"),
+
+        Token::simple(TokenType::Identifier, "string"),
+        Token::simple(TokenType::Dot, "."),
+        Token::simple(TokenType::Identifier, "length"),
+        
+    Token::simple(TokenType::Eof, ""),
     ];
 
     expected_tokens.iter().for_each(|expected_token| {

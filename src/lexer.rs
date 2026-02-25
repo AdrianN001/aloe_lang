@@ -146,6 +146,7 @@ impl Lexer {
             '<' => Token::simple(TokenType::LT, "<"),
             '>' => Token::simple(TokenType::GT, ">"),
             ':' => Token::simple(TokenType::Colon, ":"),
+            '.' => Token::simple(TokenType::Dot, "."),
             '!' => {
                 if let Some(next_char) = self.peek()
                     && next_char == '='

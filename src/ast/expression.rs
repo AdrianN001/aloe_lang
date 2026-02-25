@@ -11,7 +11,9 @@ pub mod integer_literal;
 pub mod prefix_expression;
 pub mod string_expr;
 pub mod member;
+pub mod float_literal;
 
+use float_literal::FloatLiteral;
 use member::MemberExpression;
 use array_literal::ArrayLiteral;
 use boolean::Boolean;
@@ -30,6 +32,7 @@ use string_expr::StringExpr;
 pub enum Expression {
     Identifier(Identifier),
     IntegerLiteral(IntegerLiteral),
+    FloatLiteral(FloatLiteral),
     Prefix(PrefixExpression),
     Infix(InfixExpression),
     Bool(Boolean),
@@ -39,6 +42,7 @@ pub enum Expression {
     Array(ArrayLiteral),
     Index(IndexExpression),
     HashMapLiteral(HashMapLiteral),
+
 
     Member(MemberExpression),
     
@@ -68,6 +72,7 @@ impl Expression {
             Expression::Index(s) => s.to_string(),
             Expression::HashMapLiteral(s) => s.to_string(),
             Expression::Member(s) => s.to_string(),
+            Expression::FloatLiteral(s) => format!("{}.{}", s.integer_part, s.float_part),
             other => other.token_literal().to_string(),
         }
     }

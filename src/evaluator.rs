@@ -7,6 +7,7 @@ mod index_expr;
 mod infix_expr;
 mod prefix_expr;
 mod member_expr;
+mod float_obj;
 
 use std::cell::RefCell;
 use std::rc::Rc;
@@ -33,7 +34,8 @@ impl Expression {
                 Ok(Rc::new(RefCell::new(Object::Int(Integer {
                     value: literal.value,
                 }))))
-            }
+            },
+            Expression::FloatLiteral(float_literal) => Ok(float_literal.evaluate()),
             Expression::Identifier(identifier) => identifier.evaluate(environ.clone()),
             Expression::Bool(bool_literal) => Ok(Rc::new(RefCell::new(
                 Object::get_native_boolean_object(bool_literal.value),

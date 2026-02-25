@@ -617,6 +617,41 @@ fn test_member_operator(){
         assert_eq!(member_expression.left.to_string(),  expected_object_name);
         assert_eq!(member_expression.right.to_string(), expected_member_name);
     })
+}
 
+#[test]
+fn test_float_number_parsing(){
+    let testcases = [
+        ("3.0;",    "3.0",     3, 0),
+        ("25.14;",  "25.14",  25, 14),
+    ];
+
+    testcases.iter().for_each(|test_case| {
+        let input = test_case.0.into();
+        let expected_str_output = test_case.1;
+        let expected_int_part = test_case.2;
+        let expected_float_part = test_case.3;
+
+        let lexer = Lexer::new(input);
+        let parser = Parser::new(lexer);
+        let program = parser.into_a_program().unwrap();
+
+        assert_eq!(program.statements.len(), 1);
+
+        let last_expr = match &program.statements[0]{
+            Statement::Expression(expr) => expr, 
+            _ => panic!()
+        };
+        
+        let float_expression = match &last_expr.expression{
+            Expression::FloatLiteral(float) => float,
+            _ => panic!("not a float"),
+        };
+
+        assert_eq!(&last_expr.expression.to_string(), expected_str_output);
+
+        assert_eq!(float_expression.integer_part, expected_int_part);
+        assert_eq!(float_expression.float_part, expected_float_part);
+    })
 
 }

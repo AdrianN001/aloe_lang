@@ -622,3 +622,35 @@ fn eval_member_operator(){
         assert_eq!(last_object.borrow().inspect(), expected_value)
     })
 }
+
+#[test]
+fn eval_floats(){
+    let testcases = [
+        ("3.4;", "3.4"),
+        ("-12.54;", "-12.54"),
+    ];
+
+    testcases.iter().for_each(|testcase| {
+        let input = testcase.0.into();
+        let expected_value = testcase.1;
+
+        let lexer = Lexer::new(input);
+        let parser = Parser::new(lexer);
+        let program = parser.into_a_program().unwrap();
+
+        let last_object = match program.evaluate() {
+            Ok(x) => x,
+            Err(err) => panic!("{}", err),
+        };
+
+        assert!(
+            matches!(
+                &*last_object.borrow(),
+                Object::FloatObj(_),
+            )
+        );
+
+        assert_eq!(last_object.borrow().inspect(), expected_value)
+    })
+
+}

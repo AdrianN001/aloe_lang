@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::object::{Object, ObjectRef, integer::Integer};
+use crate::object::{Object, ObjectRef, float_obj::FloatObj, integer::Integer};
 
 impl Object {
     pub fn evaluate_prefix(&self, operator: &str) -> Result<ObjectRef, String> {
@@ -28,6 +28,9 @@ impl Object {
         match self {
             Object::Int(integer) => Ok(Rc::new(RefCell::new(Object::Int(Integer {
                 value: -integer.value,
+            })))),
+            Object::FloatObj(float) => Ok(Rc::new(RefCell::new(Object::FloatObj(FloatObj{
+                val: -float.val
             })))),
             _ => Err("unexpected expression on the right side".into()),
         }

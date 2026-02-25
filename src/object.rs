@@ -12,9 +12,11 @@ pub mod stack_environment;
 pub mod string_obj;
 pub mod truthy;
 pub mod member;
+pub mod float_obj;
 
 use std::{cell::RefCell, rc::Rc};
 
+use float_obj::FloatObj;
 use array::Array;
 use boolean::Boolean;
 use built_in::BuiltIn;
@@ -31,6 +33,7 @@ pub type ObjectRef = Rc<RefCell<Object>>;
 #[derive(PartialEq, Eq, Clone)]
 pub enum Object {
     Int(Integer),
+    FloatObj(FloatObj),
     Bool(Boolean),
     String(StringObj),
 
@@ -75,6 +78,7 @@ impl Object {
             Object::Err(obj) => obj.get_type(),
             Object::Array(obj) => obj.get_type(),
             Object::HashMap(obj) => obj.get_type(),
+            Object::FloatObj(obj) => obj.get_type(),
         }
     }
 
@@ -85,18 +89,20 @@ impl Object {
             Object::Null(obj) => obj.inspect(),
             Object::Func(function) => function.inspect(),
             Object::ReturnVal(obj) => obj.inspect(),
-            Object::String(obj) => obj.inspect(),
+            Object::String(obj) => obj.value.clone(),
             Object::BuiltIn(obj) => obj.inspect(),
             Object::Err(obj) => obj.inspect(),
             Object::Array(obj) => obj.inspect(),
             Object::HashMap(obj) => obj.inspect(),
+            Object::FloatObj(obj) => obj.inspect(),
         }
     }
 
     pub fn is_hashable(&self) -> bool {
         matches!(
             self,
-            Object::String(_) | Object::Int(_) | Object::Bool(_)
+            Object::String(_) | Object::Int(_)      |  
+            Object::Bool(_)   | Object::FloatObj(_) 
         )
     }
 }

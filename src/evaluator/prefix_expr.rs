@@ -29,8 +29,8 @@ impl Object {
             Object::Int(integer) => Ok(Rc::new(RefCell::new(Object::Int(Integer {
                 value: -integer.value,
             })))),
-            Object::FloatObj(float) => Ok(Rc::new(RefCell::new(Object::FloatObj(FloatObj{
-                val: -float.val
+            Object::FloatObj(float) => Ok(Rc::new(RefCell::new(Object::FloatObj(FloatObj {
+                val: -float.val,
             })))),
             _ => Err("unexpected expression on the right side".into()),
         }

@@ -3,7 +3,7 @@ mod console;
 mod len;
 
 use crate::object::{
-    Object, ObjectRef,
+    ObjectRef,
     built_in::{
         array_method::{
             first_builtin_function, last_builtin_function, push_builtin_function,

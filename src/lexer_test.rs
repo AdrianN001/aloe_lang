@@ -90,12 +90,10 @@ string.length
         Token::simple(TokenType::String, "bar"),
         Token::simple(TokenType::RBrace, "}"),
         Token::simple(TokenType::Semicolon, ";"),
-
         Token::simple(TokenType::Identifier, "string"),
         Token::simple(TokenType::Dot, "."),
         Token::simple(TokenType::Identifier, "length"),
-        
-    Token::simple(TokenType::Eof, ""),
+        Token::simple(TokenType::Eof, ""),
     ];
 
     expected_tokens.iter().for_each(|expected_token| {

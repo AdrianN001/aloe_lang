@@ -59,7 +59,7 @@ impl Parser {
                 | TokenType::GT => {
                     self.next_token();
                     left_expression = self.parse_infix_expression(&left_expression)?;
-                },
+                }
                 TokenType::Dot => {
                     self.next_token();
                     left_expression = self.parse_dot_expression(&left_expression)?;
@@ -95,39 +95,41 @@ impl Parser {
         })
     }
 
-    fn parse_dot_expression(&mut self, left: &Expression) -> Result<Expression, String>{
+    fn parse_dot_expression(&mut self, left: &Expression) -> Result<Expression, String> {
         let token = self.current_token.clone();
         self.next_token();
         let right_expr = self.parse_expression(OperationPrecedence::Lowest)?;
 
-        if let Expression::IntegerLiteral(int_part) = left && let Expression::IntegerLiteral(float_part) = &right_expr{
-            return Ok(Expression::FloatLiteral(FloatLiteral{
+        if let Expression::IntegerLiteral(int_part) = left
+            && let Expression::IntegerLiteral(float_part) = &right_expr
+        {
+            return Ok(Expression::FloatLiteral(FloatLiteral {
                 token,
                 integer_part: int_part.value as i32,
-                float_part:   float_part.value as u32
-            }))
+                float_part: float_part.value as u32,
+            }));
         }
 
-        let mut member_expr = MemberExpression{
-            token, 
+        let mut member_expr = MemberExpression {
+            token,
             left: Box::new(left.to_owned()),
             ..Default::default()
         };
 
-
-        match &right_expr{
-            Expression::Identifier(identifier) => member_expr.member_name = identifier.value.clone(),
-            Expression::Call(call_expr) => {
-                match &*call_expr.function{
-                    Expression::Identifier(call_identifier) => member_expr.member_name = call_identifier.value.clone(),
-                    _ => return Err("invalid member".to_string())
+        match &right_expr {
+            Expression::Identifier(identifier) => {
+                member_expr.member_name = identifier.value.clone()
+            }
+            Expression::Call(call_expr) => match &*call_expr.function {
+                Expression::Identifier(call_identifier) => {
+                    member_expr.member_name = call_identifier.value.clone()
                 }
+                _ => return Err("invalid member".to_string()),
             },
-            _ => return Err("invalid member".to_string())
+            _ => return Err("invalid member".to_string()),
         }
 
         member_expr.right = Box::new(right_expr);
-
 
         Ok(Expression::Member(member_expr))
     }

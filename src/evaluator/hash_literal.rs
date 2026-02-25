@@ -6,7 +6,7 @@ use crate::{
         Object, ObjectRef,
         hashable::Hashable,
         hashmap::{HashMap, HashPair},
-        stack_environment::{EnvRef, StackEnvironment},
+        stack_environment::EnvRef,
     },
 };
 

@@ -2,25 +2,25 @@ pub mod array;
 pub mod boolean;
 pub mod built_in;
 pub mod error;
+pub mod float_obj;
 pub mod function;
 pub mod hashable;
 pub mod hashmap;
 pub mod integer;
+pub mod member;
 pub mod null;
 pub mod return_value;
 pub mod stack_environment;
 pub mod string_obj;
 pub mod truthy;
-pub mod member;
-pub mod float_obj;
 
 use std::{cell::RefCell, rc::Rc};
 
-use float_obj::FloatObj;
 use array::Array;
 use boolean::Boolean;
 use built_in::BuiltIn;
 use error::Error;
+use float_obj::FloatObj;
 use function::Function;
 use hashmap::HashMap;
 use integer::Integer;
@@ -101,8 +101,7 @@ impl Object {
     pub fn is_hashable(&self) -> bool {
         matches!(
             self,
-            Object::String(_) | Object::Int(_)      |  
-            Object::Bool(_)   | Object::FloatObj(_) 
+            Object::String(_) | Object::Int(_) | Object::Bool(_) | Object::FloatObj(_)
         )
     }
 }

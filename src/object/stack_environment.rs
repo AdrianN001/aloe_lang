@@ -1,6 +1,6 @@
 use std::{cell::RefCell, collections::HashMap, rc::Rc};
 
-use crate::object::{Object, ObjectRef};
+use crate::object::ObjectRef;
 
 pub type EnvRef = Rc<RefCell<StackEnvironment>>;
 

@@ -586,11 +586,11 @@ fn test_index_parsing() {
 }
 
 #[test]
-fn test_member_operator(){
+fn test_member_operator() {
     let testcases = [
-        ("string.length;",   "string", "length"),
-        ("array.max();",     "array",  "max()"),
-        ("hashmap.get(123);","hashmap","get(123)")
+        ("string.length;", "string", "length"),
+        ("array.max();", "array", "max()"),
+        ("hashmap.get(123);", "hashmap", "get(123)"),
     ];
 
     testcases.iter().for_each(|test_case| {
@@ -604,27 +604,24 @@ fn test_member_operator(){
 
         assert_eq!(program.statements.len(), 1);
 
-        let last_expr = match &program.statements[0]{
-            Statement::Expression(expr) => expr, 
-            _ => panic!()
+        let last_expr = match &program.statements[0] {
+            Statement::Expression(expr) => expr,
+            _ => panic!(),
         };
-        
-        let member_expression = match &last_expr.expression{
+
+        let member_expression = match &last_expr.expression {
             Expression::Member(member) => member,
             _ => panic!("not a member expression"),
         };
 
-        assert_eq!(member_expression.left.to_string(),  expected_object_name);
+        assert_eq!(member_expression.left.to_string(), expected_object_name);
         assert_eq!(member_expression.right.to_string(), expected_member_name);
     })
 }
 
 #[test]
-fn test_float_number_parsing(){
-    let testcases = [
-        ("3.0;",    "3.0",     3, 0),
-        ("25.14;",  "25.14",  25, 14),
-    ];
+fn test_float_number_parsing() {
+    let testcases = [("3.0;", "3.0", 3, 0), ("25.14;", "25.14", 25, 14)];
 
     testcases.iter().for_each(|test_case| {
         let input = test_case.0.into();
@@ -638,12 +635,12 @@ fn test_float_number_parsing(){
 
         assert_eq!(program.statements.len(), 1);
 
-        let last_expr = match &program.statements[0]{
-            Statement::Expression(expr) => expr, 
-            _ => panic!()
+        let last_expr = match &program.statements[0] {
+            Statement::Expression(expr) => expr,
+            _ => panic!(),
         };
-        
-        let float_expression = match &last_expr.expression{
+
+        let float_expression = match &last_expr.expression {
             Expression::FloatLiteral(float) => float,
             _ => panic!("not a float"),
         };
@@ -653,5 +650,4 @@ fn test_float_number_parsing(){
         assert_eq!(float_expression.integer_part, expected_int_part);
         assert_eq!(float_expression.float_part, expected_float_part);
     })
-
 }

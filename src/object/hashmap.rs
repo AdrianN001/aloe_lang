@@ -1,6 +1,6 @@
 use std::collections::BTreeMap;
 
-use crate::object::{Object, ObjectRef};
+use crate::object::ObjectRef;
 
 #[derive(PartialEq, Eq, Clone)]
 pub struct HashMap {

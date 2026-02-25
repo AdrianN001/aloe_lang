@@ -2,11 +2,7 @@ use std::{cell::RefCell, rc::Rc};
 
 use crate::{
     ast::expression::identifier::Identifier,
-    object::{
-        Object, ObjectRef,
-        built_in::BuiltIn,
-        stack_environment::{EnvRef, StackEnvironment},
-    },
+    object::{Object, ObjectRef, built_in::BuiltIn, stack_environment::EnvRef},
 };
 
 impl Identifier {

@@ -1,13 +1,13 @@
 mod block_statement;
 mod call_expr;
+mod float_obj;
 mod hash_literal;
 mod identifier;
 mod if_expression;
 mod index_expr;
 mod infix_expr;
-mod prefix_expr;
 mod member_expr;
-mod float_obj;
+mod prefix_expr;
 
 use std::cell::RefCell;
 use std::rc::Rc;
@@ -34,7 +34,7 @@ impl Expression {
                 Ok(Rc::new(RefCell::new(Object::Int(Integer {
                     value: literal.value,
                 }))))
-            },
+            }
             Expression::FloatLiteral(float_literal) => Ok(float_literal.evaluate()),
             Expression::Identifier(identifier) => identifier.evaluate(environ.clone()),
             Expression::Bool(bool_literal) => Ok(Rc::new(RefCell::new(
@@ -85,7 +85,7 @@ impl Expression {
                 left_side
                     .borrow()
                     .evaluate_infix_expression(right_side.clone(), &infix_expr.operator)
-            },
+            }
             Expression::Member(member_expression) => member_expression.evaluate(environ.clone()),
             Expression::InvalidExpression => panic!("unexpected expression type"),
         }

@@ -4,7 +4,7 @@ use crate::object::stack_environment::EnvRef;
 
 use crate::{
     ast::expression::if_expression::IfExpression,
-    object::{Object, ObjectRef, null::Null, stack_environment::StackEnvironment},
+    object::{Object, ObjectRef, null::Null},
 };
 
 impl IfExpression {

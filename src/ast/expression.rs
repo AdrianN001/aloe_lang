@@ -1,6 +1,7 @@
 pub mod array_literal;
 pub mod boolean;
 pub mod call_expression;
+pub mod float_literal;
 pub mod function_expression;
 pub mod hash_map_literal;
 pub mod identifier;
@@ -8,16 +9,14 @@ pub mod if_expression;
 pub mod index_expression;
 pub mod infix;
 pub mod integer_literal;
+pub mod member;
 pub mod prefix_expression;
 pub mod string_expr;
-pub mod member;
-pub mod float_literal;
 
-use float_literal::FloatLiteral;
-use member::MemberExpression;
 use array_literal::ArrayLiteral;
 use boolean::Boolean;
 use call_expression::CallExpression;
+use float_literal::FloatLiteral;
 use function_expression::FunctionExpression;
 use hash_map_literal::HashMapLiteral;
 use identifier::Identifier;
@@ -25,6 +24,7 @@ use if_expression::IfExpression;
 use index_expression::IndexExpression;
 use infix::InfixExpression;
 use integer_literal::IntegerLiteral;
+use member::MemberExpression;
 use prefix_expression::PrefixExpression;
 use string_expr::StringExpr;
 
@@ -43,9 +43,8 @@ pub enum Expression {
     Index(IndexExpression),
     HashMapLiteral(HashMapLiteral),
 
-
     Member(MemberExpression),
-    
+
     If(IfExpression),
 
     #[default]

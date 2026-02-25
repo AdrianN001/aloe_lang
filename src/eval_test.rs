@@ -599,11 +599,14 @@ fn eval_hashmap_indexing() {
 }
 
 #[test]
-fn eval_member_operator(){
+fn eval_member_operator() {
     let testcases = [
         (r#"let str = "abc"; str.length;"#, "3"),
-        (r#" "valami".random_method(3); "#, r#"unknown method for string: 'random_method'"#),
-        (r#" "abc".reversed(); "#, r#""cba""#)
+        (
+            r#" "valami".random_method(3); "#,
+            r#"unknown method for string: 'random_method'"#,
+        ),
+        (r#" "abc".reversed(); "#, r#""cba""#),
     ];
 
     testcases.iter().for_each(|testcase| {
@@ -624,11 +627,8 @@ fn eval_member_operator(){
 }
 
 #[test]
-fn eval_floats(){
-    let testcases = [
-        ("3.4;", "3.4"),
-        ("-12.54;", "-12.54"),
-    ];
+fn eval_floats() {
+    let testcases = [("3.4;", "3.4"), ("-12.54;", "-12.54")];
 
     testcases.iter().for_each(|testcase| {
         let input = testcase.0.into();
@@ -643,14 +643,8 @@ fn eval_floats(){
             Err(err) => panic!("{}", err),
         };
 
-        assert!(
-            matches!(
-                &*last_object.borrow(),
-                Object::FloatObj(_),
-            )
-        );
+        assert!(matches!(&*last_object.borrow(), Object::FloatObj(_),));
 
         assert_eq!(last_object.borrow().inspect(), expected_value)
     })
-
 }

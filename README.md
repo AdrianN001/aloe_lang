@@ -57,6 +57,7 @@ This project is designed to be:
 * String
 * Array
 * Hash Map
+* Iterator
 * Function
 * Null
 

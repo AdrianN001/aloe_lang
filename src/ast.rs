@@ -1,4 +1,3 @@
-use std::default;
 
 use crate::ast::expression::identifier::Identifier;
 use crate::ast::precedence::OperationPrecedence;

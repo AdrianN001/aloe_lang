@@ -2,7 +2,6 @@ use std::{cell::RefCell, rc::Rc};
 
 use crate::object::{
     Object, ObjectRef, array::Array, iterator::Iterator, stack_environment::EnvRef,
-    string_obj::StringObj,
 };
 
 impl Iterator {

@@ -1,5 +1,9 @@
+use std::default;
+
 use crate::ast::expression::identifier::Identifier;
 use crate::ast::precedence::OperationPrecedence;
+use crate::ast::statement::break_statement::BreakStatement;
+use crate::ast::statement::continue_statement::ContinueStatement;
 use crate::ast::statement::let_statement::LetStatement;
 use crate::{
     ast::{
@@ -70,6 +74,8 @@ impl Parser {
         match self.current_token.token_type {
             TokenType::KwLet => self.parse_let(),
             TokenType::KwReturn => self.parse_return(),
+            TokenType::KwBreak => self.parse_break(),
+            TokenType::KwContinue => self.parse_continue(),
             _ => self.parse_expression_statement(),
         }
     }
@@ -114,6 +120,16 @@ impl Parser {
         Ok(Statement::Let(statement))
     }
 
+    fn parse_continue(&mut self) -> Result<Statement, String>{
+        Ok(Statement::Continue(ContinueStatement{
+            token: {
+                let token = self.current_token.clone();
+                self.next_token();
+                token
+            }
+        }))
+    }
+
     fn parse_return(&mut self) -> Result<Statement, String> {
         let statement = ReturnStatement {
             token: self.current_token.clone(),
@@ -128,6 +144,29 @@ impl Parser {
         }
 
         Ok(Statement::Return(statement))
+    }
+
+    fn parse_break(&mut self) -> Result<Statement, String>{
+        let mut statement = BreakStatement {
+            token: self.current_token.clone(),
+            expression: None,
+        };
+
+        self.next_token();
+        
+        if self.current_token.token_type != TokenType::Semicolon{
+            match self.parse_expression(OperationPrecedence::Lowest){
+                Ok(ok_val) => statement.expression = Some(ok_val),
+                Err(error_val) => return Err(error_val),
+            };
+        };
+
+        if self.peek_token.token_type == TokenType::Semicolon{
+            self.next_token();
+        }
+
+        Ok(Statement::Break(statement))
+
     }
 
     fn parse_expression_statement(&mut self) -> Result<Statement, String> {

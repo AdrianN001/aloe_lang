@@ -13,6 +13,9 @@ pub mod return_value;
 pub mod stack_environment;
 pub mod string_obj;
 pub mod truthy;
+pub mod iterator;
+pub mod break_value;
+
 
 use std::{cell::RefCell, rc::Rc};
 
@@ -28,6 +31,8 @@ use null::Null;
 use return_value::ReturnValue;
 use string_obj::StringObj;
 
+use crate::object::{break_value::BreakValue, iterator::Iterator};
+
 pub type ObjectRef = Rc<RefCell<Object>>;
 
 #[derive(PartialEq, Eq, Clone)]
@@ -38,9 +43,14 @@ pub enum Object {
     String(StringObj),
 
     BuiltIn(BuiltIn),
+    Iterator(Iterator),
 
-    Func(Function),
+    Func(Function)
+        ,
     ReturnVal(ReturnValue),
+    BreakVal(BreakValue),
+    Continue,
+
     Err(Error),
 
     Array(Array),
@@ -79,6 +89,9 @@ impl Object {
             Object::Array(obj) => obj.get_type(),
             Object::HashMap(obj) => obj.get_type(),
             Object::FloatObj(obj) => obj.get_type(),
+            Object::Iterator(obj) => obj.get_type(),
+            Object::BreakVal(obj) => obj.get_type(),
+            Object::Continue => "continue".to_string()
         }
     }
 
@@ -95,6 +108,9 @@ impl Object {
             Object::Array(obj) => obj.inspect(),
             Object::HashMap(obj) => obj.inspect(),
             Object::FloatObj(obj) => obj.inspect(),
+            Object::Iterator(obj) => obj.inspect(),
+            Object::BreakVal(obj) => obj.inspect(),
+            Object::Continue => "continue".to_string()
         }
     }
 

@@ -8,6 +8,7 @@ mod index_expr;
 mod infix_expr;
 mod member_expr;
 mod prefix_expr;
+mod for_loop;
 
 use std::cell::RefCell;
 use std::rc::Rc;
@@ -15,6 +16,7 @@ use std::rc::Rc;
 use crate::ast::program::Program;
 use crate::object::ObjectRef;
 use crate::object::array::Array;
+use crate::object::break_value::BreakValue;
 use crate::object::function::Function;
 use crate::object::integer::Integer;
 use crate::object::null::Null;
@@ -55,6 +57,7 @@ impl Expression {
             Expression::Function(func_expr) => Ok(Rc::new(RefCell::new(Object::Func(
                 Function::from_function_expression(func_expr, environ.clone()),
             )))),
+            Expression::ForLoop(for_loop) => for_loop.evaluate(environ.clone()),
             Expression::Call(call_expr) => {
                 let function_object = call_expr.function.evaluate(environ.clone())?.clone();
 
@@ -87,7 +90,7 @@ impl Expression {
                     .evaluate_infix_expression(right_side.clone(), &infix_expr.operator)
             }
             Expression::Member(member_expression) => member_expression.evaluate(environ.clone()),
-            Expression::InvalidExpression | Expression::ForLoop(_) => {
+            Expression::InvalidExpression => {
                 panic!("unexpected expression type")
             }
         }
@@ -101,7 +104,7 @@ impl Statement {
             Statement::Block(block_stmt) => block_stmt.evaluate(environ),
             Statement::Let(let_stmt) => {
                 let value = let_stmt.value.evaluate(environ.clone())?;
-                environ.borrow_mut().set(&let_stmt.name.value, &value);
+                environ.borrow_mut().set(&let_stmt.name.value, value);
                 Ok(Rc::new(RefCell::new(Object::Null(Null {}))))
             }
             Statement::Return(return_stmt) => {
@@ -110,7 +113,21 @@ impl Statement {
                 Ok(Rc::new(RefCell::new(Object::ReturnVal(ReturnValue {
                     value: Box::new(val.clone()),
                 }))))
-            }
+            },
+            Statement::Continue(_continue_stmt) => {
+                Ok(Rc::new(RefCell::new(Object::Continue)))
+            },
+            Statement::Break(break_stmt) => {
+                let val = if let Some(break_expression_value) = &break_stmt.expression{
+                    break_expression_value.evaluate(environ.clone())?.clone()
+                } else {
+                    Rc::new(RefCell::new(Object::NULL_OBJECT))
+                };
+
+                Ok(Rc::new(RefCell::new(Object::BreakVal(BreakValue{
+                    value: Box::new(val)
+                }))))
+            } 
         }
     }
 }

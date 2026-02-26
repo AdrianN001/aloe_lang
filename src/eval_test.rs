@@ -248,10 +248,10 @@ fn test_function_evaluation() {
         ("fn(y,z){y*z;}", ["y", "z"].to_vec(), "(y * z)"),
     ];
 
-    testcases.iter().for_each(|test_case| {
-        let input = test_case.0.to_string();
-        let expected_parameters = &test_case.1;
-        let expected_body = test_case.2.to_string();
+    testcases.iter().for_each(|testcase| {
+        let input = testcase.0.to_string();
+        let expected_parameters = &testcase.1;
+        let expected_body = testcase.2.to_string();
 
         let lexer = Lexer::new(input);
         let parser = Parser::new(lexer);
@@ -301,9 +301,9 @@ fn test_calling_expression() {
         ),
     ];
 
-    testcases.iter().for_each(|test_case| {
-        let input = test_case.0.into();
-        let expected_value = test_case.1;
+    testcases.iter().for_each(|testcase| {
+        let input = testcase.0.into();
+        let expected_value = testcase.1;
 
         println!("{}", &input);
 
@@ -332,9 +332,9 @@ fn test_basic_string_evaluation() {
         (r#"fn(){"";}();"#, ""),
     ];
 
-    testcases.iter().for_each(|test_case| {
-        let input = test_case.0.into();
-        let expected_value = test_case.1.to_string();
+    testcases.iter().for_each(|testcase| {
+        let input = testcase.0.into();
+        let expected_value = testcase.1.to_string();
 
         let lexer = Lexer::new(input);
         let parser = Parser::new(lexer);
@@ -647,4 +647,62 @@ fn eval_floats() {
 
         assert_eq!(last_object.borrow().inspect(), expected_value)
     })
+}
+
+#[test]
+fn eval_iterator_collect(){
+    let testcases = [
+        ("range(5).collect()",   "[0, 1, 2, 3, 4]"),
+
+        ("range(1,5).collect()", "[1, 2, 3, 4]"),
+        ("range(5,1).collect()", "[5, 4, 3, 2]"),
+
+        ("range(1,5,2).collect()","[1, 3]"),
+        ("range(5,1, -2).collect()", "[5, 3]")
+    ];
+
+    testcases.iter().for_each(|testcase| {
+        let input = testcase.0.into();
+        let expected_value = testcase.1;
+
+        let lexer = Lexer::new(input);
+        let parser = Parser::new(lexer);
+        let program = parser.into_a_program().unwrap();
+
+        let last_object = match program.evaluate() {
+            Ok(x) => x,
+            Err(err) => panic!("{}", err),
+        };
+
+        assert!(matches!(&*last_object.borrow(), Object::Array(_),));
+
+        assert_eq!(last_object.borrow().inspect(), expected_value)
+    })
+}
+
+#[test]
+fn eval_for_loop(){
+    let testcases = [
+        ("for i <- range(10){if (i == 3){break true;}}",    "true"),
+        ("for i <- range(10){if (i == 20){ break true;}}",  "null"),
+        ("for i <- range(10){ break 23;}",                  "23"),
+        ("for i <- range(100){}",                           "null")
+    ];
+
+    testcases.iter().for_each(|testcase|{
+        let input = testcase.0.into();
+        let expected_value = testcase.1.to_string();
+
+        let lexer = Lexer::new(input);
+        let parser = Parser::new(lexer);
+        let program = parser.into_a_program().unwrap();
+
+        let last_object = match program.evaluate() {
+            Ok(x) => x,
+            Err(err) => panic!("{}", err),
+        };
+
+        assert_eq!(last_object.borrow().inspect(), expected_value)
+
+    }); 
 }

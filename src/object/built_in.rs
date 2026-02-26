@@ -2,6 +2,7 @@ mod array_method;
 mod console;
 mod len;
 mod utils;
+mod iterator;
 
 use crate::object::{
     ObjectRef,
@@ -9,10 +10,7 @@ use crate::object::{
         array_method::{
             first_builtin_function, last_builtin_function, push_builtin_function,
             rest_builtin_function,
-        },
-        console::console_write_builtin_function,
-        len::len_builtin_function,
-        utils::{inspect_builtin_function, type_builtin_function},
+        }, console::console_write_builtin_function, iterator::range_builtin_function, len::len_builtin_function, utils::{inspect_builtin_function, type_builtin_function}
     },
 };
 
@@ -29,6 +27,8 @@ pub enum BuiltIn {
 
     Type,
     Inspect,
+
+    Range
 }
 
 impl BuiltIn {
@@ -42,17 +42,20 @@ impl BuiltIn {
 
     pub fn call(&self, args: &[ObjectRef]) -> ObjectRef {
         match self {
-            Self::Len => len_builtin_function(args),
+            BuiltIn::Len => len_builtin_function(args),
 
-            Self::Rest => rest_builtin_function(args),
-            Self::First => first_builtin_function(args),
-            Self::Last => last_builtin_function(args),
-            Self::Push => push_builtin_function(args),
+            BuiltIn::Rest => rest_builtin_function(args),
+            BuiltIn::First => first_builtin_function(args),
+            BuiltIn::Last => last_builtin_function(args),
+            BuiltIn::Push => push_builtin_function(args),
 
-            Self::Print => console_write_builtin_function(args),
+            BuiltIn::Print => console_write_builtin_function(args),
 
-            Self::Type => type_builtin_function(args),
-            Self::Inspect => inspect_builtin_function(args),
+            BuiltIn::Type => type_builtin_function(args),
+            BuiltIn::Inspect => inspect_builtin_function(args),
+
+            BuiltIn::Range => range_builtin_function(args),
+            
         }
     }
 }

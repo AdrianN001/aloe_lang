@@ -19,6 +19,8 @@ impl Identifier {
 
             "type" => Some(BuiltIn::Type),
             "inspect" => Some(BuiltIn::Inspect),
+            
+            "range" => Some(BuiltIn::Range),
             _ => None,
         }
     }

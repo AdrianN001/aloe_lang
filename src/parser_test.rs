@@ -688,3 +688,38 @@ fn test_for_loop_without_statements() {
         }
     });
 }
+
+#[test]
+fn test_parse_break_statement(){
+    let testcases = [
+        ("break true;", true, "true"),
+        ("break;",      false, ""),
+        ("break 23;", true, "23")
+    ];
+
+    testcases.iter().for_each(|test_case| {
+        let input = test_case.0.into();
+        let expected_ok_value = test_case.1;
+        let expected_output = test_case.2;
+
+        let lexer = Lexer::new(input);
+        let parser = Parser::new(lexer);
+        let program = parser.into_a_program().unwrap();
+
+        assert_eq!(program.statements.len(), 1);
+
+        let break_statement = match &program.statements[0] {
+            Statement::Break(break_stmt) => break_stmt,
+            _ => panic!(),
+        };
+
+        assert_eq!(break_statement.expression.is_some(), expected_ok_value);
+
+        match &break_statement.expression{
+            Some(expr) => assert_eq!(expr.to_string(), expected_output),
+            None => {}
+        }
+    });
+
+
+}

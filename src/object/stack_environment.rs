@@ -18,14 +18,14 @@ impl StackEnvironment {
         }
     }
 
-    pub fn new_enclosed(outer: &EnvRef) -> Self {
+    pub fn new_enclosed(outer: EnvRef) -> Self {
         StackEnvironment {
             map: HashMap::new(),
             outer: Some(outer.clone()),
         }
     }
 
-    pub fn set(&mut self, identifier: &str, value: &ObjectRef) {
+    pub fn set(&mut self, identifier: &str, value: ObjectRef) {
         self.map.insert(identifier.into(), value.clone());
     }
 

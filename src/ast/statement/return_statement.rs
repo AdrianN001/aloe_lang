@@ -13,7 +13,7 @@ impl ReturnStatement {
 
         buffer.push_str("return ");
 
-        //TODO add expression
+        buffer.push_str(&self.value.to_string());
 
         buffer.push(';');
 

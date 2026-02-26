@@ -66,13 +66,13 @@ impl Function {
     }
 
     fn extend_environment_with_args(&self, args: &[ObjectRef]) -> EnvRef {
-        let mut new_env = StackEnvironment::new_enclosed(&self.env);
+        let mut new_env = StackEnvironment::new_enclosed(self.env.clone());
 
         self.parameters
             .iter()
             .enumerate()
             .for_each(|(indx, parameter)| {
-                new_env.set(&parameter.value, &args[indx]);
+                new_env.set(&parameter.value, args[indx].clone());
             });
 
         Rc::new(RefCell::new(new_env))

@@ -2,7 +2,6 @@ use std::{cell::RefCell, rc::Rc};
 
 use crate::object::{
     Object, ObjectRef, array::Array, integer::Integer, null::Null, stack_environment::EnvRef,
-    string_obj::StringObj,
 };
 
 impl Array {
@@ -16,7 +15,7 @@ impl Array {
             )))),
         }
     }
-    pub fn apply_method(&mut self, name: &str, args: &[ObjectRef], environ: EnvRef) -> ObjectRef {
+    pub fn apply_method(&mut self, name: &str, args: &[ObjectRef], _environ: EnvRef) -> ObjectRef {
         match name {
             "reversed" => self.reversed(),
             "push" => self.push(args),

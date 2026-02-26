@@ -1,6 +1,6 @@
 use std::env;
 
-use crate::{ast::Parser, lexer::Lexer, repl::start_repl, script::run_script};
+use crate::{repl::start_repl, script::run_script};
 
 pub mod ast;
 pub mod evaluator;

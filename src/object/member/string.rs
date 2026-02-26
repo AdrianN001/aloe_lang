@@ -1,6 +1,8 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::object::{Object, ObjectRef, array::Array, float_obj::FloatObj, integer::Integer, string_obj::StringObj};
+use crate::object::{
+    Object, ObjectRef, array::Array, float_obj::FloatObj, integer::Integer, string_obj::StringObj,
+};
 
 impl StringObj {
     pub fn apply_attribute(&self, name: &str) -> ObjectRef {
@@ -57,26 +59,19 @@ impl StringObj {
         })))
     }
 
-    fn as_float(&self) -> ObjectRef{
-        match self.value.parse::<f64>(){
-            Ok(float_value) => {
-                Rc::new(RefCell::new(Object::FloatObj(FloatObj{
-                    val: float_value
-                })))
-            },
-            Err(err) => Rc::new(RefCell::new(Object::new_error(err.to_string()))) 
+    fn as_float(&self) -> ObjectRef {
+        match self.value.parse::<f64>() {
+            Ok(float_value) => Rc::new(RefCell::new(Object::FloatObj(FloatObj {
+                val: float_value,
+            }))),
+            Err(err) => Rc::new(RefCell::new(Object::new_error(err.to_string()))),
         }
     }
 
-    fn as_int(&self) -> ObjectRef{
-        match self.value.parse::<i64>(){
-            Ok(int_value) => {
-                Rc::new(RefCell::new(Object::Int(Integer{
-                    value: int_value
-                })))
-            },
-            Err(err) => Rc::new(RefCell::new(Object::new_error(err.to_string()))) 
+    fn as_int(&self) -> ObjectRef {
+        match self.value.parse::<i64>() {
+            Ok(int_value) => Rc::new(RefCell::new(Object::Int(Integer { value: int_value }))),
+            Err(err) => Rc::new(RefCell::new(Object::new_error(err.to_string()))),
         }
     }
-
 }

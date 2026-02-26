@@ -11,7 +11,8 @@ use crate::object::{
             rest_builtin_function,
         },
         console::console_write_builtin_function,
-        len::len_builtin_function, utils::{inspect_builtin_function, type_builtin_function},
+        len::len_builtin_function,
+        utils::{inspect_builtin_function, type_builtin_function},
     },
 };
 
@@ -49,9 +50,9 @@ impl BuiltIn {
             Self::Push => push_builtin_function(args),
 
             Self::Print => console_write_builtin_function(args),
-            
+
             Self::Type => type_builtin_function(args),
-            Self::Inspect => inspect_builtin_function(args)
+            Self::Inspect => inspect_builtin_function(args),
         }
     }
 }

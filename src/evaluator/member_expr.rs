@@ -12,7 +12,9 @@ impl MemberExpression {
                 let name_of_method = Self::get_call_expressions_identifier(call_expr)?;
                 let args = call_expr.evaluate_arguments(environ.clone())?;
 
-                Ok(left_obj.borrow_mut().apply_method(&name_of_method, &args))
+                Ok(left_obj
+                    .borrow_mut()
+                    .apply_method(&name_of_method, &args, environ.clone()))
             }
             Expression::Identifier(identifier_expr) => {
                 let name_of_attribute = &identifier_expr.value;

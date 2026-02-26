@@ -128,4 +128,18 @@ impl Program {
 
         Ok(result)
     }
+
+    pub fn evaluate_with_other_environment(&self, environ: EnvRef) -> Result<ObjectRef, String> {
+        let mut result = Rc::new(RefCell::new(Object::Null(Null {})));
+
+        for stmt in self.statements.iter() {
+            result = stmt.evaluate(environ.clone())?;
+
+            if let Object::ReturnVal(ret_val) = &*result.borrow() {
+                return Ok(*ret_val.value.clone());
+            }
+        }
+
+        Ok(result)
+    }
 }

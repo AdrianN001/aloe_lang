@@ -16,6 +16,9 @@ impl Identifier {
             "push" => Some(BuiltIn::Push),
 
             "print" => Some(BuiltIn::Print),
+
+            "type" => Some(BuiltIn::Type),
+            "inspect" => Some(BuiltIn::Inspect),
             _ => None,
         }
     }

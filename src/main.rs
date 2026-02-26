@@ -1,28 +1,23 @@
 use std::env;
 
-use crate::{ast::Parser, lexer::Lexer, src_file_read::read_source_file};
+use crate::{ast::Parser, lexer::Lexer, repl::start_repl, script::run_script};
 
+pub mod repl;
 pub mod ast;
 pub mod evaluator;
 pub mod lexer;
 pub mod object;
-pub mod src_file_read;
+pub mod script;
 pub mod token;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
 
-    if args.len() < 2 {
-        return;
+    if args.len() < 2 {        
+        start_repl();
+    }else{
+        run_script(&args[1]);
     }
-
-    let source_file_content = read_source_file(&args[1]);
-
-    let lexer = Lexer::new(source_file_content);
-    let parser = Parser::new(lexer);
-    let program = parser.into_a_program().unwrap();
-
-    let _last_obj = program.evaluate().unwrap();
 }
 
 #[cfg(test)]

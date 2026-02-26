@@ -6,6 +6,7 @@ impl fmt::Display for TokenType {
         let s = match self {
             TokenType::Illegal => "ILLEGAL",
             TokenType::Eof => "EOF",
+            TokenType::Comment => "#",
 
             TokenType::Identifier => "IDENT",
             TokenType::Integer => "INT",

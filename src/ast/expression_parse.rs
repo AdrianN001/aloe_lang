@@ -98,7 +98,7 @@ impl Parser {
     fn parse_dot_expression(&mut self, left: &Expression) -> Result<Expression, String> {
         let token = self.current_token.clone();
         self.next_token();
-        let right_expr = self.parse_expression(OperationPrecedence::Lowest)?;
+        let right_expr = self.parse_expression(OperationPrecedence::Member)?;
 
         if let Expression::IntegerLiteral(int_part) = left
             && let Expression::IntegerLiteral(float_part) = &right_expr
@@ -124,9 +124,14 @@ impl Parser {
                 Expression::Identifier(call_identifier) => {
                     member_expr.member_name = call_identifier.value.clone()
                 }
-                _ => return Err("invalid member".to_string()),
+                _ => return Err("invalid member. call without identifier".to_string()),
             },
-            _ => return Err("invalid member".to_string()),
+            _ => {
+                return Err(format!(
+                    "invalid member. not a method, not an attribute. it is: {}",
+                    &right_expr.to_string()
+                ));
+            }
         }
 
         member_expr.right = Box::new(right_expr);

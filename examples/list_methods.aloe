@@ -1,0 +1,22 @@
+# map
+
+let list = [3,4,5];
+
+let squares = list.map(fn(n){ return n*n; });
+
+print(squares);
+print(
+    [1,2,3].map(fn(n){
+      return n*3 + 1;
+  })
+)
+
+# filter
+
+let names = ["James", "Marie", "Bob", "Marley"];
+
+let long_names = names.filter( fn(name){
+  return name.length > 4;
+  });
+
+print(long_names);

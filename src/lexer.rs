@@ -34,9 +34,20 @@ impl Lexer {
         self.read_pos -= 1;
     }
 
+    fn skip_comment(&mut self) {
+        while let Some(c) = self.read_char() {
+            if c == '\n' {
+                break;
+            }
+            self.advance();
+        }
+    }
+
     fn skip_whitespace(&mut self) {
         while let Some(character) = self.read_char() {
-            if character.is_whitespace() {
+            if character == '#' {
+                self.skip_comment();
+            } else if character.is_whitespace() {
                 self.advance();
             } else {
                 break;
@@ -146,6 +157,7 @@ impl Lexer {
             '<' => Token::simple(TokenType::LT, "<"),
             '>' => Token::simple(TokenType::GT, ">"),
             ':' => Token::simple(TokenType::Colon, ":"),
+
             '.' => Token::simple(TokenType::Dot, "."),
             '!' => {
                 if let Some(next_char) = self.peek()

@@ -22,6 +22,7 @@ pub enum TokenType {
     GT, // >
 
     Dot,
+    Comment, // #
 
     // Delimiters
     Colon,

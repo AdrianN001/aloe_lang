@@ -89,7 +89,7 @@ impl Object {
             Object::Null(obj) => obj.inspect(),
             Object::Func(function) => function.inspect(),
             Object::ReturnVal(obj) => obj.inspect(),
-            Object::String(obj) => obj.value.clone(),
+            Object::String(obj) => obj.inspect(),
             Object::BuiltIn(obj) => obj.inspect(),
             Object::Err(obj) => obj.inspect(),
             Object::Array(obj) => obj.inspect(),

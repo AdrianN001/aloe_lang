@@ -1,6 +1,7 @@
 mod array_method;
 mod console;
 mod len;
+mod utils;
 
 use crate::object::{
     ObjectRef,
@@ -10,7 +11,7 @@ use crate::object::{
             rest_builtin_function,
         },
         console::console_write_builtin_function,
-        len::len_builtin_function,
+        len::len_builtin_function, utils::{inspect_builtin_function, type_builtin_function},
     },
 };
 
@@ -24,6 +25,9 @@ pub enum BuiltIn {
     Push,
 
     Print,
+
+    Type,
+    Inspect,
 }
 
 impl BuiltIn {
@@ -45,6 +49,9 @@ impl BuiltIn {
             Self::Push => push_builtin_function(args),
 
             Self::Print => console_write_builtin_function(args),
+            
+            Self::Type => type_builtin_function(args),
+            Self::Inspect => inspect_builtin_function(args)
         }
     }
 }

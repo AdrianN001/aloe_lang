@@ -1,17 +1,18 @@
 pub mod block_statement;
+pub mod break_statement;
+pub mod continue_statement;
 pub mod expression_statement;
 pub mod let_statement;
 pub mod return_statement;
-pub mod break_statement;
-pub mod continue_statement;
-
 
 use block_statement::BlockStatement;
 use expression_statement::ExpressionStatement;
 use let_statement::LetStatement;
 use return_statement::ReturnStatement;
 
-use crate::ast::statement::{break_statement::BreakStatement, continue_statement::ContinueStatement};
+use crate::ast::statement::{
+    break_statement::BreakStatement, continue_statement::ContinueStatement,
+};
 
 #[derive(Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
 pub enum Statement {

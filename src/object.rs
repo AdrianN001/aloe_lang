@@ -1,5 +1,6 @@
 pub mod array;
 pub mod boolean;
+pub mod break_value;
 pub mod built_in;
 pub mod error;
 pub mod float_obj;
@@ -7,15 +8,13 @@ pub mod function;
 pub mod hashable;
 pub mod hashmap;
 pub mod integer;
+pub mod iterator;
 pub mod member;
 pub mod null;
 pub mod return_value;
 pub mod stack_environment;
 pub mod string_obj;
 pub mod truthy;
-pub mod iterator;
-pub mod break_value;
-
 
 use std::{cell::RefCell, rc::Rc};
 
@@ -45,8 +44,7 @@ pub enum Object {
     BuiltIn(BuiltIn),
     Iterator(Iterator),
 
-    Func(Function)
-        ,
+    Func(Function),
     ReturnVal(ReturnValue),
     BreakVal(BreakValue),
     Continue,
@@ -91,7 +89,7 @@ impl Object {
             Object::FloatObj(obj) => obj.get_type(),
             Object::Iterator(obj) => obj.get_type(),
             Object::BreakVal(obj) => obj.get_type(),
-            Object::Continue => "continue".to_string()
+            Object::Continue => "continue".to_string(),
         }
     }
 
@@ -110,7 +108,7 @@ impl Object {
             Object::FloatObj(obj) => obj.inspect(),
             Object::Iterator(obj) => obj.inspect(),
             Object::BreakVal(obj) => obj.inspect(),
-            Object::Continue => "continue".to_string()
+            Object::Continue => "continue".to_string(),
         }
     }
 

@@ -5,8 +5,8 @@ use crate::object::{Object, ObjectRef, stack_environment::EnvRef};
 pub mod array;
 pub mod float;
 pub mod int;
-pub mod string;
 pub mod iterator;
+pub mod string;
 
 impl Object {
     pub fn apply_attribute(&self, name: &str) -> ObjectRef {

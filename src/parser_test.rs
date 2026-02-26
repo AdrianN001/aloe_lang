@@ -690,11 +690,11 @@ fn test_for_loop_without_statements() {
 }
 
 #[test]
-fn test_parse_break_statement(){
+fn test_parse_break_statement() {
     let testcases = [
         ("break true;", true, "true"),
-        ("break;",      false, ""),
-        ("break 23;", true, "23")
+        ("break;", false, ""),
+        ("break 23;", true, "23"),
     ];
 
     testcases.iter().for_each(|test_case| {
@@ -715,11 +715,9 @@ fn test_parse_break_statement(){
 
         assert_eq!(break_statement.expression.is_some(), expected_ok_value);
 
-        match &break_statement.expression{
+        match &break_statement.expression {
             Some(expr) => assert_eq!(expr.to_string(), expected_output),
             None => {}
         }
     });
-
-
 }

@@ -650,15 +650,13 @@ fn eval_floats() {
 }
 
 #[test]
-fn eval_iterator_collect(){
+fn eval_iterator_collect() {
     let testcases = [
-        ("range(5).collect()",   "[0, 1, 2, 3, 4]"),
-
+        ("range(5).collect()", "[0, 1, 2, 3, 4]"),
         ("range(1,5).collect()", "[1, 2, 3, 4]"),
         ("range(5,1).collect()", "[5, 4, 3, 2]"),
-
-        ("range(1,5,2).collect()","[1, 3]"),
-        ("range(5,1, -2).collect()", "[5, 3]")
+        ("range(1,5,2).collect()", "[1, 3]"),
+        ("range(5,1, -2).collect()", "[5, 3]"),
     ];
 
     testcases.iter().for_each(|testcase| {
@@ -681,15 +679,15 @@ fn eval_iterator_collect(){
 }
 
 #[test]
-fn eval_for_loop(){
+fn eval_for_loop() {
     let testcases = [
-        ("for i <- range(10){if (i == 3){break true;}}",    "true"),
-        ("for i <- range(10){if (i == 20){ break true;}}",  "null"),
-        ("for i <- range(10){ break 23;}",                  "23"),
-        ("for i <- range(100){}",                           "null")
+        ("for i <- range(10){if (i == 3){break true;}}", "true"),
+        ("for i <- range(10){if (i == 20){ break true;}}", "null"),
+        ("for i <- range(10){ break 23;}", "23"),
+        ("for i <- range(100){}", "null"),
     ];
 
-    testcases.iter().for_each(|testcase|{
+    testcases.iter().for_each(|testcase| {
         let input = testcase.0.into();
         let expected_value = testcase.1.to_string();
 
@@ -703,6 +701,5 @@ fn eval_for_loop(){
         };
 
         assert_eq!(last_object.borrow().inspect(), expected_value)
-
-    }); 
+    });
 }

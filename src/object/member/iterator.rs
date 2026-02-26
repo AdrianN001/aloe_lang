@@ -1,9 +1,11 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::object::{Object, ObjectRef, array::Array, iterator::Iterator, stack_environment::EnvRef, string_obj::StringObj};
+use crate::object::{
+    Object, ObjectRef, array::Array, iterator::Iterator, stack_environment::EnvRef,
+    string_obj::StringObj,
+};
 
-
-impl Iterator{
+impl Iterator {
     pub fn apply_attribute(&self, name: &str) -> ObjectRef {
         match name {
             _ => Rc::new(RefCell::new(Object::new_error(format!(
@@ -33,22 +35,22 @@ impl Iterator{
 
     fn next(&mut self) -> ObjectRef {
         let next_object = self._next();
-        if let Some(val) = next_object{
+        if let Some(val) = next_object {
             return val;
         }
 
-        Rc::new(RefCell::new(Object::new_error("IteratorError: iterator ran out.".into())))
+        Rc::new(RefCell::new(Object::new_error(
+            "IteratorError: iterator ran out.".into(),
+        )))
     }
 
-    fn collect(&mut self) -> ObjectRef{
+    fn collect(&mut self) -> ObjectRef {
         let mut arr = Vec::new();
 
-        while let Some(val) = self._next(){
+        while let Some(val) = self._next() {
             arr.push(val);
         }
 
-        Rc::new(RefCell::new(Object::Array(Array{
-            items: arr
-        })))
+        Rc::new(RefCell::new(Object::Array(Array { items: arr })))
     }
 }

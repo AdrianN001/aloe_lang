@@ -1,6 +1,7 @@
 mod block_statement;
 mod call_expr;
 mod float_obj;
+mod for_loop;
 mod hash_literal;
 mod identifier;
 mod if_expression;
@@ -8,7 +9,6 @@ mod index_expr;
 mod infix_expr;
 mod member_expr;
 mod prefix_expr;
-mod for_loop;
 
 use std::cell::RefCell;
 use std::rc::Rc;
@@ -113,21 +113,19 @@ impl Statement {
                 Ok(Rc::new(RefCell::new(Object::ReturnVal(ReturnValue {
                     value: Box::new(val.clone()),
                 }))))
-            },
-            Statement::Continue(_continue_stmt) => {
-                Ok(Rc::new(RefCell::new(Object::Continue)))
-            },
+            }
+            Statement::Continue(_continue_stmt) => Ok(Rc::new(RefCell::new(Object::Continue))),
             Statement::Break(break_stmt) => {
-                let val = if let Some(break_expression_value) = &break_stmt.expression{
+                let val = if let Some(break_expression_value) = &break_stmt.expression {
                     break_expression_value.evaluate(environ.clone())?.clone()
                 } else {
                     Rc::new(RefCell::new(Object::NULL_OBJECT))
                 };
 
-                Ok(Rc::new(RefCell::new(Object::BreakVal(BreakValue{
-                    value: Box::new(val)
+                Ok(Rc::new(RefCell::new(Object::BreakVal(BreakValue {
+                    value: Box::new(val),
                 }))))
-            } 
+            }
         }
     }
 }

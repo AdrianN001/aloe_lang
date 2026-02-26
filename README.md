@@ -175,6 +175,18 @@ let arr = [1, 2, 3];
 len(arr);
 ```
 
+### Loops
+
+```aloe
+let found = for i <- range(10){
+    if (i == 3){
+        continue;
+    }
+    if (i == 5){
+        break true;
+    }
+}
+```
 ---
 
 ## 🧠 Architecture

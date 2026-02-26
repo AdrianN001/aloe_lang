@@ -2,6 +2,7 @@ pub mod array_literal;
 pub mod boolean;
 pub mod call_expression;
 pub mod float_literal;
+pub mod for_loop;
 pub mod function_expression;
 pub mod hash_map_literal;
 pub mod identifier;
@@ -28,6 +29,8 @@ use member::MemberExpression;
 use prefix_expression::PrefixExpression;
 use string_expr::StringExpr;
 
+use crate::ast::expression::for_loop::ForLoopExpression;
+
 #[derive(Default, PartialOrd, Ord, Clone, PartialEq, Eq, Hash)]
 pub enum Expression {
     Identifier(Identifier),
@@ -42,6 +45,7 @@ pub enum Expression {
     Array(ArrayLiteral),
     Index(IndexExpression),
     HashMapLiteral(HashMapLiteral),
+    ForLoop(ForLoopExpression),
 
     Member(MemberExpression),
 

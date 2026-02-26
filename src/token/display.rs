@@ -19,6 +19,7 @@ impl fmt::Display for TokenType {
             TokenType::Asterisk => "*",
             TokenType::Slash => "/",
 
+            TokenType::IteratorAssign => "<-",
             TokenType::Dot => ".",
 
             TokenType::LT => "<",
@@ -44,6 +45,10 @@ impl fmt::Display for TokenType {
             TokenType::KwReturn => "return",
             TokenType::KwTrue => "true",
             TokenType::KwFalse => "false",
+
+            TokenType::KwFor => "for",
+            TokenType::KwBreak => "break",
+            TokenType::KwContinue => "continue",
         };
 
         write!(f, "{s}")

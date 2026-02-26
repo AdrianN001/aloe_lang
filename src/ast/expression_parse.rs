@@ -2,6 +2,7 @@ use std::collections::BTreeMap;
 
 use crate::ast::expression::boolean::Boolean;
 use crate::ast::expression::float_literal::FloatLiteral;
+use crate::ast::expression::for_loop::ForLoopExpression;
 use crate::ast::expression::identifier::Identifier;
 use crate::ast::expression::member::MemberExpression;
 use crate::{
@@ -30,6 +31,7 @@ impl Parser {
             TokenType::KwFunction => self.parse_function_expression(),
             TokenType::LBracket => self.parse_array_literal(),
             TokenType::LBrace => self.parse_hashmap_literal(),
+            TokenType::KwFor => self.parse_for_loop_expression(),
 
             TokenType::String => Ok(self.parse_string_literal()),
 
@@ -93,6 +95,46 @@ impl Parser {
             token: self.current_token.clone(),
             value: self.current_token.token_type == TokenType::KwTrue,
         })
+    }
+
+    fn parse_for_loop_expression(&mut self) -> Result<Expression, String> {
+        let token = self.current_token.clone();
+
+        if self.peek_token.token_type != TokenType::Identifier {
+            // inf loop
+            if self.peek_token.token_type == TokenType::LBrace {
+                let block = self.parse_block_statement()?;
+
+                return Ok(Expression::ForLoop(ForLoopExpression {
+                    token,
+                    variable: None,
+                    iterator: None,
+                    block,
+                }));
+            }
+            return Err("for: expected to be the next token an identifier or opening block".into());
+        }
+        self.next_token(); // curr at 'identifier'
+
+        let identifier = self.parse_expression(OperationPrecedence::Lowest)?;
+
+        if self.peek_token.token_type != TokenType::IteratorAssign {
+            return Err("for: expected to be the next an iterator assign".into());
+        }
+        self.next_token(); // curr at <-
+
+        self.next_token(); // curr at the expression;
+        let iterator_expr = self.parse_expression(OperationPrecedence::Lowest)?;
+
+        self.next_token();
+        let block = self.parse_block_statement()?;
+
+        Ok(Expression::ForLoop(ForLoopExpression {
+            token,
+            variable: Some(Box::new(identifier)),
+            iterator: Some(Box::new(iterator_expr)),
+            block,
+        }))
     }
 
     fn parse_dot_expression(&mut self, left: &Expression) -> Result<Expression, String> {

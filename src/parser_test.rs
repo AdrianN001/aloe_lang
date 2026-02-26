@@ -651,3 +651,40 @@ fn test_float_number_parsing() {
         assert_eq!(float_expression.float_part, expected_float_part);
     })
 }
+
+#[test]
+fn test_for_loop_without_statements() {
+    let testcases = [
+        ("for i <- [1,2,3]{}", "i", "[1, 2, 3]"),
+        ("for k <- range(20){}", "k", "range(20)"),
+    ];
+
+    testcases.iter().for_each(|test_case| {
+        let input = test_case.0.into();
+        let expected_variable_name = test_case.1;
+        let expected_iterator_inspect = test_case.2;
+
+        let lexer = Lexer::new(input);
+        let parser = Parser::new(lexer);
+        let program = parser.into_a_program().unwrap();
+
+        assert_eq!(program.statements.len(), 1);
+
+        let last_expr = match &program.statements[0] {
+            Statement::Expression(expr) => expr,
+            _ => panic!(),
+        };
+
+        let for_expression = match &last_expr.expression {
+            Expression::ForLoop(for_expr) => for_expr,
+            _ => panic!("not a float"),
+        };
+
+        if let Some(variable) = &for_expression.variable
+            && let Some(iterator) = &for_expression.iterator
+        {
+            assert_eq!(variable.to_string(), expected_variable_name);
+            assert_eq!(iterator.to_string(), expected_iterator_inspect);
+        }
+    });
+}

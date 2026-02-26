@@ -154,7 +154,16 @@ impl Lexer {
             '-' => Token::simple(TokenType::Minus, "-"),
             '/' => Token::simple(TokenType::Slash, "/"),
             '*' => Token::simple(TokenType::Asterisk, "*"),
-            '<' => Token::simple(TokenType::LT, "<"),
+            '<' => {
+                if let Some(next_char) = self.peek()
+                    && next_char == '-'
+                {
+                    self.advance();
+                    Token::simple(TokenType::IteratorAssign, "<-")
+                } else {
+                    Token::simple(TokenType::LT, "<")
+                }
+            }
             '>' => Token::simple(TokenType::GT, ">"),
             ':' => Token::simple(TokenType::Colon, ":"),
 

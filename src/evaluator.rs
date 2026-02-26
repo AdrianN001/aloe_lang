@@ -87,7 +87,9 @@ impl Expression {
                     .evaluate_infix_expression(right_side.clone(), &infix_expr.operator)
             }
             Expression::Member(member_expression) => member_expression.evaluate(environ.clone()),
-            Expression::InvalidExpression => panic!("unexpected expression type"),
+            Expression::InvalidExpression | Expression::ForLoop(_) => {
+                panic!("unexpected expression type")
+            }
         }
     }
 }

@@ -21,6 +21,8 @@ pub enum TokenType {
     LT, // <
     GT, // >
 
+    IteratorAssign, // <-
+
     Dot,
     Comment, // #
 
@@ -44,6 +46,10 @@ pub enum TokenType {
     KwIf,
     KwElse,
     KwReturn,
+
+    KwFor,
+    KwBreak,
+    KwContinue,
 }
 
 pub fn lookup_identifiers(identifier: &str) -> TokenType {
@@ -55,6 +61,9 @@ pub fn lookup_identifiers(identifier: &str) -> TokenType {
         "if" => TokenType::KwIf,
         "else" => TokenType::KwElse,
         "return" => TokenType::KwReturn,
+        "for" => TokenType::KwFor,
+        "break" => TokenType::KwBreak,
+        "continue" => TokenType::KwContinue,
 
         _ => TokenType::Identifier,
     }

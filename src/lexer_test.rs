@@ -35,7 +35,9 @@ let result = add(five, ten);
 "valami06"
 [1,"asd"];
 {"foo": "bar"};
-string.length
+string.length; 
+for i <- range(0,20){ break true; }
+for {}
 "#;
     let mut lexer = Lexer::new(input.to_string());
 
@@ -93,6 +95,24 @@ string.length
         Token::simple(TokenType::Identifier, "string"),
         Token::simple(TokenType::Dot, "."),
         Token::simple(TokenType::Identifier, "length"),
+        Token::simple(TokenType::Semicolon, ";"),
+        Token::simple(TokenType::KwFor, "for"),
+        Token::simple(TokenType::Identifier, "i"),
+        Token::simple(TokenType::IteratorAssign, "<-"),
+        Token::simple(TokenType::Identifier, "range"),
+        Token::simple(TokenType::LParen, "("),
+        Token::simple(TokenType::Integer, "0"),
+        Token::simple(TokenType::Comma, ","),
+        Token::simple(TokenType::Integer, "20"),
+        Token::simple(TokenType::RParen, ")"),
+        Token::simple(TokenType::LBrace, "{"),
+        Token::simple(TokenType::KwBreak, "break"),
+        Token::simple(TokenType::KwTrue, "true"),
+        Token::simple(TokenType::Semicolon, ";"),
+        Token::simple(TokenType::RBrace, "}"),
+        Token::simple(TokenType::KwFor, "for"),
+        Token::simple(TokenType::LBrace, "{"),
+        Token::simple(TokenType::RBrace, "}"),
         Token::simple(TokenType::Eof, ""),
     ];
 

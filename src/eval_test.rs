@@ -389,21 +389,7 @@ fn eval_index_operator() {
         ("[(fn(){return 15;})()][0];", "15"),
     ];
 
-    testcases.iter().for_each(|testcase| {
-        let input = testcase.0.into();
-        let expected_value = testcase.1;
-
-        let lexer = Lexer::new(input);
-        let parser = Parser::new(lexer);
-        let program = parser.into_a_program().unwrap();
-
-        let last_object = match program.evaluate() {
-            Ok(x) => x,
-            Err(err) => panic!("{}", err),
-        };
-
-        assert_eq!(last_object.borrow().inspect(), expected_value);
-    })
+    test_cases_for_input_output(&testcases);
 }
 
 #[test]
@@ -501,21 +487,7 @@ fn eval_first_builtin() {
         (r#" first("a");"#, "\"a\""),
     ];
 
-    testcases.iter().for_each(|testcase| {
-        let input = testcase.0.into();
-        let expected_value = testcase.1;
-
-        let lexer = Lexer::new(input);
-        let parser = Parser::new(lexer);
-        let program = parser.into_a_program().unwrap();
-
-        let last_object = match program.evaluate() {
-            Ok(x) => x,
-            Err(err) => panic!("{}", err),
-        };
-
-        assert_eq!(last_object.borrow().inspect(), expected_value);
-    })
+    test_cases_for_input_output(&testcases);
 }
 
 #[test]
@@ -528,21 +500,7 @@ fn eval_push_builtin() {
         (r#" push("", "abc");"#, r#""abc""#),
     ];
 
-    testcases.iter().for_each(|testcase| {
-        let input = testcase.0.into();
-        let expected_value = testcase.1;
-
-        let lexer = Lexer::new(input);
-        let parser = Parser::new(lexer);
-        let program = parser.into_a_program().unwrap();
-
-        let last_object = match program.evaluate() {
-            Ok(x) => x,
-            Err(err) => panic!("{}", err),
-        };
-
-        assert_eq!(last_object.borrow().inspect(), expected_value);
-    })
+    test_cases_for_input_output(&testcases);
 }
 
 #[test]
@@ -687,9 +645,236 @@ fn eval_for_loop() {
         ("for i <- range(100){}", "null"),
     ];
 
+    test_cases_for_input_output(&testcases);
+}
+
+#[test]
+fn eval_array_join(){
+    let testcases = [
+    // Normal case
+    (r#"["a", "b", "c"].join(",")"#, r#""a,b,c""#),
+
+    // Empty separator
+    (r#"["a", "b", "c"].join("")"#, r#""abc""#),
+
+    // Single element
+    (r#"["hello"].join(",")"#, r#""hello""#),
+
+    // Empty array
+    (r#"[].join(",")"#, r#""""#),
+
+    // Numbers (if auto string conversion allowed)
+    (r#"[1,2,3].join("-")"#, r#""1-2-3""#),
+
+    // Mixed types (if allowed)
+    (r#"[1,true,"x"].join("|")"#, r#""1|true|x""#),
+
+    // Multi-character separator
+    (r#"["a","b","c"].join("--")"#, r#""a--b--c""#),
+
+    // Separator not provided
+    (r#"["a","b"].join()"#, r#""ab""#),
+
+    // Non-array receiver
+    (r#""hello".join(",")"#, "unknown method for string: 'join'"),
+
+(r#""a,b,c".split(",").join("-")"#, r#""a-b-c""#),
+];
+
+    test_cases_for_input_output(&testcases);
+}
+
+#[test]
+fn eval_str_split(){
+    let testcases = [
+    // Normal case
+    (r#""a,b,c".split(",")"#, r#"["a", "b", "c"]"#),
+
+    // Space split
+    (r#""hello world test".split(" ")"#, r#"["hello", "world", "test"]"#),
+
+    // Multi-character separator
+    (r#""a--b--c".split("--")"#, r#"["a", "b", "c"]"#),
+
+    // Separator not found
+    (r#""abc".split(",")"#, r#"["abc"]"#),
+
+    // Split empty string
+    (r#""".split(",")"#, r#"[""]"#),
+
+    // Empty separator (IMPORTANT EDGE CASE)
+    (r#""abc".split("")"#, r#"["a", "b", "c"]"#),
+
+    // Trailing separator
+    (r#""a,b,".split(",")"#, r#"["a", "b", ""]"#),
+
+    // Leading separator
+    (r#"",a,b".split(",")"#, r#"["", "a", "b"]"#),
+
+    // Only separator
+    (r#""---".split("-")"#, r#"["", "", "", ""]"#),
+
+    // Non-string receiver
+    (r#"123.split(",")"#, "unknown method for int: 'split'"),
+
+    // Missing argument
+    (r#""abc".split()"#, r#"["a", "b", "c"]"#),
+
+
+];
+    test_cases_for_input_output(&testcases);
+}
+
+
+#[test]
+fn test_range_based_for_loop_evaluation(){
+    let testcases = [
+    // Break trifft
+    ("for i <- range(10){ if (i == 3){ break true; } }", "true"),
+
+    // Break trifft nicht
+    ("for i <- range(10){ if (i == 20){ break true; } }", "null"),
+
+    // Direktes break
+    ("for i <- range(10){ break 23; }", "23"),
+
+    // Kein break
+    ("for i <- range(5){}", "null"),
+
+    // Break mit letztem Wert
+    ("for i <- range(5){ if (i == 4){ break i; } }", "4"),
+
+    // Break erstes Element
+    ("for i <- range(5){ break i; }", "0"),
+];
+
+    test_cases_for_input_output(&testcases);
+
+}
+
+
+#[test]
+fn test_list_based_for_loop_evaluation(){
+    let testcases = [
+    // Element gefunden
+    ("for x <- [1,2,3,4]{ if (x == 3){ break x; } }", "3"),
+
+    // Element nicht gefunden
+    ("for x <- [1,2,3]{ if (x == 10){ break x; } }", "null"),
+
+    // Direkt break
+    ("for x <- [7,8,9]{ break x; }", "7"),
+
+    // Leere Liste
+    ("for x <- []{ break 1; }", "null"),
+
+    // Boolean break
+    ("for x <- [1,2,3]{ if (x == 2){ break true; } }", "true"),
+];
+
+    test_cases_for_input_output(&testcases);
+}
+
+
+#[test]
+fn test_string_based_for_loop_evaluation(){
+    let testcases = [
+    // Zeichen gefunden
+    ("for c <- \"hello\"{ if (c == \"e\"){ break c; } }", "\"e\""),
+
+    // Nicht gefunden
+    ("for c <- \"abc\"{ if (c == \"z\"){ break c; } }", "null"),
+
+    // Direkt break
+    ("for c <- \"xyz\"{ break c; }", "\"x\""),
+
+    // Leerer String
+    ("for c <- \"\"{ break 1; }", "null"),
+
+    // Letztes Zeichen
+    ("for c <- \"abc\"{ if (c == \"c\"){ break c; } }", "\"c\""),
+];
+
+    test_cases_for_input_output(&testcases);
+}
+
+
+#[test]
+fn test_break_without_value_for_loop_evaluation(){
+  let testcases = [
+    ("for i <- range(5){ break; }", "null"),
+
+    ("for x <- [1,2,3]{ if (x == 2){ break; } }", "null"),
+];    
+    test_cases_for_input_output(&testcases);
+}
+
+#[test]
+fn test_nested_for_loop_evaluation(){
+  let testcases = [
+    // Inner break darf nur inner loop beenden
+    ("
+        for i <- range(3){
+            for j <- range(3){
+                break 99;
+            }
+        }
+    ", "null"),
+
+    // Outer break
+    ("
+        for i <- range(3){
+            if (i == 2){
+                break 42;
+            }
+        }
+    ", "42"),
+];   
+    test_cases_for_input_output(&testcases);
+}
+
+#[test]
+fn test_multiple_break_for_loop_evaluation(){
+  let testcases = [
+    ("
+        for i <- range(10){
+            if (i == 2){ break 2; }
+            if (i == 5){ break 5; }
+        }
+    ", "2"),
+];  
+
+    test_cases_for_input_output(&testcases);
+   
+}
+
+#[test]
+fn test_complex_break_for_loop_evaluation(){
+    let testcases = [
+    ("
+        for x <- \"abc\"{
+            if (x == \"b\"){
+                break for i <- range(5){
+                    if (i == 3){ break i; }
+                };
+            }
+        }
+    ", "3"),
+];
+
+    test_cases_for_input_output(&testcases);
+}
+
+
+
+// util
+
+fn test_cases_for_input_output(testcases: &[(&str, &str)]){
     testcases.iter().for_each(|testcase| {
         let input = testcase.0.into();
         let expected_value = testcase.1.to_string();
+
+
 
         let lexer = Lexer::new(input);
         let parser = Parser::new(lexer);

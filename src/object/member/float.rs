@@ -28,13 +28,13 @@ impl FloatObj {
 
     // Methods
 
-    fn as_str(&self) -> ObjectRef {
+    pub fn as_str(&self) -> ObjectRef {
         Rc::new(RefCell::new(Object::String(StringObj {
             value: self.val.to_string(),
         })))
     }
 
-    fn as_int(&self) -> ObjectRef {
+    pub fn as_int(&self) -> ObjectRef {
         Rc::new(RefCell::new(Object::Int(Integer {
             value: self.val as i64,
         })))

@@ -25,7 +25,7 @@ impl ForLoopExpression {
             };
         }
 
-        Err("err".to_string())
+        self.evaluate_conditionless_for_loop(new_environment)
     }
 
     fn evaluate_normal_for_loop(
@@ -34,10 +34,14 @@ impl ForLoopExpression {
         variable: &Identifier,
         iterable: &Expression,
     ) -> Result<ObjectRef, String> {
+        
         let provided_object = iterable.evaluate(environ.clone())?;
+        
         let mut iterator = match &*provided_object.borrow() {
             Object::Iterator(iterator) => iterator.clone(),
-            _ => return Err("value provided is not an iterator".into()),
+            Object::Array(arr) => arr.build_iterator(),
+            Object::String(str) => str.build_char_iterator(),
+            _ => panic!("value provided is not an iterator"),
         };
 
         while let Some(current_value) = iterator._next() {
@@ -57,5 +61,25 @@ impl ForLoopExpression {
         }
 
         Ok(Rc::new(RefCell::new(Object::NULL_OBJECT)))
+    }
+
+    fn evaluate_conditionless_for_loop(
+        &self,
+        environ: EnvRef
+    ) -> Result<ObjectRef, String>{
+
+        loop {
+            for statement in &self.block.statements {
+                let result = statement.evaluate(environ.clone())?;
+
+                if let Object::ReturnVal(_) = &*result.borrow() {
+                    return Ok(result.clone());
+                } else if let Object::BreakVal(break_val) = &*result.borrow() {
+                    return Ok(*break_val.value.clone());
+                } else if matches!(&*result.borrow(), Object::Continue) {
+                    break;
+                }
+            }
+        }
     }
 }

@@ -103,6 +103,7 @@ impl Parser {
         if self.peek_token.token_type != TokenType::Identifier {
             // inf loop
             if self.peek_token.token_type == TokenType::LBrace {
+                self.next_token();
                 let block = self.parse_block_statement()?;
 
                 return Ok(Expression::ForLoop(ForLoopExpression {

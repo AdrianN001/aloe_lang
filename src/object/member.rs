@@ -1,4 +1,4 @@
-use std::{cell::RefCell, rc::Rc};
+use std::{cell::{Ref, RefCell}, rc::Rc};
 
 use crate::object::{Object, ObjectRef, stack_environment::EnvRef};
 
@@ -10,6 +10,11 @@ pub mod string;
 
 impl Object {
     pub fn apply_attribute(&self, name: &str) -> ObjectRef {
+
+        if let Some(result) = self.check_early_attributes(name){
+            return result;
+        }
+
         match self {
             Object::String(str) => str.apply_attribute(name),
             Object::Array(arr) => arr.apply_attribute(name),
@@ -34,6 +39,22 @@ impl Object {
             _ => Rc::new(RefCell::new(Object::new_error(
                 "type has no methods".into(),
             ))),
+        }
+    }
+
+
+    fn check_early_attributes(&self, name: &str) -> Option<ObjectRef>{
+        match name{
+            "is_ok" => match &self{
+                Object::Err(_) => Some(Rc::new(RefCell::new(Object::get_native_boolean_object(false)))),
+                _ => Some(Rc::new(RefCell::new(Object::get_native_boolean_object(true))))
+            },
+            "is_err" => match &self{
+                Object::Err(_) => Some(Rc::new(RefCell::new(Object::get_native_boolean_object(true)))),
+                _ => Some(Rc::new(RefCell::new(Object::get_native_boolean_object(false))))
+            },
+
+            _ => None
         }
     }
 }

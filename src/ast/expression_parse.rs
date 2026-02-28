@@ -62,6 +62,11 @@ impl Parser {
                     self.next_token();
                     left_expression = self.parse_infix_expression(&left_expression)?;
                 }
+                TokenType::Assign => {
+                    self.next_token();
+                    left_expression = self.parse_value_assign(&left_expression)?;
+                }
+
                 TokenType::Dot => {
                     self.next_token();
                     left_expression = self.parse_dot_expression(&left_expression)?;

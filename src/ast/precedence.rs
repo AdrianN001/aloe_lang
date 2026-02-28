@@ -5,6 +5,7 @@ use crate::token::token_type::TokenType;
 pub enum OperationPrecedence {
     Lowest,
 
+    Assignment,  // = 
     Equals,      // ==, !=
     LessGreater, // < >
     Sum,         // +, -
@@ -17,6 +18,7 @@ pub enum OperationPrecedence {
 
 pub fn get_precedence_of_operator(token: &Token) -> OperationPrecedence {
     match token.token_type {
+        TokenType::Assign => OperationPrecedence::Assignment,
         TokenType::Eq => OperationPrecedence::Equals,
         TokenType::NotEq => OperationPrecedence::Equals,
 

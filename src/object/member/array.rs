@@ -70,6 +70,14 @@ impl Array {
         Rc::new(RefCell::new(Object::Null(Null {})))
     }
 
+    fn pop(&mut self, args: &[ObjectRef]) -> ObjectRef {
+
+        Rc::new(RefCell::new(Object::NULL_OBJECT))
+    }
+    fn slice(&mut self, args: &[ObjectRef]) -> ObjectRef {
+        self.pop(args)
+    }
+
     fn extend(&mut self, args: &[ObjectRef]) -> ObjectRef {
         if !args.is_empty()
             && let Object::Array(other_arr) = &*args[0].borrow()

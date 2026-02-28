@@ -1,5 +1,7 @@
 
+use crate::ast::expression::Expression;
 use crate::ast::expression::identifier::Identifier;
+use crate::ast::expression::value_assign_expression::ValueAssignExpression;
 use crate::ast::precedence::OperationPrecedence;
 use crate::ast::statement::break_statement::BreakStatement;
 use crate::ast::statement::continue_statement::ContinueStatement;
@@ -143,6 +145,32 @@ impl Parser {
         }
 
         Ok(Statement::Return(statement))
+    }
+
+    fn parse_value_assign(&mut self, left: &Expression) -> Result<Expression, String>{
+        let expr = ValueAssignExpression{
+            token: self.current_token.clone(),
+            left: {
+                match left{
+                    Expression::Index(_) | Expression::Identifier(_) => Box::new(left.clone()),
+                    other_expression_type => return Err(format!("expected 'RValue', got: {}", other_expression_type.to_string()))
+                }
+            },
+            right: {
+                if self.peek_token.token_type == TokenType::Semicolon{
+                    return Err("expected expression, got semicolon.".into());
+                }
+                self.next_token();
+                let right_expr = self.parse_expression(OperationPrecedence::Lowest)?;
+
+                if self.current_token.token_type == TokenType::Semicolon{
+                    self.next_token();
+                }
+                Box::new(right_expr)
+            }
+        };
+
+        Ok(Expression::ValueAssign(expr))
     }
 
     fn parse_break(&mut self) -> Result<Statement, String> {

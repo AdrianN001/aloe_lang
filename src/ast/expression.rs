@@ -13,7 +13,9 @@ pub mod integer_literal;
 pub mod member;
 pub mod prefix_expression;
 pub mod string_expr;
+pub mod value_assign_expression;
 
+use value_assign_expression::ValueAssignExpression;
 use array_literal::ArrayLiteral;
 use boolean::Boolean;
 use call_expression::CallExpression;
@@ -46,6 +48,7 @@ pub enum Expression {
     Index(IndexExpression),
     HashMapLiteral(HashMapLiteral),
     ForLoop(ForLoopExpression),
+    ValueAssign(ValueAssignExpression),
 
     Member(MemberExpression),
 

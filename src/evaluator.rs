@@ -9,6 +9,7 @@ mod index_expr;
 mod infix_expr;
 mod member_expr;
 mod prefix_expr;
+mod value_assign;
 
 use std::cell::RefCell;
 use std::rc::Rc;
@@ -48,7 +49,8 @@ impl Expression {
                 right_side
                     .borrow_mut()
                     .evaluate_prefix(&prefix_expr.operator)
-            }
+            },
+            Expression::ValueAssign(value_assign) => value_assign.evaluate(environ.clone()),
             Expression::HashMapLiteral(hashmap) => hashmap.evaluate(environ.clone()),
             Expression::Index(indx_expr) => indx_expr.evaluate(environ.clone()),
             Expression::String(str_exr) => Ok(Rc::new(RefCell::new(Object::String(StringObj {
@@ -104,9 +106,9 @@ impl Statement {
             Statement::Block(block_stmt) => block_stmt.evaluate(environ),
             Statement::Let(let_stmt) => {
                 let value = let_stmt.value.evaluate(environ.clone())?;
-                environ.borrow_mut().set(&let_stmt.name.value, value);
-                Ok(Rc::new(RefCell::new(Object::Null(Null {}))))
-            }
+                environ.borrow_mut().set(&let_stmt.name.value, value.clone());
+                Ok(value.clone())
+            },
             Statement::Return(return_stmt) => {
                 let val = return_stmt.value.evaluate(environ)?;
 

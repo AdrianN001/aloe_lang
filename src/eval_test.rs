@@ -866,6 +866,117 @@ fn test_complex_break_for_loop_evaluation(){
 }
 
 
+#[test]
+fn test_variable_reassignment(){
+    let testcases = [
+    // Simple reassignment
+    ("let x = 5; x = 10; x;", "10"),
+
+    // Reassign using expression
+    ("let x = 5; x = x + 5; x;", "10"),
+
+    // Reassign boolean
+    ("let b = true; b = false; b;", "false"),
+
+    // Reassign multiple times
+    ("let x = 1; x = 2; x = 3; x;", "3"),
+];
+
+    test_cases_for_input_output(&testcases);
+}
+
+#[test]
+fn test_index_assignment(){
+    let testcases = [
+    // Basic index assignment
+    ("let arr = [1,2,3]; arr[0] = 10; arr[0];", "10"),
+
+    // Middle element
+    ("let arr = [1,2,3]; arr[1] = 99; arr[1];", "99"),
+
+    // Last element
+    ("let arr = [1,2,3]; arr[2] = 42; arr[2];", "42"),
+
+    // Negative index (if supported)
+    ("let arr = [1,2,3]; arr[-1] = 7; arr[2];", "7"),
+
+    // Index assignment using expression
+    ("let arr = [1,2,3]; let i = 1; arr[i] = 50; arr[1];", "50"),
+
+    // Chain read after write
+    ("let arr = [1,2]; arr[0] = arr[1]; arr[0];", "2"),
+];
+
+    test_cases_for_input_output(&testcases);
+}
+
+#[test]
+fn test_array_mutation(){
+    let testcases = [
+    // Mutation must persist
+    ("let arr = [1,2,3]; arr[1] = 100; arr;", "[1, 100, 3]"),
+
+    // Shared reference behavior (if assignment copies reference)
+    ("let arr = [1,2,3]; let b = arr; b[0] = 9; arr[0];", "9"),
+];
+    test_cases_for_input_output(&testcases);
+}
+
+#[test]
+fn test_hashmap_index_assignment(){
+    let testcases = [
+    // Basic hash assignment
+    ("let m = {\"a\":1}; m[\"a\"] = 5; m[\"a\"];", "5"),
+
+    // Insert new key (if allowed)
+    ("let m = {\"a\":1}; m[\"b\"] = 2; m[\"b\"];", "2"),
+
+    // Overwrite existing
+    ("let m = {\"a\":1}; m[\"a\"] = 99; m[\"a\"];", "99"),
+
+    // Int key
+    ("let m = {1:10}; m[1] = 20; m[1];", "20"),
+
+    // Bool key
+    ("let m = {true:1}; m[true] = 2; m[true];", "2"),
+];
+    test_cases_for_input_output(&testcases);
+}
+
+#[test]
+fn test_nested_structures(){
+    let testcases = [
+    // Nested array
+    ("let arr = [[1,2],[3,4]]; arr[0][1] = 99; arr[0][1];", "99"),
+
+    // Nested hash
+    ("let m = {\"a\": {\"b\": 1}}; m[\"a\"][\"b\"] = 42; m[\"a\"][\"b\"];", "42"),
+];
+    test_cases_for_input_output(&testcases);
+}
+
+#[test]
+fn test_assignment_operator_as_value(){
+    let testcases = [
+    ("let x = 0; x = 5;", "5"),
+    ("let arr = [1,2]; arr[0] = 10;", "10"),
+    ];
+    test_cases_for_input_output(&testcases);
+}
+
+#[test]
+fn test_for_loop_and_index_assign(){
+    let testcases = [
+    ("
+        let arr = [1,2,3];
+        for i <- range(3){
+            arr[i] = arr[i] * 2;
+        }
+        arr[2];
+    ", "6"),
+];
+    test_cases_for_input_output(&testcases);
+}
 
 // util
 

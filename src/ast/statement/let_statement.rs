@@ -16,7 +16,7 @@ impl LetStatement {
         buffer.push_str(&self.name.token.literal);
         buffer.push_str(" = ");
 
-        //TODO add value print
+        buffer.push_str(&self.value.to_string());
 
         buffer.push(';');
         buffer

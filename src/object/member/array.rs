@@ -1,7 +1,13 @@
 use std::{cell::RefCell, clone, rc::Rc};
 
 use crate::object::{
-    Object, ObjectRef, array::Array, integer::Integer, iterator::{Iterator, list_based_iterator::ListBasedIterator}, null::Null, stack_environment::EnvRef, string_obj::StringObj
+    Object, ObjectRef,
+    array::Array,
+    integer::Integer,
+    iterator::{Iterator, list_based_iterator::ListBasedIterator},
+    null::Null,
+    stack_environment::EnvRef,
+    string_obj::StringObj,
 };
 
 impl Array {
@@ -53,11 +59,13 @@ impl Array {
         })))
     }
 
-    fn deep_copy(&self) -> ObjectRef{
-        Rc::new(RefCell::new(Object::Array( Array{
-            items: self.items.iter().map(|item|{
-                Rc::new(RefCell::new((*item.borrow()).clone()))
-            }).collect()
+    fn deep_copy(&self) -> ObjectRef {
+        Rc::new(RefCell::new(Object::Array(Array {
+            items: self
+                .items
+                .iter()
+                .map(|item| Rc::new(RefCell::new((*item.borrow()).clone())))
+                .collect(),
         })))
     }
 
@@ -71,7 +79,6 @@ impl Array {
     }
 
     fn pop(&mut self, args: &[ObjectRef]) -> ObjectRef {
-
         Rc::new(RefCell::new(Object::NULL_OBJECT))
     }
     fn slice(&mut self, args: &[ObjectRef]) -> ObjectRef {
@@ -156,45 +163,53 @@ impl Array {
         )))
     }
 
-    fn as_iter(&self) -> ObjectRef{
-        Rc::new(RefCell::new(Object::Iterator(
-            self.build_iterator()
-        )))
+    fn as_iter(&self) -> ObjectRef {
+        Rc::new(RefCell::new(Object::Iterator(self.build_iterator())))
     }
 
-    pub fn build_iterator(&self) -> Iterator{
-        Iterator::ListBasedIterator(ListBasedIterator { 
-            list: self.items.iter().map(|item| item.clone()).collect(), 
-            index: 0
+    pub fn build_iterator(&self) -> Iterator {
+        Iterator::ListBasedIterator(ListBasedIterator {
+            list: self.items.iter().map(|item| item.clone()).collect(),
+            index: 0,
         })
     }
 
-    fn join(&self, args: &[ObjectRef]) -> ObjectRef{
+    fn join(&self, args: &[ObjectRef]) -> ObjectRef {
         let join_str_value = if args.is_empty() {
             "".to_string()
-        } else { 
-            match &*args[0].borrow(){
+        } else {
+            match &*args[0].borrow() {
                 Object::String(str) => str.value.clone(),
-                other_type => return Rc::new(RefCell::new(Object::new_error(format!("expected to be the first paramter a 'str', got: {}", other_type.get_type()))))
+                other_type => {
+                    return Rc::new(RefCell::new(Object::new_error(format!(
+                        "expected to be the first paramter a 'str', got: {}",
+                        other_type.get_type()
+                    ))));
+                }
             }
         };
 
         let mut strings = Vec::new();
 
-        for (index, item) in self.items.clone().iter().enumerate(){
-            match &*item.borrow(){
+        for (index, item) in self.items.clone().iter().enumerate() {
+            match &*item.borrow() {
                 Object::String(str) => strings.push(str.value.clone()),
                 Object::Int(int) => strings.push(int.value.to_string()),
                 Object::FloatObj(float) => strings.push(float.val.to_string()),
                 Object::Bool(bool) => strings.push(bool.value.to_string()),
 
-                other_type => return Rc::new(RefCell::new(Object::new_error(format!("not all elements can be converted to str. Element {} is {}", index, other_type.get_type()))))
+                other_type => {
+                    return Rc::new(RefCell::new(Object::new_error(format!(
+                        "not all elements can be converted to str. Element {} is {}",
+                        index,
+                        other_type.get_type()
+                    ))));
+                }
             }
         }
 
-        Rc::new(RefCell::new(Object::String(StringObj{
-            value: strings.join(&join_str_value)
+        Rc::new(RefCell::new(Object::String(StringObj {
+            value: strings.join(&join_str_value),
         })))
-
     }
 }

@@ -1,4 +1,7 @@
-use std::{cell::{Ref, RefCell}, rc::Rc};
+use std::{
+    cell::{Ref, RefCell},
+    rc::Rc,
+};
 
 use crate::object::{Object, ObjectRef, stack_environment::EnvRef};
 
@@ -10,8 +13,7 @@ pub mod string;
 
 impl Object {
     pub fn apply_attribute(&self, name: &str) -> ObjectRef {
-
-        if let Some(result) = self.check_early_attributes(name){
+        if let Some(result) = self.check_early_attributes(name) {
             return result;
         }
 
@@ -42,19 +44,26 @@ impl Object {
         }
     }
 
-
-    fn check_early_attributes(&self, name: &str) -> Option<ObjectRef>{
-        match name{
-            "is_ok" => match &self{
-                Object::Err(_) => Some(Rc::new(RefCell::new(Object::get_native_boolean_object(false)))),
-                _ => Some(Rc::new(RefCell::new(Object::get_native_boolean_object(true))))
+    fn check_early_attributes(&self, name: &str) -> Option<ObjectRef> {
+        match name {
+            "is_ok" => match &self {
+                Object::Err(_) => Some(Rc::new(RefCell::new(Object::get_native_boolean_object(
+                    false,
+                )))),
+                _ => Some(Rc::new(RefCell::new(Object::get_native_boolean_object(
+                    true,
+                )))),
             },
-            "is_err" => match &self{
-                Object::Err(_) => Some(Rc::new(RefCell::new(Object::get_native_boolean_object(true)))),
-                _ => Some(Rc::new(RefCell::new(Object::get_native_boolean_object(false))))
+            "is_err" => match &self {
+                Object::Err(_) => Some(Rc::new(RefCell::new(Object::get_native_boolean_object(
+                    true,
+                )))),
+                _ => Some(Rc::new(RefCell::new(Object::get_native_boolean_object(
+                    false,
+                )))),
             },
 
-            _ => None
+            _ => None,
         }
     }
 }

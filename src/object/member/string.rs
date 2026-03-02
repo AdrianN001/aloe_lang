@@ -1,7 +1,12 @@
 use std::{cell::RefCell, rc::Rc};
 
 use crate::object::{
-    Object, ObjectRef, array::Array, float_obj::FloatObj, integer::Integer, iterator::{Iterator, list_based_iterator::ListBasedIterator}, string_obj::StringObj
+    Object, ObjectRef,
+    array::Array,
+    float_obj::FloatObj,
+    integer::Integer,
+    iterator::{Iterator, list_based_iterator::ListBasedIterator},
+    string_obj::StringObj,
 };
 
 impl StringObj {
@@ -60,10 +65,18 @@ impl StringObj {
         })))
     }
 
-    pub fn build_char_iterator(&self) -> Iterator{
-        Iterator::ListBasedIterator(ListBasedIterator{
-            list: self.value.chars().map(|char| Rc::new(RefCell::new(Object::String(StringObj { value: char.to_string() })))).collect(),
-            index: 0
+    pub fn build_char_iterator(&self) -> Iterator {
+        Iterator::ListBasedIterator(ListBasedIterator {
+            list: self
+                .value
+                .chars()
+                .map(|char| {
+                    Rc::new(RefCell::new(Object::String(StringObj {
+                        value: char.to_string(),
+                    })))
+                })
+                .collect(),
+            index: 0,
         })
     }
 
@@ -83,25 +96,35 @@ impl StringObj {
         }
     }
 
-    fn split(&self, args: &[ObjectRef]) -> ObjectRef{
-        let split_value = if args.is_empty(){
+    fn split(&self, args: &[ObjectRef]) -> ObjectRef {
+        let split_value = if args.is_empty() {
             return self.chars();
-        }else{
-            match &*args[0].borrow(){
+        } else {
+            match &*args[0].borrow() {
                 Object::String(str) => str.value.clone(),
-                other_type => return Rc::new(RefCell::new(Object::new_error(format!("expected to be the first paramter a 'str', got: {}", other_type.get_type()))))
+                other_type => {
+                    return Rc::new(RefCell::new(Object::new_error(format!(
+                        "expected to be the first paramter a 'str', got: {}",
+                        other_type.get_type()
+                    ))));
+                }
             }
         };
 
-        if split_value.is_empty(){
+        if split_value.is_empty() {
             return self.chars();
         }
 
-        Rc::new(RefCell::new(Object::Array( Array{ 
-                items: self.value.split(&split_value).map(|sub_str: &str|{
-                    Rc::new(RefCell::new(Object::String(StringObj { value: sub_str.to_string() }
-                )))
-            }).collect()
+        Rc::new(RefCell::new(Object::Array(Array {
+            items: self
+                .value
+                .split(&split_value)
+                .map(|sub_str: &str| {
+                    Rc::new(RefCell::new(Object::String(StringObj {
+                        value: sub_str.to_string(),
+                    })))
+                })
+                .collect(),
         })))
     }
 }

@@ -5,7 +5,7 @@ use crate::token::token_type::TokenType;
 pub enum OperationPrecedence {
     Lowest,
 
-    Assignment,  // = 
+    Assignment,  // =
     Equals,      // ==, !=
     LessGreater, // < >
     Sum,         // +, -

@@ -142,41 +142,40 @@ fn test_if_statement_evaluation() {
     let testcases = [
         ("if (5 * 5 + 10 > 34) { 99 } else { 100 }", "99"),
         ("if ((1000 / 2) + 250 * 2 == 1000) { 9999; }", "9999"),
-        
         ("if (true) { 10 }", "10"),
         ("if (false) { 10 }", "null"),
         ("if (1 < 2) { 99 }", "99"),
         ("if (1 > 2) { 99 }", "null"),
-
         ("if (true) { 10 } else { 20 }", "10"),
         ("if (false) { 10 } else { 20 }", "20"),
         ("if (1 > 2) { 1 } else { 2 }", "2"),
-
         ("if (false) { 1 } elif (true) { 2 }", "2"),
         ("if (false) { 1 } elif (false) { 2 }", "null"),
         ("if (1 > 2) { 1 } elif (2 > 1) { 2 }", "2"),
-
-    ("
+        (
+            "
         if (false) { 1 }
         elif (false) { 2 }
         elif (true) { 3 }
         else { 4 }
-    ", "3"),
-
-    ("
+    ",
+            "3",
+        ),
+        (
+            "
         if (false) { 1 }
         elif (false) { 2 }
         elif (false) { 3 }
         else { 4 }
-    ", "4"),
-
+    ",
+            "4",
+        ),
         ("if (false) { 1 } elif (false) { 2 } else { 3 }", "3"),
         ("if (false) { 1 } elif (true) { 2 } else { 3 }", "2"),
         ("if (true) { 1 } elif (true) { 2 } else { 3 }", "1"), // first match wins
-];
+    ];
 
     test_cases_for_input_output(&testcases);
-
 }
 
 #[test]
@@ -203,9 +202,9 @@ fn test_if_statement_null_eval() {
 #[test]
 fn test_return_statement() {
     let testcases = [
-        ("return 10;", 10),
-        ("20; return 5; 50;", 5),
-        ("return 2*10; 10;", 20),
+        ("return 10;", "10"),
+        ("20; return 5; 50;", "5"),
+        ("return 2*10; 10;", "20"),
         (
             "if (10 > 1) {
             if (10 > 1) {
@@ -213,24 +212,96 @@ fn test_return_statement() {
             }
             return 1;
         }",
-            10,
+            "10",
+        ),
+        (
+            "let f = fn(){ if (true){ return 1; } return 2; }; f();",
+            "1",
+        ),
+        (
+            "let f = fn(){ if (false){ return 1; } return 2; }; f();",
+            "2",
+        ),
+        ("let f = fn(){ if (true){ 5; } else { 10; } }; f();", "5"),
+        ("let f = fn(){ if (false){ 5; } else { 10; } }; f();", "10"),
+        (
+            "
+        let f = fn(){
+            if (true){
+                if (true){
+                    return 42;
+                }
+            }
+            return 0;
+        };
+        f();
+    ",
+            "42",
+        ),
+        (
+            "
+        let f = fn(){
+            for i <- range(10){
+                if (i == 3){
+                    return i;
+                }
+            }
+            return 99;
+        };
+        f();
+    ",
+            "3",
+        ),
+        (
+            "
+        let f = fn(){
+            for i <- range(5){
+                for j <- range(5){
+                    return 123;
+                }
+            }
+            return 0;
+        };
+        f();
+    ",
+            "123",
+        ),
+        (
+            "
+        let f = fn(){
+            for i <- range(5){
+                break 10;
+            }
+        };
+        f();
+    ",
+            "10",
+        ),
+        (
+            "
+        let f = fn(){
+            return 5;
+            10;
+        };
+        f();
+    ",
+            "5",
+        ),
+        (
+            "
+        let fact = fn(n){
+            if (n == 0){
+                return 1;
+            }
+            return n * fact(n - 1);
+        };
+        fact(5);
+    ",
+            "120",
         ),
     ];
 
-    testcases.iter().for_each(|testcase| {
-        let input = testcase.0.to_string();
-        let expected_ret_value = testcase.1;
-
-        let lexer = Lexer::new(input);
-        let parser = Parser::new(lexer);
-
-        let program = parser.into_a_program().unwrap();
-
-        match &*program.evaluate().unwrap().borrow() {
-            Object::Int(int_val) => assert_eq!(int_val.value, expected_ret_value),
-            _ => panic!(),
-        }
-    });
+    test_cases_for_input_output(&testcases);
 }
 
 #[test]
@@ -666,209 +737,177 @@ fn eval_for_loop() {
 }
 
 #[test]
-fn eval_array_join(){
+fn eval_array_join() {
     let testcases = [
-    // Normal case
-    (r#"["a", "b", "c"].join(",")"#, r#""a,b,c""#),
-
-    // Empty separator
-    (r#"["a", "b", "c"].join("")"#, r#""abc""#),
-
-    // Single element
-    (r#"["hello"].join(",")"#, r#""hello""#),
-
-    // Empty array
-    (r#"[].join(",")"#, r#""""#),
-
-    // Numbers (if auto string conversion allowed)
-    (r#"[1,2,3].join("-")"#, r#""1-2-3""#),
-
-    // Mixed types (if allowed)
-    (r#"[1,true,"x"].join("|")"#, r#""1|true|x""#),
-
-    // Multi-character separator
-    (r#"["a","b","c"].join("--")"#, r#""a--b--c""#),
-
-    // Separator not provided
-    (r#"["a","b"].join()"#, r#""ab""#),
-
-    // Non-array receiver
-    (r#""hello".join(",")"#, "unknown method for string: 'join'"),
-
-(r#""a,b,c".split(",").join("-")"#, r#""a-b-c""#),
-];
+        // Normal case
+        (r#"["a", "b", "c"].join(",")"#, r#""a,b,c""#),
+        // Empty separator
+        (r#"["a", "b", "c"].join("")"#, r#""abc""#),
+        // Single element
+        (r#"["hello"].join(",")"#, r#""hello""#),
+        // Empty array
+        (r#"[].join(",")"#, r#""""#),
+        // Numbers (if auto string conversion allowed)
+        (r#"[1,2,3].join("-")"#, r#""1-2-3""#),
+        // Mixed types (if allowed)
+        (r#"[1,true,"x"].join("|")"#, r#""1|true|x""#),
+        // Multi-character separator
+        (r#"["a","b","c"].join("--")"#, r#""a--b--c""#),
+        // Separator not provided
+        (r#"["a","b"].join()"#, r#""ab""#),
+        // Non-array receiver
+        (r#""hello".join(",")"#, "unknown method for string: 'join'"),
+        (r#""a,b,c".split(",").join("-")"#, r#""a-b-c""#),
+    ];
 
     test_cases_for_input_output(&testcases);
 }
 
 #[test]
-fn eval_str_split(){
+fn eval_str_split() {
     let testcases = [
-    // Normal case
-    (r#""a,b,c".split(",")"#, r#"["a", "b", "c"]"#),
-
-    // Space split
-    (r#""hello world test".split(" ")"#, r#"["hello", "world", "test"]"#),
-
-    // Multi-character separator
-    (r#""a--b--c".split("--")"#, r#"["a", "b", "c"]"#),
-
-    // Separator not found
-    (r#""abc".split(",")"#, r#"["abc"]"#),
-
-    // Split empty string
-    (r#""".split(",")"#, r#"[""]"#),
-
-    // Empty separator (IMPORTANT EDGE CASE)
-    (r#""abc".split("")"#, r#"["a", "b", "c"]"#),
-
-    // Trailing separator
-    (r#""a,b,".split(",")"#, r#"["a", "b", ""]"#),
-
-    // Leading separator
-    (r#"",a,b".split(",")"#, r#"["", "a", "b"]"#),
-
-    // Only separator
-    (r#""---".split("-")"#, r#"["", "", "", ""]"#),
-
-    // Non-string receiver
-    (r#"123.split(",")"#, "unknown method for int: 'split'"),
-
-    // Missing argument
-    (r#""abc".split()"#, r#"["a", "b", "c"]"#),
-
-
-];
+        // Normal case
+        (r#""a,b,c".split(",")"#, r#"["a", "b", "c"]"#),
+        // Space split
+        (
+            r#""hello world test".split(" ")"#,
+            r#"["hello", "world", "test"]"#,
+        ),
+        // Multi-character separator
+        (r#""a--b--c".split("--")"#, r#"["a", "b", "c"]"#),
+        // Separator not found
+        (r#""abc".split(",")"#, r#"["abc"]"#),
+        // Split empty string
+        (r#""".split(",")"#, r#"[""]"#),
+        // Empty separator (IMPORTANT EDGE CASE)
+        (r#""abc".split("")"#, r#"["a", "b", "c"]"#),
+        // Trailing separator
+        (r#""a,b,".split(",")"#, r#"["a", "b", ""]"#),
+        // Leading separator
+        (r#"",a,b".split(",")"#, r#"["", "a", "b"]"#),
+        // Only separator
+        (r#""---".split("-")"#, r#"["", "", "", ""]"#),
+        // Non-string receiver
+        (r#"123.split(",")"#, "unknown method for int: 'split'"),
+        // Missing argument
+        (r#""abc".split()"#, r#"["a", "b", "c"]"#),
+    ];
     test_cases_for_input_output(&testcases);
 }
 
-
 #[test]
-fn test_range_based_for_loop_evaluation(){
+fn test_range_based_for_loop_evaluation() {
     let testcases = [
-    // Break trifft
-    ("for i <- range(10){ if (i == 3){ break true; } }", "true"),
-
-    // Break trifft nicht
-    ("for i <- range(10){ if (i == 20){ break true; } }", "null"),
-
-    // Direktes break
-    ("for i <- range(10){ break 23; }", "23"),
-
-    // Kein break
-    ("for i <- range(5){}", "null"),
-
-    // Break mit letztem Wert
-    ("for i <- range(5){ if (i == 4){ break i; } }", "4"),
-
-    // Break erstes Element
-    ("for i <- range(5){ break i; }", "0"),
-];
+        // Break trifft
+        ("for i <- range(10){ if (i == 3){ break true; } }", "true"),
+        // Break trifft nicht
+        ("for i <- range(10){ if (i == 20){ break true; } }", "null"),
+        // Direktes break
+        ("for i <- range(10){ break 23; }", "23"),
+        // Kein break
+        ("for i <- range(5){}", "null"),
+        // Break mit letztem Wert
+        ("for i <- range(5){ if (i == 4){ break i; } }", "4"),
+        // Break erstes Element
+        ("for i <- range(5){ break i; }", "0"),
+    ];
 
     test_cases_for_input_output(&testcases);
-
 }
 
-
 #[test]
-fn test_list_based_for_loop_evaluation(){
+fn test_list_based_for_loop_evaluation() {
     let testcases = [
-    // Element gefunden
-    ("for x <- [1,2,3,4]{ if (x == 3){ break x; } }", "3"),
-
-    // Element nicht gefunden
-    ("for x <- [1,2,3]{ if (x == 10){ break x; } }", "null"),
-
-    // Direkt break
-    ("for x <- [7,8,9]{ break x; }", "7"),
-
-    // Leere Liste
-    ("for x <- []{ break 1; }", "null"),
-
-    // Boolean break
-    ("for x <- [1,2,3]{ if (x == 2){ break true; } }", "true"),
-];
+        // Element gefunden
+        ("for x <- [1,2,3,4]{ if (x == 3){ break x; } }", "3"),
+        // Element nicht gefunden
+        ("for x <- [1,2,3]{ if (x == 10){ break x; } }", "null"),
+        // Direkt break
+        ("for x <- [7,8,9]{ break x; }", "7"),
+        // Leere Liste
+        ("for x <- []{ break 1; }", "null"),
+        // Boolean break
+        ("for x <- [1,2,3]{ if (x == 2){ break true; } }", "true"),
+    ];
 
     test_cases_for_input_output(&testcases);
 }
 
-
 #[test]
-fn test_string_based_for_loop_evaluation(){
+fn test_string_based_for_loop_evaluation() {
     let testcases = [
-    // Zeichen gefunden
-    ("for c <- \"hello\"{ if (c == \"e\"){ break c; } }", "\"e\""),
-
-    // Nicht gefunden
-    ("for c <- \"abc\"{ if (c == \"z\"){ break c; } }", "null"),
-
-    // Direkt break
-    ("for c <- \"xyz\"{ break c; }", "\"x\""),
-
-    // Leerer String
-    ("for c <- \"\"{ break 1; }", "null"),
-
-    // Letztes Zeichen
-    ("for c <- \"abc\"{ if (c == \"c\"){ break c; } }", "\"c\""),
-];
+        // Zeichen gefunden
+        ("for c <- \"hello\"{ if (c == \"e\"){ break c; } }", "\"e\""),
+        // Nicht gefunden
+        ("for c <- \"abc\"{ if (c == \"z\"){ break c; } }", "null"),
+        // Direkt break
+        ("for c <- \"xyz\"{ break c; }", "\"x\""),
+        // Leerer String
+        ("for c <- \"\"{ break 1; }", "null"),
+        // Letztes Zeichen
+        ("for c <- \"abc\"{ if (c == \"c\"){ break c; } }", "\"c\""),
+    ];
 
     test_cases_for_input_output(&testcases);
 }
 
-
 #[test]
-fn test_break_without_value_for_loop_evaluation(){
-  let testcases = [
-    ("for i <- range(5){ break; }", "null"),
-
-    ("for x <- [1,2,3]{ if (x == 2){ break; } }", "null"),
-];    
+fn test_break_without_value_for_loop_evaluation() {
+    let testcases = [
+        ("for i <- range(5){ break; }", "null"),
+        ("for x <- [1,2,3]{ if (x == 2){ break; } }", "null"),
+    ];
     test_cases_for_input_output(&testcases);
 }
 
 #[test]
-fn test_nested_for_loop_evaluation(){
-  let testcases = [
-    // Inner break darf nur inner loop beenden
-    ("
+fn test_nested_for_loop_evaluation() {
+    let testcases = [
+        // Inner break darf nur inner loop beenden
+        (
+            "
         for i <- range(3){
             for j <- range(3){
                 break 99;
             }
         }
-    ", "null"),
-
-    // Outer break
-    ("
+    ",
+            "null",
+        ),
+        // Outer break
+        (
+            "
         for i <- range(3){
             if (i == 2){
                 break 42;
             }
         }
-    ", "42"),
-];   
+    ",
+            "42",
+        ),
+    ];
     test_cases_for_input_output(&testcases);
 }
 
 #[test]
-fn test_multiple_break_for_loop_evaluation(){
-  let testcases = [
-    ("
+fn test_multiple_break_for_loop_evaluation() {
+    let testcases = [(
+        "
         for i <- range(10){
             if (i == 2){ break 2; }
             if (i == 5){ break 5; }
         }
-    ", "2"),
-];  
+    ",
+        "2",
+    )];
 
     test_cases_for_input_output(&testcases);
-   
 }
 
 #[test]
-fn test_complex_break_for_loop_evaluation(){
-    let testcases = [
-    ("
+fn test_complex_break_for_loop_evaluation() {
+    let testcases = [(
+        "
         for x <- \"abc\"{
             if (x == \"b\"){
                 break for i <- range(5){
@@ -876,128 +915,118 @@ fn test_complex_break_for_loop_evaluation(){
                 };
             }
         }
-    ", "3"),
-];
-
-    test_cases_for_input_output(&testcases);
-}
-
-
-#[test]
-fn test_variable_reassignment(){
-    let testcases = [
-    // Simple reassignment
-    ("let x = 5; x = 10; x;", "10"),
-
-    // Reassign using expression
-    ("let x = 5; x = x + 5; x;", "10"),
-
-    // Reassign boolean
-    ("let b = true; b = false; b;", "false"),
-
-    // Reassign multiple times
-    ("let x = 1; x = 2; x = 3; x;", "3"),
-];
+    ",
+        "3",
+    )];
 
     test_cases_for_input_output(&testcases);
 }
 
 #[test]
-fn test_index_assignment(){
+fn test_variable_reassignment() {
     let testcases = [
-    // Basic index assignment
-    ("let arr = [1,2,3]; arr[0] = 10; arr[0];", "10"),
-
-    // Middle element
-    ("let arr = [1,2,3]; arr[1] = 99; arr[1];", "99"),
-
-    // Last element
-    ("let arr = [1,2,3]; arr[2] = 42; arr[2];", "42"),
-
-    // Negative index (if supported)
-    ("let arr = [1,2,3]; arr[-1] = 7; arr[2];", "7"),
-
-    // Index assignment using expression
-    ("let arr = [1,2,3]; let i = 1; arr[i] = 50; arr[1];", "50"),
-
-    // Chain read after write
-    ("let arr = [1,2]; arr[0] = arr[1]; arr[0];", "2"),
-];
+        // Simple reassignment
+        ("let x = 5; x = 10; x;", "10"),
+        // Reassign using expression
+        ("let x = 5; x = x + 5; x;", "10"),
+        // Reassign boolean
+        ("let b = true; b = false; b;", "false"),
+        // Reassign multiple times
+        ("let x = 1; x = 2; x = 3; x;", "3"),
+    ];
 
     test_cases_for_input_output(&testcases);
 }
 
 #[test]
-fn test_array_mutation(){
+fn test_index_assignment() {
     let testcases = [
-    // Mutation must persist
-    ("let arr = [1,2,3]; arr[1] = 100; arr;", "[1, 100, 3]"),
+        // Basic index assignment
+        ("let arr = [1,2,3]; arr[0] = 10; arr[0];", "10"),
+        // Middle element
+        ("let arr = [1,2,3]; arr[1] = 99; arr[1];", "99"),
+        // Last element
+        ("let arr = [1,2,3]; arr[2] = 42; arr[2];", "42"),
+        // Negative index (if supported)
+        ("let arr = [1,2,3]; arr[-1] = 7; arr[2];", "7"),
+        // Index assignment using expression
+        ("let arr = [1,2,3]; let i = 1; arr[i] = 50; arr[1];", "50"),
+        // Chain read after write
+        ("let arr = [1,2]; arr[0] = arr[1]; arr[0];", "2"),
+    ];
 
-    // Shared reference behavior (if assignment copies reference)
-    ("let arr = [1,2,3]; let b = arr; b[0] = 9; arr[0];", "9"),
-];
     test_cases_for_input_output(&testcases);
 }
 
 #[test]
-fn test_hashmap_index_assignment(){
+fn test_array_mutation() {
     let testcases = [
-    // Basic hash assignment
-    ("let m = {\"a\":1}; m[\"a\"] = 5; m[\"a\"];", "5"),
-
-    // Insert new key (if allowed)
-    ("let m = {\"a\":1}; m[\"b\"] = 2; m[\"b\"];", "2"),
-
-    // Overwrite existing
-    ("let m = {\"a\":1}; m[\"a\"] = 99; m[\"a\"];", "99"),
-
-    // Int key
-    ("let m = {1:10}; m[1] = 20; m[1];", "20"),
-
-    // Bool key
-    ("let m = {true:1}; m[true] = 2; m[true];", "2"),
-];
-    test_cases_for_input_output(&testcases);
-}
-
-#[test]
-fn test_nested_structures(){
-    let testcases = [
-    // Nested array
-    ("let arr = [[1,2],[3,4]]; arr[0][1] = 99; arr[0][1];", "99"),
-
-    // Nested hash
-    ("let m = {\"a\": {\"b\": 1}}; m[\"a\"][\"b\"] = 42; m[\"a\"][\"b\"];", "42"),
-];
-    test_cases_for_input_output(&testcases);
-}
-
-#[test]
-fn test_assignment_operator_as_value(){
-    let testcases = [
-    ("let x = 0; x = 5;", "5"),
-    ("let arr = [1,2]; arr[0] = 10;", "10"),
+        // Mutation must persist
+        ("let arr = [1,2,3]; arr[1] = 100; arr;", "[1, 100, 3]"),
+        // Shared reference behavior (if assignment copies reference)
+        ("let arr = [1,2,3]; let b = arr; b[0] = 9; arr[0];", "9"),
     ];
     test_cases_for_input_output(&testcases);
 }
 
 #[test]
-fn test_for_loop_and_index_assign(){
+fn test_hashmap_index_assignment() {
     let testcases = [
-    ("
+        // Basic hash assignment
+        ("let m = {\"a\":1}; m[\"a\"] = 5; m[\"a\"];", "5"),
+        // Insert new key (if allowed)
+        ("let m = {\"a\":1}; m[\"b\"] = 2; m[\"b\"];", "2"),
+        // Overwrite existing
+        ("let m = {\"a\":1}; m[\"a\"] = 99; m[\"a\"];", "99"),
+        // Int key
+        ("let m = {1:10}; m[1] = 20; m[1];", "20"),
+        // Bool key
+        ("let m = {true:1}; m[true] = 2; m[true];", "2"),
+    ];
+    test_cases_for_input_output(&testcases);
+}
+
+#[test]
+fn test_nested_structures() {
+    let testcases = [
+        // Nested array
+        ("let arr = [[1,2],[3,4]]; arr[0][1] = 99; arr[0][1];", "99"),
+        // Nested hash
+        (
+            "let m = {\"a\": {\"b\": 1}}; m[\"a\"][\"b\"] = 42; m[\"a\"][\"b\"];",
+            "42",
+        ),
+    ];
+    test_cases_for_input_output(&testcases);
+}
+
+#[test]
+fn test_assignment_operator_as_value() {
+    let testcases = [
+        ("let x = 0; x = 5;", "5"),
+        ("let arr = [1,2]; arr[0] = 10;", "10"),
+    ];
+    test_cases_for_input_output(&testcases);
+}
+
+#[test]
+fn test_for_loop_and_index_assign() {
+    let testcases = [(
+        "
         let arr = [1,2,3];
         for i <- range(3){
             arr[i] = arr[i] * 2;
         }
         arr[2];
-    ", "6"),
-];
+    ",
+        "6",
+    )];
     test_cases_for_input_output(&testcases);
 }
 
 // util
 
-fn test_cases_for_input_output(testcases: &[(&str, &str)]){
+fn test_cases_for_input_output(testcases: &[(&str, &str)]) {
     testcases.iter().for_each(|testcase| {
         let input = testcase.0.into();
         let expected_value = testcase.1.to_string();

@@ -15,7 +15,6 @@ pub mod prefix_expression;
 pub mod string_expr;
 pub mod value_assign_expression;
 
-use value_assign_expression::ValueAssignExpression;
 use array_literal::ArrayLiteral;
 use boolean::Boolean;
 use call_expression::CallExpression;
@@ -30,6 +29,7 @@ use integer_literal::IntegerLiteral;
 use member::MemberExpression;
 use prefix_expression::PrefixExpression;
 use string_expr::StringExpr;
+use value_assign_expression::ValueAssignExpression;
 
 use crate::ast::expression::for_loop::ForLoopExpression;
 

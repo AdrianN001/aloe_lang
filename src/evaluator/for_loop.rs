@@ -34,9 +34,8 @@ impl ForLoopExpression {
         variable: &Identifier,
         iterable: &Expression,
     ) -> Result<ObjectRef, String> {
-        
         let provided_object = iterable.evaluate(environ.clone())?;
-        
+
         let mut iterator = match &*provided_object.borrow() {
             Object::Iterator(iterator) => iterator.clone(),
             Object::Array(arr) => arr.build_iterator(),
@@ -63,11 +62,7 @@ impl ForLoopExpression {
         Ok(Rc::new(RefCell::new(Object::NULL_OBJECT)))
     }
 
-    fn evaluate_conditionless_for_loop(
-        &self,
-        environ: EnvRef
-    ) -> Result<ObjectRef, String>{
-
+    fn evaluate_conditionless_for_loop(&self, environ: EnvRef) -> Result<ObjectRef, String> {
         loop {
             for statement in &self.block.statements {
                 let result = statement.evaluate(environ.clone())?;

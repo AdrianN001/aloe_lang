@@ -49,7 +49,7 @@ impl Expression {
                 right_side
                     .borrow_mut()
                     .evaluate_prefix(&prefix_expr.operator)
-            },
+            }
             Expression::ValueAssign(value_assign) => value_assign.evaluate(environ.clone()),
             Expression::HashMapLiteral(hashmap) => hashmap.evaluate(environ.clone()),
             Expression::Index(indx_expr) => indx_expr.evaluate(environ.clone()),
@@ -105,10 +105,29 @@ impl Statement {
             Statement::Expression(expr) => expr.expression.evaluate(environ),
             Statement::Block(block_stmt) => block_stmt.evaluate(environ),
             Statement::Let(let_stmt) => {
+                if environ.borrow().get(&let_stmt.name.value).is_some() {
+                    return Err(format!(
+                        "variable named '{}' already been initilized",
+                        &let_stmt.name.value
+                    ));
+                }
+
                 let value = let_stmt.value.evaluate(environ.clone())?;
-                environ.borrow_mut().set(&let_stmt.name.value, value.clone());
-                Ok(value.clone())
-            },
+                match &*value.borrow() {
+                    Object::ReturnVal(ret_val) => {
+                        environ
+                            .borrow_mut()
+                            .set(&let_stmt.name.value, *ret_val.value.clone());
+                        Ok(*ret_val.value.clone())
+                    }
+                    _ => {
+                        environ
+                            .borrow_mut()
+                            .set(&let_stmt.name.value, value.clone());
+                        Ok(value.clone())
+                    }
+                }
+            }
             Statement::Return(return_stmt) => {
                 let val = return_stmt.value.evaluate(environ)?;
 

@@ -1,12 +1,10 @@
 use crate::{ast::expression::Expression, token::Token};
 
-
-
 #[derive(Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
-pub struct ValueAssignExpression{
+pub struct ValueAssignExpression {
     pub token: Token,
-    pub left: Box<Expression>, 
-    pub right: Box<Expression>
+    pub left: Box<Expression>,
+    pub right: Box<Expression>,
 }
 
 impl ValueAssignExpression {

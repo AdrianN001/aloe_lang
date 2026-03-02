@@ -1024,6 +1024,126 @@ fn test_for_loop_and_index_assign() {
     test_cases_for_input_output(&testcases);
 }
 
+#[test]
+fn test_hashmap_methods_and_attributes() {
+    let testcases = [
+        ("let m = {\"a\":1, \"b\":2}; m.length;", "2"),
+        ("let m = {}; m.length;", "0"),
+        ("let m = {\"a\":1, \"b\":2}; m.keys.length;", "2"),
+        ("let m = {}; m.keys.length;", "0"),
+        ("let m = {\"a\":1, \"b\":2}; m.values.length;", "2"),
+        ("let m = {\"a\":1}; m.values[0];", "1"),
+        ("let m = {}; m.set(\"a\", 10); m.get(\"a\");", "10"),
+        // overwrite existing
+        ("let m = {\"a\":1}; m.set(\"a\", 5); m.get(\"a\");", "5"),
+        // return value of set
+        ("let m = {}; m.set(\"x\", 99);", "99"),
+        ("let m = {\"a\":1}; m.get(\"a\");", "1"),
+        // non existing → null
+        ("let m = {\"a\":1}; m.get(\"b\");", "null"),
+        // empty map
+        ("let m = {}; m.get(\"x\");", "null"),
+        ("let m = {\"a\":1}; m.has_key(\"a\");", "true"),
+        ("let m = {\"a\":1}; m.has_key(\"b\");", "false"),
+        ("let m = {}; m.has_key(\"x\");", "false"),
+        ("let m = {\"a\":1}; m.remove(\"a\");", "true"),
+        (
+            "let m = {\"a\":1}; m.remove(\"a\"); m.has_key(\"a\");",
+            "false",
+        ),
+        ("let m = {\"a\":1}; m.remove(\"b\");", "false"),
+        ("let m = {\"a\":1, \"b\":2}; m.clear(); m.length;", "0"),
+        ("let m = {}; m.clear(); m.length;", "0"),
+        (
+            "
+        let m = {\"a\":1};
+        let c = m.clone();
+        c.set(\"a\", 99);
+        m.get(\"a\");
+    ",
+            "1",
+        ),
+        (
+            "
+        let m = {\"a\":1};
+        let c = m.clone();
+        c.set(\"a\", 99);
+        m.get(\"a\");
+    ",
+            "1",
+        ),
+        (
+            "
+        let m = {\"a\":1};
+        m[\"a\"] = 42;
+        m.get(\"a\");
+    ",
+            "42",
+        ),
+        (
+            "
+        let m = {\"a\":1, \"b\":2};
+        let count = 0;
+        for k <- m.keys{
+            count = count + 1;
+        }
+        count;
+    ",
+            "2",
+        ),
+    ];
+
+    test_cases_for_input_output(&testcases);
+}
+
+#[test]
+fn test_closure() {
+    let testcases = [
+        // Outer reassignment
+        (
+            "
+        let x = 10;
+        let f = fn() {
+            x = 20;
+        };
+        f();
+        x;
+    ",
+            "20",
+        ),
+        // Local shadowing
+        (
+            "
+        let x = 10;
+        let f = fn() {
+            let x = 99;
+            x = 50;
+        };
+        f();
+        x;
+    ",
+            "10",
+        ),
+    ];
+
+    test_cases_for_input_output(&testcases);
+}
+
+#[test]
+fn test_array_deepcopy() {
+    let testcases = [(
+        "
+let arr = [[1]];
+let copy = arr.clone();
+copy[0][0] = 42;
+arr[0][0];
+",
+        "1",
+    )];
+
+    test_cases_for_input_output(&testcases);
+}
+
 // util
 
 fn test_cases_for_input_output(testcases: &[(&str, &str)]) {

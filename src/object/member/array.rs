@@ -64,7 +64,7 @@ impl Array {
             items: self
                 .items
                 .iter()
-                .map(|item| Rc::new(RefCell::new((*item.borrow()).clone())))
+                .map(|item| Object::deep_copy(item))
                 .collect(),
         })))
     }

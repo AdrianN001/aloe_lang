@@ -105,25 +105,18 @@ impl Statement {
             Statement::Expression(expr) => expr.expression.evaluate(environ),
             Statement::Block(block_stmt) => block_stmt.evaluate(environ),
             Statement::Let(let_stmt) => {
-                if environ.borrow().get(&let_stmt.name.value).is_some() {
-                    return Err(format!(
-                        "variable named '{}' already been initilized",
-                        &let_stmt.name.value
-                    ));
-                }
-
                 let value = let_stmt.value.evaluate(environ.clone())?;
                 match &*value.borrow() {
                     Object::ReturnVal(ret_val) => {
                         environ
                             .borrow_mut()
-                            .set(&let_stmt.name.value, *ret_val.value.clone());
+                            .set_to_lowest_level(&let_stmt.name.value, *ret_val.value.clone());
                         Ok(*ret_val.value.clone())
                     }
                     _ => {
                         environ
                             .borrow_mut()
-                            .set(&let_stmt.name.value, value.clone());
+                            .set_to_lowest_level(&let_stmt.name.value, value.clone());
                         Ok(value.clone())
                     }
                 }

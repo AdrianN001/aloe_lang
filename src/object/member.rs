@@ -7,6 +7,7 @@ use crate::object::{Object, ObjectRef, stack_environment::EnvRef};
 
 pub mod array;
 pub mod float;
+pub mod hashmap;
 pub mod int;
 pub mod iterator;
 pub mod string;
@@ -23,10 +24,12 @@ impl Object {
             Object::Int(int) => int.apply_attribute(name),
             Object::FloatObj(float) => float.apply_attribute(name),
             Object::Iterator(iterator) => iterator.apply_attribute(name),
+            Object::HashMap(hashmap) => hashmap.apply_attribute(name),
 
-            _ => Rc::new(RefCell::new(Object::new_error(
-                "type has no attribute".into(),
-            ))),
+            _ => Rc::new(RefCell::new(Object::new_error(format!(
+                "{} has no attribute",
+                self.get_type()
+            )))),
         }
     }
 
@@ -37,10 +40,12 @@ impl Object {
             Object::Int(int) => int.apply_method(name, args, environ),
             Object::FloatObj(float) => float.apply_method(name, args, environ),
             Object::Iterator(iterator) => iterator.apply_method(name, args, environ),
+            Object::HashMap(hashmap) => hashmap.apply_method(name, args, environ),
 
-            _ => Rc::new(RefCell::new(Object::new_error(
-                "type has no methods".into(),
-            ))),
+            _ => Rc::new(RefCell::new(Object::new_error(format!(
+                "{} has no methods",
+                self.get_type()
+            )))),
         }
     }
 

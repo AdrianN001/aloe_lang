@@ -11,9 +11,10 @@ pub enum OperationPrecedence {
     Sum,         // +, -
     Mul,         // *, /
     Prefix,      // -x, !x,
-    Member,      // string.length
-    Call,        // add(x,y)
-    Index,       // array[index]
+
+    Index,  // array[index]
+    Member, // string.length
+    Call,   // add(x,y)
 }
 
 pub fn get_precedence_of_operator(token: &Token) -> OperationPrecedence {

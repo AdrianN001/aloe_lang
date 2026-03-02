@@ -7,17 +7,16 @@ impl ValueAssignExpression {
     pub fn evaluate(&self, environ: EnvRef) -> Result<ObjectRef, String> {
         let right = self.right.evaluate(environ.clone())?;
 
-        let right_assignable_value = match &*right.borrow(){
+        let right_assignable_value = match &*right.borrow() {
             Object::ReturnVal(ret) => *ret.value.clone(),
-            _ => right.clone()
+            _ => right.clone(),
         };
 
         match &*self.left {
             Expression::Identifier(identifier) => {
                 let mut environ_borrow = environ.borrow_mut();
-                if environ_borrow.get(&identifier.value).is_some() {
-                    environ_borrow.set(&identifier.value, right_assignable_value.clone());
-                } else {
+                if !environ_borrow.try_to_assign(&identifier.value, right_assignable_value.clone())
+                {
                     return Err(format!(
                         "variable '{}' is not initialized.",
                         &identifier.value
@@ -35,5 +34,4 @@ impl ValueAssignExpression {
             )),
         }
     }
-
 }

@@ -2,6 +2,7 @@ pub mod array;
 pub mod boolean;
 pub mod break_value;
 pub mod built_in;
+pub mod copy;
 pub mod error;
 pub mod float_obj;
 pub mod function;
@@ -30,7 +31,9 @@ use null::Null;
 use return_value::ReturnValue;
 use string_obj::StringObj;
 
-use crate::object::{break_value::BreakValue, iterator::Iterator};
+use crate::object::{
+    break_value::BreakValue, hashable::Hashable, hashmap::HashKey, iterator::Iterator,
+};
 
 pub type ObjectRef = Rc<RefCell<Object>>;
 
@@ -117,5 +120,20 @@ impl Object {
             self,
             Object::String(_) | Object::Int(_) | Object::Bool(_) | Object::FloatObj(_)
         )
+    }
+
+    pub fn hash(&self) -> Result<HashKey, String> {
+        match self {
+            Object::String(s) => Ok(s.hash()),
+            Object::Int(i) => Ok(i.hash()),
+            Object::Bool(b) => Ok(b.hash()),
+            Object::FloatObj(f) => Ok(f.hash()),
+            _ => {
+                return Err(format!(
+                    "object with type: {} is not hashable",
+                    &self.get_type()
+                ));
+            }
+        }
     }
 }

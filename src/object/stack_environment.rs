@@ -25,8 +25,27 @@ impl StackEnvironment {
         }
     }
 
+    pub fn try_to_assign(&mut self, identifier: &str, value: ObjectRef) -> bool {
+        if self.map.contains_key(identifier) {
+            self.map.insert(identifier.into(), value);
+            return true;
+        }
+
+        if let Some(outer) = &self.outer {
+            return outer.borrow_mut().try_to_assign(identifier, value);
+        }
+
+        false
+    }
+
     pub fn set(&mut self, identifier: &str, value: ObjectRef) {
-        self.map.insert(identifier.into(), value.clone());
+        if !self.try_to_assign(identifier, value.clone()) {
+            self.set_to_lowest_level(identifier, value);
+        }
+    }
+
+    pub fn set_to_lowest_level(&mut self, identifier: &str, value: ObjectRef) {
+        self.map.insert(identifier.into(), value);
     }
 
     pub fn get(&self, identifier: &str) -> Option<ObjectRef> {

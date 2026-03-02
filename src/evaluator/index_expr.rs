@@ -56,18 +56,16 @@ impl IndexExpression {
                     ));
                 }
 
-                let hashed_object = match key_object {
-                    Object::String(str) => str.hash(),
-                    Object::Int(int) => int.hash(),
-                    Object::Bool(bool) => bool.hash(),
-                    _ => panic!(),
-                };
+                let hashed_object = key_object.hash()?;
 
                 if !map.pairs.contains_key(&hashed_object) {
                     return Ok(Rc::new(RefCell::new(Object::NULL_OBJECT)));
                 }
 
-                Ok(map.pairs[&hashed_object].value.clone())
+                if let Some(value) = map.pairs.get(&hashed_object) {
+                    return Ok(value.value.clone());
+                }
+                Ok(Rc::new(RefCell::new(Object::NULL_OBJECT)))
             }
             _ => Err(format!(
                 "index operator not supported: {}",
@@ -110,12 +108,7 @@ impl IndexExpression {
                     ));
                 }
 
-                let hashed_object = match &*index_borrow {
-                    Object::String(s) => s.hash(),
-                    Object::Int(i) => i.hash(),
-                    Object::Bool(b) => b.hash(),
-                    _ => unreachable!(),
-                };
+                let hashed_object = index_borrow.hash()?;
 
                 map.pairs.insert(
                     hashed_object,

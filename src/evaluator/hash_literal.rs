@@ -4,7 +4,6 @@ use crate::{
     ast::expression::hash_map_literal::HashMapLiteral,
     object::{
         Object, ObjectRef,
-        hashable::Hashable,
         hashmap::{HashMap, HashPair},
         stack_environment::EnvRef,
     },
@@ -25,17 +24,8 @@ impl HashMapLiteral {
 
             let value = v.evaluate(environ.clone())?;
 
-            let hashed_key = match &*key.borrow() {
-                Object::Int(int) => int.hash(),
-                Object::String(str) => str.hash(),
-                Object::Bool(bool) => bool.hash(),
-                _ => {
-                    return Err(format!(
-                        "unhashable as hash key: {}",
-                        key.borrow().get_type()
-                    ));
-                }
-            };
+            let hashed_key = key.borrow().hash()?;
+
             pairs.insert(
                 hashed_key,
                 HashPair {

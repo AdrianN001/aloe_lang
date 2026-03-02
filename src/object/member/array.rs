@@ -146,7 +146,7 @@ impl Array {
         if let Object::Func(function) = &*args[0].borrow() {
             if function.parameters.len() > 1 {
                 return Rc::new(RefCell::new(Object::new_error(
-                    "function provided to the map needs more than 1 argument".into(),
+                    "function provided to the filter needs more than 1 argument".into(),
                 )))
             }
             let mut mapped_array_content = Vec::new();

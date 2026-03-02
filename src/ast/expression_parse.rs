@@ -351,7 +351,22 @@ impl Parser {
 
         expr.consequence = self.parse_block_statement()?;
 
-        if self.peek_token.token_type == TokenType::KwElse {
+        // parse alternatives
+        let mut alternatives = Vec::new();
+        while self.peek_token.token_type == TokenType::KwElif{
+            self.next_token();
+
+            if self.peek_token.token_type != TokenType::LParen{
+                return Err("unexpected token: Expected 'LParen', bot".to_string());
+            }
+            self.next_token();
+
+            self.next_token();
+            let alternative_condition = Box::new(self.parse_expression(OperationPrecedence::Lowest)?);
+            
+            if self.peek_token.token_type != TokenType::RParen{
+                return Err(format!("unexpected token: Expected 'RParen', got: {}", self.peek_token.token_type));
+            }
             self.next_token();
 
             if self.peek_token.token_type != TokenType::LBrace {
@@ -359,10 +374,29 @@ impl Parser {
             }
             self.next_token();
 
-            expr.alternative = match self.parse_block_statement() {
+            let alternative_consequence = self.parse_block_statement()?;
+
+            alternatives.push(
+                (alternative_condition, alternative_consequence)
+            );
+
+        }
+
+        expr.alternatives = alternatives;
+        
+
+        if self.peek_token.token_type == TokenType::KwElse {
+            self.next_token();
+            if self.peek_token.token_type != TokenType::LBrace {
+                return Err("unexpected token: Expected 'LBrace'".to_string());
+            }
+            self.next_token();
+
+            expr.else_block = match self.parse_block_statement() {
                 Ok(block_statement) => Some(block_statement),
                 Err(error_feedback) => return Err(error_feedback),
             };
+
         }
 
         Ok(Expression::If(expr))

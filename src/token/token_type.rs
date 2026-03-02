@@ -44,6 +44,7 @@ pub enum TokenType {
     KwTrue,
     KwFalse,
     KwIf,
+    KwElif,
     KwElse,
     KwReturn,
 
@@ -59,6 +60,7 @@ pub fn lookup_identifiers(identifier: &str) -> TokenType {
         "true" => TokenType::KwTrue,
         "false" => TokenType::KwFalse,
         "if" => TokenType::KwIf,
+        "elif" => TokenType::KwElif,
         "else" => TokenType::KwElse,
         "return" => TokenType::KwReturn,
         "for" => TokenType::KwFor,

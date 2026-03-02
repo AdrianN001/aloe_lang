@@ -421,7 +421,7 @@ fn test_if_parsing() {
 
     assert_eq!(condition.operator, "<".to_string());
 
-    assert!(if_expr.alternative.is_none());
+    assert!(if_expr.else_block.is_none());
 }
 
 #[test]

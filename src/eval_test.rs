@@ -138,28 +138,45 @@ fn test_eval_int_and_bool_operations() {
 }
 
 #[test]
-fn test_if_statement_evalulation() {
+fn test_if_statement_evaluation() {
     let testcases = [
-        ("if (5 * 5 + 10 > 34) { 99 } else { 100 }", 99),
-        ("if ((1000 / 2) + 250 * 2 == 1000) { 9999; }", 9999),
-    ];
+        ("if (5 * 5 + 10 > 34) { 99 } else { 100 }", "99"),
+        ("if ((1000 / 2) + 250 * 2 == 1000) { 9999; }", "9999"),
+        
+        ("if (true) { 10 }", "10"),
+        ("if (false) { 10 }", "null"),
+        ("if (1 < 2) { 99 }", "99"),
+        ("if (1 > 2) { 99 }", "null"),
 
-    testcases.iter().for_each(|testcase| {
-        let input = testcase.0.into();
-        let expected_value = testcase.1;
+        ("if (true) { 10 } else { 20 }", "10"),
+        ("if (false) { 10 } else { 20 }", "20"),
+        ("if (1 > 2) { 1 } else { 2 }", "2"),
 
-        let lexer = Lexer::new(input);
-        let parser = Parser::new(lexer);
+        ("if (false) { 1 } elif (true) { 2 }", "2"),
+        ("if (false) { 1 } elif (false) { 2 }", "null"),
+        ("if (1 > 2) { 1 } elif (2 > 1) { 2 }", "2"),
 
-        let program = parser.into_a_program().unwrap();
+    ("
+        if (false) { 1 }
+        elif (false) { 2 }
+        elif (true) { 3 }
+        else { 4 }
+    ", "3"),
 
-        assert_eq!(program.statements.len(), 1);
+    ("
+        if (false) { 1 }
+        elif (false) { 2 }
+        elif (false) { 3 }
+        else { 4 }
+    ", "4"),
 
-        match &*program.evaluate().unwrap().borrow() {
-            Object::Int(int) => assert_eq!(int.value, expected_value),
-            _ => panic!(),
-        }
-    })
+        ("if (false) { 1 } elif (false) { 2 } else { 3 }", "3"),
+        ("if (false) { 1 } elif (true) { 2 } else { 3 }", "2"),
+        ("if (true) { 1 } elif (true) { 2 } else { 3 }", "1"), // first match wins
+];
+
+    test_cases_for_input_output(&testcases);
+
 }
 
 #[test]
@@ -985,7 +1002,7 @@ fn test_cases_for_input_output(testcases: &[(&str, &str)]){
         let input = testcase.0.into();
         let expected_value = testcase.1.to_string();
 
-
+        println!("{}", &input);
 
         let lexer = Lexer::new(input);
         let parser = Parser::new(lexer);

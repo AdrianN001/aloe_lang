@@ -41,6 +41,7 @@ impl fmt::Display for TokenType {
             TokenType::KwFunction => "fn",
             TokenType::KwLet => "let",
             TokenType::KwIf => "if",
+            TokenType::KwElif => "elif",
             TokenType::KwElse => "else",
             TokenType::KwReturn => "return",
             TokenType::KwTrue => "true",

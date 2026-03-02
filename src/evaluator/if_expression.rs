@@ -11,10 +11,23 @@ impl IfExpression {
     pub fn evaluate(&self, environ: EnvRef) -> Result<ObjectRef, String> {
         let condition = self.condition.evaluate(environ.clone())?;
 
+
         if condition.borrow().is_truthy() {
-            return self.consequence.evaluate(environ.clone()).clone();
-        } else if let Some(alternative) = &self.alternative {
-            return alternative.evaluate(environ.clone());
+            return self.consequence.evaluate(environ.clone());
+        } else if !self.alternatives.is_empty(){
+
+            for (alternative_cond_expr, alternative_block_smt) in &self.alternatives{
+                let alternative_cond = alternative_cond_expr.evaluate(environ.clone())?;
+                
+                if alternative_cond.borrow().is_truthy(){
+                    return alternative_block_smt.evaluate(environ.clone());
+                }
+            }
+
+        } 
+
+        if let Some(else_block) = &self.else_block {
+            return else_block.evaluate(environ.clone());
         }
 
         Ok(Rc::new(RefCell::new(Object::Null(Null {}))))

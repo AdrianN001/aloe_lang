@@ -2,6 +2,7 @@ mod block_statement;
 mod call_expr;
 mod float_obj;
 mod for_loop;
+mod function_statement;
 mod hash_literal;
 mod identifier;
 mod if_expression;
@@ -140,6 +141,7 @@ impl Statement {
                     value: Box::new(val),
                 }))))
             }
+            Statement::Function(func_stmt) => Ok(func_stmt.evaluate(environ.clone())),
         }
     }
 }
@@ -151,8 +153,13 @@ impl Program {
 
         for stmt in self.statements.iter() {
             result = stmt.evaluate(environ.clone())?;
+            let borrowed_result = result.borrow();
 
-            if let Object::ReturnVal(ret_val) = &*result.borrow() {
+            if let Object::BreakVal(_) = &*borrowed_result {
+                return Err("unexpected break keyword in non-loop context".into());
+            } else if matches!(&*borrowed_result, Object::Continue) {
+                return Err("unexpected continue keyword in non-loop context".into());
+            } else if let Object::ReturnVal(ret_val) = &*borrowed_result {
                 return Ok(*ret_val.value.clone());
             }
         }
@@ -165,8 +172,13 @@ impl Program {
 
         for stmt in self.statements.iter() {
             result = stmt.evaluate(environ.clone())?;
+            let borrowed_result = result.borrow();
 
-            if let Object::ReturnVal(ret_val) = &*result.borrow() {
+            if let Object::BreakVal(_) = &*borrowed_result {
+                return Err("unexpected break keyword in non-loop context".into());
+            } else if matches!(&*borrowed_result, Object::Continue) {
+                return Err("unexpected continue keyword in non-loop context".into());
+            } else if let Object::ReturnVal(ret_val) = &*borrowed_result {
                 return Ok(*ret_val.value.clone());
             }
         }

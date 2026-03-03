@@ -885,6 +885,30 @@ fn test_nested_for_loop_evaluation() {
     ",
             "42",
         ),
+        (
+            "
+        let f = fn(){
+            for i <- range(5){
+                break 5;
+            }
+            99;
+        };
+        f();
+    ",
+            "99",
+        ),
+        (
+            "
+        let f = fn(){
+            for i <- range(5){
+                return 10;
+            }
+            99;
+        };
+        f();
+    ",
+            "10",
+        ),
     ];
     test_cases_for_input_output(&testcases);
 }
@@ -1127,6 +1151,68 @@ fn test_closure() {
     ];
 
     test_cases_for_input_output(&testcases);
+}
+
+#[test]
+fn test_break_and_continue() {
+    let testcases = [
+        ("break;", "unexpected break keyword in non-loop context"),
+        ("break 5;", "unexpected break keyword in non-loop context"),
+        (
+            "if (true){ break; }",
+            "unexpected break keyword in non-loop context",
+        ),
+        (
+            "if (true){ break 10; }",
+            "unexpected break keyword in non-loop context",
+        ),
+        (
+            "continue;",
+            "unexpected continue keyword in non-loop context",
+        ),
+        (
+            "if (true){ continue; }",
+            "unexpected continue keyword in non-loop context",
+        ),
+        (
+            "
+        let f = fn(){
+            break;
+        };
+        f();
+    ",
+            "error",
+        ),
+        (
+            "
+        let f = fn(){
+            break 10;
+        };
+        f();
+    ",
+            "error",
+        ),
+        (
+            "
+        let f = fn(){
+            continue;
+        };
+        f();
+    ",
+            "error",
+        ),
+    ];
+
+    testcases.iter().for_each(|testcase| {
+        let input = testcase.0.into();
+        let _expected_value = testcase.1;
+
+        let lexer = Lexer::new(input);
+        let parser = Parser::new(lexer);
+        let program = parser.into_a_program().unwrap();
+
+        assert!(program.evaluate().is_err());
+    })
 }
 
 #[test]

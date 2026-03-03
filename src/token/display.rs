@@ -39,6 +39,7 @@ impl fmt::Display for TokenType {
             TokenType::RBracket => "]",
 
             TokenType::KwFunction => "fn",
+            TokenType::KwFunctionStatement => "fun",
             TokenType::KwLet => "let",
             TokenType::KwIf => "if",
             TokenType::KwElif => "elif",
@@ -46,6 +47,7 @@ impl fmt::Display for TokenType {
             TokenType::KwReturn => "return",
             TokenType::KwTrue => "true",
             TokenType::KwFalse => "false",
+            TokenType::KwDefer => "defer",
 
             TokenType::KwFor => "for",
             TokenType::KwBreak => "break",

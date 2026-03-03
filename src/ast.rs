@@ -1,9 +1,12 @@
+use std::any::Any;
+
 use crate::ast::expression::Expression;
 use crate::ast::expression::identifier::Identifier;
 use crate::ast::expression::value_assign_expression::ValueAssignExpression;
 use crate::ast::precedence::OperationPrecedence;
 use crate::ast::statement::break_statement::BreakStatement;
 use crate::ast::statement::continue_statement::ContinueStatement;
+use crate::ast::statement::function_statement::FunctionStatement;
 use crate::ast::statement::let_statement::LetStatement;
 use crate::{
     ast::{
@@ -76,6 +79,7 @@ impl Parser {
             TokenType::KwReturn => self.parse_return(),
             TokenType::KwBreak => self.parse_break(),
             TokenType::KwContinue => self.parse_continue(),
+            TokenType::KwFunctionStatement => self.parse_function_statement(),
             _ => self.parse_expression_statement(),
         }
     }
@@ -128,6 +132,39 @@ impl Parser {
                 token
             },
         }))
+    }
+
+    fn parse_function_statement(&mut self) -> Result<Statement, String> {
+        let mut function = FunctionStatement {
+            token: self.current_token.clone(),
+            ..Default::default()
+        };
+
+        if self.peek_token.token_type != TokenType::Identifier {
+            return Err(format!(
+                "expected identifier, got: '{}'",
+                self.peek_token.token_type
+            ));
+        }
+        self.next_token();
+
+        function.name = self.current_token.literal.clone();
+
+        if self.peek_token.token_type != TokenType::LParen {
+            return Err("unexpected token. Expected 'LParen'".into());
+        }
+        self.next_token();
+
+        function.parameters = self.parse_function_parameters()?;
+
+        if self.peek_token.token_type != TokenType::LBrace {
+            return Err("unexpected token. Expected 'LBrace'".into());
+        }
+        self.next_token();
+
+        function.block = self.parse_block_statement()?;
+
+        Ok(Statement::Function(function))
     }
 
     fn parse_return(&mut self) -> Result<Statement, String> {

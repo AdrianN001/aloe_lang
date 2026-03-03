@@ -401,7 +401,7 @@ impl Parser {
         Ok(Expression::If(expr))
     }
 
-    fn parse_block_statement(&mut self) -> Result<BlockStatement, String> {
+    pub fn parse_block_statement(&mut self) -> Result<BlockStatement, String> {
         let mut block = BlockStatement {
             token: self.current_token.clone(),
             statements: Vec::new(),
@@ -447,7 +447,7 @@ impl Parser {
         Ok(Expression::Function(function_expr))
     }
 
-    fn parse_function_parameters(&mut self) -> Result<Vec<Identifier>, String> {
+    pub fn parse_function_parameters(&mut self) -> Result<Vec<Identifier>, String> {
         let mut parameters = Vec::new();
 
         if self.peek_token.token_type == TokenType::RParen {

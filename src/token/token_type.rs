@@ -22,7 +22,6 @@ pub enum TokenType {
     GT, // >
 
     IteratorAssign, // <-
-
     Dot,
     Comment, // #
 
@@ -40,6 +39,7 @@ pub enum TokenType {
 
     // Keywords
     KwFunction,
+    KwFunctionStatement,
     KwLet,
     KwTrue,
     KwFalse,
@@ -47,6 +47,8 @@ pub enum TokenType {
     KwElif,
     KwElse,
     KwReturn,
+
+    KwDefer,
 
     KwFor,
     KwBreak,
@@ -56,6 +58,7 @@ pub enum TokenType {
 pub fn lookup_identifiers(identifier: &str) -> TokenType {
     match identifier {
         "fn" => TokenType::KwFunction,
+        "fun" => TokenType::KwFunctionStatement,
         "let" => TokenType::KwLet,
         "true" => TokenType::KwTrue,
         "false" => TokenType::KwFalse,
@@ -65,6 +68,7 @@ pub fn lookup_identifiers(identifier: &str) -> TokenType {
         "return" => TokenType::KwReturn,
         "for" => TokenType::KwFor,
         "break" => TokenType::KwBreak,
+        "defer" => TokenType::KwDefer,
         "continue" => TokenType::KwContinue,
 
         _ => TokenType::Identifier,

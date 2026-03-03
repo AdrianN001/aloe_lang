@@ -56,7 +56,7 @@ impl Function {
     pub fn apply(&self, arguments: &[ObjectRef]) -> Result<ObjectRef, String> {
         let env = self.extend_environment_with_args(arguments);
 
-        let last_expr = self.body.evaluate(env)?;
+        let last_expr = self.body.evaluate_with_function_context(env)?;
         let content_of_last_expr = last_expr.borrow();
 
         match &*content_of_last_expr {

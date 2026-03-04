@@ -6,7 +6,6 @@ use crate::object::{
     hashmap::{HashMap, HashPair},
     integer::Integer,
     stack_environment::EnvRef,
-    string_obj::StringObj,
 };
 
 impl HashMap {

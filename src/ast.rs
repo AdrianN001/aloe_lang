@@ -1,4 +1,3 @@
-use std::any::Any;
 
 use crate::ast::expression::Expression;
 use crate::ast::expression::identifier::Identifier;

@@ -3,7 +3,6 @@ use std::{cell::RefCell, collections::BTreeMap, rc::Rc};
 use crate::object::{
     Object, ObjectRef,
     array::Array,
-    float_obj::FloatObj,
     hashmap::{HashMap, HashPair},
 };
 

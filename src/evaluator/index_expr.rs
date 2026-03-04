@@ -19,10 +19,12 @@ impl IndexExpression {
                 let mut index_interior_value = index.value;
 
                 if index_interior_value < 0 {
-                    index_interior_value = arr.items.len() as i64 + index_interior_value;
+                    index_interior_value += arr.items.len() as i64;
                 }
 
-                if index_interior_value > (arr_interior_value.len() as i64) - 1 {
+                if index_interior_value > (arr_interior_value.len() as i64) - 1
+                    || index_interior_value < 0
+                {
                     return Ok(Rc::new(RefCell::new(Object::NULL_OBJECT)));
                 }
 
@@ -33,10 +35,12 @@ impl IndexExpression {
                 let mut index_interior_value = index.value;
 
                 if index_interior_value < 0 {
-                    index_interior_value = str.value.len() as i64 + index_interior_value;
+                    index_interior_value += str.value.len() as i64;
                 }
 
-                if index_interior_value > (arr_interior_value.len() as i64) - 1 {
+                if index_interior_value > (arr_interior_value.len() as i64) - 1
+                    || index_interior_value < 0
+                {
                     return Ok(Rc::new(RefCell::new(Object::NULL_OBJECT)));
                 }
 
@@ -48,25 +52,7 @@ impl IndexExpression {
                         .to_string(),
                 }))))
             }
-            (Object::HashMap(map), key_object) => {
-                if !key_object.is_hashable() {
-                    return Err(format!(
-                        "key object is not hashable: {}",
-                        index.borrow().get_type()
-                    ));
-                }
-
-                let hashed_object = key_object.hash()?;
-
-                if !map.pairs.contains_key(&hashed_object) {
-                    return Ok(Rc::new(RefCell::new(Object::NULL_OBJECT)));
-                }
-
-                if let Some(value) = map.pairs.get(&hashed_object) {
-                    return Ok(value.value.clone());
-                }
-                Ok(Rc::new(RefCell::new(Object::NULL_OBJECT)))
-            }
+            (Object::HashMap(map), _) => Ok(map.get([index.clone()].as_ref())),
             _ => Err(format!(
                 "index operator not supported: {}",
                 index.borrow().get_type()

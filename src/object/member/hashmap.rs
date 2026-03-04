@@ -89,7 +89,7 @@ impl HashMap {
         args[1].clone()
     }
 
-    pub fn get(&mut self, args: &[ObjectRef]) -> ObjectRef {
+    pub fn get(&self, args: &[ObjectRef]) -> ObjectRef {
         if args.len() != 1 {
             return Rc::new(RefCell::new(Object::new_error(format!(
                 "expected 1 argument for hashmap.get(), got: {}",
@@ -122,8 +122,8 @@ impl HashMap {
             new_pairs.insert(
                 key_hash.clone(),
                 HashPair {
-                    key: Object::deep_copy(&pair.key),
-                    value: Object::deep_copy(&pair.value),
+                    key: Object::deep_copy(pair.key.clone()),
+                    value: Object::deep_copy(pair.value.clone()),
                 },
             );
         }

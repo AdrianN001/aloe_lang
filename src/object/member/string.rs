@@ -26,6 +26,7 @@ impl StringObj {
             "chars" => self.chars(),
             "as_float" => self.as_float(),
             "as_int" => self.as_int(),
+            "slice" => self.slice(args),
             "split" => self.split(args),
 
             _ => Rc::new(RefCell::new(Object::new_error(format!(
@@ -78,6 +79,59 @@ impl StringObj {
                 .collect(),
             index: 0,
         })
+    }
+
+    fn slice(&self, args: &[ObjectRef]) -> ObjectRef {
+        if args.len() != 2 {
+            return Rc::new(RefCell::new(Object::new_error(format!(
+                "expected {} arguments for array.slice(), got: {}",
+                2,
+                args.len()
+            ))));
+        }
+        let mut start_index = match &*args[0].borrow() {
+            Object::Int(integer) => integer.value,
+            other_type => {
+                return Rc::new(RefCell::new(Object::new_error(format!(
+                    "expected the first argument to be int, got: {}",
+                    other_type.get_type()
+                ))));
+            }
+        };
+        let mut end_index = match &*args[1].borrow() {
+            Object::Int(integer) => integer.value,
+            other_type => {
+                return Rc::new(RefCell::new(Object::new_error(format!(
+                    "expected the second argument to be int, got: {}",
+                    other_type.get_type()
+                ))));
+            }
+        };
+
+        if start_index.is_negative() {
+            start_index += self.value.len() as i64;
+        }
+
+        if end_index.is_negative() {
+            end_index += self.value.len() as i64;
+        }
+
+        if start_index < 0 || start_index >= self.value.len() as i64 {
+            return Rc::new(RefCell::new(Object::String(StringObj {
+                value: String::new(),
+            })));
+        }
+        if end_index >= self.value.len() as i64 {
+            end_index = self.value.len() as i64;
+        }
+
+        Rc::new(RefCell::new(Object::String(StringObj {
+            value: if start_index < end_index {
+                self.value[start_index as usize..end_index as usize].to_string()
+            } else {
+                String::new()
+            },
+        })))
     }
 
     fn as_float(&self) -> ObjectRef {

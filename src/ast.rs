@@ -191,7 +191,7 @@ impl Parser {
                     Expression::Index(_) | Expression::Identifier(_) => Box::new(left.clone()),
                     other_expression_type => {
                         return Err(format!(
-                            "expected 'RValue', got: {}",
+                            "expected 'LValue', got: {}",
                             other_expression_type.to_string()
                         ));
                     }

@@ -68,7 +68,7 @@ pub fn lookup_identifiers(identifier: &str) -> TokenType {
         "return" => TokenType::KwReturn,
         "for" => TokenType::KwFor,
         "break" => TokenType::KwBreak,
-        "defer" => TokenType::KwDefer,
+        // "defer" => TokenType::KwDefer,
         "continue" => TokenType::KwContinue,
 
         _ => TokenType::Identifier,

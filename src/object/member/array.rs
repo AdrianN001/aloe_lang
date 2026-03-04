@@ -28,6 +28,9 @@ impl Array {
             "extend" => self.extend(args),
             "clear" => self.clear(),
 
+            "remove" => self.remove(args),
+            "slice" => self.slice(args),
+
             "clone" => self.deep_copy(),
 
             "map" => self.map(args),
@@ -64,7 +67,7 @@ impl Array {
             items: self
                 .items
                 .iter()
-                .map(|item| Object::deep_copy(item))
+                .map(|item| Object::deep_copy(item.clone()))
                 .collect(),
         })))
     }
@@ -78,11 +81,86 @@ impl Array {
         Rc::new(RefCell::new(Object::Null(Null {})))
     }
 
-    fn pop(&mut self, args: &[ObjectRef]) -> ObjectRef {
+    fn remove(&mut self, args: &[ObjectRef]) -> ObjectRef {
+        if args.len() != 1 {
+            return Rc::new(RefCell::new(Object::new_error(format!(
+                "expected {} arguments for array.remove(), got: {}",
+                1,
+                args.len()
+            ))));
+        }
+        let mut index = match &*args[0].borrow() {
+            Object::Int(integer) => integer.value,
+            other_type => {
+                return Rc::new(RefCell::new(Object::new_error(format!(
+                    "expected the first argument to be int, got: {}",
+                    other_type.get_type()
+                ))));
+            }
+        };
+
+        if index.is_negative() {
+            index += self.items.len() as i64;
+        }
+        if index >= 0 && index < self.items.len() as i64 {
+            return self.items.remove(index as usize).clone();
+        }
+
         Rc::new(RefCell::new(Object::NULL_OBJECT))
     }
+
     fn slice(&mut self, args: &[ObjectRef]) -> ObjectRef {
-        self.pop(args)
+        if args.len() != 2 {
+            return Rc::new(RefCell::new(Object::new_error(format!(
+                "expected {} arguments for array.slice(), got: {}",
+                2,
+                args.len()
+            ))));
+        }
+        let mut start_index = match &*args[0].borrow() {
+            Object::Int(integer) => integer.value,
+            other_type => {
+                return Rc::new(RefCell::new(Object::new_error(format!(
+                    "expected the first argument to be int, got: {}",
+                    other_type.get_type()
+                ))));
+            }
+        };
+        let mut end_index = match &*args[1].borrow() {
+            Object::Int(integer) => integer.value,
+            other_type => {
+                return Rc::new(RefCell::new(Object::new_error(format!(
+                    "expected the second argument to be int, got: {}",
+                    other_type.get_type()
+                ))));
+            }
+        };
+
+        if start_index.is_negative() {
+            start_index += self.items.len() as i64;
+        }
+
+        if end_index.is_negative() {
+            end_index += self.items.len() as i64;
+        }
+
+        if start_index < 0 || start_index >= self.items.len() as i64 {
+            return Rc::new(RefCell::new(Object::Array(Array { items: Vec::new() })));
+        }
+        if end_index >= self.items.len() as i64 {
+            end_index = self.items.len() as i64;
+        }
+
+        Rc::new(RefCell::new(Object::Array(Array {
+            items: if start_index < end_index {
+                self.items[start_index as usize..end_index as usize]
+                    .iter()
+                    .map(|item| item.clone())
+                    .collect()
+            } else {
+                Vec::new()
+            },
+        })))
     }
 
     fn extend(&mut self, args: &[ObjectRef]) -> ObjectRef {

@@ -54,6 +54,13 @@ impl Function {
     // Function calling
 
     pub fn apply(&self, arguments: &[ObjectRef]) -> Result<ObjectRef, String> {
+        if arguments.len() != self.parameters.len() {
+            return Err(format!(
+                "expected {} arguments, got: {}",
+                self.parameters.len(),
+                arguments.len()
+            ));
+        }
         let env = self.extend_environment_with_args(arguments);
 
         let last_expr = self.body.evaluate_with_function_context(env)?;

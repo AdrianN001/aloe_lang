@@ -509,6 +509,17 @@ fn eval_len_for_strings() {
 }
 
 #[test]
+fn test_array_indexing_edgecases() {
+    let testcases = [
+        ("[1,2,3][100]", "null"),
+        ("[1,2,3][-10]", "null"),
+        ("[][0]", "null"),
+    ];
+
+    test_cases_for_input_output(&testcases);
+}
+
+#[test]
 fn eval_len_for_arrays() {
     let testcases = [
         (r#" len([]) "#, 0),
@@ -856,6 +867,17 @@ fn test_break_without_value_for_loop_evaluation() {
     let testcases = [
         ("for i <- range(5){ break; }", "null"),
         ("for x <- [1,2,3]{ if (x == 2){ break; } }", "null"),
+        ("for i <- range(5){ continue; break 10; }", "null"),
+        (
+            "
+let arr = [1,2,3];
+for x <- arr{
+    arr[0] = 99;
+}
+arr[0];
+",
+            "99",
+        ),
     ];
     test_cases_for_input_output(&testcases);
 }
@@ -1121,6 +1143,44 @@ fn test_hashmap_methods_and_attributes() {
 }
 
 #[test]
+fn test_array_remove() {
+    let testcases = [
+        // Basic remove
+        ("let a=[1,2,3]; a.remove(1); a;", "[1, 3]"),
+        // Remove first
+        ("let a=[1,2,3]; a.remove(0); a;", "[2, 3]"),
+        // Remove last
+        ("let a=[1,2,3]; a.remove(2); a;", "[1, 2]"),
+        // Negative index remove
+        ("let a=[1,2,3]; a.remove(-1); a;", "[1, 2]"),
+        // Negative middle
+        ("let a=[1,2,3,4]; a.remove(-2); a;", "[1, 2, 4]"),
+        // Remove from single element
+        ("let a=[5]; a.remove(0); a;", "[]"),
+        // Remove using variable
+        ("let a=[1,2,3]; let i=1; a.remove(i); a;", "[1, 3]"),
+        (
+            "
+let a=[1,2,3];
+a.remove(-1);
+a.remove(-1);
+a.remove(-1);
+a;
+",
+            "[]",
+        ),
+        // Remove out of bounds
+        ("let a=[1,2,3]; a.remove(10);", "null"),
+        // Negative out of bounds
+        ("let a=[1,2,3]; a.remove(-10);", "null"),
+        // Remove on empty array
+        ("let a=[]; a.remove(0);", "null"),
+    ];
+
+    test_cases_for_input_output(&testcases);
+}
+
+#[test]
 fn test_closure() {
     let testcases = [
         // Outer reassignment
@@ -1148,6 +1208,48 @@ fn test_closure() {
     ",
             "10",
         ),
+    ];
+
+    test_cases_for_input_output(&testcases);
+}
+
+#[test]
+fn test_array_and_string_slice() {
+    let testcases = [
+        ("[1,2,3,4,5].slice(1,4);", "[2, 3, 4]"),
+        ("[10,20,30].slice(0,2);", "[10, 20]"),
+        ("[1,2,3].slice(0,3);", "[1, 2, 3]"),
+        // empty slice
+        ("[1,2,3].slice(1,1);", "[]"),
+        // start > end
+        ("[1,2,3].slice(2,1);", "[]"),
+        // end out of bounds
+        ("[1,2,3].slice(1,10);", "[2, 3]"),
+        // start out of bounds
+        ("[1,2,3].slice(10,20);", "[]"),
+        ("[1,2,3,4].slice(-3,4);", "[2, 3, 4]"),
+        ("[1,2,3,4].slice(0,-1);", "[1, 2, 3]"),
+        ("[1,2,3,4].slice(-3,-1);", "[2, 3]"),
+        (
+            "
+let a=[[1],[2],[3]];
+let b=a.slice(1,3);
+b[0][0];
+",
+            "2",
+        ),
+        (
+            "
+let a=[1,2,3];
+let b=a.slice(0,2);
+b[0]=99;
+a[0];
+",
+            "1",
+        ),
+        ("\"hello\".slice(1,4);", "\"ell\""),
+        ("\"hello\".slice(0,2);", "\"he\""),
+        ("\"hello\".slice(-3,5);", "\"llo\""),
     ];
 
     test_cases_for_input_output(&testcases);
@@ -1217,14 +1319,58 @@ fn test_break_and_continue() {
 
 #[test]
 fn test_array_deepcopy() {
-    let testcases = [(
-        "
+    let testcases = [
+        (
+            "
 let arr = [[1]];
 let copy = arr.clone();
 copy[0][0] = 42;
 arr[0][0];
 ",
-        "1",
+            "1",
+        ),
+        (
+            "
+let a = [[1,2]];
+let b = a.clone();
+b[0][0] = 99;
+a[0][0];
+",
+            "1",
+        ),
+        (
+            "
+let a = [1,2];
+let b = a.clone();
+b.push(3);
+a.length;
+",
+            "2",
+        ),
+        (
+            "
+let a = {\"x\": {\"y\": 1}};
+let b = a.clone();
+b[\"x\"][\"y\"] = 99;
+a[\"x\"][\"y\"];
+",
+            "1",
+        ),
+    ];
+
+    test_cases_for_input_output(&testcases);
+}
+
+#[test]
+fn test_clone_cyclus() {
+    let testcases = [(
+        "
+let a = [1,2];
+a.push(a);
+let b = a.clone();
+b.length;
+",
+        "3",
     )];
 
     test_cases_for_input_output(&testcases);

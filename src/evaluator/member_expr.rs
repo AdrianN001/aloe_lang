@@ -12,14 +12,15 @@ impl MemberExpression {
                 let name_of_method = Self::get_call_expressions_identifier(call_expr)?;
                 let args = call_expr.evaluate_arguments(environ.clone())?;
 
-                Ok(left_obj
-                    .borrow_mut()
-                    .apply_method(&name_of_method, &args, environ.clone()))
+                let mut obj = left_obj.borrow_mut();
+
+                Ok(obj.apply_method(&name_of_method, &args, environ.clone()))
             }
             Expression::Identifier(identifier_expr) => {
                 let name_of_attribute = &identifier_expr.value;
 
-                Ok(left_obj.borrow().apply_attribute(name_of_attribute))
+                let obj = left_obj.borrow();
+                Ok(obj.apply_attribute(name_of_attribute))
             }
             _ => Err("illegal expression type".to_string()),
         }

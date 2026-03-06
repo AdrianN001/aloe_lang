@@ -16,6 +16,7 @@ pub mod return_value;
 pub mod stack_environment;
 pub mod string_obj;
 pub mod truthy;
+pub mod state;
 
 use std::{cell::RefCell, rc::Rc};
 
@@ -32,7 +33,7 @@ use return_value::ReturnValue;
 use string_obj::StringObj;
 
 use crate::object::{
-    break_value::BreakValue, hashable::Hashable, hashmap::HashKey, iterator::Iterator,
+    break_value::BreakValue, hashable::Hashable, hashmap::HashKey, iterator::Iterator, stack_environment::EnvRef, state::StateRef,
 };
 
 pub type ObjectRef = Rc<RefCell<Object>>;
@@ -73,8 +74,13 @@ impl Object {
         }
     }
 
-    pub fn new_error(error_value: String) -> Self {
-        Self::Err(Error { value: error_value })
+    pub fn new_error(error_value: String, state: StateRef) -> Self {
+        Object::Err(
+            Error { 
+                value: error_value,
+                state: state.clone()
+            }
+        )
     }
 
     pub fn get_type(&self) -> String {

@@ -2,10 +2,10 @@ use std::{cell::RefCell, rc::Rc};
 
 use crate::object::{
     Object, ObjectRef,
-    iterator::{Iterator, range_based_iterator::RangeBasedIterator},
+    iterator::{Iterator, range_based_iterator::RangeBasedIterator}, stack_environment::EnvRef, state::StateRef,
 };
 
-pub fn range_builtin_function(args: &[ObjectRef]) -> ObjectRef {
+pub fn range_builtin_function(args: &[ObjectRef], state: StateRef) -> ObjectRef {
     match args.len() {
         // range(end)
         1 => {
@@ -18,11 +18,13 @@ pub fn range_builtin_function(args: &[ObjectRef]) -> ObjectRef {
 
                 return Rc::new(RefCell::new(Object::new_error(
                     "got a non-positve value as range input".into(),
+                    state
                 )));
             }
 
             Rc::new(RefCell::new(Object::new_error(
                 "got a non-integer value as range input".into(),
+                state
             )))
         }
 
@@ -33,6 +35,7 @@ pub fn range_builtin_function(args: &[ObjectRef]) -> ObjectRef {
                 _ => {
                     return Rc::new(RefCell::new(Object::new_error(
                         "got a non-integer value as range start".into(),
+                        state
                     )));
                 }
             };
@@ -42,6 +45,7 @@ pub fn range_builtin_function(args: &[ObjectRef]) -> ObjectRef {
                 _ => {
                     return Rc::new(RefCell::new(Object::new_error(
                         "got a non-integer value as range end".into(),
+                        state
                     )));
                 }
             };
@@ -67,6 +71,7 @@ pub fn range_builtin_function(args: &[ObjectRef]) -> ObjectRef {
                 _ => {
                     return Rc::new(RefCell::new(Object::new_error(
                         "got a non-integer value as range start".into(),
+                        state
                     )));
                 }
             };
@@ -76,6 +81,7 @@ pub fn range_builtin_function(args: &[ObjectRef]) -> ObjectRef {
                 _ => {
                     return Rc::new(RefCell::new(Object::new_error(
                         "got a non-integer value as range end".into(),
+                        state
                     )));
                 }
             };
@@ -85,6 +91,7 @@ pub fn range_builtin_function(args: &[ObjectRef]) -> ObjectRef {
                 _ => {
                     return Rc::new(RefCell::new(Object::new_error(
                         "got a non-integer value as range step".into(),
+                        state
                     )));
                 }
             };
@@ -99,6 +106,7 @@ pub fn range_builtin_function(args: &[ObjectRef]) -> ObjectRef {
         _ => Rc::new(RefCell::new(Object::new_error(format!(
             "expected 1,2 or 3 value, got {} value.",
             args.len()
-        )))),
+        ), state)
+        )),
     }
 }

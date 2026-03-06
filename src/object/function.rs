@@ -4,6 +4,7 @@ use std::rc::Rc;
 use crate::ast::expression::function_expression::FunctionExpression;
 use crate::object::ObjectRef;
 use crate::object::stack_environment::EnvRef;
+use crate::object::state::StateRef;
 use crate::{
     ast::{expression::identifier::Identifier, statement::block_statement::BlockStatement},
     object::{Object, stack_environment::StackEnvironment},
@@ -53,7 +54,7 @@ impl Function {
 
     // Function calling
 
-    pub fn apply(&self, arguments: &[ObjectRef]) -> Result<ObjectRef, String> {
+    pub fn apply(&self, name_of_the_function: String,  arguments: &[ObjectRef], state: StateRef) -> Result<ObjectRef, String> {
         if arguments.len() != self.parameters.len() {
             return Err(format!(
                 "expected {} arguments, got: {}",
@@ -61,9 +62,20 @@ impl Function {
                 arguments.len()
             ));
         }
-        let env = self.extend_environment_with_args(arguments);
 
-        let last_expr = self.body.evaluate_with_function_context(env)?;
+        {
+            state.borrow_mut().push_to_stack(name_of_the_function.clone());
+        }
+
+        let env = self.extend_environment_with_args(name_of_the_function, arguments);
+
+
+        let last_expr = self.body.evaluate_with_function_context(env, state.clone())?;
+
+        {
+            state.borrow_mut().pop_from_stack();
+        }
+
         let content_of_last_expr = last_expr.borrow();
 
         match &*content_of_last_expr {
@@ -72,8 +84,11 @@ impl Function {
         }
     }
 
-    fn extend_environment_with_args(&self, args: &[ObjectRef]) -> EnvRef {
-        let mut new_env = StackEnvironment::new_enclosed(self.env.clone());
+    fn extend_environment_with_args(&self, name_of_the_function: String, args: &[ObjectRef]) -> EnvRef {
+        let mut new_env = StackEnvironment::new_enclosed(
+            self.env.clone(),
+            format!("{}()", name_of_the_function)
+        );
 
         self.parameters
             .iter()

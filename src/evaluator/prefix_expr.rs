@@ -7,7 +7,7 @@ impl Object {
         match operator {
             "!" => self.evaluate_bang_operator_expression(),
             "-" => self.evaluate_minus_prefix_operator_expression(),
-            _ => Err("unexpected prefix operator.".into()),
+            _ => Err(format!("unexpected prefix operator: '{}'", operator)),
         }
     }
 
@@ -21,7 +21,7 @@ impl Object {
                 true,
             ))));
         }
-        Err("unexpected expression on the right side".into())
+        Err(format!("unexpected expression ('{}') on the right side of the '!' operator ", self.inspect()))
     }
 
     fn evaluate_minus_prefix_operator_expression(&self) -> Result<ObjectRef, String> {
@@ -32,7 +32,8 @@ impl Object {
             Object::FloatObj(float) => Ok(Rc::new(RefCell::new(Object::FloatObj(FloatObj {
                 val: -float.val,
             })))),
-            _ => Err("unexpected expression on the right side".into()),
+
+            _ => Err(format!("unexpected expression ('{}') on the right side of the '-' operator", self.inspect()))
         }
     }
 }

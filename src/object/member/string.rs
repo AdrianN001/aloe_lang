@@ -1,38 +1,34 @@
 use std::{cell::RefCell, rc::Rc};
 
 use crate::object::{
-    Object, ObjectRef,
-    array::Array,
-    float_obj::FloatObj,
-    integer::Integer,
-    iterator::{Iterator, list_based_iterator::ListBasedIterator},
-    string_obj::StringObj,
+    Object, ObjectRef, array::Array, float_obj::FloatObj, integer::Integer, iterator::{Iterator, list_based_iterator::ListBasedIterator}, stack_environment::EnvRef, state::StateRef, string_obj::StringObj
 };
 
 impl StringObj {
-    pub fn apply_attribute(&self, name: &str) -> ObjectRef {
+    pub fn apply_attribute(&self, name: &str, state: StateRef) -> ObjectRef {
         match name {
             "length" => self.length(),
 
             _ => Rc::new(RefCell::new(Object::new_error(format!(
                 "unknown attribute for string: '{}'",
                 name
-            )))),
+            ), state))),
         }
     }
-    pub fn apply_method(&mut self, name: &str, args: &[ObjectRef]) -> ObjectRef {
+    pub fn apply_method(&mut self, name: &str, args: &[ObjectRef], environ: EnvRef, state: StateRef) -> ObjectRef {
         match name {
             "reversed" => self.reversed(),
             "chars" => self.chars(),
-            "as_float" => self.as_float(),
-            "as_int" => self.as_int(),
-            "slice" => self.slice(args),
-            "split" => self.split(args),
+            "as_float" => self.as_float(state),
+            "as_int" => self.as_int(state),
+            "slice" => self.slice(args, state),
+            "split" => self.split(args, state),
+            "clone" => self.deep_copy(),
 
             _ => Rc::new(RefCell::new(Object::new_error(format!(
                 "unknown method for string: '{}'",
                 name
-            )))),
+            ), state))),
         }
     }
 
@@ -81,21 +77,22 @@ impl StringObj {
         })
     }
 
-    fn slice(&self, args: &[ObjectRef]) -> ObjectRef {
+    fn slice(&self, args: &[ObjectRef], state: StateRef) -> ObjectRef {
         if args.len() != 2 {
             return Rc::new(RefCell::new(Object::new_error(format!(
                 "expected {} arguments for array.slice(), got: {}",
                 2,
                 args.len()
-            ))));
+            ), state)));
         }
         let mut start_index = match &*args[0].borrow() {
+
             Object::Int(integer) => integer.value,
             other_type => {
                 return Rc::new(RefCell::new(Object::new_error(format!(
                     "expected the first argument to be int, got: {}",
                     other_type.get_type()
-                ))));
+                ), state)));
             }
         };
         let mut end_index = match &*args[1].borrow() {
@@ -104,7 +101,7 @@ impl StringObj {
                 return Rc::new(RefCell::new(Object::new_error(format!(
                     "expected the second argument to be int, got: {}",
                     other_type.get_type()
-                ))));
+                ), state)));
             }
         };
 
@@ -134,23 +131,23 @@ impl StringObj {
         })))
     }
 
-    fn as_float(&self) -> ObjectRef {
+    fn as_float(&self, state: StateRef) -> ObjectRef {
         match self.value.parse::<f64>() {
             Ok(float_value) => Rc::new(RefCell::new(Object::FloatObj(FloatObj {
                 val: float_value,
             }))),
-            Err(err) => Rc::new(RefCell::new(Object::new_error(err.to_string()))),
+            Err(err) => Rc::new(RefCell::new(Object::new_error(err.to_string(), state))),
         }
     }
 
-    fn as_int(&self) -> ObjectRef {
+    fn as_int(&self, state: StateRef) -> ObjectRef {
         match self.value.parse::<i64>() {
             Ok(int_value) => Rc::new(RefCell::new(Object::Int(Integer { value: int_value }))),
-            Err(err) => Rc::new(RefCell::new(Object::new_error(err.to_string()))),
+            Err(err) => Rc::new(RefCell::new(Object::new_error(err.to_string(), state))),
         }
     }
 
-    fn split(&self, args: &[ObjectRef]) -> ObjectRef {
+    fn split(&self, args: &[ObjectRef], state: StateRef) -> ObjectRef {
         let split_value = if args.is_empty() {
             return self.chars();
         } else {
@@ -160,7 +157,7 @@ impl StringObj {
                     return Rc::new(RefCell::new(Object::new_error(format!(
                         "expected to be the first paramter a 'str', got: {}",
                         other_type.get_type()
-                    ))));
+                    ), state)));
                 }
             }
         };
@@ -180,5 +177,9 @@ impl StringObj {
                 })
                 .collect(),
         })))
+    }
+
+    fn deep_copy(&self) -> ObjectRef{
+        Rc::new(RefCell::new(Object::String(StringObj { value: self.value.clone() })))
     }
 }

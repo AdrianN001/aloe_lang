@@ -666,21 +666,7 @@ fn eval_member_operator() {
         (r#" "abc".reversed(); "#, r#""cba""#),
     ];
 
-    testcases.iter().for_each(|testcase| {
-        let input = testcase.0.into();
-        let expected_value = testcase.1;
-
-        let lexer = Lexer::new(input);
-        let parser = Parser::new(lexer);
-        let program = parser.into_a_program().unwrap();
-
-        let last_object = match program.evaluate() {
-            Ok(x) => x,
-            Err(err) => panic!("{}", err),
-        };
-
-        assert_eq!(last_object.borrow().inspect(), expected_value)
-    })
+    test_cases_for_input_output(&testcases);
 }
 
 #[test]
@@ -1393,7 +1379,9 @@ fn test_cases_for_input_output(testcases: &[(&str, &str)]) {
             Ok(x) => x,
             Err(err) => panic!("{}", err),
         };
-
-        assert_eq!(last_object.borrow().inspect(), expected_value)
+        match &*last_object.borrow(){
+            Object::Err(err) => assert_eq!(err.inspect_message(), expected_value),
+            other_type => assert_eq!(other_type.inspect(), expected_value)
+        }
     });
 }

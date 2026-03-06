@@ -1,48 +1,42 @@
 use std::{cell::RefCell, rc::Rc};
 
 use crate::object::{
-    Object, ObjectRef,
-    array::Array,
-    integer::Integer,
-    iterator::{Iterator, list_based_iterator::ListBasedIterator},
-    null::Null,
-    stack_environment::EnvRef,
-    string_obj::StringObj,
+    Object, ObjectRef, array::Array, integer::Integer, iterator::{Iterator, list_based_iterator::ListBasedIterator}, null::Null, stack_environment::EnvRef, state::StateRef, string_obj::StringObj
 };
 
 impl Array {
-    pub fn apply_attribute(&self, name: &str) -> ObjectRef {
+    pub fn apply_attribute(&self, name: &str, environ: EnvRef, state: StateRef) -> ObjectRef {
         match name {
             "length" => self.length(),
 
             _ => Rc::new(RefCell::new(Object::new_error(format!(
                 "unknown attribute for array: '{}'",
                 name
-            )))),
+            ), state))),
         }
     }
-    pub fn apply_method(&mut self, name: &str, args: &[ObjectRef], _environ: EnvRef) -> ObjectRef {
+    pub fn apply_method(&mut self, name: &str, args: &[ObjectRef], environ: EnvRef, state: StateRef) -> ObjectRef {
         match name {
             "reversed" => self.reversed(),
             "push" => self.push(args),
             "extend" => self.extend(args),
             "clear" => self.clear(),
 
-            "remove" => self.remove(args),
-            "slice" => self.slice(args),
+            "remove" => self.remove(args, state),
+            "slice" => self.slice(args, state),
 
             "clone" => self.deep_copy(),
 
-            "map" => self.map(args),
-            "filter" => self.filter(args),
+            "map" => self.map(args, state),
+            "filter" => self.filter(args, state),
 
             "as_iter" => self.as_iter(),
-            "join" => self.join(args),
+            "join" => self.join(args, state),
 
             _ => Rc::new(RefCell::new(Object::new_error(format!(
                 "unknown method for array: '{}'",
                 name
-            )))),
+            ), state))),
         }
     }
 
@@ -81,13 +75,13 @@ impl Array {
         Rc::new(RefCell::new(Object::Null(Null {})))
     }
 
-    fn remove(&mut self, args: &[ObjectRef]) -> ObjectRef {
+    fn remove(&mut self, args: &[ObjectRef], state: StateRef) -> ObjectRef {
         if args.len() != 1 {
             return Rc::new(RefCell::new(Object::new_error(format!(
                 "expected {} arguments for array.remove(), got: {}",
                 1,
                 args.len()
-            ))));
+            ), state)));
         }
         let mut index = match &*args[0].borrow() {
             Object::Int(integer) => integer.value,
@@ -95,7 +89,7 @@ impl Array {
                 return Rc::new(RefCell::new(Object::new_error(format!(
                     "expected the first argument to be int, got: {}",
                     other_type.get_type()
-                ))));
+                ), state)));
             }
         };
 
@@ -109,13 +103,13 @@ impl Array {
         Rc::new(RefCell::new(Object::NULL_OBJECT))
     }
 
-    fn slice(&mut self, args: &[ObjectRef]) -> ObjectRef {
+    fn slice(&mut self, args: &[ObjectRef], state: StateRef) -> ObjectRef {
         if args.len() != 2 {
             return Rc::new(RefCell::new(Object::new_error(format!(
                 "expected {} arguments for array.slice(), got: {}",
                 2,
                 args.len()
-            ))));
+            ), state)));
         }
         let mut start_index = match &*args[0].borrow() {
             Object::Int(integer) => integer.value,
@@ -123,7 +117,7 @@ impl Array {
                 return Rc::new(RefCell::new(Object::new_error(format!(
                     "expected the first argument to be int, got: {}",
                     other_type.get_type()
-                ))));
+                ), state)));
             }
         };
         let mut end_index = match &*args[1].borrow() {
@@ -132,7 +126,7 @@ impl Array {
                 return Rc::new(RefCell::new(Object::new_error(format!(
                     "expected the second argument to be int, got: {}",
                     other_type.get_type()
-                ))));
+                ), state)));
             }
         };
 
@@ -181,26 +175,30 @@ impl Array {
         Rc::new(RefCell::new(Object::Null(Null {})))
     }
 
-    fn map(&mut self, args: &[ObjectRef]) -> ObjectRef {
+    fn map(&mut self, args: &[ObjectRef], state: StateRef) -> ObjectRef {
         if args.is_empty() {
             return Rc::new(RefCell::new(Object::new_error(
-                "no function was provided for map".into(),
+                "no function was provided for map".into(), state
             )));
         }
 
         if let Object::Func(function) = &*args[0].borrow() {
             if function.parameters.len() > 1 {
                 return Rc::new(RefCell::new(Object::new_error(
-                    "function provided to the map needs more than 1 argument".into(),
+                    "function provided to the map needs more than 1 argument".into(), state
                 )));
             }
             let mut mapped_array_content = Vec::new();
 
             for item in self.items.clone() {
-                let mapped_item = function.apply([item.clone()].as_ref());
+                let mapped_item = function.apply(
+                    "(anonymm map function)".into(), 
+                    [item.clone()].as_ref(),
+                    state.clone()
+                );
                 match mapped_item {
                     Ok(ok_value) => mapped_array_content.push(ok_value.clone()),
-                    Err(error) => return Rc::new(RefCell::new(Object::new_error(error))),
+                    Err(error) => return Rc::new(RefCell::new(Object::new_error(error, state))),
                 }
             }
 
@@ -210,34 +208,38 @@ impl Array {
         }
 
         Rc::new(RefCell::new(Object::new_error(
-            "argument provided is not a function".into(),
+            "argument provided is not a function".into(), state
         )))
     }
 
-    fn filter(&mut self, args: &[ObjectRef]) -> ObjectRef {
+    fn filter(&mut self, args: &[ObjectRef], state: StateRef) -> ObjectRef {
         if args.is_empty() {
             return Rc::new(RefCell::new(Object::new_error(
-                "no function was provided for filter".into(),
+                "no function was provided for filter".into(), state
             )));
         }
 
         if let Object::Func(function) = &*args[0].borrow() {
             if function.parameters.len() > 1 {
                 return Rc::new(RefCell::new(Object::new_error(
-                    "function provided to the filter needs more than 1 argument".into(),
+                    "function provided to the filter needs more than 1 argument".into(), state
                 )));
             }
             let mut mapped_array_content = Vec::new();
 
             for item in self.items.clone() {
-                let boolean_output = function.apply([item.clone()].as_ref());
+                let boolean_output = function.apply(
+                    "(anonymm filter function)".into(), 
+                    [item.clone()].as_ref(),
+                    state.clone()
+                );
                 match boolean_output {
                     Ok(ok_value) => {
                         if ok_value.borrow().is_truthy() {
                             mapped_array_content.push(item.clone())
                         }
                     }
-                    Err(error) => return Rc::new(RefCell::new(Object::new_error(error))),
+                    Err(error) => return Rc::new(RefCell::new(Object::new_error(error, state))),
                 }
             }
 
@@ -247,7 +249,7 @@ impl Array {
         }
 
         Rc::new(RefCell::new(Object::new_error(
-            "argument provided is not a function".into(),
+            "argument provided is not a function".into(), state
         )))
     }
 
@@ -262,7 +264,7 @@ impl Array {
         })
     }
 
-    fn join(&self, args: &[ObjectRef]) -> ObjectRef {
+    fn join(&self, args: &[ObjectRef], state: StateRef) -> ObjectRef {
         let join_str_value = if args.is_empty() {
             "".to_string()
         } else {
@@ -272,7 +274,7 @@ impl Array {
                     return Rc::new(RefCell::new(Object::new_error(format!(
                         "expected to be the first paramter a 'str', got: {}",
                         other_type.get_type()
-                    ))));
+                    ), state)));
                 }
             }
         };
@@ -291,7 +293,7 @@ impl Array {
                         "not all elements can be converted to str. Element {} is {}",
                         index,
                         other_type.get_type()
-                    ))));
+                    ), state)));
                 }
             }
         }

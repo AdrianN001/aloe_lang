@@ -2,6 +2,7 @@ use std::{cell::RefCell, rc::Rc};
 
 use crate::object::hashmap::HashPair;
 use crate::object::stack_environment::EnvRef;
+use crate::object::state::StateRef;
 use crate::object::string_obj::StringObj;
 use crate::{
     ast::expression::index_expression::IndexExpression,
@@ -9,9 +10,9 @@ use crate::{
 };
 
 impl IndexExpression {
-    pub fn evaluate(&self, environ: EnvRef) -> Result<ObjectRef, String> {
-        let left_expr = self.left.evaluate(environ.clone())?;
-        let index = self.right.evaluate(environ.clone())?;
+    pub fn evaluate(&self, environ: EnvRef, state: StateRef) -> Result<ObjectRef, String> {
+        let left_expr = self.left.evaluate(environ.clone(), state.clone())?;
+        let index = self.right.evaluate(environ.clone(), state.clone())?;
 
         match (&*left_expr.borrow(), &*index.borrow()) {
             (Object::Array(arr), Object::Int(index)) => {
@@ -52,7 +53,7 @@ impl IndexExpression {
                         .to_string(),
                 }))))
             }
-            (Object::HashMap(map), _) => Ok(map.get([index.clone()].as_ref())),
+            (Object::HashMap(map), _) => Ok(map.get([index.clone()].as_ref(),state)),
             _ => Err(format!(
                 "index operator not supported: {}",
                 index.borrow().get_type()
@@ -60,9 +61,9 @@ impl IndexExpression {
         }
     }
 
-    pub fn evaluate_value_assign(&self, environ: EnvRef, rvalue: ObjectRef) -> Result<(), String> {
-        let left_expr = self.left.evaluate(environ.clone())?;
-        let index = self.right.evaluate(environ.clone())?;
+    pub fn evaluate_value_assign(&self, environ: EnvRef, rvalue: ObjectRef, state: StateRef) -> Result<(), String> {
+        let left_expr = self.left.evaluate(environ.clone(), state.clone())?;
+        let index = self.right.evaluate(environ.clone(), state.clone())?;
 
         let mut left_borrow = left_expr.borrow_mut();
         let index_borrow = index.borrow();
@@ -87,13 +88,6 @@ impl IndexExpression {
             }
 
             Object::HashMap(map) => {
-                if !index_borrow.is_hashable() {
-                    return Err(format!(
-                        "key object is not hashable: {}",
-                        index_borrow.get_type()
-                    ));
-                }
-
                 let hashed_object = index_borrow.hash()?;
 
                 map.pairs.insert(

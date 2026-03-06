@@ -15,7 +15,7 @@ use crate::object::{
         iterator::range_builtin_function,
         len::len_builtin_function,
         utils::{inspect_builtin_function, type_builtin_function},
-    },
+    }, stack_environment::EnvRef, state::StateRef,
 };
 
 #[derive(Clone, PartialEq, Eq)]
@@ -44,21 +44,21 @@ impl BuiltIn {
         "built-in function".into()
     }
 
-    pub fn call(&self, args: &[ObjectRef]) -> ObjectRef {
+    pub fn call(&self, args: &[ObjectRef], environ: EnvRef, state: StateRef) -> ObjectRef {
         match self {
-            BuiltIn::Len => len_builtin_function(args),
+            BuiltIn::Len => len_builtin_function(args, state),
 
-            BuiltIn::Rest => rest_builtin_function(args),
-            BuiltIn::First => first_builtin_function(args),
-            BuiltIn::Last => last_builtin_function(args),
-            BuiltIn::Push => push_builtin_function(args),
+            BuiltIn::Rest => rest_builtin_function(args, state),
+            BuiltIn::First => first_builtin_function(args, state),
+            BuiltIn::Last => last_builtin_function(args, state),
+            BuiltIn::Push => push_builtin_function(args, state),
 
-            BuiltIn::Print => console_write_builtin_function(args),
+            BuiltIn::Print => console_write_builtin_function(args, environ),
 
-            BuiltIn::Type => type_builtin_function(args),
-            BuiltIn::Inspect => inspect_builtin_function(args),
+            BuiltIn::Type => type_builtin_function(args, state),
+            BuiltIn::Inspect => inspect_builtin_function(args, state),
 
-            BuiltIn::Range => range_builtin_function(args),
+            BuiltIn::Range => range_builtin_function(args, state),
         }
     }
 }

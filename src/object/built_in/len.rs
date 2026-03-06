@@ -1,13 +1,13 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::object::{Object, ObjectRef, integer::Integer};
+use crate::object::{Object, ObjectRef, integer::Integer, stack_environment::EnvRef, state::StateRef};
 
-pub fn len_builtin_function(args: &[ObjectRef]) -> ObjectRef {
+pub fn len_builtin_function(args: &[ObjectRef], state: StateRef) -> ObjectRef {
     if args.len() != 1 {
         return Rc::new(RefCell::new(Object::new_error(format!(
             "expected 1 value, got {} value.",
             args.len()
-        ))));
+        ), state)));
     }
 
     match &*args[0].borrow() {
@@ -20,6 +20,6 @@ pub fn len_builtin_function(args: &[ObjectRef]) -> ObjectRef {
         _ => Rc::new(RefCell::new(Object::new_error(format!(
             "unexpected argument type for len(): got {}",
             &args[0].borrow().get_type()
-        )))),
+        ), state))),
     }
 }

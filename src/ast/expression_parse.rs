@@ -485,11 +485,21 @@ impl Parser {
     }
 
     fn parse_call_expression(&mut self, function: &Expression) -> Result<Expression, String> {
-        let expr = CallExpression {
+        let mut expr = CallExpression {
             token: self.current_token.clone(),
             function: Box::new(function.clone()),
             arguments: self.parse_expression_list(TokenType::RParen)?,
+            bang_set: false,
+            question_mark_set: false
         };
+
+        if self.peek_token.token_type == TokenType::Bang{
+            self.next_token();
+            expr.bang_set = true;
+        }else if self.peek_token.token_type == TokenType::QuestionMark{
+            self.next_token();
+            expr.question_mark_set = true;
+        }
 
         Ok(Expression::Call(expr))
     }

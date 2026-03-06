@@ -5,6 +5,9 @@ pub struct CallExpression {
     pub token: Token,
     pub function: Box<Expression>,
     pub arguments: Vec<Expression>,
+
+    pub question_mark_set: bool,
+    pub bang_set: bool
 }
 
 impl CallExpression {

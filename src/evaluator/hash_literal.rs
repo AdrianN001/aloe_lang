@@ -5,16 +5,16 @@ use crate::{
     object::{
         Object, ObjectRef,
         hashmap::{HashMap, HashPair},
-        stack_environment::EnvRef,
+        stack_environment::EnvRef, state::StateRef,
     },
 };
 
 impl HashMapLiteral {
-    pub fn evaluate(&self, environ: EnvRef) -> Result<ObjectRef, String> {
+    pub fn evaluate(&self, environ: EnvRef, state: StateRef) -> Result<ObjectRef, String> {
         let mut pairs = BTreeMap::new();
 
         for (k, v) in &self.pairs {
-            let key = k.evaluate(environ.clone())?;
+            let key = k.evaluate(environ.clone(), state.clone())?;
             if !key.borrow().is_hashable() {
                 return Err(format!(
                     "unhashable as hash key: {}",
@@ -22,7 +22,7 @@ impl HashMapLiteral {
                 ));
             }
 
-            let value = v.evaluate(environ.clone())?;
+            let value = v.evaluate(environ.clone(), state.clone())?;
 
             let hashed_key = key.borrow().hash()?;
 

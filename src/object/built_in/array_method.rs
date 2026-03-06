@@ -1,13 +1,13 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::object::{Object, ObjectRef, array::Array, string_obj::StringObj};
+use crate::object::{Object, ObjectRef, array::Array, stack_environment::EnvRef, state::StateRef, string_obj::StringObj};
 
-pub fn rest_builtin_function(args: &[ObjectRef]) -> ObjectRef {
+pub fn rest_builtin_function(args: &[ObjectRef], state: StateRef) -> ObjectRef {
     if args.len() != 1 {
         return Rc::new(RefCell::new(Object::new_error(format!(
             "expected 1 value, got {} value.",
             args.len()
-        ))));
+        ), state)));
     }
 
     match &*args[0].borrow() {
@@ -37,16 +37,16 @@ pub fn rest_builtin_function(args: &[ObjectRef]) -> ObjectRef {
         _ => Rc::new(RefCell::new(Object::new_error(format!(
             "unexpected argument type for len(): got {}",
             &args[0].borrow().get_type()
-        )))),
+        ), state))),
     }
 }
 
-pub fn first_builtin_function(args: &[ObjectRef]) -> ObjectRef {
+pub fn first_builtin_function(args: &[ObjectRef], state: StateRef) -> ObjectRef {
     if args.len() != 1 {
         return Rc::new(RefCell::new(Object::new_error(format!(
             "expected 1 value, got {} value.",
             args.len()
-        ))));
+        ), state)));
     }
 
     match &*args[0].borrow() {
@@ -70,16 +70,16 @@ pub fn first_builtin_function(args: &[ObjectRef]) -> ObjectRef {
         _ => Rc::new(RefCell::new(Object::new_error(format!(
             "unexpected argument type for len(): got {}",
             &args[0].borrow().get_type()
-        )))),
+        ), state))),
     }
 }
 
-pub fn last_builtin_function(args: &[ObjectRef]) -> ObjectRef {
+pub fn last_builtin_function(args: &[ObjectRef], state: StateRef) -> ObjectRef {
     if args.len() != 1 {
         return Rc::new(RefCell::new(Object::new_error(format!(
             "expected 1 value, got {} value.",
             args.len()
-        ))));
+        ), state)));
     }
 
     match &*args[0].borrow() {
@@ -103,23 +103,23 @@ pub fn last_builtin_function(args: &[ObjectRef]) -> ObjectRef {
         _ => Rc::new(RefCell::new(Object::new_error(format!(
             "unexpected argument type for len(): got {}",
             &args[0].borrow().get_type()
-        )))),
+        ), state))),
     }
 }
 
-pub fn push_builtin_function(args: &[ObjectRef]) -> ObjectRef {
+pub fn push_builtin_function(args: &[ObjectRef], state: StateRef) -> ObjectRef {
     if args.len() != 2 {
         return Rc::new(RefCell::new(Object::new_error(format!(
             "expected 2 value, got {} value.",
             args.len()
-        ))));
+        ), state)));
     }
 
     if !matches!(&*args[0].borrow(), Object::Array(_) | Object::String(_)) {
         return Rc::new(RefCell::new(Object::new_error(format!(
             "expected the first value to be array or string, got {}.",
             args[0].borrow().get_type()
-        ))));
+        ), state)));
     }
 
     match &*args[0].borrow() {
@@ -130,7 +130,7 @@ pub fn push_builtin_function(args: &[ObjectRef]) -> ObjectRef {
                 })));
             }
             Rc::new(RefCell::new(Object::new_error(
-                "unmatching types: push(String, not String)".into(),
+                "unmatching types: push(String, not String)".into(), state
             )))
         }
         Object::Array(arr) => {
@@ -151,6 +151,6 @@ pub fn push_builtin_function(args: &[ObjectRef]) -> ObjectRef {
         _ => Rc::new(RefCell::new(Object::new_error(format!(
             "unexpected argument type for len(): got {}",
             &args[0].borrow().get_type()
-        )))),
+        ), state))),
     }
 }

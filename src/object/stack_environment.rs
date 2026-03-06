@@ -6,8 +6,9 @@ pub type EnvRef = Rc<RefCell<StackEnvironment>>;
 
 #[derive(Default, Clone, PartialEq, Eq)]
 pub struct StackEnvironment {
-    pub map: HashMap<String, ObjectRef>,
-    outer: Option<EnvRef>,
+    pub map:                HashMap<String, ObjectRef>,
+    pub outer:              Option<EnvRef>,
+    stack_layer_name:       String
 }
 
 impl StackEnvironment {
@@ -15,13 +16,15 @@ impl StackEnvironment {
         StackEnvironment {
             map: HashMap::new(),
             outer: None,
+            stack_layer_name: "<global>".into()
         }
     }
 
-    pub fn new_enclosed(outer: EnvRef) -> Self {
+    pub fn new_enclosed(outer: EnvRef, stack_layer_name: String) -> Self {
         StackEnvironment {
             map: HashMap::new(),
             outer: Some(outer.clone()),
+            stack_layer_name
         }
     }
 

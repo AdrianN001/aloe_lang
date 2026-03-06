@@ -7,7 +7,7 @@ use std::{
 use crate::{ast::Parser, lexer::Lexer, object::stack_environment::StackEnvironment};
 
 pub fn start_repl() {
-    println!("🌿 Aloe REPL");
+    println!("🌿 Aloe REPL 🌿");
     println!("Type exit to quit.\n");
 
     let environ = Rc::new(RefCell::new(StackEnvironment::new()));
@@ -28,8 +28,12 @@ pub fn start_repl() {
         let parser = Parser::new(lexer);
         let program = parser.into_a_program().unwrap();
 
-        if let Ok(last_object) = program.evaluate_with_other_environment(environ.clone()) {
-            println!("{}", last_object.borrow().inspect());
+        match  program.evaluate_with_other_environment(environ.clone()) {
+            Ok(last_object) => println!("{}", last_object.borrow().inspect()),
+            Err(panic_reason) => {
+                println!("[!]PANIC: {}[!]", panic_reason);
+                break;
+            }
         };
     }
 }

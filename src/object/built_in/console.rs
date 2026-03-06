@@ -1,9 +1,9 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::object::{Object, ObjectRef};
+use crate::object::{Object, ObjectRef, stack_environment::EnvRef};
 
 // print(object, ends)
-pub fn console_write_builtin_function(args: &[ObjectRef]) -> ObjectRef {
+pub fn console_write_builtin_function(args: &[ObjectRef], _environ: EnvRef) -> ObjectRef {
     if args.is_empty() {
         return Rc::new(RefCell::new(Object::NULL_OBJECT));
     }
@@ -18,5 +18,5 @@ pub fn console_write_builtin_function(args: &[ObjectRef]) -> ObjectRef {
         println!();
     }
 
-    Rc::new(RefCell::new(Object::NULL_OBJECT))
+    args[0].clone()
 }

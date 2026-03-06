@@ -18,6 +18,7 @@ impl fmt::Display for TokenType {
             TokenType::Bang => "!",
             TokenType::Asterisk => "*",
             TokenType::Slash => "/",
+            TokenType::QuestionMark => "?",
 
             TokenType::IteratorAssign => "<-",
             TokenType::Dot => ".",

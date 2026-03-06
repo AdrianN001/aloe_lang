@@ -15,6 +15,7 @@ pub enum TokenType {
     Bang,
     Asterisk,
     Slash,
+    QuestionMark,
 
     Eq,
     NotEq,

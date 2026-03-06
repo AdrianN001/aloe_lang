@@ -3,7 +3,7 @@ use std::{cell::RefCell, rc::Rc};
 use crate::object::{
     Object, ObjectRef,
     stack_environment::EnvRef,
-    state::{self, StateRef},
+    state::StateRef,
 };
 
 pub mod array;

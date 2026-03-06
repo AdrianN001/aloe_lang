@@ -18,7 +18,7 @@ impl Integer {
         &mut self,
         name: &str,
         _args: &[ObjectRef],
-        environ: EnvRef,
+        _environ: EnvRef,
         state: StateRef,
     ) -> ObjectRef {
         match name {

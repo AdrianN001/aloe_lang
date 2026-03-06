@@ -26,7 +26,7 @@ impl StringObj {
         &mut self,
         name: &str,
         args: &[ObjectRef],
-        environ: EnvRef,
+        _environ: EnvRef,
         state: StateRef,
     ) -> ObjectRef {
         match name {

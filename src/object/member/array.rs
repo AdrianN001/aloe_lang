@@ -12,7 +12,7 @@ use crate::object::{
 };
 
 impl Array {
-    pub fn apply_attribute(&self, name: &str, environ: EnvRef, state: StateRef) -> ObjectRef {
+    pub fn apply_attribute(&self, name: &str, _environ: EnvRef, state: StateRef) -> ObjectRef {
         match name {
             "length" => self.length(),
 
@@ -26,7 +26,7 @@ impl Array {
         &mut self,
         name: &str,
         args: &[ObjectRef],
-        environ: EnvRef,
+        _environ: EnvRef,
         state: StateRef,
     ) -> ObjectRef {
         match name {

@@ -1,7 +1,7 @@
 use std::{cell::RefCell, rc::Rc};
 
 use crate::object::{
-    Object, ObjectRef, stack_environment::EnvRef, state::StateRef, string_obj::StringObj,
+    Object, ObjectRef, state::StateRef, string_obj::StringObj,
 };
 
 pub fn type_builtin_function(args: &[ObjectRef], state: StateRef) -> ObjectRef {

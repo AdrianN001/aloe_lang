@@ -10,7 +10,7 @@ use crate::object::{
 };
 
 impl HashMap {
-    pub fn apply_attribute(&self, name: &str, environ: EnvRef, state: StateRef) -> ObjectRef {
+    pub fn apply_attribute(&self, name: &str, _environ: EnvRef, state: StateRef) -> ObjectRef {
         match name {
             "length" => self.get_length(),
             "keys" => self.get_keys(),
@@ -26,7 +26,7 @@ impl HashMap {
         &mut self,
         name: &str,
         args: &[ObjectRef],
-        environ: EnvRef,
+        _environ: EnvRef,
         state: StateRef,
     ) -> ObjectRef {
         match name {

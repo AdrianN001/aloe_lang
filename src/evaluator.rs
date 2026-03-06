@@ -24,7 +24,7 @@ use crate::object::integer::Integer;
 use crate::object::null::Null;
 use crate::object::return_value::ReturnValue;
 use crate::object::stack_environment::{EnvRef, StackEnvironment};
-use crate::object::state::{DEFAULT_INTERPRETER_STATE, InterpreterState, StateRef};
+use crate::object::state::{DEFAULT_INTERPRETER_STATE, StateRef};
 use crate::object::string_obj::StringObj;
 
 use super::object::Object;

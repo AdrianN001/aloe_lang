@@ -5,7 +5,7 @@ use crate::object::{
     float_obj::FloatObj,
     integer::Integer,
     stack_environment::EnvRef,
-    state::{self, StateRef},
+    state::StateRef,
     string_obj::StringObj,
 };
 
@@ -22,7 +22,7 @@ impl FloatObj {
         &mut self,
         name: &str,
         _args: &[ObjectRef],
-        environ: EnvRef,
+        _environ: EnvRef,
         state: StateRef,
     ) -> ObjectRef {
         match name {

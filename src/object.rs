@@ -33,8 +33,7 @@ use return_value::ReturnValue;
 use string_obj::StringObj;
 
 use crate::object::{
-    break_value::BreakValue, hashable::Hashable, hashmap::HashKey, iterator::Iterator,
-    stack_environment::EnvRef, state::StateRef,
+    break_value::BreakValue, hashable::Hashable, hashmap::HashKey, iterator::Iterator, state::StateRef,
 };
 
 pub type ObjectRef = Rc<RefCell<Object>>;

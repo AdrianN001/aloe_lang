@@ -5,7 +5,7 @@ use crate::object::{
     array::Array,
     iterator::Iterator,
     stack_environment::EnvRef,
-    state::{self, StateRef},
+    state::StateRef,
 };
 
 impl Iterator {
@@ -21,7 +21,7 @@ impl Iterator {
         &mut self,
         name: &str,
         _args: &[ObjectRef],
-        environ: EnvRef,
+        _environ: EnvRef,
         state: StateRef,
     ) -> ObjectRef {
         match name {

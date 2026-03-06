@@ -1,7 +1,7 @@
 use std::{cell::RefCell, rc::Rc};
 
 use crate::object::{
-    Object, ObjectRef, array::Array, stack_environment::EnvRef, state::StateRef,
+    Object, ObjectRef, array::Array, state::StateRef,
     string_obj::StringObj,
 };
 

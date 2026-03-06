@@ -1,7 +1,7 @@
 use std::{cell::RefCell, rc::Rc};
 
 use crate::object::{
-    Object, ObjectRef, integer::Integer, stack_environment::EnvRef, state::StateRef,
+    Object, ObjectRef, integer::Integer, state::StateRef,
 };
 
 pub fn len_builtin_function(args: &[ObjectRef], state: StateRef) -> ObjectRef {

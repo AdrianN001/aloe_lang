@@ -15,7 +15,7 @@ impl BlockStatement {
             let borrowed_result = result.borrow();
 
             match &*borrowed_result {
-                Object::ReturnVal(ret_val) => return Ok(result.clone()),
+                Object::ReturnVal(_ret_val) => return Ok(result.clone()),
                 Object::Err(_) => return Ok(result.clone()),
                 _ => {}
             }
@@ -42,7 +42,7 @@ impl BlockStatement {
                 Object::Continue => {
                     return Err("unexpected continue keyword in non-loop context".into());
                 }
-                Object::ReturnVal(ret_val) => return Ok(result.clone()),
+                Object::ReturnVal(_ret_val) => return Ok(result.clone()),
                 Object::Err(_) => return Ok(result.clone()),
                 _ => {}
             }

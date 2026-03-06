@@ -3,7 +3,6 @@ use std::{cell::RefCell, rc::Rc};
 use crate::object::{
     Object, ObjectRef,
     iterator::{Iterator, range_based_iterator::RangeBasedIterator},
-    stack_environment::EnvRef,
     state::StateRef,
 };
 

@@ -1,11 +1,7 @@
 use std::{cell::RefCell, rc::Rc};
 
 use crate::object::{
-    Object, ObjectRef,
-    array::Array,
-    iterator::Iterator,
-    stack_environment::EnvRef,
-    state::StateRef,
+    Object, ObjectRef, array::Array, iterator::Iterator, stack_environment::EnvRef, state::StateRef,
 };
 
 impl Iterator {

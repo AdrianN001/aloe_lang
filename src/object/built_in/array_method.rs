@@ -1,9 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::object::{
-    Object, ObjectRef, array::Array, state::StateRef,
-    string_obj::StringObj,
-};
+use crate::object::{Object, ObjectRef, array::Array, state::StateRef, string_obj::StringObj};
 
 pub fn rest_builtin_function(args: &[ObjectRef], state: StateRef) -> ObjectRef {
     if args.len() != 1 {

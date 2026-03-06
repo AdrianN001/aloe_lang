@@ -27,6 +27,12 @@ impl CallExpression {
         );
         buffer.push(')');
 
+        if self.question_mark_set {
+            buffer.push('?');
+        } else if self.bang_set {
+            buffer.push('!');
+        }
+
         buffer
     }
 }

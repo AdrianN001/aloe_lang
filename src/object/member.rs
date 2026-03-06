@@ -1,10 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::object::{
-    Object, ObjectRef,
-    stack_environment::EnvRef,
-    state::StateRef,
-};
+use crate::object::{Object, ObjectRef, stack_environment::EnvRef, state::StateRef};
 
 pub mod array;
 pub mod float;

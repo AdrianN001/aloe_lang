@@ -1,12 +1,8 @@
 use std::{cell::RefCell, rc::Rc};
 
 use crate::object::{
-    Object, ObjectRef,
-    float_obj::FloatObj,
-    integer::Integer,
-    stack_environment::EnvRef,
-    state::StateRef,
-    string_obj::StringObj,
+    Object, ObjectRef, float_obj::FloatObj, integer::Integer, stack_environment::EnvRef,
+    state::StateRef, string_obj::StringObj,
 };
 
 impl FloatObj {

@@ -721,3 +721,37 @@ fn test_parse_break_statement() {
         }
     });
 }
+
+#[test]
+fn test_bang_und_questionmark_parse() {
+    let testcases = [
+        ("print();", false, false),
+        ("divide(10/3)?;", true, false),
+        ("range(-1)!;", false, true),
+    ];
+
+    testcases.iter().for_each(|testcase| {
+        let input = testcase.0;
+        let expected_have_questionmark = testcase.1;
+        let expected_have_bang_operator = testcase.2;
+
+        let lexer = Lexer::new(input.to_string());
+        let parser = Parser::new(lexer);
+        let program = parser.into_a_program().unwrap();
+
+        assert_eq!(program.statements.len(), 1);
+
+        let last_expr = match &program.statements[0] {
+            Statement::Expression(expr) => expr.expression.clone(),
+            _ => panic!(),
+        };
+
+        let call_expr = match &last_expr {
+            Expression::Call(call_expr) => call_expr,
+            other => panic!("{} ", other.to_string()),
+        };
+
+        assert_eq!(call_expr.question_mark_set, expected_have_questionmark);
+        assert_eq!(call_expr.bang_set, expected_have_bang_operator);
+    });
+}

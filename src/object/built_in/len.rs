@@ -1,8 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::object::{
-    Object, ObjectRef, integer::Integer, state::StateRef,
-};
+use crate::object::{Object, ObjectRef, integer::Integer, state::StateRef};
 
 pub fn len_builtin_function(args: &[ObjectRef], state: StateRef) -> ObjectRef {
     if args.len() != 1 {

@@ -46,7 +46,7 @@ impl Expression {
                 Object::get_native_boolean_object(bool_literal.value),
             ))),
             Expression::Prefix(prefix_expr) => {
-                let right_side = prefix_expr.right.evaluate(environ.clone(),state)?;
+                let right_side = prefix_expr.right.evaluate(environ.clone(), state)?;
 
                 right_side
                     .borrow_mut()
@@ -83,7 +83,9 @@ impl Expression {
                     .borrow()
                     .evaluate_infix_expression(right_side.clone(), &infix_expr.operator)
             }
-            Expression::Member(member_expression) => member_expression.evaluate(environ.clone(), state),
+            Expression::Member(member_expression) => {
+                member_expression.evaluate(environ.clone(), state)
+            }
             Expression::InvalidExpression => {
                 panic!("unexpected expression type")
             }
@@ -123,7 +125,9 @@ impl Statement {
             Statement::Continue(_continue_stmt) => Ok(Rc::new(RefCell::new(Object::Continue))),
             Statement::Break(break_stmt) => {
                 let val = if let Some(break_expression_value) = &break_stmt.expression {
-                    break_expression_value.evaluate(environ.clone(), state)?.clone()
+                    break_expression_value
+                        .evaluate(environ.clone(), state)?
+                        .clone()
                 } else {
                     Rc::new(RefCell::new(Object::NULL_OBJECT))
                 };
@@ -147,14 +151,17 @@ impl Program {
             result = stmt.evaluate(environ.clone(), state.clone())?;
             let borrowed_result = result.borrow();
 
-            match &*borrowed_result{
-                Object::BreakVal(_) => return Err("unexpected break keyword in non-loop context".into()),
-                Object::Continue => return Err("unexpected continue keyword in non-loop context".into()),
+            match &*borrowed_result {
+                Object::BreakVal(_) => {
+                    return Err("unexpected break keyword in non-loop context".into());
+                }
+                Object::Continue => {
+                    return Err("unexpected continue keyword in non-loop context".into());
+                }
                 Object::ReturnVal(ret_val) => return Ok(*ret_val.value.clone()),
                 Object::Err(_) => return Ok(result.clone()),
                 _ => {}
             }
-
         }
 
         Ok(result)
@@ -168,14 +175,18 @@ impl Program {
             result = stmt.evaluate(environ.clone(), state.clone())?;
             let borrowed_result = result.borrow();
 
-            match &*borrowed_result{
-                Object::BreakVal(_) => return Err("unexpected break keyword in non-loop context".into()),
-                Object::Continue => return Err("unexpected continue keyword in non-loop context".into()),
+            match &*borrowed_result {
+                Object::BreakVal(_) => {
+                    return Err("unexpected break keyword in non-loop context".into());
+                }
+                Object::Continue => {
+                    return Err("unexpected continue keyword in non-loop context".into());
+                }
                 Object::ReturnVal(ret_val) => return Ok(*ret_val.value.clone()),
                 Object::Err(_) => return Ok(result.clone()),
                 _ => {}
             }
-       }
+        }
 
         Ok(result)
     }

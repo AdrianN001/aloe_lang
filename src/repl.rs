@@ -28,7 +28,7 @@ pub fn start_repl() {
         let parser = Parser::new(lexer);
         let program = parser.into_a_program().unwrap();
 
-        match  program.evaluate_with_other_environment(environ.clone()) {
+        match program.evaluate_with_other_environment(environ.clone()) {
             Ok(last_object) => println!("{}", last_object.borrow().inspect()),
             Err(panic_reason) => {
                 println!("[!]PANIC: {}[!]", panic_reason);

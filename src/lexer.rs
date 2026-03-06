@@ -177,7 +177,7 @@ impl Lexer {
                 } else {
                     Token::simple(TokenType::Bang, "!")
                 }
-            },
+            }
             '?' => Token::simple(TokenType::QuestionMark, "?"),
             '{' => Token::simple(TokenType::LBrace, "{"),
             '}' => Token::simple(TokenType::RBrace, "}"),

@@ -1,7 +1,14 @@
 use std::{cell::RefCell, rc::Rc};
 
 use crate::object::{
-    Object, ObjectRef, array::Array, float_obj::FloatObj, integer::Integer, iterator::{Iterator, list_based_iterator::ListBasedIterator}, stack_environment::EnvRef, state::StateRef, string_obj::StringObj
+    Object, ObjectRef,
+    array::Array,
+    float_obj::FloatObj,
+    integer::Integer,
+    iterator::{Iterator, list_based_iterator::ListBasedIterator},
+    stack_environment::EnvRef,
+    state::StateRef,
+    string_obj::StringObj,
 };
 
 impl StringObj {
@@ -9,13 +16,19 @@ impl StringObj {
         match name {
             "length" => self.length(),
 
-            _ => Rc::new(RefCell::new(Object::new_error(format!(
-                "unknown attribute for string: '{}'",
-                name
-            ), state))),
+            _ => Rc::new(RefCell::new(Object::new_error(
+                format!("unknown attribute for string: '{}'", name),
+                state,
+            ))),
         }
     }
-    pub fn apply_method(&mut self, name: &str, args: &[ObjectRef], environ: EnvRef, state: StateRef) -> ObjectRef {
+    pub fn apply_method(
+        &mut self,
+        name: &str,
+        args: &[ObjectRef],
+        environ: EnvRef,
+        state: StateRef,
+    ) -> ObjectRef {
         match name {
             "reversed" => self.reversed(),
             "chars" => self.chars(),
@@ -25,10 +38,10 @@ impl StringObj {
             "split" => self.split(args, state),
             "clone" => self.deep_copy(),
 
-            _ => Rc::new(RefCell::new(Object::new_error(format!(
-                "unknown method for string: '{}'",
-                name
-            ), state))),
+            _ => Rc::new(RefCell::new(Object::new_error(
+                format!("unknown method for string: '{}'", name),
+                state,
+            ))),
         }
     }
 
@@ -79,29 +92,37 @@ impl StringObj {
 
     fn slice(&self, args: &[ObjectRef], state: StateRef) -> ObjectRef {
         if args.len() != 2 {
-            return Rc::new(RefCell::new(Object::new_error(format!(
-                "expected {} arguments for array.slice(), got: {}",
-                2,
-                args.len()
-            ), state)));
+            return Rc::new(RefCell::new(Object::new_error(
+                format!(
+                    "expected {} arguments for array.slice(), got: {}",
+                    2,
+                    args.len()
+                ),
+                state,
+            )));
         }
         let mut start_index = match &*args[0].borrow() {
-
             Object::Int(integer) => integer.value,
             other_type => {
-                return Rc::new(RefCell::new(Object::new_error(format!(
-                    "expected the first argument to be int, got: {}",
-                    other_type.get_type()
-                ), state)));
+                return Rc::new(RefCell::new(Object::new_error(
+                    format!(
+                        "expected the first argument to be int, got: {}",
+                        other_type.get_type()
+                    ),
+                    state,
+                )));
             }
         };
         let mut end_index = match &*args[1].borrow() {
             Object::Int(integer) => integer.value,
             other_type => {
-                return Rc::new(RefCell::new(Object::new_error(format!(
-                    "expected the second argument to be int, got: {}",
-                    other_type.get_type()
-                ), state)));
+                return Rc::new(RefCell::new(Object::new_error(
+                    format!(
+                        "expected the second argument to be int, got: {}",
+                        other_type.get_type()
+                    ),
+                    state,
+                )));
             }
         };
 
@@ -154,10 +175,13 @@ impl StringObj {
             match &*args[0].borrow() {
                 Object::String(str) => str.value.clone(),
                 other_type => {
-                    return Rc::new(RefCell::new(Object::new_error(format!(
-                        "expected to be the first paramter a 'str', got: {}",
-                        other_type.get_type()
-                    ), state)));
+                    return Rc::new(RefCell::new(Object::new_error(
+                        format!(
+                            "expected to be the first paramter a 'str', got: {}",
+                            other_type.get_type()
+                        ),
+                        state,
+                    )));
                 }
             }
         };
@@ -179,7 +203,9 @@ impl StringObj {
         })))
     }
 
-    fn deep_copy(&self) -> ObjectRef{
-        Rc::new(RefCell::new(Object::String(StringObj { value: self.value.clone() })))
+    fn deep_copy(&self) -> ObjectRef {
+        Rc::new(RefCell::new(Object::String(StringObj {
+            value: self.value.clone(),
+        })))
     }
 }

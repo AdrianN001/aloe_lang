@@ -5,23 +5,30 @@ use crate::object::{
     array::Array,
     hashmap::{HashMap, HashPair},
     integer::Integer,
-    stack_environment::EnvRef, state::StateRef,
+    stack_environment::EnvRef,
+    state::StateRef,
 };
 
 impl HashMap {
-    pub fn apply_attribute(&self, name: &str, environ:EnvRef, state: StateRef) -> ObjectRef {
+    pub fn apply_attribute(&self, name: &str, environ: EnvRef, state: StateRef) -> ObjectRef {
         match name {
             "length" => self.get_length(),
             "keys" => self.get_keys(),
             "values" => self.get_values(),
 
-            _ => Rc::new(RefCell::new(Object::new_error(format!(
-                "unknown attribute for hashmap: '{}'",
-                name
-            ), state))),
+            _ => Rc::new(RefCell::new(Object::new_error(
+                format!("unknown attribute for hashmap: '{}'", name),
+                state,
+            ))),
         }
     }
-    pub fn apply_method(&mut self, name: &str, args: &[ObjectRef], environ: EnvRef, state: StateRef) -> ObjectRef {
+    pub fn apply_method(
+        &mut self,
+        name: &str,
+        args: &[ObjectRef],
+        environ: EnvRef,
+        state: StateRef,
+    ) -> ObjectRef {
         match name {
             "set" => self.set(args, state),
             "get" => self.get(args, state),
@@ -31,10 +38,10 @@ impl HashMap {
 
             "clone" => self.deep_copy(),
 
-            _ => Rc::new(RefCell::new(Object::new_error(format!(
-                "unknown method for hashmap: '{}'",
-                name
-            ), state))),
+            _ => Rc::new(RefCell::new(Object::new_error(
+                format!("unknown method for hashmap: '{}'", name),
+                state,
+            ))),
         }
     }
 
@@ -66,15 +73,20 @@ impl HashMap {
 
     pub fn set(&mut self, args: &[ObjectRef], state: StateRef) -> ObjectRef {
         if args.len() != 2 {
-            return Rc::new(RefCell::new(Object::new_error(format!(
-                "expected 2 arguments for hashmap.set(), got: {}",
-                args.len()
-            ), state)));
+            return Rc::new(RefCell::new(Object::new_error(
+                format!(
+                    "expected 2 arguments for hashmap.set(), got: {}",
+                    args.len()
+                ),
+                state,
+            )));
         }
 
         let hashed_key = match args[0].borrow().hash() {
             Ok(val) => val,
-            Err(err_feedback) => return Rc::new(RefCell::new(Object::new_error(err_feedback, state))),
+            Err(err_feedback) => {
+                return Rc::new(RefCell::new(Object::new_error(err_feedback, state)));
+            }
         };
 
         self.pairs.insert(
@@ -90,15 +102,17 @@ impl HashMap {
 
     pub fn get(&self, args: &[ObjectRef], state: StateRef) -> ObjectRef {
         if args.len() != 1 {
-            return Rc::new(RefCell::new(Object::new_error(format!(
-                "expected 1 argument for hashmap.get(), got: {}",
-                args.len()
-            ), state)));
+            return Rc::new(RefCell::new(Object::new_error(
+                format!("expected 1 argument for hashmap.get(), got: {}", args.len()),
+                state,
+            )));
         }
 
         let hashed_key = match args[0].borrow().hash() {
             Ok(val) => val,
-            Err(err_feedback) => return Rc::new(RefCell::new(Object::new_error(err_feedback, state))),
+            Err(err_feedback) => {
+                return Rc::new(RefCell::new(Object::new_error(err_feedback, state)));
+            }
         };
 
         if let Some(value) = self.pairs.get(&hashed_key) {
@@ -132,15 +146,20 @@ impl HashMap {
 
     pub fn has_key(&self, args: &[ObjectRef], state: StateRef) -> ObjectRef {
         if args.len() != 1 {
-            return Rc::new(RefCell::new(Object::new_error(format!(
-                "expected 1 argument for hashmap.has_key(), got: {}",
-                args.len()
-            ), state)));
+            return Rc::new(RefCell::new(Object::new_error(
+                format!(
+                    "expected 1 argument for hashmap.has_key(), got: {}",
+                    args.len()
+                ),
+                state,
+            )));
         }
 
         let hashed_key = match args[0].borrow().hash() {
             Ok(val) => val,
-            Err(err_feedback) => return Rc::new(RefCell::new(Object::new_error(err_feedback, state))),
+            Err(err_feedback) => {
+                return Rc::new(RefCell::new(Object::new_error(err_feedback, state)));
+            }
         };
 
         Rc::new(RefCell::new(Object::get_native_boolean_object(
@@ -150,15 +169,20 @@ impl HashMap {
 
     pub fn remove(&mut self, args: &[ObjectRef], state: StateRef) -> ObjectRef {
         if args.len() != 1 {
-            return Rc::new(RefCell::new(Object::new_error(format!(
-                "expected 1 argument for hashmap.remove(), got: {}",
-                args.len()
-            ), state)));
+            return Rc::new(RefCell::new(Object::new_error(
+                format!(
+                    "expected 1 argument for hashmap.remove(), got: {}",
+                    args.len()
+                ),
+                state,
+            )));
         }
 
         let hashed_key = match args[0].borrow().hash() {
             Ok(val) => val,
-            Err(err_feedback) => return Rc::new(RefCell::new(Object::new_error(err_feedback, state))),
+            Err(err_feedback) => {
+                return Rc::new(RefCell::new(Object::new_error(err_feedback, state)));
+            }
         };
 
         Rc::new(RefCell::new(Object::get_native_boolean_object(

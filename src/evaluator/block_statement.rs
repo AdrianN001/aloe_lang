@@ -14,7 +14,7 @@ impl BlockStatement {
             result = statement.evaluate(environ.clone(), state.clone())?;
             let borrowed_result = result.borrow();
 
-            match &*borrowed_result{
+            match &*borrowed_result {
                 Object::ReturnVal(ret_val) => return Ok(result.clone()),
                 Object::Err(_) => return Ok(result.clone()),
                 _ => {}
@@ -24,16 +24,24 @@ impl BlockStatement {
         Ok(result)
     }
 
-    pub fn evaluate_with_function_context(&self, environ: EnvRef, state: StateRef) -> Result<ObjectRef, String> {
+    pub fn evaluate_with_function_context(
+        &self,
+        environ: EnvRef,
+        state: StateRef,
+    ) -> Result<ObjectRef, String> {
         let mut result = Rc::new(RefCell::new(Object::NULL_OBJECT));
 
         for statement in self.statements.iter() {
             result = statement.evaluate(environ.clone(), state.clone())?;
             let borrowed_result = result.borrow();
 
-            match &*borrowed_result{
-                Object::BreakVal(_) => return Err("unexpected break keyword in non-loop context".into()),
-                Object::Continue => return Err("unexpected continue keyword in non-loop context".into()),
+            match &*borrowed_result {
+                Object::BreakVal(_) => {
+                    return Err("unexpected break keyword in non-loop context".into());
+                }
+                Object::Continue => {
+                    return Err("unexpected continue keyword in non-loop context".into());
+                }
                 Object::ReturnVal(ret_val) => return Ok(result.clone()),
                 Object::Err(_) => return Ok(result.clone()),
                 _ => {}

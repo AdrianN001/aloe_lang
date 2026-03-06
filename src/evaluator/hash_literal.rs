@@ -5,7 +5,8 @@ use crate::{
     object::{
         Object, ObjectRef,
         hashmap::{HashMap, HashPair},
-        stack_environment::EnvRef, state::StateRef,
+        stack_environment::EnvRef,
+        state::StateRef,
     },
 };
 

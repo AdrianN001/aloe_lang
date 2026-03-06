@@ -16,7 +16,8 @@ impl IfExpression {
             return self.consequence.evaluate(environ.clone(), state.clone());
         } else if !self.alternatives.is_empty() {
             for (alternative_cond_expr, alternative_block_smt) in &self.alternatives {
-                let alternative_cond = alternative_cond_expr.evaluate(environ.clone(), state.clone())?;
+                let alternative_cond =
+                    alternative_cond_expr.evaluate(environ.clone(), state.clone())?;
 
                 if alternative_cond.borrow().is_truthy() {
                     return alternative_block_smt.evaluate(environ.clone(), state.clone());

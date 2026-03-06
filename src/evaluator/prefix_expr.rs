@@ -21,7 +21,10 @@ impl Object {
                 true,
             ))));
         }
-        Err(format!("unexpected expression ('{}') on the right side of the '!' operator ", self.inspect()))
+        Err(format!(
+            "unexpected expression ('{}') on the right side of the '!' operator ",
+            self.inspect()
+        ))
     }
 
     fn evaluate_minus_prefix_operator_expression(&self) -> Result<ObjectRef, String> {
@@ -33,7 +36,10 @@ impl Object {
                 val: -float.val,
             })))),
 
-            _ => Err(format!("unexpected expression ('{}') on the right side of the '-' operator", self.inspect()))
+            _ => Err(format!(
+                "unexpected expression ('{}') on the right side of the '-' operator",
+                self.inspect()
+            )),
         }
     }
 }

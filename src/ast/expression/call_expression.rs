@@ -7,7 +7,7 @@ pub struct CallExpression {
     pub arguments: Vec<Expression>,
 
     pub question_mark_set: bool,
-    pub bang_set: bool
+    pub bang_set: bool,
 }
 
 impl CallExpression {

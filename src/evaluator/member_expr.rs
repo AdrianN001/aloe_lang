@@ -22,7 +22,11 @@ impl MemberExpression {
                 let obj = left_obj.borrow();
                 Ok(obj.apply_attribute(name_of_attribute, environ, state))
             }
-            other_expr_type => Err(format!("'{}.{}' is illegal.",left_obj.borrow().inspect(), other_expr_type.to_string())),
+            other_expr_type => Err(format!(
+                "'{}.{}' is illegal.",
+                left_obj.borrow().inspect(),
+                other_expr_type.to_string()
+            )),
         }
     }
 

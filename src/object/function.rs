@@ -54,7 +54,12 @@ impl Function {
 
     // Function calling
 
-    pub fn apply(&self, name_of_the_function: String,  arguments: &[ObjectRef], state: StateRef) -> Result<ObjectRef, String> {
+    pub fn apply(
+        &self,
+        name_of_the_function: String,
+        arguments: &[ObjectRef],
+        state: StateRef,
+    ) -> Result<ObjectRef, String> {
         if arguments.len() != self.parameters.len() {
             return Err(format!(
                 "expected {} arguments, got: {}",
@@ -64,13 +69,16 @@ impl Function {
         }
 
         {
-            state.borrow_mut().push_to_stack(name_of_the_function.clone());
+            state
+                .borrow_mut()
+                .push_to_stack(name_of_the_function.clone());
         }
 
         let env = self.extend_environment_with_args(name_of_the_function, arguments);
 
-
-        let last_expr = self.body.evaluate_with_function_context(env, state.clone())?;
+        let last_expr = self
+            .body
+            .evaluate_with_function_context(env, state.clone())?;
 
         {
             state.borrow_mut().pop_from_stack();
@@ -84,11 +92,13 @@ impl Function {
         }
     }
 
-    fn extend_environment_with_args(&self, name_of_the_function: String, args: &[ObjectRef]) -> EnvRef {
-        let mut new_env = StackEnvironment::new_enclosed(
-            self.env.clone(),
-            format!("{}()", name_of_the_function)
-        );
+    fn extend_environment_with_args(
+        &self,
+        name_of_the_function: String,
+        args: &[ObjectRef],
+    ) -> EnvRef {
+        let mut new_env =
+            StackEnvironment::new_enclosed(self.env.clone(), format!("{}()", name_of_the_function));
 
         self.parameters
             .iter()

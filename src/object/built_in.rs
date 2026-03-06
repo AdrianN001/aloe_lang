@@ -15,7 +15,9 @@ use crate::object::{
         iterator::range_builtin_function,
         len::len_builtin_function,
         utils::{inspect_builtin_function, type_builtin_function},
-    }, stack_environment::EnvRef, state::StateRef,
+    },
+    stack_environment::EnvRef,
+    state::StateRef,
 };
 
 #[derive(Clone, PartialEq, Eq)]

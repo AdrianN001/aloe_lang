@@ -4,7 +4,8 @@ use crate::{
     ast::expression::{Expression, for_loop::ForLoopExpression, identifier::Identifier},
     object::{
         Object, ObjectRef,
-        stack_environment::{EnvRef, StackEnvironment}, state::StateRef,
+        stack_environment::{EnvRef, StackEnvironment},
+        state::StateRef,
     },
 };
 
@@ -12,20 +13,30 @@ impl ForLoopExpression {
     pub fn evaluate(&self, environ: EnvRef, state: StateRef) -> Result<ObjectRef, String> {
         let new_environment = Rc::new(RefCell::new(StackEnvironment::new_enclosed(
             environ.clone(),
-            if let Some(variable) = &self.variable && let Some(iterator) = &self.iterator{
-                format!("for {} <- {} {{...}}", variable.to_string(), iterator.to_string())
-            }else{
+            if let Some(variable) = &self.variable
+                && let Some(iterator) = &self.iterator
+            {
+                format!(
+                    "for {} <- {} {{...}}",
+                    variable.to_string(),
+                    iterator.to_string()
+                )
+            } else {
                 "for {...}".to_string()
-            }
+            },
         )));
 
         if let Some(variable) = &self.variable
             && let Some(iteratable) = &self.iterator
         {
             return match (&**variable, &**iteratable) {
-                (Expression::Identifier(identifier), iterable_expression) => {
-                    self.evaluate_normal_for_loop(new_environment, identifier, iterable_expression, state)
-                }
+                (Expression::Identifier(identifier), iterable_expression) => self
+                    .evaluate_normal_for_loop(
+                        new_environment,
+                        identifier,
+                        iterable_expression,
+                        state,
+                    ),
                 _ => return Err("err".into()),
             };
         }
@@ -38,7 +49,7 @@ impl ForLoopExpression {
         environ: EnvRef,
         variable: &Identifier,
         iterable: &Expression,
-        state: StateRef
+        state: StateRef,
     ) -> Result<ObjectRef, String> {
         let provided_object = iterable.evaluate(environ.clone(), state.clone())?;
 
@@ -55,13 +66,11 @@ impl ForLoopExpression {
             for statement in &self.block.statements {
                 let result = statement.evaluate(environ.clone(), state.clone())?;
 
-                match &*result.borrow(){
+                match &*result.borrow() {
                     Object::ReturnVal(_) => return Ok(result.clone()),
                     Object::BreakVal(break_val) => return Ok(*break_val.value.clone()),
                     Object::Continue => break,
-                    Object::Err(_) => {
-                        return Ok(result.clone())
-                    },
+                    Object::Err(_) => return Ok(result.clone()),
                     _ => {}
                 }
             }
@@ -70,12 +79,16 @@ impl ForLoopExpression {
         Ok(Rc::new(RefCell::new(Object::NULL_OBJECT)))
     }
 
-    fn evaluate_conditionless_for_loop(&self, environ: EnvRef, state: StateRef) -> Result<ObjectRef, String> {
+    fn evaluate_conditionless_for_loop(
+        &self,
+        environ: EnvRef,
+        state: StateRef,
+    ) -> Result<ObjectRef, String> {
         loop {
             for statement in &self.block.statements {
                 let result = statement.evaluate(environ.clone(), state.clone())?;
 
-                match &*result.borrow(){
+                match &*result.borrow() {
                     Object::ReturnVal(_) => return Ok(result.clone()),
                     Object::BreakVal(break_val) => return Ok(*break_val.value.clone()),
                     Object::Continue => break,

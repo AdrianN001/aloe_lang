@@ -1379,9 +1379,9 @@ fn test_cases_for_input_output(testcases: &[(&str, &str)]) {
             Ok(x) => x,
             Err(err) => panic!("{}", err),
         };
-        match &*last_object.borrow(){
+        match &*last_object.borrow() {
             Object::Err(err) => assert_eq!(err.inspect_message(), expected_value),
-            other_type => assert_eq!(other_type.inspect(), expected_value)
+            other_type => assert_eq!(other_type.inspect(), expected_value),
         }
     });
 }

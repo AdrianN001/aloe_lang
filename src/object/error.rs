@@ -16,14 +16,20 @@ impl Error {
 
         buffer.push_str("Stack trace:");
         buffer.push_str("\n\t at ");
-        buffer.push_str(&self.state.borrow().collect_as_stack_trace().join("\n\t at "));
+        buffer.push_str(
+            &self
+                .state
+                .borrow()
+                .collect_as_stack_trace()
+                .join("\n\t at "),
+        );
         buffer.push_str("\nError: ");
         buffer.push_str(&self.value);
 
         buffer
     }
 
-    pub fn inspect_message(&self) -> String{
+    pub fn inspect_message(&self) -> String {
         self.value.clone()
     }
 }

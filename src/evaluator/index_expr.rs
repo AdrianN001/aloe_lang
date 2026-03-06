@@ -53,7 +53,7 @@ impl IndexExpression {
                         .to_string(),
                 }))))
             }
-            (Object::HashMap(map), _) => Ok(map.get([index.clone()].as_ref(),state)),
+            (Object::HashMap(map), _) => Ok(map.get([index.clone()].as_ref(), state)),
             _ => Err(format!(
                 "index operator not supported: {}",
                 index.borrow().get_type()
@@ -61,7 +61,12 @@ impl IndexExpression {
         }
     }
 
-    pub fn evaluate_value_assign(&self, environ: EnvRef, rvalue: ObjectRef, state: StateRef) -> Result<(), String> {
+    pub fn evaluate_value_assign(
+        &self,
+        environ: EnvRef,
+        rvalue: ObjectRef,
+        state: StateRef,
+    ) -> Result<(), String> {
         let left_expr = self.left.evaluate(environ.clone(), state.clone())?;
         let index = self.right.evaluate(environ.clone(), state.clone())?;
 

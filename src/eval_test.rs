@@ -202,43 +202,50 @@ fn test_if_statement_null_eval() {
 #[test]
 fn test_return_statement() {
     let testcases = [
-    ("return 5;", "unexpected return keyword in non-function context"),
-    ("if (true) { return 5; }", "cannot return from a non-function context"),
-(
-"
+        (
+            "return 5;",
+            "unexpected return keyword in non-function context",
+        ),
+        (
+            "if (true) { return 5; }",
+            "cannot return from a non-function context",
+        ),
+        (
+            "
 for i <- range(10){
     return 5;
 }
 ",
-"return statement was used in a non-function context"
-),
-(
-"
+            "return statement was used in a non-function context",
+        ),
+        (
+            "
 if (true){
     if (true){
         return 10;
     }
 }
 ",
-"cannot return from a non-function context"
-),(
-"
+            "cannot return from a non-function context",
+        ),
+        (
+            "
 5;
 return 10;
 ",
-"unexpected return keyword in non-function context"
-),
-(
-"
+            "unexpected return keyword in non-function context",
+        ),
+        (
+            "
 let f = fn(){
     return 5;
 };
 f();
 ",
-"5"
-),
-(
-"
+            "5",
+        ),
+        (
+            "
 let f = fn(){
     let g = fn(){
         return 99;
@@ -247,8 +254,8 @@ let f = fn(){
 };
 f();
 ",
-"99"
-),
+            "99",
+        ),
         (
             "let f = fn(){ if (true){ return 1; } return 2; }; f();",
             "1",
@@ -1398,11 +1405,7 @@ b.length;
 }
 
 #[test]
-fn test_questionmak_operator(){
-
-
-
-}
+fn test_questionmak_operator() {}
 // util
 
 fn test_cases_for_input_output(testcases: &[(&str, &str)]) {
@@ -1421,7 +1424,7 @@ fn test_cases_for_input_output(testcases: &[(&str, &str)]) {
             Err(err) => {
                 assert_eq!(err, expected_value);
                 return;
-            },
+            }
         };
         match &*last_object.borrow() {
             Object::Err(err) => assert_eq!(err.inspect_message(), expected_value),

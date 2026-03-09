@@ -35,21 +35,21 @@ impl CallExpression {
 
         let ok_return_value = return_value?;
 
-/*
-        if let Object::Err(error) = &*ok_return_value.borrow(){
-            if (self.bang_set || self.question_mark_set) && !state.borrow().is_function_context(){
-                return Err("tried to use ! or ? on a function, without function-context".to_string())
-            }
+        /*
+                if let Object::Err(error) = &*ok_return_value.borrow(){
+                    if (self.bang_set || self.question_mark_set) && !state.borrow().is_function_context(){
+                        return Err("tried to use ! or ? on a function, without function-context".to_string())
+                    }
 
-            if self.bang_set{
-                return Err(error.value.clone());
-            }else if self.question_mark_set{
-                return Ok(Rc::new(RefCell::new(Object::ReturnVal(ReturnValue{
-                    value: Box::new(ok_return_value.clone())
-                }))))
-            }
-        } 
-*/
+                    if self.bang_set{
+                        return Err(error.value.clone());
+                    }else if self.question_mark_set{
+                        return Ok(Rc::new(RefCell::new(Object::ReturnVal(ReturnValue{
+                            value: Box::new(ok_return_value.clone())
+                        }))))
+                    }
+                }
+        */
 
         Ok(ok_return_value)
     }

@@ -16,12 +16,12 @@ impl BlockStatement {
 
             match &*borrowed_result {
                 Object::ReturnVal(_ret_val) => {
-                    if state.borrow().is_function_context(){
+                    if state.borrow().is_function_context() {
                         return Ok(result.clone());
-                    }else{
+                    } else {
                         return Err("cannot return from a non-function context".to_string());
                     }
-                },
+                }
                 Object::Err(_) => return Ok(result.clone()),
                 _ => {}
             }

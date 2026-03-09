@@ -100,7 +100,7 @@ impl Statement {
             Statement::Block(block_stmt) => block_stmt.evaluate(environ, state),
             Statement::Let(let_stmt) => {
                 let value = let_stmt.value.evaluate(environ.clone(), state)?;
-            
+
                 environ
                     .borrow_mut()
                     .set_to_lowest_level(&let_stmt.name.value, value.clone());
@@ -150,7 +150,9 @@ impl Program {
                     return Err("unexpected continue keyword in non-loop context".into());
                 }
 
-                Object::ReturnVal(_) => return Err("unexpected return keyword in non-function context".into()),
+                Object::ReturnVal(_) => {
+                    return Err("unexpected return keyword in non-function context".into());
+                }
                 Object::Err(_) => return Ok(result.clone()),
                 _ => {}
             }
@@ -174,7 +176,9 @@ impl Program {
                 Object::Continue => {
                     return Err("unexpected continue keyword in non-loop context".into());
                 }
-                Object::ReturnVal(_) => return Err("unexpected return keyword in non-function context".into()),
+                Object::ReturnVal(_) => {
+                    return Err("unexpected return keyword in non-function context".into());
+                }
                 Object::Err(_) => return Ok(result.clone()),
                 _ => {}
             }

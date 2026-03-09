@@ -202,18 +202,53 @@ fn test_if_statement_null_eval() {
 #[test]
 fn test_return_statement() {
     let testcases = [
-        ("return 10;", "10"),
-        ("20; return 5; 50;", "5"),
-        ("return 2*10; 10;", "20"),
-        (
-            "if (10 > 1) {
-            if (10 > 1) {
-                return 10;
-            }
-            return 1;
-        }",
-            "10",
-        ),
+    ("return 5;", "unexpected return keyword in non-function context"),
+    ("if (true) { return 5; }", "cannot return from a non-function context"),
+(
+"
+for i <- range(10){
+    return 5;
+}
+",
+"return statement was used in a non-function context"
+),
+(
+"
+if (true){
+    if (true){
+        return 10;
+    }
+}
+",
+"cannot return from a non-function context"
+),(
+"
+5;
+return 10;
+",
+"unexpected return keyword in non-function context"
+),
+(
+"
+let f = fn(){
+    return 5;
+};
+f();
+",
+"5"
+),
+(
+"
+let f = fn(){
+    let g = fn(){
+        return 99;
+    };
+    g();
+};
+f();
+",
+"99"
+),
         (
             "let f = fn(){ if (true){ return 1; } return 2; }; f();",
             "1",
@@ -1362,6 +1397,12 @@ b.length;
     test_cases_for_input_output(&testcases);
 }
 
+#[test]
+fn test_questionmak_operator(){
+
+
+
+}
 // util
 
 fn test_cases_for_input_output(testcases: &[(&str, &str)]) {
@@ -1377,7 +1418,10 @@ fn test_cases_for_input_output(testcases: &[(&str, &str)]) {
 
         let last_object = match program.evaluate() {
             Ok(x) => x,
-            Err(err) => panic!("{}", err),
+            Err(err) => {
+                assert_eq!(err, expected_value);
+                return;
+            },
         };
         match &*last_object.borrow() {
             Object::Err(err) => assert_eq!(err.inspect_message(), expected_value),

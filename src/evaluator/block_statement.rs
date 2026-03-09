@@ -15,7 +15,13 @@ impl BlockStatement {
             let borrowed_result = result.borrow();
 
             match &*borrowed_result {
-                Object::ReturnVal(_ret_val) => return Ok(result.clone()),
+                Object::ReturnVal(_ret_val) => {
+                    if state.borrow().is_function_context(){
+                        return Ok(result.clone());
+                    }else{
+                        return Err("cannot return from a non-function context".to_string());
+                    }
+                },
                 Object::Err(_) => return Ok(result.clone()),
                 _ => {}
             }

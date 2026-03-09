@@ -100,20 +100,11 @@ impl Statement {
             Statement::Block(block_stmt) => block_stmt.evaluate(environ, state),
             Statement::Let(let_stmt) => {
                 let value = let_stmt.value.evaluate(environ.clone(), state)?;
-                match &*value.borrow() {
-                    Object::ReturnVal(ret_val) => {
-                        environ
-                            .borrow_mut()
-                            .set_to_lowest_level(&let_stmt.name.value, *ret_val.value.clone());
-                        Ok(*ret_val.value.clone())
-                    }
-                    _ => {
-                        environ
-                            .borrow_mut()
-                            .set_to_lowest_level(&let_stmt.name.value, value.clone());
-                        Ok(value.clone())
-                    }
-                }
+            
+                environ
+                    .borrow_mut()
+                    .set_to_lowest_level(&let_stmt.name.value, value.clone());
+                Ok(value.clone())
             }
             Statement::Return(return_stmt) => {
                 let val = return_stmt.value.evaluate(environ, state)?;
@@ -158,7 +149,8 @@ impl Program {
                 Object::Continue => {
                     return Err("unexpected continue keyword in non-loop context".into());
                 }
-                Object::ReturnVal(ret_val) => return Ok(*ret_val.value.clone()),
+
+                Object::ReturnVal(_) => return Err("unexpected return keyword in non-function context".into()),
                 Object::Err(_) => return Ok(result.clone()),
                 _ => {}
             }
@@ -182,7 +174,7 @@ impl Program {
                 Object::Continue => {
                     return Err("unexpected continue keyword in non-loop context".into());
                 }
-                Object::ReturnVal(ret_val) => return Ok(*ret_val.value.clone()),
+                Object::ReturnVal(_) => return Err("unexpected return keyword in non-function context".into()),
                 Object::Err(_) => return Ok(result.clone()),
                 _ => {}
             }

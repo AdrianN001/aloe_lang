@@ -1,5 +1,9 @@
+use std::cell::RefCell;
+use std::rc::Rc;
+
 use crate::ast::expression::Expression;
 use crate::ast::expression::call_expression::CallExpression;
+use crate::object::return_value::ReturnValue;
 use crate::object::stack_environment::EnvRef;
 use crate::object::state::StateRef;
 use crate::object::{Object, ObjectRef};
@@ -18,7 +22,7 @@ impl CallExpression {
 
         let args = self.evaluate_arguments(environ.clone(), state.clone())?;
 
-        match &*function_object.borrow() {
+        let return_value = match &*function_object.borrow() {
             Object::Func(function) => function.apply(function_name, &args, state.clone()),
             Object::BuiltIn(built_in_function) => {
                 Ok(built_in_function.call(&args, environ.clone(), state.clone()))
@@ -27,7 +31,27 @@ impl CallExpression {
                 "'{}' is not a function. It cannot be called.",
                 other_type.inspect()
             )),
-        }
+        };
+
+        let ok_return_value = return_value?;
+
+/*
+        if let Object::Err(error) = &*ok_return_value.borrow(){
+            if (self.bang_set || self.question_mark_set) && !state.borrow().is_function_context(){
+                return Err("tried to use ! or ? on a function, without function-context".to_string())
+            }
+
+            if self.bang_set{
+                return Err(error.value.clone());
+            }else if self.question_mark_set{
+                return Ok(Rc::new(RefCell::new(Object::ReturnVal(ReturnValue{
+                    value: Box::new(ok_return_value.clone())
+                }))))
+            }
+        } 
+*/
+
+        Ok(ok_return_value)
     }
 
     pub fn evaluate_arguments(

@@ -18,6 +18,10 @@ impl InterpreterState {
         self.stack.push(CallFrame { name: stack_name });
     }
 
+    pub fn is_function_context(&self) -> bool{
+        !self.stack.is_empty()
+    }
+
     pub fn pop_from_stack(&mut self) {
         self.stack.pop();
     }

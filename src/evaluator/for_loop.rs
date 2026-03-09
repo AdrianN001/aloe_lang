@@ -1,7 +1,7 @@
 use std::{cell::RefCell, rc::Rc};
 
 use crate::{
-    ast::expression::{Expression, for_loop::ForLoopExpression, identifier::Identifier},
+    ast::{expression::{Expression, for_loop::ForLoopExpression, identifier::Identifier}, statement::Statement},
     object::{
         Object, ObjectRef,
         stack_environment::{EnvRef, StackEnvironment},
@@ -64,6 +64,10 @@ impl ForLoopExpression {
             environ.borrow_mut().set(&variable.value, current_value);
 
             for statement in &self.block.statements {
+                if matches!(statement, Statement::Return(_)) && !state.borrow().is_function_context(){
+                    return Err("return statement was used in a non-function context".to_string());
+                }
+
                 let result = statement.evaluate(environ.clone(), state.clone())?;
 
                 match &*result.borrow() {
@@ -86,6 +90,10 @@ impl ForLoopExpression {
     ) -> Result<ObjectRef, String> {
         loop {
             for statement in &self.block.statements {
+                if matches!(statement, Statement::Return(_)) && !state.borrow().is_function_context(){
+                    return Err("return statement was used in a non-function context".to_string());
+                }
+
                 let result = statement.evaluate(environ.clone(), state.clone())?;
 
                 match &*result.borrow() {

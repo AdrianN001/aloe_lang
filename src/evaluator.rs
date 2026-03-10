@@ -67,7 +67,11 @@ impl Expression {
                 let mut objects = Vec::new();
 
                 for element in &array.elements {
-                    objects.push(element.evaluate(environ.clone(), state.clone())?.clone());
+                    let obj = element.evaluate(environ.clone(), state.clone())?;
+                    if let Object::ReturnVal(_) = &*obj.borrow() {
+                        return Ok(obj.clone());
+                    }
+                    objects.push(obj);
                 }
 
                 Ok(Rc::new(RefCell::new(Object::Array(Array {
@@ -108,6 +112,9 @@ impl Statement {
             }
             Statement::Return(return_stmt) => {
                 let val = return_stmt.value.evaluate(environ, state)?;
+                if let Object::ReturnVal(ret_val) = &*val.borrow() {
+                    return Ok(ret_val.unwrap_to_value().clone());
+                }
 
                 Ok(Rc::new(RefCell::new(Object::ReturnVal(ReturnValue {
                     value: Box::new(val.clone()),

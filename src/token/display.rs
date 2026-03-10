@@ -27,6 +27,7 @@ impl fmt::Display for TokenType {
             TokenType::GT => ">",
             TokenType::Eq => "==",
             TokenType::NotEq => "!=",
+            TokenType::Coalescing => "??",
 
             TokenType::Colon => ":",
             TokenType::Comma => ",",

@@ -15,6 +15,7 @@ impl IndexExpression {
         let index = self.right.evaluate(environ.clone(), state.clone())?;
 
         match (&*left_expr.borrow(), &*index.borrow()) {
+            (_, Object::ReturnVal(ret_val)) => Ok(ret_val.unwrap_to_value().clone()),
             (Object::Array(arr), Object::Int(index)) => {
                 let arr_interior_value = &arr.items;
                 let mut index_interior_value = index.value;

@@ -178,7 +178,16 @@ impl Lexer {
                     Token::simple(TokenType::Bang, "!")
                 }
             }
-            '?' => Token::simple(TokenType::QuestionMark, "?"),
+            '?' => {
+                if let Some(next_char) = self.peek()
+                    && next_char == '?'
+                {
+                    self.advance();
+                    Token::simple(TokenType::Coalescing, "??")
+                } else {
+                    Token::simple(TokenType::QuestionMark, "?")
+                }
+            }
             '{' => Token::simple(TokenType::LBrace, "{"),
             '}' => Token::simple(TokenType::RBrace, "}"),
             '"' => {

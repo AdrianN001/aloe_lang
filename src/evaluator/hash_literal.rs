@@ -16,6 +16,11 @@ impl HashMapLiteral {
 
         for (k, v) in &self.pairs {
             let key = k.evaluate(environ.clone(), state.clone())?;
+
+            if let Object::ReturnVal(_) = &*key.borrow() {
+                return Ok(key.clone());
+            }
+
             if !key.borrow().is_hashable() {
                 return Err(format!(
                     "unhashable as hash key: {}",
@@ -24,6 +29,10 @@ impl HashMapLiteral {
             }
 
             let value = v.evaluate(environ.clone(), state.clone())?;
+
+            if let Object::ReturnVal(_) = &*value.borrow() {
+                return Ok(value.clone());
+            }
 
             let hashed_key = key.borrow().hash()?;
 

@@ -19,8 +19,9 @@ pub enum TokenType {
 
     Eq,
     NotEq,
-    LT, // <
-    GT, // >
+    LT,         // <
+    GT,         // >
+    Coalescing, // ??
 
     IteratorAssign, // <-
     Dot,

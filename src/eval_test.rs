@@ -1405,7 +1405,378 @@ b.length;
 }
 
 #[test]
-fn test_questionmak_operator() {}
+fn test_questionmak_operator() {
+    let testcases = [
+        ("{}.get();", "expected 1 argument for hashmap.get(), got: 0"),
+        (
+            "{}.remove();",
+            "expected 1 argument for hashmap.remove(), got: 0",
+        ),
+        (
+            "
+let x = {}.get();
+x;
+",
+            "expected 1 argument for hashmap.get(), got: 0",
+        ),
+        (
+            "
+let f = fn(){
+    {}.get()?; 
+    10;
+};
+f();
+",
+            "expected 1 argument for hashmap.get(), got: 0",
+        ),
+        (
+            "
+let f = fn(){
+    let m = {\"a\": 1};
+    let v = m.get(\"a\")?;
+    v;
+};
+f();
+",
+            "1",
+        ),
+        (
+            "let g = fn(){
+    {}.get()?;
+    5;
+};
+
+let f = fn(){
+    g()?;
+    10;
+};
+
+f();
+",
+            "expected 1 argument for hashmap.get(), got: 0",
+        ),
+        (
+            "
+let f = fn(){
+    if (true){
+        len()?;
+    }
+    10;
+};
+f();
+",
+            "expected 1 value, got 0 value.",
+        ),
+        (
+            "
+let f = fn(x){ x };
+f({}.get()?);
+",
+            "tried to use ? on a function, without function-context",
+        ),
+        (
+            "
+let f = fn(){
+    [1, {}.get()?, 3];
+};
+f();
+",
+            "expected 1 argument for hashmap.get(), got: 0",
+        ),
+        (
+            "
+let m = {\"a\": 10};
+[1, m.get(\"a\")!, 3][1];
+",
+            "10",
+        ),
+        (
+            "
+let f = fn(x){ x };
+
+let g = fn(){
+    f({}.get()?);
+};
+
+g();
+",
+            "expected 1 argument for hashmap.get(), got: 0",
+        ),
+        (
+            "
+let f = fn(){
+    {}.get()? + 5;
+};
+f();
+",
+            "unexpected operand types: return value + integer",
+        ),
+        (
+            "
+let f = fn(){
+    for i <- range(5){
+        {}.get()?; 
+    }
+    10;
+};
+f();
+",
+            "expected 1 argument for hashmap.get(), got: 0",
+        ),
+        (
+            "
+let f = fn(){
+    let m = {};
+    (m.get(\"a\")?) + 10;
+};
+f();
+",
+            "unexpected operand types: null + integer",
+        ),
+        (
+            "
+let f = fn(){
+    {\"x\": {}.get()?};
+};
+f();
+",
+            "expected 1 argument for hashmap.get(), got: 0",
+        ),
+        (
+            "
+let m = {\"a\": 5};
+{\"x\": m.get(\"a\")!}[\"x\"];
+",
+            "5",
+        ),
+        (
+            "
+let f = fn(x){ x };
+
+let g = fn(){
+    f({}.get()?);
+};
+
+g();
+",
+            "expected 1 argument for hashmap.get(), got: 0",
+        ),
+        (
+            "
+let f = fn(){
+    5 + {}.get()?;
+};
+f();
+",
+            "unexpected operand types: integer + return value",
+        ),
+        (
+            "
+let m = {\"a\": 4};
+2 * m.get(\"a\")!;
+",
+            "8",
+        ),
+        (
+            "
+let f = fn(){
+    return {}.get()?;
+};
+f();
+",
+            "expected 1 argument for hashmap.get(), got: 0",
+        ),
+        (
+            "
+let f = fn(){
+    let m = {};
+    [1,2,3][m.get()?];
+};
+f();
+",
+            "expected 1 argument for hashmap.get(), got: 0",
+        ),
+        (
+            "
+let m = {\"a\": 3};
+m.get(\"a\")?.as_str();
+",
+            "\"3\"",
+        ),
+        (
+            "
+let f = fn(){
+    [ {\"x\": {}.get()?} ];
+};
+f();
+",
+            "expected 1 argument for hashmap.get(), got: 0",
+        ),
+        (
+            "
+let f = fn(){
+    1 + (2 * ({}.get()?));
+};
+f();
+",
+            "unexpected operand types: integer * return value",
+        ),
+        (
+            "
+let f = fn(){
+    let g = fn(){
+        {}.get()?;
+        10;
+    };
+    g();
+};
+f();
+",
+            "expected 1 argument for hashmap.get(), got: 0",
+        ),
+        (
+            "
+let f = fn(){
+    for i <- range(10){
+        {}.get()?;
+    }
+    99;
+};
+f();
+",
+            "expected 1 argument for hashmap.get(), got: 0",
+        ),
+        (
+            "
+let f = fn(){
+    for i <- range(3){
+        for j <- range(3){
+            {}.get()?;
+        }
+    }
+    42;
+};
+f();
+",
+            "expected 1 argument for hashmap.get(), got: 0",
+        ),
+        (
+            "
+let f = fn(){
+    for i <- range(10){
+        break {}.get()?;
+    }
+};
+f();
+",
+            "expected 1 argument for hashmap.get(), got: 0",
+        ),
+        (
+            "
+let f = fn(){
+    for i <- range(5){
+        break 10;
+        {}.get(\"a\")?;
+    }
+};
+f();
+",
+            "10",
+        ),
+    ];
+
+    test_cases_for_input_output(&testcases);
+}
+
+#[test]
+fn test_bang_operator() {
+    let testcases = [
+        (
+            "
+let f = fn(){
+    {}.get()!;
+};
+f();
+",
+            false,
+        ),
+        (
+            "
+let m = {\"a\": 1};
+m.get(\"a\")!;
+",
+            true,
+        ),
+        (
+            "
+{}.get()!;
+",
+            false,
+        ),
+        (
+            "
+let m = {\"a\": 10};
+[1, m.get(\"a\")!, 3][1];
+",
+            true,
+        ),
+        (
+            "
+let id = fn(x){ x };
+
+let m = {\"a\": 7};
+
+id(m.get(\"a\")!);
+",
+            true,
+        ),
+        (
+            "
+let m = {\"a\": 9};
+
+let f = fn(){
+    return m.get(\"a\")!;
+};
+
+f();
+",
+            true,
+        ),
+        (
+            "
+let m = {\"a\": 1};
+[10,20,30][m.get(\"a\")!];
+",
+            true,
+        ),
+        (
+            "
+let m = {\"a\": 1};
+[10,20,30][m.get()!];
+",
+            false,
+        ),
+        (
+            "
+let m = {\"a\": 3};
+m.get(\"a\")!.to_string();
+",
+            true,
+        ),
+    ];
+
+    testcases.iter().for_each(|testcase| {
+        let input = testcase.0.into();
+        let is_ok = testcase.1;
+
+        let lexer = Lexer::new(input);
+        let parser = Parser::new(lexer);
+        let program = parser.into_a_program().unwrap();
+
+        assert_eq!(program.evaluate().is_ok(), is_ok);
+    });
+}
+
 // util
 
 fn test_cases_for_input_output(testcases: &[(&str, &str)]) {

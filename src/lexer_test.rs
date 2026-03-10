@@ -38,6 +38,9 @@ let result = add(five, ten);
 string.length; 
 for i <- range(0,20){ break true; }
 for {}
+{}.get()?
+int.as_float()!
+false ?? true
 "#;
     let mut lexer = Lexer::new(input.to_string());
 
@@ -113,6 +116,22 @@ for {}
         Token::simple(TokenType::KwFor, "for"),
         Token::simple(TokenType::LBrace, "{"),
         Token::simple(TokenType::RBrace, "}"),
+        Token::simple(TokenType::LBrace, "{"),
+        Token::simple(TokenType::RBrace, "}"),
+        Token::simple(TokenType::Dot, "."),
+        Token::simple(TokenType::Identifier, "get"),
+        Token::simple(TokenType::LParen, "("),
+        Token::simple(TokenType::RParen, ")"),
+        Token::simple(TokenType::QuestionMark, "?"),
+        Token::simple(TokenType::Identifier, "int"),
+        Token::simple(TokenType::Dot, "."),
+        Token::simple(TokenType::Identifier, "as_float"),
+        Token::simple(TokenType::LParen, "("),
+        Token::simple(TokenType::RParen, ")"),
+        Token::simple(TokenType::Bang, "!"),
+        Token::simple(TokenType::KwFalse, "false"),
+        Token::simple(TokenType::Coalescing, "??"),
+        Token::simple(TokenType::KwTrue, "true"),
         Token::simple(TokenType::Eof, ""),
     ];
 

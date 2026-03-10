@@ -728,6 +728,7 @@ fn test_bang_und_questionmark_parse() {
         ("print();", false, false),
         ("divide(10/3)?;", true, false),
         ("range(-1)!;", false, true),
+        ("{}.get()!;", false, true),
     ];
 
     testcases.iter().for_each(|testcase| {
@@ -748,6 +749,10 @@ fn test_bang_und_questionmark_parse() {
 
         let call_expr = match &last_expr {
             Expression::Call(call_expr) => call_expr,
+            Expression::Member(member_expr) => match &*member_expr.right {
+                Expression::Call(call_expr) => call_expr,
+                other => panic!("{} ", other.to_string()),
+            },
             other => panic!("{} ", other.to_string()),
         };
 

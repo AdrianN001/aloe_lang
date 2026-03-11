@@ -67,6 +67,10 @@ impl fmt::Display for TokenType {
             TokenType::KwFor => "for",
             TokenType::KwBreak => "break",
             TokenType::KwContinue => "continue",
+
+            TokenType::KwImport => "import",
+            TokenType::KwFrom => "from",
+            TokenType::KwInto => "into",
         };
 
         write!(f, "{s}")

@@ -5,6 +5,7 @@ use crate::ast::precedence::OperationPrecedence;
 use crate::ast::statement::break_statement::BreakStatement;
 use crate::ast::statement::continue_statement::ContinueStatement;
 use crate::ast::statement::function_statement::FunctionStatement;
+use crate::ast::statement::import_statement::ImportStatement;
 use crate::ast::statement::let_statement::LetStatement;
 use crate::{
     ast::{
@@ -78,6 +79,7 @@ impl Parser {
             TokenType::KwBreak => self.parse_break(),
             TokenType::KwContinue => self.parse_continue(),
             TokenType::KwFunctionStatement => self.parse_function_statement(),
+            TokenType::KwImport => self.parse_import(),
             _ => self.parse_expression_statement(),
         }
     }
@@ -163,6 +165,57 @@ impl Parser {
         function.block = self.parse_block_statement()?;
 
         Ok(Statement::Function(function))
+    }
+
+    fn parse_import(&mut self) -> Result<Statement, String> {
+        let token = self.current_token.clone();
+
+        if self.peek_token.token_type != TokenType::LBrace {
+            return Err("unexpected token. Expected 'LBrace'".into());
+        }
+        self.next_token();
+
+        let identifiers = self.parse_expression_list(TokenType::RBrace)?;
+
+        if self.peek_token.token_type != TokenType::KwFrom {
+            return Err("unexpected token. Expected 'KwFrom'".into());
+        }
+        self.next_token();
+
+        if self.peek_token.token_type != TokenType::String {
+            return Err("unexpected token. Expected String".into());
+        }
+        self.next_token();
+
+        let module_name = self.current_token.literal.clone();
+
+        let mut custom_name: Option<String> = None;
+
+        if self.peek_token.token_type == TokenType::KwInto {
+            self.next_token();
+
+            if self.peek_token.token_type != TokenType::Identifier {
+                return Err("unexpected token. Expected Identifier".into());
+            }
+            self.next_token();
+
+            custom_name = Some(self.current_token.literal.clone());
+            self.next_token();
+
+            if self.current_token.token_type == TokenType::Semicolon {
+                self.next_token();
+            }
+        } else if self.peek_token.token_type == TokenType::Semicolon {
+            self.next_token();
+            self.next_token();
+        }
+
+        Ok(Statement::Import(ImportStatement {
+            token,
+            identifiers,
+            module_name,
+            custom_name,
+        }))
     }
 
     fn parse_return(&mut self) -> Result<Statement, String> {

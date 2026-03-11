@@ -2,8 +2,8 @@ use crate::ast::expression::Expression;
 use crate::ast::expression::boolean::Boolean;
 use crate::ast::expression::integer_literal::IntegerLiteral;
 use crate::ast::expression::string_expr::StringExpr;
-use crate::ast::statement::Statement;
 use crate::ast::statement::let_statement::LetStatement;
+use crate::ast::statement::{Statement, import_statement};
 use crate::ast::{Parser, program};
 use crate::lexer::Lexer;
 use crate::object::Object;
@@ -759,4 +759,51 @@ fn test_bang_und_questionmark_parse() {
         assert_eq!(call_expr.question_mark_set, expected_have_questionmark);
         assert_eq!(call_expr.bang_set, expected_have_bang_operator);
     });
+}
+
+#[test]
+fn test_import_statement() {
+    let testcases = [
+        (
+            "import {add} from \"math.aloe\";",
+            ["add"].to_vec(),
+            "math.aloe",
+            None,
+        ),
+        (
+            "import {get_time, get_date} from \"time.aloe\" into t;",
+            ["get_time", "get_date"].to_vec(),
+            "time.aloe",
+            Some("t".to_string()),
+        ),
+    ];
+
+    testcases.iter().for_each(|testcase| {
+        let input = testcase.0;
+        let expected_imported_identifiers = testcase.1.clone();
+        let expected_module_import = testcase.2;
+        let expeted_alt_name = testcase.3.clone();
+
+        let lexer = Lexer::new(input.to_string());
+        let parser = Parser::new(lexer);
+        let program = parser.into_a_program().unwrap();
+
+        assert_eq!(program.statements.len(), 1);
+
+        let imp_statment = match &program.statements[0] {
+            Statement::Import(import_stmt) => import_stmt,
+            _ => panic!(),
+        };
+
+        assert_eq!(
+            imp_statment
+                .identifiers
+                .iter()
+                .map(|identifier| identifier.to_string())
+                .collect::<Vec<_>>(),
+            expected_imported_identifiers
+        );
+        assert_eq!(imp_statment.module_name, expected_module_import);
+        assert_eq!(imp_statment.custom_name, expeted_alt_name);
+    })
 }

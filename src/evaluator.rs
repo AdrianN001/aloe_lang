@@ -129,6 +129,7 @@ impl Statement {
                 }))))
             }
             Statement::Function(func_stmt) => Ok(func_stmt.evaluate(environ.clone())),
+            Statement::Import(_) => panic!(),
         }
     }
 }

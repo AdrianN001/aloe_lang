@@ -515,7 +515,10 @@ impl Parser {
         Ok(Expression::Call(expr))
     }
 
-    fn parse_expression_list(&mut self, end_token: TokenType) -> Result<Vec<Expression>, String> {
+    pub fn parse_expression_list(
+        &mut self,
+        end_token: TokenType,
+    ) -> Result<Vec<Expression>, String> {
         let mut args = Vec::new();
 
         if self.peek_token.token_type == end_token {

@@ -63,6 +63,10 @@ pub enum TokenType {
     KwElse,
     KwReturn,
 
+    KwImport,
+    KwFrom,
+    KwInto,
+
     KwDefer,
 
     KwFor,
@@ -81,6 +85,11 @@ pub fn lookup_identifiers(identifier: &str) -> TokenType {
         "elif" => TokenType::KwElif,
         "else" => TokenType::KwElse,
         "return" => TokenType::KwReturn,
+
+        "import" => TokenType::KwImport,
+        "from" => TokenType::KwFrom,
+        "into" => TokenType::KwInto,
+
         "for" => TokenType::KwFor,
         "break" => TokenType::KwBreak,
         // "defer" => TokenType::KwDefer,

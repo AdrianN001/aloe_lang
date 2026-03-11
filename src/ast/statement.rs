@@ -4,11 +4,13 @@ pub mod continue_statement;
 pub mod defer_statement;
 pub mod expression_statement;
 pub mod function_statement;
+pub mod import_statement;
 pub mod let_statement;
 pub mod return_statement;
 
 use block_statement::BlockStatement;
 use expression_statement::ExpressionStatement;
+use import_statement::ImportStatement;
 use let_statement::LetStatement;
 use return_statement::ReturnStatement;
 
@@ -26,6 +28,7 @@ pub enum Statement {
     Expression(ExpressionStatement),
     Block(BlockStatement),
     Function(FunctionStatement),
+    Import(ImportStatement),
 }
 
 impl Statement {
@@ -38,6 +41,7 @@ impl Statement {
             Statement::Break(s) => &s.token.literal,
             Statement::Continue(s) => &s.token.literal,
             Statement::Function(s) => &s.token.literal,
+            Statement::Import(s) => &s.token.literal,
         }
     }
 
@@ -50,6 +54,7 @@ impl Statement {
             Statement::Block(s) => s.to_string(),
             Statement::Break(s) => s.to_string(),
             Statement::Continue(s) => s.to_string(),
+            Statement::Import(s) => s.to_string(),
         }
     }
 }

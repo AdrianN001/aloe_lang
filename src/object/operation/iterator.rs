@@ -1,8 +1,4 @@
-use crate::object::{
-    ObjectRef,
-    iterator::Iterator,
-    state::StateRef,
-};
+use crate::object::{ObjectRef, iterator::Iterator, state::StateRef};
 
 impl Iterator {
     pub fn add(&self, right: ObjectRef, _state: StateRef) -> Result<ObjectRef, String> {

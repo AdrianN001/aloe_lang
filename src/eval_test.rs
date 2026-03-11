@@ -1777,9 +1777,59 @@ m.get(\"a\")!.to_string();
     });
 }
 
+#[test]
+fn test_coalescing() {
+    let testcases = [
+        ("1 ?? 2;", "1"),
+        ("true ?? false;", "true"),
+        ("\"hello\" ?? \"world\";", "\"hello\""),
+        ("false ?? true;", "true"),
+        ("0 ?? 10;", "10"),
+        ("\"\" ?? \"fallback\";", "\"fallback\""),
+        ("[] ?? [1,2];", "[1, 2]"),
+        ("{} ?? {\"a\":1};", "{\"a\":1}"),
+        (
+            "
+let f = fn(){
+    5 ?? {}.get(\"a\");
+};
+f();
+",
+            "5",
+        ),
+        ("(1 + 2) ?? 5;", "3"),
+        ("(0 + 0) ?? 5;", "5"),
+        ("1 ?? 2 ?? 3;", "1"),
+        ("(2 ?? 5) + 3;", "5"),
+        (
+            "
+let f = fn(){
+    {}.get(\"a\") ?? 5;
+};
+f();
+",
+            "5",
+        ),
+        (
+            "
+let x = 0;
+let f = fn(){
+    x = 1;
+    5 ?? (x = 2);
+};
+f();
+x;
+",
+            "1",
+        ),
+    ];
+
+    test_cases_for_input_output(&testcases);
+}
+
 // util
 
-fn test_cases_for_input_output(testcases: &[(&str, &str)]) {
+pub fn test_cases_for_input_output(testcases: &[(&str, &str)]) {
     testcases.iter().for_each(|testcase| {
         let input = testcase.0.into();
         let expected_value = testcase.1.to_string();

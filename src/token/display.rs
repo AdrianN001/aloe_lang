@@ -19,12 +19,25 @@ impl fmt::Display for TokenType {
             TokenType::Asterisk => "*",
             TokenType::Slash => "/",
             TokenType::QuestionMark => "?",
+            TokenType::Exponent => "**",
+            TokenType::Modulo => "%",
+
+            TokenType::LogicalAnd => "&&",
+            TokenType::LogicalOr => "||",
+            TokenType::LogicalXor => "^",
+
+            TokenType::BinaryAnd => "&",
+            TokenType::BinaryOr => "|",
+            TokenType::BinaryLeftShift => "<<",
+            TokenType::BinaryRightShift => ">>",
 
             TokenType::IteratorAssign => "<-",
             TokenType::Dot => ".",
 
             TokenType::LT => "<",
+            TokenType::LE => "<=",
             TokenType::GT => ">",
+            TokenType::GE => ">=",
             TokenType::Eq => "==",
             TokenType::NotEq => "!=",
             TokenType::Coalescing => "??",

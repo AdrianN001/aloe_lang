@@ -25,4 +25,6 @@ mod eval_test;
 #[cfg(test)]
 mod lexer_test;
 #[cfg(test)]
+mod operators_test;
+#[cfg(test)]
 mod parser_test;

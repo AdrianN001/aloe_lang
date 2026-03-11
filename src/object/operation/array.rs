@@ -1,9 +1,4 @@
-use crate::object::{
-    Object, ObjectRef,
-    array::Array,
-    new_objectref,
-    state::StateRef,
-};
+use crate::object::{Object, ObjectRef, array::Array, new_objectref, state::StateRef};
 
 impl Array {
     pub fn add(&self, right: ObjectRef, _state: StateRef) -> Result<ObjectRef, String> {

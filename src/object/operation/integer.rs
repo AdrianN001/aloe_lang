@@ -1,9 +1,5 @@
 use crate::object::{
-    Object, ObjectRef,
-    float_obj::FloatObj,
-    integer::Integer,
-    new_objectref,
-    state::StateRef,
+    Object, ObjectRef, float_obj::FloatObj, integer::Integer, new_objectref, state::StateRef,
 };
 
 impl Integer {
@@ -195,6 +191,76 @@ impl Integer {
                 "unexpected operand types: {} {} {}",
                 "int",
                 ">=",
+                other_type.get_type()
+            )),
+        }
+    }
+
+    pub fn lshift(&self, right: ObjectRef, _state: StateRef) -> Result<ObjectRef, String> {
+        match &*right.borrow() {
+            Object::Int(right_integer) => Ok(new_objectref(Object::Int(Integer {
+                value: self.value << right_integer.value,
+            }))),
+            other_type => Err(format!(
+                "unexpected operand types: {} {} {}",
+                "int",
+                "<<",
+                other_type.get_type()
+            )),
+        }
+    }
+
+    pub fn rshift(&self, right: ObjectRef, _state: StateRef) -> Result<ObjectRef, String> {
+        match &*right.borrow() {
+            Object::Int(right_integer) => Ok(new_objectref(Object::Int(Integer {
+                value: self.value >> right_integer.value,
+            }))),
+            other_type => Err(format!(
+                "unexpected operand types: {} {} {}",
+                "int",
+                ">>",
+                other_type.get_type()
+            )),
+        }
+    }
+
+    pub fn band(&self, right: ObjectRef, _state: StateRef) -> Result<ObjectRef, String> {
+        match &*right.borrow() {
+            Object::Int(right_integer) => Ok(new_objectref(Object::Int(Integer {
+                value: self.value & right_integer.value,
+            }))),
+            other_type => Err(format!(
+                "unexpected operand types: {} {} {}",
+                "int",
+                "&",
+                other_type.get_type()
+            )),
+        }
+    }
+
+    pub fn bor(&self, right: ObjectRef, _state: StateRef) -> Result<ObjectRef, String> {
+        match &*right.borrow() {
+            Object::Int(right_integer) => Ok(new_objectref(Object::Int(Integer {
+                value: self.value | right_integer.value,
+            }))),
+            other_type => Err(format!(
+                "unexpected operand types: {} {} {}",
+                "int",
+                "|",
+                other_type.get_type()
+            )),
+        }
+    }
+
+    pub fn bxor(&self, right: ObjectRef, _state: StateRef) -> Result<ObjectRef, String> {
+        match &*right.borrow() {
+            Object::Int(right_integer) => Ok(new_objectref(Object::Int(Integer {
+                value: self.value ^ right_integer.value,
+            }))),
+            other_type => Err(format!(
+                "unexpected operand types: {} {} {}",
+                "int",
+                "^",
                 other_type.get_type()
             )),
         }

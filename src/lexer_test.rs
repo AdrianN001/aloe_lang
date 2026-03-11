@@ -41,6 +41,8 @@ for {}
 {}.get()?
 int.as_float()!
 false ?? true
+1 << 1
+2 >> 1
 "#;
     let mut lexer = Lexer::new(input.to_string());
 
@@ -132,6 +134,12 @@ false ?? true
         Token::simple(TokenType::KwFalse, "false"),
         Token::simple(TokenType::Coalescing, "??"),
         Token::simple(TokenType::KwTrue, "true"),
+        Token::simple(TokenType::Integer, "1"),
+        Token::simple(TokenType::BinaryLeftShift, "<<"),
+        Token::simple(TokenType::Integer, "1"),
+        Token::simple(TokenType::Integer, "2"),
+        Token::simple(TokenType::BinaryRightShift, ">>"),
+        Token::simple(TokenType::Integer, "1"),
         Token::simple(TokenType::Eof, ""),
     ];
 

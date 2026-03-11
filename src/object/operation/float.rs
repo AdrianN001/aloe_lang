@@ -1,9 +1,4 @@
-use crate::object::{
-    Object, ObjectRef,
-    float_obj::FloatObj,
-    new_objectref,
-    state::StateRef,
-};
+use crate::object::{Object, ObjectRef, float_obj::FloatObj, new_objectref, state::StateRef};
 
 impl FloatObj {
     pub fn add(&self, right: ObjectRef, _state: StateRef) -> Result<ObjectRef, String> {

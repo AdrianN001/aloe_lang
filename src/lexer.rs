@@ -153,18 +153,63 @@ impl Lexer {
             '+' => Token::simple(TokenType::Plus, "+"),
             '-' => Token::simple(TokenType::Minus, "-"),
             '/' => Token::simple(TokenType::Slash, "/"),
-            '*' => Token::simple(TokenType::Asterisk, "*"),
+            '&' => match self.peek() {
+                Some('&') => {
+                    self.advance();
+                    Token::simple(TokenType::LogicalAnd, "&&")
+                }
+                _ => Token::simple(TokenType::BinaryAnd, "&"),
+            },
+            '|' => match self.peek() {
+                Some('|') => {
+                    self.advance();
+                    Token::simple(TokenType::LogicalOr, "||")
+                }
+                _ => Token::simple(TokenType::BinaryOr, "|"),
+            },
+            '^' => Token::simple(TokenType::LogicalXor, "^"),
+            '*' => {
+                if let Some(next_char) = self.peek()
+                    && next_char == '*'
+                {
+                    self.advance();
+                    Token::simple(TokenType::Exponent, "**")
+                } else {
+                    Token::simple(TokenType::Asterisk, "*")
+                }
+            }
             '<' => {
                 if let Some(next_char) = self.peek()
                     && next_char == '-'
                 {
                     self.advance();
                     Token::simple(TokenType::IteratorAssign, "<-")
+                } else if let Some(next_char) = self.peek()
+                    && next_char == '<'
+                {
+                    self.advance();
+                    Token::simple(TokenType::BinaryLeftShift, "<<")
+                } else if let Some(next_char) = self.peek()
+                    && next_char == '='
+                {
+                    self.advance();
+                    Token::simple(TokenType::LE, "<=")
                 } else {
                     Token::simple(TokenType::LT, "<")
                 }
             }
-            '>' => Token::simple(TokenType::GT, ">"),
+            '%' => Token::simple(TokenType::Modulo, "%"),
+            '>' => match self.peek() {
+                Some('>') => {
+                    self.advance();
+                    Token::simple(TokenType::BinaryRightShift, ">>")
+                }
+                Some('=') => {
+                    self.advance();
+                    Token::simple(TokenType::GE, ">=")
+                }
+                _ => Token::simple(TokenType::GT, ">"),
+            },
             ':' => Token::simple(TokenType::Colon, ":"),
 
             '.' => Token::simple(TokenType::Dot, "."),

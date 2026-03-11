@@ -44,8 +44,7 @@ impl Parser {
                     &self.current_token.token_type
                 ));
             }
-        }
-        .unwrap();
+        }?;
 
         while self.peek_token.token_type != TokenType::Semicolon
             && prec < get_precedence_of_operator(&self.peek_token)
@@ -59,6 +58,17 @@ impl Parser {
                 | TokenType::Eq
                 | TokenType::NotEq
                 | TokenType::LT
+                | TokenType::BinaryLeftShift
+                | TokenType::BinaryRightShift
+                | TokenType::LE
+                | TokenType::GE
+                | TokenType::BinaryAnd
+                | TokenType::BinaryOr
+                | TokenType::LogicalXor
+                | TokenType::LogicalOr
+                | TokenType::LogicalAnd
+                | TokenType::Exponent
+                | TokenType::Modulo
                 | TokenType::GT => {
                     self.next_token();
                     left_expression = self.parse_infix_expression(&left_expression)?;

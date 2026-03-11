@@ -7,11 +7,18 @@ pub enum OperationPrecedence {
 
     Assignment,  // =
     Coalescing,  // ??
+    LogicalOr,   // ||
+    LogicalAnd,  // &&
     Equals,      // ==, !=
-    LessGreater, // < >
+    LessGreater, // <, >, <=, >=
+    BinaryOr,    // |
+    Xor,         // ^
+    BinaryAnd,   // &
+    BinaryShift, // <<, >>
     Sum,         // +, -
     Mul,         // *, /
     Prefix,      // -x, !x,
+    Exponent,    // **
 
     Index,  // array[index]
     Member, // string.length
@@ -21,19 +28,34 @@ pub enum OperationPrecedence {
 pub fn get_precedence_of_operator(token: &Token) -> OperationPrecedence {
     match token.token_type {
         TokenType::Assign => OperationPrecedence::Assignment,
+        TokenType::Coalescing => OperationPrecedence::Coalescing,
+
+        TokenType::LogicalOr => OperationPrecedence::LogicalOr,
+        TokenType::LogicalAnd => OperationPrecedence::LogicalAnd,
+
         TokenType::Eq => OperationPrecedence::Equals,
         TokenType::NotEq => OperationPrecedence::Equals,
 
         TokenType::GT => OperationPrecedence::LessGreater,
+        TokenType::GE => OperationPrecedence::LessGreater,
+        TokenType::LE => OperationPrecedence::LessGreater,
         TokenType::LT => OperationPrecedence::LessGreater,
+
+        TokenType::BinaryOr => OperationPrecedence::BinaryOr,
+        TokenType::LogicalXor => OperationPrecedence::Xor,
+        TokenType::BinaryAnd => OperationPrecedence::BinaryAnd,
+        TokenType::BinaryRightShift | TokenType::BinaryLeftShift => {
+            OperationPrecedence::BinaryShift
+        }
 
         TokenType::Plus => OperationPrecedence::Sum,
         TokenType::Minus => OperationPrecedence::Sum,
 
+        TokenType::Modulo => OperationPrecedence::Mul,
         TokenType::Slash => OperationPrecedence::Mul,
         TokenType::Asterisk => OperationPrecedence::Mul,
 
-        TokenType::Coalescing => OperationPrecedence::Coalescing,
+        TokenType::Exponent => OperationPrecedence::Exponent,
 
         TokenType::Dot => OperationPrecedence::Member,
         TokenType::LParen => OperationPrecedence::Call,

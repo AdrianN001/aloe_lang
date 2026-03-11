@@ -1,9 +1,4 @@
-use crate::object::{
-    Object, ObjectRef,
-    new_objectref,
-    state::StateRef,
-    string_obj::StringObj,
-};
+use crate::object::{Object, ObjectRef, new_objectref, state::StateRef, string_obj::StringObj};
 
 impl StringObj {
     pub fn add(&self, right: ObjectRef, _state: StateRef) -> Result<ObjectRef, String> {

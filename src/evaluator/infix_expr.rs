@@ -1,7 +1,7 @@
 use std::panic;
 
 use crate::{
-    ast::expression::infix::InfixExpression,
+    ast::expression::{Expression, infix::InfixExpression},
     object::{
         Object, ObjectRef, array::Array, boolean::Boolean, float_obj::FloatObj, hashmap::HashMap,
         integer::Integer, stack_environment::EnvRef, state::StateRef, string_obj::StringObj,
@@ -15,56 +15,48 @@ impl InfixExpression {
         state: StateRef,
     ) -> Result<ObjectRef, String> {
         let left_side = self.left.evaluate(environ.clone(), state.clone())?;
+
+        if self.operator == "??" {
+            return Self::evaluate_coalescing(left_side, &self.right, environ, state);
+        }
+
         let right_side = self.right.evaluate(environ.clone(), state.clone())?;
 
         match self.operator.as_str() {
-            "+" | "-" | "*" | "/" | "**" | "%" | "==" | "!=" | "<" | ">" | "<=" | ">=" => {
-                match &*left_side.borrow() {
-                    Object::Int(integer) => Self::integer_infix_operation_dispatch(
-                        integer,
-                        &self.operator,
-                        right_side,
-                        state,
-                    ),
-                    Object::FloatObj(float) => Self::float_infix_operation_dispatch(
-                        float,
-                        &self.operator,
-                        right_side,
-                        state,
-                    ),
-                    Object::String(string) => Self::string_infix_operation_dispatch(
-                        string,
-                        &self.operator,
-                        right_side,
-                        state,
-                    ),
-                    Object::Array(array) => Self::array_infix_operation_dispatch(
-                        array,
-                        &self.operator,
-                        right_side,
-                        state,
-                    ),
-                    Object::HashMap(hashmap) => Self::hashmap_infix_operation_dispatch(
-                        hashmap,
-                        &self.operator,
-                        right_side,
-                        state,
-                    ),
-                    Object::Bool(bool) => Self::boolean_infix_operation_dispatch(
-                        bool,
-                        &self.operator,
-                        right_side,
-                        state,
-                    ),
-                    _ => Err(format!(
-                        "unexpected operand types: {} {} {}",
-                        left_side.borrow().get_type(),
-                        self.operator,
-                        right_side.borrow().get_type()
-                    )),
+            "+" | "-" | "*" | "/" | "**" | "%" | "==" | "!=" | "<" | ">" | "<<" | ">>" | "&"
+            | "|" | "^" | "<=" | ">=" => match &*left_side.borrow() {
+                Object::Int(integer) => Self::integer_infix_operation_dispatch(
+                    integer,
+                    &self.operator,
+                    right_side,
+                    state,
+                ),
+                Object::FloatObj(float) => {
+                    Self::float_infix_operation_dispatch(float, &self.operator, right_side, state)
                 }
-            }
-            "&&" | "||" | "^" => {
+                Object::String(string) => {
+                    Self::string_infix_operation_dispatch(string, &self.operator, right_side, state)
+                }
+                Object::Array(array) => {
+                    Self::array_infix_operation_dispatch(array, &self.operator, right_side, state)
+                }
+                Object::HashMap(hashmap) => Self::hashmap_infix_operation_dispatch(
+                    hashmap,
+                    &self.operator,
+                    right_side,
+                    state,
+                ),
+                Object::Bool(bool) => {
+                    Self::boolean_infix_operation_dispatch(bool, &self.operator, right_side, state)
+                }
+                _ => Err(format!(
+                    "unexpected operand types: {} {} {}",
+                    left_side.borrow().get_type(),
+                    self.operator,
+                    right_side.borrow().get_type()
+                )),
+            },
+            "&&" | "||" => {
                 let (left_bool_side, right_bool_side) =
                     Self::convert_operands_to_bool(left_side, right_side)?;
 
@@ -79,26 +71,31 @@ impl InfixExpression {
                     panic!()
                 }
             }
-            "??" => {
-                let (left_bool, _right_bool) = {
-                    let left_borrow = left_side.borrow();
-                    let right_borrow = right_side.borrow();
-
-                    (left_borrow.is_truthy(), right_borrow.is_truthy())
-                };
-
-                if left_bool {
-                    Ok(left_side.clone())
-                } else {
-                    Ok(right_side.clone())
-                }
-            }
             other_operator => Err(format!(
                 "unexpected operand types: {} {} {}",
                 left_side.borrow().get_type(),
                 other_operator,
                 right_side.borrow().get_type()
             )),
+        }
+    }
+
+    fn evaluate_coalescing(
+        left: ObjectRef,
+        right: &Expression,
+        environ: EnvRef,
+        state: StateRef,
+    ) -> Result<ObjectRef, String> {
+        let left_bool = {
+            let left_borrow = left.borrow();
+
+            left_borrow.is_truthy()
+        };
+
+        if left_bool {
+            Ok(left.clone())
+        } else {
+            right.evaluate(environ, state)
         }
     }
 
@@ -121,6 +118,11 @@ impl InfixExpression {
             "<=" => integer.le(right, state),
             ">" => integer.gt(right, state),
             ">=" => integer.ge(right, state),
+            "<<" => integer.lshift(right, state),
+            ">>" => integer.rshift(right, state),
+            "&" => integer.band(right, state),
+            "|" => integer.bor(right, state),
+            "^" => integer.bxor(right, state),
 
             other_operator => Err(format!(
                 "unexpected operand types: {} {} {}",
@@ -270,6 +272,9 @@ impl InfixExpression {
             "&&" => bool.land(right, state),
             "||" => bool.lor(right, state),
             "^" => bool.lxor(right, state),
+
+            "&" => bool.band(right, state),
+            "|" => bool.bor(right, state),
 
             other_operator => Err(format!(
                 "unexpected operand types: {} {} {}",

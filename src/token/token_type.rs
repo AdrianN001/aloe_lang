@@ -16,11 +16,24 @@ pub enum TokenType {
     Asterisk,
     Slash,
     QuestionMark,
+    Exponent, // **
+    Modulo,   // %
+
+    LogicalAnd, // &&
+    LogicalOr,  // ||
+    LogicalXor, // '^'
+
+    BinaryAnd,        // &
+    BinaryOr,         // |
+    BinaryLeftShift,  // <<
+    BinaryRightShift, // >>
 
     Eq,
     NotEq,
     LT,         // <
+    LE,         // <=
     GT,         // >
+    GE,         // >=
     Coalescing, // ??
 
     IteratorAssign, // <-

@@ -1,9 +1,4 @@
-use crate::object::{
-    Object, ObjectRef,
-    boolean::Boolean,
-    new_objectref,
-    state::StateRef,
-};
+use crate::object::{Object, ObjectRef, boolean::Boolean, new_objectref, state::StateRef};
 
 impl Boolean {
     pub fn add(&self, right: ObjectRef, _state: StateRef) -> Result<ObjectRef, String> {
@@ -179,6 +174,34 @@ impl Boolean {
                 "unexpected operand types: {} {} {}",
                 "boolean",
                 "^",
+                other_type.get_type()
+            )),
+        }
+    }
+
+    pub fn band(&self, right: ObjectRef, _state: StateRef) -> Result<ObjectRef, String> {
+        match &*right.borrow() {
+            Object::Bool(right_bool) => Ok(new_objectref(Object::get_native_boolean_object(
+                self.value & right_bool.value,
+            ))),
+            other_type => Err(format!(
+                "unexpected operand types: {} {} {}",
+                "boolean",
+                "&",
+                other_type.get_type()
+            )),
+        }
+    }
+
+    pub fn bor(&self, right: ObjectRef, _state: StateRef) -> Result<ObjectRef, String> {
+        match &*right.borrow() {
+            Object::Bool(right_bool) => Ok(new_objectref(Object::get_native_boolean_object(
+                self.value | right_bool.value,
+            ))),
+            other_type => Err(format!(
+                "unexpected operand types: {} {} {}",
+                "boolean",
+                "|",
                 other_type.get_type()
             )),
         }

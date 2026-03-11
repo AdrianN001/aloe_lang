@@ -1,12 +1,8 @@
 use crate::object::{
     Object, ObjectRef,
-    array::Array,
     boolean::Boolean,
-    float_obj::FloatObj,
-    integer::Integer,
     new_objectref,
-    state::{self, StateRef},
-    string_obj::StringObj,
+    state::StateRef,
 };
 
 impl Boolean {

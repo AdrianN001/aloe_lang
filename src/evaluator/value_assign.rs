@@ -1,6 +1,6 @@
 use crate::{
     ast::expression::{Expression, value_assign_expression::ValueAssignExpression},
-    object::{Object, ObjectRef, stack_environment::EnvRef, state::StateRef},
+    object::{ObjectRef, stack_environment::EnvRef, state::StateRef},
 };
 
 impl ValueAssignExpression {

@@ -3,7 +3,7 @@ use crate::object::{
     float_obj::FloatObj,
     integer::Integer,
     new_objectref,
-    state::{self, StateRef},
+    state::StateRef,
 };
 
 impl Integer {

@@ -1,9 +1,8 @@
 use crate::object::{
     Object, ObjectRef,
     float_obj::FloatObj,
-    integer::Integer,
     new_objectref,
-    state::{self, StateRef},
+    state::StateRef,
 };
 
 impl FloatObj {

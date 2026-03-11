@@ -1,12 +1,8 @@
 use crate::object::{
     Object, ObjectRef,
-    array::Array,
-    float_obj::FloatObj,
     hashmap::HashMap,
-    integer::Integer,
     new_objectref,
-    state::{self, StateRef},
-    string_obj::StringObj,
+    state::StateRef,
 };
 
 impl HashMap {

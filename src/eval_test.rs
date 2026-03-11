@@ -1568,7 +1568,7 @@ let f = fn(){
 };
 f();
 ",
-            "unexpected operand types: integer + return value",
+            "unexpected operand types: int + return value",
         ),
         (
             "
@@ -1619,7 +1619,7 @@ let f = fn(){
 };
 f();
 ",
-            "unexpected operand types: integer * return value",
+            "unexpected operand types: int * return value",
         ),
         (
             "

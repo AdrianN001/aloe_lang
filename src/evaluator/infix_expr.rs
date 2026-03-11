@@ -1,237 +1,311 @@
-use std::{cell::RefCell, rc::Rc};
+use std::{cell::RefCell, panic, rc::Rc};
 
-use crate::object::{
-    Object, ObjectRef, boolean::Boolean, float_obj::FloatObj, integer::Integer,
-    string_obj::StringObj,
+use crate::{
+    ast::expression::infix::InfixExpression,
+    object::{
+        Object, ObjectRef, array::Array, boolean::Boolean, float_obj::FloatObj, hashmap::HashMap,
+        integer::Integer, stack_environment::EnvRef, state::StateRef, string_obj::StringObj,
+    },
 };
 
-impl Object {
+impl InfixExpression {
     pub fn evaluate_infix_expression(
         &self,
-        right: ObjectRef,
-        operator: &str,
+        environ: EnvRef,
+        state: StateRef,
     ) -> Result<ObjectRef, String> {
-        match (self, &*right.borrow()) {
-            (Object::Int(left_int), Object::Int(right_int)) => {
-                Self::eval_int_int_infix_expression(left_int, right_int, operator)
-            }
+        let left_side = self.left.evaluate(environ.clone(), state.clone())?;
+        let right_side = self.right.evaluate(environ.clone(), state.clone())?;
 
-            (Object::Int(left_int), Object::FloatObj(right_float)) => {
-                Self::eval_int_float_infix_expression(left_int, right_float, operator)
+        match self.operator.as_str() {
+            "+" | "-" | "*" | "/" | "**" | "%" | "==" | "!=" | "<" | ">" | "<=" | ">=" => {
+                match &*left_side.borrow() {
+                    Object::Int(integer) => Self::integer_infix_operation_dispatch(
+                        integer,
+                        &self.operator,
+                        right_side,
+                        state,
+                    ),
+                    Object::FloatObj(float) => Self::float_infix_operation_dispatch(
+                        float,
+                        &self.operator,
+                        right_side,
+                        state,
+                    ),
+                    Object::String(string) => Self::string_infix_operation_dispatch(
+                        string,
+                        &self.operator,
+                        right_side,
+                        state,
+                    ),
+                    Object::Array(array) => Self::array_infix_operation_dispatch(
+                        array,
+                        &self.operator,
+                        right_side,
+                        state,
+                    ),
+                    Object::HashMap(hashmap) => Self::hashmap_infix_operation_dispatch(
+                        hashmap,
+                        &self.operator,
+                        right_side,
+                        state,
+                    ),
+                    Object::Bool(bool) => Self::boolean_infix_operation_dispatch(
+                        bool,
+                        &self.operator,
+                        right_side,
+                        state,
+                    ),
+                    _ => Err(format!(
+                        "unexpected operand types: {} {} {}",
+                        left_side.borrow().get_type(),
+                        self.operator,
+                        right_side.borrow().get_type()
+                    )),
+                }
             }
+            "&&" | "||" | "^" => {
+                let (left_bool_side, right_bool_side) =
+                    Self::convert_operands_to_bool(left_side, right_side)?;
 
-            (Object::FloatObj(left_float), Object::Int(right_int)) => {
-                Self::eval_float_int_infix_expression(left_float, right_int, operator)
+                if let Object::Bool(bool_operand) = &*left_bool_side.borrow() {
+                    Self::boolean_infix_operation_dispatch(
+                        bool_operand,
+                        &self.operator,
+                        right_bool_side,
+                        state,
+                    )
+                } else {
+                    panic!()
+                }
             }
+            "??" => {
+                let (left_bool, _right_bool) = {
+                    let left_borrow = left_side.borrow();
+                    let right_borrow = right_side.borrow();
 
-            (Object::FloatObj(left_float), Object::FloatObj(right_float)) => {
-                Self::eval_float_float_infix_expression(left_float, right_float, operator)
+                    (left_borrow.is_truthy(), right_borrow.is_truthy())
+                };
+
+                if left_bool {
+                    Ok(left_side.clone())
+                } else {
+                    Ok(right_side.clone())
+                }
             }
-
-            (Object::Bool(left_bool), Object::Bool(right_bool)) => {
-                Self::eval_bool_bool_infix_expression(left_bool, right_bool, operator)
-            }
-
-            (Object::String(left_str), Object::String(right_str)) => {
-                Self::eval_str_str_infix_expression(left_str, right_str, operator)
-            }
-
-            (left_type, right_type) => Err(format!(
+            other_operator => Err(format!(
                 "unexpected operand types: {} {} {}",
-                left_type.get_type(),
-                operator,
-                right_type.get_type()
+                left_side.borrow().get_type(),
+                other_operator,
+                right_side.borrow().get_type()
             )),
         }
     }
 
-    fn eval_int_int_infix_expression(
-        left: &Integer,
-        right: &Integer,
+    fn integer_infix_operation_dispatch(
+        integer: &Integer,
         operator: &str,
+        right: ObjectRef,
+        state: StateRef,
     ) -> Result<ObjectRef, String> {
         match operator {
-            "+" => Ok(Rc::new(RefCell::new(Object::Int(Integer {
-                value: left.value + right.value,
-            })))),
-            "-" => Ok(Rc::new(RefCell::new(Object::Int(Integer {
-                value: left.value - right.value,
-            })))),
+            "+" => integer.add(right, state),
+            "-" => integer.sub(right, state),
+            "*" => integer.mul(right, state),
+            "/" => integer.div(right, state),
+            "%" => integer.modulo(right, state),
+            "**" => integer.power(right, state),
+            "==" => integer.eq(right),
+            "!=" => integer.neq(right),
+            "<" => integer.lt(right, state),
+            "<=" => integer.le(right, state),
+            ">" => integer.gt(right, state),
+            ">=" => integer.ge(right, state),
 
-            "*" => Ok(Rc::new(RefCell::new(Object::Int(Integer {
-                value: left.value * right.value,
-            })))),
-            "/" => Ok(Rc::new(RefCell::new(Object::Int(Integer {
-                value: left.value / right.value,
-            })))),
-
-            "<" => Ok(Rc::new(RefCell::new(Object::get_native_boolean_object(
-                left.value < right.value,
-            )))),
-            ">" => Ok(Rc::new(RefCell::new(Object::get_native_boolean_object(
-                left.value > right.value,
-            )))),
-
-            "==" => Ok(Rc::new(RefCell::new(Object::get_native_boolean_object(
-                left.value == right.value,
-            )))),
-            "!=" => Ok(Rc::new(RefCell::new(Object::get_native_boolean_object(
-                left.value != right.value,
-            )))),
-
-            _ => Err(format!("unexpected operator: '{}'", operator)),
+            other_operator => Err(format!(
+                "unexpected operand types: {} {} {}",
+                "int",
+                other_operator,
+                right.borrow().get_type()
+            )),
         }
     }
 
-    fn eval_int_float_infix_expression(
-        left: &Integer,
-        right: &FloatObj,
+    fn float_infix_operation_dispatch(
+        float: &FloatObj,
         operator: &str,
+        right: ObjectRef,
+        state: StateRef,
     ) -> Result<ObjectRef, String> {
         match operator {
-            "+" => Ok(Rc::new(RefCell::new(Object::FloatObj(FloatObj {
-                val: left.value as f64 + right.val,
-            })))),
-            "-" => Ok(Rc::new(RefCell::new(Object::FloatObj(FloatObj {
-                val: left.value as f64 - right.val,
-            })))),
+            "+" => float.add(right, state),
+            "-" => float.sub(right, state),
+            "*" => float.mul(right, state),
+            "/" => float.div(right, state),
+            "%" => float.modulo(right, state),
+            "**" => float.power(right, state),
+            "==" => float.eq(right),
+            "!=" => float.neq(right),
+            "<" => float.lt(right, state),
+            "<=" => float.le(right, state),
+            ">" => float.gt(right, state),
+            ">=" => float.ge(right, state),
 
-            "*" => Ok(Rc::new(RefCell::new(Object::FloatObj(FloatObj {
-                val: left.value as f64 * right.val,
-            })))),
-            "/" => Ok(Rc::new(RefCell::new(Object::FloatObj(FloatObj {
-                val: left.value as f64 / right.val,
-            })))),
-
-            "<" => Ok(Rc::new(RefCell::new(Object::get_native_boolean_object(
-                (left.value as f64) < right.val,
-            )))),
-            ">" => Ok(Rc::new(RefCell::new(Object::get_native_boolean_object(
-                left.value as f64 > right.val,
-            )))),
-
-            "==" => Ok(Rc::new(RefCell::new(Object::get_native_boolean_object(
-                (left.value as f64).to_bits() == right.val.to_bits(),
-            )))),
-            "!=" => Ok(Rc::new(RefCell::new(Object::get_native_boolean_object(
-                (left.value as f64).to_bits() != right.val.to_bits(),
-            )))),
-
-            _ => Err(format!("unexpected operator: '{}'", operator)),
+            other_operator => Err(format!(
+                "unexpected operand types: {} {} {}",
+                "float",
+                other_operator,
+                right.borrow().get_type()
+            )),
         }
     }
 
-    fn eval_float_int_infix_expression(
-        left: &FloatObj,
-        right: &Integer,
+    fn string_infix_operation_dispatch(
+        string: &StringObj,
         operator: &str,
+        right: ObjectRef,
+        state: StateRef,
     ) -> Result<ObjectRef, String> {
         match operator {
-            "+" => Ok(Rc::new(RefCell::new(Object::FloatObj(FloatObj {
-                val: left.val + right.value as f64,
-            })))),
-            "-" => Ok(Rc::new(RefCell::new(Object::FloatObj(FloatObj {
-                val: left.val - right.value as f64,
-            })))),
+            "+" => string.add(right, state),
+            "-" => string.sub(right, state),
+            "*" => string.mul(right, state),
+            "/" => string.div(right, state),
+            "%" => string.modulo(right, state),
+            "**" => string.power(right, state),
+            "==" => string.eq(right),
+            "!=" => string.neq(right),
+            "<" => string.lt(right, state),
+            "<=" => string.le(right, state),
+            ">" => string.gt(right, state),
+            ">=" => string.ge(right, state),
 
-            "*" => Ok(Rc::new(RefCell::new(Object::FloatObj(FloatObj {
-                val: left.val * right.value as f64,
-            })))),
-            "/" => Ok(Rc::new(RefCell::new(Object::FloatObj(FloatObj {
-                val: left.val / right.value as f64,
-            })))),
-
-            "<" => Ok(Rc::new(RefCell::new(Object::get_native_boolean_object(
-                (left.val) < right.value as f64,
-            )))),
-            ">" => Ok(Rc::new(RefCell::new(Object::get_native_boolean_object(
-                left.val > right.value as f64,
-            )))),
-
-            "==" => Ok(Rc::new(RefCell::new(Object::get_native_boolean_object(
-                (left.val).to_bits() == (right.value as f64).to_bits(),
-            )))),
-            "!=" => Ok(Rc::new(RefCell::new(Object::get_native_boolean_object(
-                (left.val).to_bits() != (right.value as f64).to_bits(),
-            )))),
-
-            _ => Err(format!("unexpected operator: '{}'", operator)),
+            other_operator => Err(format!(
+                "unexpected operand types: {} {} {}",
+                "string",
+                other_operator,
+                right.borrow().get_type()
+            )),
         }
     }
 
-    fn eval_float_float_infix_expression(
-        left: &FloatObj,
-        right: &FloatObj,
+    fn array_infix_operation_dispatch(
+        array: &Array,
         operator: &str,
+        right: ObjectRef,
+        state: StateRef,
     ) -> Result<ObjectRef, String> {
         match operator {
-            "+" => Ok(Rc::new(RefCell::new(Object::FloatObj(FloatObj {
-                val: left.val + right.val,
-            })))),
-            "-" => Ok(Rc::new(RefCell::new(Object::FloatObj(FloatObj {
-                val: left.val - right.val,
-            })))),
+            "+" => array.add(right, state),
+            "-" => array.sub(right, state),
+            "*" => array.mul(right, state),
+            "/" => array.div(right, state),
+            "%" => array.modulo(right, state),
+            "**" => array.power(right, state),
+            "==" => array.eq(right),
+            "!=" => array.neq(right),
+            "<" => array.lt(right, state),
+            "<=" => array.le(right, state),
+            ">" => array.gt(right, state),
+            ">=" => array.ge(right, state),
 
-            "*" => Ok(Rc::new(RefCell::new(Object::FloatObj(FloatObj {
-                val: left.val * right.val,
-            })))),
-            "/" => Ok(Rc::new(RefCell::new(Object::FloatObj(FloatObj {
-                val: left.val / right.val,
-            })))),
-
-            "<" => Ok(Rc::new(RefCell::new(Object::get_native_boolean_object(
-                left.val < right.val,
-            )))),
-            ">" => Ok(Rc::new(RefCell::new(Object::get_native_boolean_object(
-                left.val > right.val,
-            )))),
-
-            "==" => Ok(Rc::new(RefCell::new(Object::get_native_boolean_object(
-                (left.val).to_bits() == (right.val).to_bits(),
-            )))),
-            "!=" => Ok(Rc::new(RefCell::new(Object::get_native_boolean_object(
-                (left.val).to_bits() != (right.val).to_bits(),
-            )))),
-
-            _ => Err(format!("unexpected operator: '{}'", operator)),
+            other_operator => Err(format!(
+                "unexpected operand types: {} {} {}",
+                "array",
+                other_operator,
+                right.borrow().get_type()
+            )),
         }
     }
 
-    fn eval_bool_bool_infix_expression(
-        left: &Boolean,
-        right: &Boolean,
+    fn hashmap_infix_operation_dispatch(
+        hashmap: &HashMap,
         operator: &str,
+        right: ObjectRef,
+        state: StateRef,
     ) -> Result<ObjectRef, String> {
         match operator {
-            "==" => Ok(Rc::new(RefCell::new(Object::get_native_boolean_object(
-                left.value == right.value,
-            )))),
-            "!=" => Ok(Rc::new(RefCell::new(Object::get_native_boolean_object(
-                left.value != right.value,
-            )))),
+            "+" => hashmap.add(right, state),
+            "-" => hashmap.sub(right, state),
+            "*" => hashmap.mul(right, state),
+            "/" => hashmap.div(right, state),
+            "%" => hashmap.modulo(right, state),
+            "**" => hashmap.power(right, state),
+            "==" => hashmap.eq(right),
+            "!=" => hashmap.neq(right),
+            "<" => hashmap.lt(right, state),
+            "<=" => hashmap.le(right, state),
+            ">" => hashmap.gt(right, state),
+            ">=" => hashmap.ge(right, state),
 
-            _ => Err(format!("unexpected operator: '{}'", operator)),
+            other_operator => Err(format!(
+                "unexpected operand types: {} {} {}",
+                "hashmap",
+                other_operator,
+                right.borrow().get_type()
+            )),
         }
     }
 
-    fn eval_str_str_infix_expression(
-        left: &StringObj,
-        right: &StringObj,
+    fn boolean_infix_operation_dispatch(
+        bool: &Boolean,
         operator: &str,
+        right: ObjectRef,
+        state: StateRef,
     ) -> Result<ObjectRef, String> {
         match operator {
-            "+" => Ok(Rc::new(RefCell::new(Object::String(StringObj {
-                value: left.value.clone() + &right.value,
-            })))),
+            "+" => bool.add(right, state),
+            "-" => bool.sub(right, state),
+            "*" => bool.mul(right, state),
+            "/" => bool.div(right, state),
+            "%" => bool.modulo(right, state),
+            "**" => bool.power(right, state),
+            "==" => bool.eq(right),
+            "!=" => bool.neq(right),
+            "<" => bool.lt(right, state),
+            "<=" => bool.le(right, state),
+            ">" => bool.gt(right, state),
+            ">=" => bool.ge(right, state),
 
-            "==" => Ok(Rc::new(RefCell::new(Object::get_native_boolean_object(
-                left.value == right.value,
-            )))),
-            "!=" => Ok(Rc::new(RefCell::new(Object::get_native_boolean_object(
-                left.value != right.value,
-            )))),
+            "&&" => bool.land(right, state),
+            "||" => bool.lor(right, state),
+            "^" => bool.lxor(right, state),
 
-            _ => Err(format!("unexpected operator: '{}'", operator)),
+            other_operator => Err(format!(
+                "unexpected operand types: {} {} {}",
+                "boolean",
+                other_operator,
+                right.borrow().get_type()
+            )),
         }
+    }
+
+    fn convert_operands_to_bool(
+        left: ObjectRef,
+        right: ObjectRef,
+    ) -> Result<(ObjectRef, ObjectRef), String> {
+        let left_bool = match &*left.borrow() {
+            Object::Int(int) => int.bool()?,
+            Object::FloatObj(float) => float.bool()?,
+            Object::Bool(_) => left.clone(),
+            Object::Array(arr) => arr.bool()?,
+            Object::String(str) => str.bool()?,
+            Object::HashMap(hmap) => hmap.bool()?,
+            Object::Iterator(hmap) => hmap.bool()?,
+            other => return Err(format!("cannot cast {} to boolean.", other.get_type())),
+        };
+
+        let right_bool = match &*right.borrow() {
+            Object::Int(int) => int.bool()?,
+            Object::FloatObj(float) => float.bool()?,
+            Object::Bool(_) => right.clone(),
+            Object::Array(arr) => arr.bool()?,
+            Object::String(str) => str.bool()?,
+            Object::HashMap(hmap) => hmap.bool()?,
+            Object::Iterator(hmap) => hmap.bool()?,
+            other => return Err(format!("cannot cast {} to boolean.", other.get_type())),
+        };
+
+        Ok((left_bool, right_bool))
     }
 }

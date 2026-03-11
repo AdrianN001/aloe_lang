@@ -12,6 +12,7 @@ pub mod integer;
 pub mod iterator;
 pub mod member;
 pub mod null;
+pub mod operation;
 pub mod return_value;
 pub mod stack_environment;
 pub mod state;
@@ -141,4 +142,8 @@ impl Object {
             }
         }
     }
+}
+
+pub fn new_objectref(obj: Object) -> ObjectRef {
+    Rc::new(RefCell::new(obj))
 }

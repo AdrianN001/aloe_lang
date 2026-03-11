@@ -79,17 +79,11 @@ impl Expression {
                 }))))
             }
             Expression::If(if_expression) => if_expression.evaluate(environ.clone(), state),
-            Expression::Infix(infix_expr) => {
-                let right_side = infix_expr.right.evaluate(environ.clone(), state.clone())?;
-                let left_side = infix_expr.left.evaluate(environ.clone(), state.clone())?;
-
-                left_side
-                    .borrow()
-                    .evaluate_infix_expression(right_side.clone(), &infix_expr.operator)
-            }
+            Expression::Infix(infix_expr) => infix_expr.evaluate_infix_expression(environ, state),
             Expression::Member(member_expression) => {
                 member_expression.evaluate(environ.clone(), state)
             }
+
             Expression::InvalidExpression => {
                 panic!("unexpected expression type")
             }

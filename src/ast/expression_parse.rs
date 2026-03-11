@@ -53,6 +53,7 @@ impl Parser {
             match self.peek_token.token_type {
                 TokenType::Plus
                 | TokenType::Minus
+                | TokenType::Coalescing
                 | TokenType::Slash
                 | TokenType::Asterisk
                 | TokenType::Eq

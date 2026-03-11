@@ -9,9 +9,13 @@ pub struct ListBasedIterator {
 }
 
 impl ListBasedIterator {
+    pub fn _has_next_raw(&self) -> bool {
+        self.index < self.list.len()
+    }
+
     pub fn _has_next(&self) -> ObjectRef {
         Rc::new(RefCell::new(Object::get_native_boolean_object(
-            self.index < self.list.len(),
+            self._has_next_raw(),
         )))
     }
     pub fn _next(&mut self) -> Option<ObjectRef> {

@@ -21,6 +21,15 @@ impl Iterator {
         self.get_type()
     }
 
+    pub fn _has_next_raw(&self) -> bool {
+        match self {
+            Iterator::RangeBasedIterator(range_based_iterator) => {
+                range_based_iterator._has_next_raw()
+            }
+            Iterator::ListBasedIterator(list_based_iterator) => list_based_iterator._has_next_raw(),
+        }
+    }
+
     pub fn _has_next(&self) -> ObjectRef {
         match self {
             Iterator::RangeBasedIterator(range_based_iterator) => range_based_iterator._has_next(),

@@ -6,6 +6,7 @@ pub enum OperationPrecedence {
     Lowest,
 
     Assignment,  // =
+    Coalescing,  // ??
     Equals,      // ==, !=
     LessGreater, // < >
     Sum,         // +, -
@@ -31,6 +32,8 @@ pub fn get_precedence_of_operator(token: &Token) -> OperationPrecedence {
 
         TokenType::Slash => OperationPrecedence::Mul,
         TokenType::Asterisk => OperationPrecedence::Mul,
+
+        TokenType::Coalescing => OperationPrecedence::Coalescing,
 
         TokenType::Dot => OperationPrecedence::Member,
         TokenType::LParen => OperationPrecedence::Call,

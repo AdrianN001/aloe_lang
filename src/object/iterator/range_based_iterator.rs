@@ -38,13 +38,17 @@ impl RangeBasedIterator {
         }
     }
 
+    pub fn _has_next_raw(&self) -> bool {
+        if self.step.is_negative() {
+            self.current > self.end
+        } else {
+            self.current < self.end
+        }
+    }
+
     pub fn _has_next(&self) -> ObjectRef {
         Rc::new(RefCell::new(Object::get_native_boolean_object(
-            if self.step.is_negative() {
-                self.current > self.end
-            } else {
-                self.current < self.end
-            },
+            self._has_next_raw(),
         )))
     }
 

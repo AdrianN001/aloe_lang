@@ -17,6 +17,7 @@ use std::cell::RefCell;
 use std::rc::Rc;
 
 use crate::ast::program::Program;
+use crate::module::module_loader::ModuleLoader;
 use crate::object::ObjectRef;
 use crate::object::array::Array;
 use crate::object::break_value::BreakValue;
@@ -137,13 +138,22 @@ impl Statement {
 }
 
 impl Program {
-    pub fn evaluate(&self) -> Result<ObjectRef, PanicObj> {
+    pub fn evaluate(
+        &self,
+        environ: EnvRef,
+        module_loader: &mut ModuleLoader,
+    ) -> Result<ObjectRef, PanicObj> {
         let mut result = Rc::new(RefCell::new(Object::Null(Null {})));
-        let environ = Rc::new(RefCell::new(StackEnvironment::new()));
         let state = Rc::new(RefCell::new(DEFAULT_INTERPRETER_STATE));
 
         for stmt in self.statements.iter() {
-            result = stmt.evaluate(environ.clone(), state.clone())?;
+            result = match stmt {
+                Statement::Import(import_stmt) => {
+                    import_stmt.evaluate(environ.clone(), state.clone(), module_loader)?
+                }
+                other_stmt => other_stmt.evaluate(environ.clone(), state.clone())?,
+            };
+
             let borrowed_result = result.borrow();
 
             match &*borrowed_result {
@@ -159,7 +169,49 @@ impl Program {
                         state,
                     ));
                 }
+                Object::ReturnVal(_) => {
+                    return Err(PanicObj::new_simple(
+                        "unexpected return keyword in non-function context",
+                        state,
+                    ));
+                }
+                Object::Err(_) => return Ok(result.clone()),
+                _ => {}
+            }
+        }
+        Ok(result)
+    }
 
+    pub fn evaluate_as_repl(&self, environ: EnvRef) -> Result<ObjectRef, PanicObj> {
+        let mut result = Rc::new(RefCell::new(Object::Null(Null {})));
+        let state = Rc::new(RefCell::new(DEFAULT_INTERPRETER_STATE));
+
+        for stmt in self.statements.iter() {
+            result = match stmt {
+                Statement::Import(_) => {
+                    return Err(PanicObj::new_simple(
+                        "import is not supported in repl",
+                        state,
+                    ));
+                }
+                other_stmt => other_stmt.evaluate(environ.clone(), state.clone())?,
+            };
+
+            let borrowed_result = result.borrow();
+
+            match &*borrowed_result {
+                Object::BreakVal(_) => {
+                    return Err(PanicObj::new_simple(
+                        "unexpected break keyword in non-loop context",
+                        state,
+                    ));
+                }
+                Object::Continue => {
+                    return Err(PanicObj::new_simple(
+                        "unexpected continue keyword in non-loop context",
+                        state,
+                    ));
+                }
                 Object::ReturnVal(_) => {
                     return Err(PanicObj::new_simple(
                         "unexpected return keyword in non-function context",
@@ -174,12 +226,22 @@ impl Program {
         Ok(result)
     }
 
-    pub fn evaluate_with_other_environment(&self, environ: EnvRef) -> Result<ObjectRef, PanicObj> {
+    pub fn evaluate_with_default(&self) -> Result<ObjectRef, PanicObj> {
         let mut result = Rc::new(RefCell::new(Object::Null(Null {})));
         let state = Rc::new(RefCell::new(DEFAULT_INTERPRETER_STATE));
+        let environ = Rc::new(RefCell::new(StackEnvironment::new()));
 
         for stmt in self.statements.iter() {
-            result = stmt.evaluate(environ.clone(), state.clone())?;
+            result = match stmt {
+                Statement::Import(_) => {
+                    return Err(PanicObj::new_simple(
+                        "import is not supported in repl",
+                        state,
+                    ));
+                }
+                other_stmt => other_stmt.evaluate(environ.clone(), state.clone())?,
+            };
+
             let borrowed_result = result.borrow();
 
             match &*borrowed_result {
@@ -205,7 +267,6 @@ impl Program {
                 _ => {}
             }
         }
-
         Ok(result)
     }
 }

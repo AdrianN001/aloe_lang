@@ -1,11 +1,7 @@
 use std::{cell::RefCell, rc::Rc};
 
 use crate::object::{
-    Object, ObjectRef,
-    float_obj::FloatObj,
-    integer::Integer,
-    panic_obj::PanicObj,
-    state::StateRef,
+    Object, ObjectRef, float_obj::FloatObj, integer::Integer, panic_obj::PanicObj, state::StateRef,
 };
 
 impl Object {

@@ -22,7 +22,7 @@ fn test_eval_integer_object() {
 
         assert_eq!(program.statements.len(), 1);
 
-        match &*program.evaluate().unwrap().borrow() {
+        match &*program.evaluate_with_default().unwrap().borrow() {
             Object::Int(int) => assert_eq!(int.value, expected_value),
             _ => panic!(),
         }
@@ -44,7 +44,7 @@ fn test_eval_bool_object() {
 
         assert_eq!(program.statements.len(), 1);
 
-        match &*program.evaluate().unwrap().borrow() {
+        match &*program.evaluate_with_default().unwrap().borrow() {
             Object::Bool(bool) => assert_eq!(bool.value, expected_value),
             _ => panic!(),
         }
@@ -73,7 +73,7 @@ fn test_eval_bang_prefix() {
 
         assert_eq!(program.statements.len(), 1);
 
-        match &*program.evaluate().unwrap().borrow() {
+        match &*program.evaluate_with_default().unwrap().borrow() {
             Object::Bool(bool) => assert_eq!(bool.value, expected_value),
             _ => panic!(),
         }
@@ -95,7 +95,7 @@ fn test_eval_minus_prefix_operator() {
 
         assert_eq!(program.statements.len(), 1);
 
-        match &*program.evaluate().unwrap().borrow() {
+        match &*program.evaluate_with_default().unwrap().borrow() {
             Object::Int(int) => assert_eq!(int.value, expected_value),
             _ => panic!(),
         }
@@ -129,7 +129,7 @@ fn test_eval_int_and_bool_operations() {
 
         println!("{:?}", &program.to_string());
 
-        match &*program.evaluate().unwrap().borrow() {
+        match &*program.evaluate_with_default().unwrap().borrow() {
             Object::Int(int) => assert_eq!(int.value, expected_value),
             Object::Bool(bool) => assert_eq!(bool.value, expected_value == 1),
             _ => panic!(),
@@ -193,7 +193,7 @@ fn test_if_statement_null_eval() {
         assert_eq!(program.statements.len(), 1);
 
         assert!(matches!(
-            &*program.evaluate().unwrap().borrow(),
+            &*program.evaluate_with_default().unwrap().borrow(),
             Object::Null(_)
         ));
     })
@@ -347,7 +347,7 @@ f();
 }
 
 #[test]
-fn test_variable_evaluate() {
+fn test_variable_evaluate_with_default() {
     let testcases = [
         ("let a = 10; let b = 5; let c = a + b; c;", 15),
         ("let a = true; if(a){5;}else{15;}", 5),
@@ -363,7 +363,7 @@ fn test_variable_evaluate() {
 
         let program = parser.into_a_program().unwrap();
 
-        match &*program.evaluate().unwrap().borrow() {
+        match &*program.evaluate_with_default().unwrap().borrow() {
             Object::Int(int_val) => assert_eq!(int_val.value, expected_value),
             _ => panic!(),
         }
@@ -387,7 +387,7 @@ fn test_function_evaluation() {
         let parser = Parser::new(lexer);
         let program = parser.into_a_program().unwrap();
 
-        let last_object = program.evaluate().unwrap();
+        let last_object = program.evaluate_with_default().unwrap();
 
         let binding = last_object.borrow();
         let function_object = match &*binding {
@@ -441,7 +441,7 @@ fn test_calling_expression() {
         let parser = Parser::new(lexer);
         let program = parser.into_a_program().unwrap();
 
-        let last_object = match program.evaluate() {
+        let last_object = match program.evaluate_with_default() {
             Ok(x) => x,
             Err(err) => panic!("{}", err),
         };
@@ -470,7 +470,7 @@ fn test_basic_string_evaluation() {
         let parser = Parser::new(lexer);
         let program = parser.into_a_program().unwrap();
 
-        let last_object = match program.evaluate() {
+        let last_object = match program.evaluate_with_default() {
             Ok(x) => x,
             Err(err) => panic!("{}", err),
         };
@@ -497,7 +497,7 @@ fn eval_string_concat() {
         let parser = Parser::new(lexer);
         let program = parser.into_a_program().unwrap();
 
-        let last_object = match program.evaluate() {
+        let last_object = match program.evaluate_with_default() {
             Ok(x) => x,
             Err(err) => panic!("{}", err),
         };
@@ -538,7 +538,7 @@ fn eval_len_for_strings() {
         let parser = Parser::new(lexer);
         let program = parser.into_a_program().unwrap();
 
-        let last_object = match program.evaluate() {
+        let last_object = match program.evaluate_with_default() {
             Ok(x) => x,
             Err(err) => panic!("{}", err),
         };
@@ -577,7 +577,7 @@ fn eval_len_for_arrays() {
         let parser = Parser::new(lexer);
         let program = parser.into_a_program().unwrap();
 
-        let last_object = match program.evaluate() {
+        let last_object = match program.evaluate_with_default() {
             Ok(x) => x,
             Err(err) => panic!("{}", err),
         };
@@ -606,7 +606,7 @@ fn eval_rest_builtin() {
         let parser = Parser::new(lexer);
         let program = parser.into_a_program().unwrap();
 
-        let last_object = match program.evaluate() {
+        let last_object = match program.evaluate_with_default() {
             Ok(x) => x,
             Err(err) => panic!("{}", err),
         };
@@ -660,7 +660,7 @@ fn eval_hashmap_pair_count() {
         let parser = Parser::new(lexer);
         let program = parser.into_a_program().unwrap();
 
-        let last_object = match program.evaluate() {
+        let last_object = match program.evaluate_with_default() {
             Ok(x) => x,
             Err(err) => panic!("{}", err),
         };
@@ -688,7 +688,7 @@ fn eval_hashmap_indexing() {
         let parser = Parser::new(lexer);
         let program = parser.into_a_program().unwrap();
 
-        let last_object = match program.evaluate() {
+        let last_object = match program.evaluate_with_default() {
             Ok(x) => x,
             Err(err) => panic!("{}", err),
         };
@@ -723,7 +723,7 @@ fn eval_floats() {
         let parser = Parser::new(lexer);
         let program = parser.into_a_program().unwrap();
 
-        let last_object = match program.evaluate() {
+        let last_object = match program.evaluate_with_default() {
             Ok(x) => x,
             Err(err) => panic!("{}", err),
         };
@@ -752,7 +752,7 @@ fn eval_iterator_collect() {
         let parser = Parser::new(lexer);
         let program = parser.into_a_program().unwrap();
 
-        let last_object = match program.evaluate() {
+        let last_object = match program.evaluate_with_default() {
             Ok(x) => x,
             Err(err) => panic!("{}", err),
         };
@@ -1341,7 +1341,7 @@ fn test_break_and_continue() {
         let parser = Parser::new(lexer);
         let program = parser.into_a_program().unwrap();
 
-        assert!(program.evaluate().is_err());
+        assert!(program.evaluate_with_default().is_err());
     })
 }
 
@@ -1773,7 +1773,7 @@ m.get(\"a\")!.to_string();
         let parser = Parser::new(lexer);
         let program = parser.into_a_program().unwrap();
 
-        assert_eq!(program.evaluate().is_ok(), is_ok);
+        assert_eq!(program.evaluate_with_default().is_ok(), is_ok);
     });
 }
 
@@ -1840,7 +1840,7 @@ pub fn test_cases_for_input_output(testcases: &[(&str, &str)]) {
         let parser = Parser::new(lexer);
         let program = parser.into_a_program().unwrap();
 
-        let last_object = match program.evaluate() {
+        let last_object = match program.evaluate_with_default() {
             Ok(x) => x,
             Err(err) => {
                 assert_eq!(err.value, expected_value);

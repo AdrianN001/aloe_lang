@@ -3,11 +3,8 @@ use std::{cell::RefCell, rc::Rc};
 use crate::{
     ast::expression::{Expression, call_expression::CallExpression, member::MemberExpression},
     object::{
-        Object, ObjectRef,
-        panic_obj::PanicObj,
-        return_value::ReturnValue,
-        stack_environment::EnvRef,
-        state::StateRef,
+        Object, ObjectRef, panic_obj::PanicObj, return_value::ReturnValue,
+        stack_environment::EnvRef, state::StateRef,
     },
 };
 

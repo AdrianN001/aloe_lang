@@ -1,17 +1,27 @@
-use std::fs;
+use std::{cell::RefCell, fs, rc::Rc};
 
-use crate::{ast::Parser, lexer::Lexer};
+use crate::{
+    ast::Parser,
+    lexer::Lexer,
+    module::{Module, module_error::ModuleError, module_loader::ModuleLoader},
+};
 
 fn read_source_file(file_path: &str) -> String {
     fs::read_to_string(file_path).unwrap()
 }
 
-pub fn run_script(file_path: &str) {
-    let source_file_content = read_source_file(file_path);
+pub fn run_script(file_path: &str) -> Result<(), ModuleError> {
+    let main_module = match Module::new(file_path.to_string()) {
+        Ok(ok_value) => Rc::new(RefCell::new(ok_value)),
+        Err(err) => return Err(err),
+    };
 
-    let lexer = Lexer::new(source_file_content);
-    let parser = Parser::new(lexer);
-    let program = parser.into_a_program().unwrap();
+    let mut module_cache = ModuleLoader::new();
+    module_cache.set(main_module.clone());
 
-    let _last_obj = program.evaluate().unwrap();
+    let _ = {
+        main_module.borrow_mut().execute(&mut module_cache);
+    };
+
+    Ok(())
 }

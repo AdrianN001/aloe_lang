@@ -1,14 +1,13 @@
 pub mod module_error;
 pub mod module_loader;
 
-use std::{cell::RefCell, collections::HashMap, error::Error, fs, path::PathBuf, rc::Rc};
+use std::{cell::RefCell, fs, path::PathBuf, rc::Rc};
 
 use crate::{
     ast::Parser,
     lexer::Lexer,
     module::{module_error::ModuleError, module_loader::ModuleLoader},
     object::{
-        ObjectRef,
         panic_obj::PanicObj,
         stack_environment::{EnvRef, StackEnvironment},
     },

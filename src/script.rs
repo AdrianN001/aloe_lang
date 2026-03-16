@@ -1,10 +1,6 @@
 use std::{cell::RefCell, fs, rc::Rc};
 
-use crate::{
-    ast::Parser,
-    lexer::Lexer,
-    module::{Module, module_error::ModuleError, module_loader::ModuleLoader},
-};
+use crate::module::{Module, module_error::ModuleError, module_loader::ModuleLoader};
 
 fn read_source_file(file_path: &str) -> String {
     fs::read_to_string(file_path).unwrap()

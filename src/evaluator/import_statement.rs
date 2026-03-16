@@ -1,9 +1,6 @@
 use crate::{
     ast::{expression::Expression, statement::import_statement::ImportStatement},
-    module::{
-        ModuleRef,
-        module_loader::{self, ModuleLoader},
-    },
+    module::{ModuleRef, module_loader::ModuleLoader},
     object::{
         Object, ObjectRef, new_objectref, panic_obj::PanicObj, stack_environment::EnvRef,
         state::StateRef,
@@ -17,11 +14,21 @@ impl ImportStatement {
         _state: StateRef,
         module_loader: &mut ModuleLoader,
     ) -> Result<ObjectRef, PanicObj> {
-        let _imported_identifiers =
+        let imported_identifiers =
             Self::get_identifier_expressions(&self.identifiers, _state.clone())?;
-        let _path = self.module_name.clone();
+        let path = self.module_name.clone();
 
-        let resolved_module = module_loader.import_module(&_path);
+        let resolved_module = match module_loader.import_module(&path) {
+            Ok(module) => module,
+            Err(err_feedback) => return Err(PanicObj::new(err_feedback.value, _state.clone())),
+        };
+
+        Self::load_exports_from_module(
+            resolved_module,
+            &imported_identifiers,
+            _environ.clone(),
+            _state.clone(),
+        )?;
 
         Ok(new_objectref(Object::NULL_OBJECT))
     }

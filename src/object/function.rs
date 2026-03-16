@@ -62,11 +62,14 @@ impl Function {
         state: StateRef,
     ) -> Result<ObjectRef, PanicObj> {
         if arguments.len() != self.parameters.len() {
-            return Err(PanicObj::new(format!(
-                "expected {} arguments, got: {}",
-                self.parameters.len(),
-                arguments.len()
-            ), state.clone()));
+            return Err(PanicObj::new(
+                format!(
+                    "expected {} arguments, got: {}",
+                    self.parameters.len(),
+                    arguments.len()
+                ),
+                state.clone(),
+            ));
         }
 
         {

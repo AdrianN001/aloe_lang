@@ -35,17 +35,23 @@ impl CallExpression {
             Object::BuiltIn(built_in_function) => {
                 Ok(built_in_function.call(&args, environ.clone(), state.clone()))
             }
-            other_type => Err(PanicObj::new(format!(
-                "'{}' is not a function. It cannot be called.",
-                other_type.inspect()
-            ), state.clone())),
+            other_type => Err(PanicObj::new(
+                format!(
+                    "'{}' is not a function. It cannot be called.",
+                    other_type.inspect()
+                ),
+                state.clone(),
+            )),
         };
 
         let ok_return_value = return_value?;
 
         if let Object::Err(error) = &*ok_return_value.borrow() {
             if self.question_mark_set && !state.borrow().is_function_context() {
-                return Err(PanicObj::new("tried to use ? on a function, without function-context".to_string(), state.clone()));
+                return Err(PanicObj::new(
+                    "tried to use ? on a function, without function-context".to_string(),
+                    state.clone(),
+                ));
             }
 
             if self.bang_set {

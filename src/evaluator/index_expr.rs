@@ -56,10 +56,13 @@ impl IndexExpression {
                 }))))
             }
             (Object::HashMap(map), _) => Ok(map.get([index.clone()].as_ref(), state)),
-            _ => Err(PanicObj::new(format!(
-                "index operator not supported: {}",
-                index.borrow().get_type()
-            ), state.clone())),
+            _ => Err(PanicObj::new(
+                format!(
+                    "index operator not supported: {}",
+                    index.borrow().get_type()
+                ),
+                state.clone(),
+            )),
         }
     }
 
@@ -95,9 +98,9 @@ impl IndexExpression {
             }
 
             Object::HashMap(map) => {
-                let hashed_object = match index_borrow.hash(){
+                let hashed_object = match index_borrow.hash() {
                     Ok(ok_value) => ok_value,
-                    Err(err_feedback) => return Err(PanicObj::new(err_feedback, state.clone()))
+                    Err(err_feedback) => return Err(PanicObj::new(err_feedback, state.clone())),
                 };
 
                 map.pairs.insert(
@@ -111,10 +114,10 @@ impl IndexExpression {
                 Ok(())
             }
 
-            _ => Err(PanicObj::new(format!(
-                "index operator not supported on {}",
-                left_borrow.get_type()
-            ), state.clone())),
+            _ => Err(PanicObj::new(
+                format!("index operator not supported on {}", left_borrow.get_type()),
+                state.clone(),
+            )),
         }
     }
 }

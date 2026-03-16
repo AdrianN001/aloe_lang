@@ -2,7 +2,10 @@ use std::{cell::RefCell, rc::Rc};
 
 use crate::{
     ast::expression::identifier::Identifier,
-    object::{Object, ObjectRef, built_in::BuiltIn, panic_obj::PanicObj, stack_environment::EnvRef, state::StateRef},
+    object::{
+        Object, ObjectRef, built_in::BuiltIn, panic_obj::PanicObj, stack_environment::EnvRef,
+        state::StateRef,
+    },
 };
 
 impl Identifier {
@@ -33,7 +36,10 @@ impl Identifier {
                     return Ok(Rc::new(RefCell::new(Object::BuiltIn(built_in))));
                 }
 
-                Err(PanicObj::new(format!("unknown identifier: {}", &self.value), state.clone()))
+                Err(PanicObj::new(
+                    format!("unknown identifier: {}", &self.value),
+                    state.clone(),
+                ))
             }
         }
     }

@@ -6,12 +6,12 @@ mod function_statement;
 mod hash_literal;
 mod identifier;
 mod if_expression;
+mod import_statement;
 mod index_expr;
 mod infix_expr;
 mod member_expr;
 mod prefix_expr;
 mod value_assign;
-mod import_statement;
 
 use std::cell::RefCell;
 use std::rc::Rc;
@@ -148,14 +148,23 @@ impl Program {
 
             match &*borrowed_result {
                 Object::BreakVal(_) => {
-                    return Err(PanicObj::new_simple("unexpected break keyword in non-loop context", state));
+                    return Err(PanicObj::new_simple(
+                        "unexpected break keyword in non-loop context",
+                        state,
+                    ));
                 }
                 Object::Continue => {
-                    return Err(PanicObj::new_simple("unexpected continue keyword in non-loop context", state));
+                    return Err(PanicObj::new_simple(
+                        "unexpected continue keyword in non-loop context",
+                        state,
+                    ));
                 }
 
                 Object::ReturnVal(_) => {
-                    return Err(PanicObj::new_simple("unexpected return keyword in non-function context", state));
+                    return Err(PanicObj::new_simple(
+                        "unexpected return keyword in non-function context",
+                        state,
+                    ));
                 }
                 Object::Err(_) => return Ok(result.clone()),
                 _ => {}
@@ -175,13 +184,22 @@ impl Program {
 
             match &*borrowed_result {
                 Object::BreakVal(_) => {
-                    return Err(PanicObj::new_simple("unexpected break keyword in non-loop context", state));
+                    return Err(PanicObj::new_simple(
+                        "unexpected break keyword in non-loop context",
+                        state,
+                    ));
                 }
                 Object::Continue => {
-                    return Err(PanicObj::new_simple("unexpected continue keyword in non-loop context", state));
+                    return Err(PanicObj::new_simple(
+                        "unexpected continue keyword in non-loop context",
+                        state,
+                    ));
                 }
                 Object::ReturnVal(_) => {
-                    return Err(PanicObj::new_simple("unexpected return keyword in non-function context", state));
+                    return Err(PanicObj::new_simple(
+                        "unexpected return keyword in non-function context",
+                        state,
+                    ));
                 }
                 Object::Err(_) => return Ok(result.clone()),
                 _ => {}

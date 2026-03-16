@@ -3,7 +3,9 @@ use std::panic;
 use crate::{
     ast::expression::{Expression, infix::InfixExpression},
     object::{
-        Object, ObjectRef, array::Array, boolean::Boolean, float_obj::FloatObj, hashmap::HashMap, integer::Integer, panic_obj::PanicObj, stack_environment::EnvRef, state::StateRef, string_obj::StringObj
+        Object, ObjectRef, array::Array, boolean::Boolean, float_obj::FloatObj, hashmap::HashMap,
+        integer::Integer, panic_obj::PanicObj, stack_environment::EnvRef, state::StateRef,
+        string_obj::StringObj,
     },
 };
 
@@ -48,12 +50,15 @@ impl InfixExpression {
                 Object::Bool(bool) => {
                     Self::boolean_infix_operation_dispatch(bool, &self.operator, right_side, state)
                 }
-                _ => Err(PanicObj::new(format!(
-                    "unexpected operand types: {} {} {}",
-                    left_side.borrow().get_type(),
-                    self.operator,
-                    right_side.borrow().get_type()
-                ), state.clone())),
+                _ => Err(PanicObj::new(
+                    format!(
+                        "unexpected operand types: {} {} {}",
+                        left_side.borrow().get_type(),
+                        self.operator,
+                        right_side.borrow().get_type()
+                    ),
+                    state.clone(),
+                )),
             },
             "&&" | "||" => {
                 let (left_bool_side, right_bool_side) =
@@ -70,12 +75,15 @@ impl InfixExpression {
                     panic!()
                 }
             }
-            other_operator => Err(PanicObj::new(format!(
-                "unexpected operand types: {} {} {}",
-                left_side.borrow().get_type(),
-                other_operator,
-                right_side.borrow().get_type()
-            ), state.clone())),
+            other_operator => Err(PanicObj::new(
+                format!(
+                    "unexpected operand types: {} {} {}",
+                    left_side.borrow().get_type(),
+                    other_operator,
+                    right_side.borrow().get_type()
+                ),
+                state.clone(),
+            )),
         }
     }
 
@@ -123,12 +131,15 @@ impl InfixExpression {
             "|" => integer.bor(right, state),
             "^" => integer.bxor(right, state),
 
-            other_operator => Err(PanicObj::new(format!(
-                "unexpected operand types: {} {} {}",
-                "int",
-                other_operator,
-                right.borrow().get_type()
-            ), state.clone())),
+            other_operator => Err(PanicObj::new(
+                format!(
+                    "unexpected operand types: {} {} {}",
+                    "int",
+                    other_operator,
+                    right.borrow().get_type()
+                ),
+                state.clone(),
+            )),
         }
     }
 
@@ -152,12 +163,15 @@ impl InfixExpression {
             ">" => float.gt(right, state),
             ">=" => float.ge(right, state),
 
-            other_operator => Err(PanicObj::new( format!(
-                "unexpected operand types: {} {} {}",
-                "float",
-                other_operator,
-                right.borrow().get_type()
-            ), state.clone())),
+            other_operator => Err(PanicObj::new(
+                format!(
+                    "unexpected operand types: {} {} {}",
+                    "float",
+                    other_operator,
+                    right.borrow().get_type()
+                ),
+                state.clone(),
+            )),
         }
     }
 
@@ -181,12 +195,15 @@ impl InfixExpression {
             ">" => string.gt(right, state),
             ">=" => string.ge(right, state),
 
-            other_operator => Err(PanicObj::new( format!(
-                "unexpected operand types: {} {} {}",
-                "string",
-                other_operator,
-                right.borrow().get_type()
-            ), state.clone())),
+            other_operator => Err(PanicObj::new(
+                format!(
+                    "unexpected operand types: {} {} {}",
+                    "string",
+                    other_operator,
+                    right.borrow().get_type()
+                ),
+                state.clone(),
+            )),
         }
     }
 
@@ -210,12 +227,15 @@ impl InfixExpression {
             ">" => array.gt(right, state),
             ">=" => array.ge(right, state),
 
-            other_operator => Err(PanicObj::new( format!(
-                "unexpected operand types: {} {} {}",
-                "array",
-                other_operator,
-                right.borrow().get_type()
-            ), state.clone())),
+            other_operator => Err(PanicObj::new(
+                format!(
+                    "unexpected operand types: {} {} {}",
+                    "array",
+                    other_operator,
+                    right.borrow().get_type()
+                ),
+                state.clone(),
+            )),
         }
     }
 
@@ -239,12 +259,15 @@ impl InfixExpression {
             ">" => hashmap.gt(right, state),
             ">=" => hashmap.ge(right, state),
 
-            other_operator => Err(PanicObj::new( format!(
-                "unexpected operand types: {} {} {}",
-                "hashmap",
-                other_operator,
-                right.borrow().get_type()
-            ), state.clone())),
+            other_operator => Err(PanicObj::new(
+                format!(
+                    "unexpected operand types: {} {} {}",
+                    "hashmap",
+                    other_operator,
+                    right.borrow().get_type()
+                ),
+                state.clone(),
+            )),
         }
     }
 
@@ -275,19 +298,22 @@ impl InfixExpression {
             "&" => bool.band(right, state),
             "|" => bool.bor(right, state),
 
-            other_operator => Err(PanicObj::new( format!(
-                "unexpected operand types: {} {} {}",
-                "boolean",
-                other_operator,
-                right.borrow().get_type()
-            ), state.clone())),
+            other_operator => Err(PanicObj::new(
+                format!(
+                    "unexpected operand types: {} {} {}",
+                    "boolean",
+                    other_operator,
+                    right.borrow().get_type()
+                ),
+                state.clone(),
+            )),
         }
     }
 
     fn convert_operands_to_bool(
         left: ObjectRef,
         right: ObjectRef,
-        state: StateRef
+        state: StateRef,
     ) -> Result<(ObjectRef, ObjectRef), PanicObj> {
         let left_bool = match &*left.borrow() {
             Object::Int(int) => int.bool()?,
@@ -297,7 +323,12 @@ impl InfixExpression {
             Object::String(str) => str.bool()?,
             Object::HashMap(hmap) => hmap.bool()?,
             Object::Iterator(hmap) => hmap.bool()?,
-            other => return Err(PanicObj::new(format!("cannot cast {} to boolean.", other.get_type()), state.clone())),
+            other => {
+                return Err(PanicObj::new(
+                    format!("cannot cast {} to boolean.", other.get_type()),
+                    state.clone(),
+                ));
+            }
         };
 
         let right_bool = match &*right.borrow() {
@@ -308,7 +339,12 @@ impl InfixExpression {
             Object::String(str) => str.bool()?,
             Object::HashMap(hmap) => hmap.bool()?,
             Object::Iterator(hmap) => hmap.bool()?,
-            other => return Err(PanicObj::new(format!("cannot cast {} to boolean.", other.get_type()), state.clone())),
+            other => {
+                return Err(PanicObj::new(
+                    format!("cannot cast {} to boolean.", other.get_type()),
+                    state.clone(),
+                ));
+            }
         };
 
         Ok((left_bool, right_bool))

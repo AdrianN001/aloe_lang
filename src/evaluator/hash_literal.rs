@@ -3,7 +3,11 @@ use std::{cell::RefCell, collections::BTreeMap, rc::Rc};
 use crate::{
     ast::expression::hash_map_literal::HashMapLiteral,
     object::{
-        Object, ObjectRef, hashmap::{HashMap, HashPair}, panic_obj::PanicObj, stack_environment::EnvRef, state::StateRef
+        Object, ObjectRef,
+        hashmap::{HashMap, HashPair},
+        panic_obj::PanicObj,
+        stack_environment::EnvRef,
+        state::StateRef,
     },
 };
 
@@ -19,10 +23,10 @@ impl HashMapLiteral {
             }
 
             if !key.borrow().is_hashable() {
-                return Err(PanicObj::new(format!(
-                    "unhashable as hash key: {}",
-                    key.borrow().get_type()
-                ), state.clone()));
+                return Err(PanicObj::new(
+                    format!("unhashable as hash key: {}", key.borrow().get_type()),
+                    state.clone(),
+                ));
             }
 
             let value = v.evaluate(environ.clone(), state.clone())?;
@@ -31,9 +35,9 @@ impl HashMapLiteral {
                 return Ok(value.clone());
             }
 
-            let hashed_key = match key.borrow().hash(){
+            let hashed_key = match key.borrow().hash() {
                 Ok(ok_value) => ok_value,
-                Err(err_feedback) => return Err(PanicObj::new(err_feedback, state.clone()))
+                Err(err_feedback) => return Err(PanicObj::new(err_feedback, state.clone())),
             };
 
             pairs.insert(

@@ -1,6 +1,5 @@
 use crate::object::state::StateRef;
 
-
 #[derive(PartialEq, Eq, Clone)]
 pub struct Error {
     pub value: String,
@@ -34,5 +33,3 @@ impl Error {
         self.value.clone()
     }
 }
-
-

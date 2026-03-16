@@ -1,5 +1,6 @@
 use crate::object::{
-    Object, ObjectRef, float_obj::FloatObj, integer::Integer, new_objectref, panic_obj::PanicObj, state::StateRef
+    Object, ObjectRef, float_obj::FloatObj, integer::Integer, new_objectref, panic_obj::PanicObj,
+    state::StateRef,
 };
 
 impl Integer {
@@ -11,12 +12,15 @@ impl Integer {
             Object::FloatObj(right_float) => Ok(new_objectref(Object::FloatObj(FloatObj {
                 val: self.value as f64 + right_float.val,
             }))),
-            other_type => Err(PanicObj::new( format!(
-                "unexpected operand types: {} {} {}",
-                "int",
-                "+",
-                other_type.get_type()
-            ), _state.clone())),
+            other_type => Err(PanicObj::new(
+                format!(
+                    "unexpected operand types: {} {} {}",
+                    "int",
+                    "+",
+                    other_type.get_type()
+                ),
+                _state.clone(),
+            )),
         }
     }
 
@@ -28,12 +32,15 @@ impl Integer {
             Object::FloatObj(right_float) => Ok(new_objectref(Object::FloatObj(FloatObj {
                 val: self.value as f64 - right_float.val,
             }))),
-            other_type => Err(PanicObj::new( format!(
-                "unexpected operand types: {} {} {}",
-                "int",
-                "-",
-                other_type.get_type()
-            ), _state.clone())),
+            other_type => Err(PanicObj::new(
+                format!(
+                    "unexpected operand types: {} {} {}",
+                    "int",
+                    "-",
+                    other_type.get_type()
+                ),
+                _state.clone(),
+            )),
         }
     }
 
@@ -45,12 +52,15 @@ impl Integer {
             Object::FloatObj(right_float) => Ok(new_objectref(Object::FloatObj(FloatObj {
                 val: self.value as f64 * right_float.val,
             }))),
-            other_type => Err(PanicObj::new( format!(
-                "unexpected operand types: {} {} {}",
-                "int",
-                "*",
-                other_type.get_type()
-            ), _state.clone())),
+            other_type => Err(PanicObj::new(
+                format!(
+                    "unexpected operand types: {} {} {}",
+                    "int",
+                    "*",
+                    other_type.get_type()
+                ),
+                _state.clone(),
+            )),
         }
     }
 
@@ -62,12 +72,15 @@ impl Integer {
             Object::FloatObj(right_float) => Ok(new_objectref(Object::FloatObj(FloatObj {
                 val: self.value as f64 / right_float.val,
             }))),
-            other_type => Err(PanicObj::new( format!(
-                "unexpected operand types: {} {} {}",
-                "int",
-                "/",
-                other_type.get_type()
-            ), _state.clone())),
+            other_type => Err(PanicObj::new(
+                format!(
+                    "unexpected operand types: {} {} {}",
+                    "int",
+                    "/",
+                    other_type.get_type()
+                ),
+                _state.clone(),
+            )),
         }
     }
 
@@ -76,12 +89,15 @@ impl Integer {
             Object::Int(right_integer) => Ok(new_objectref(Object::Int(Integer {
                 value: self.value % right_integer.value,
             }))),
-            other_type => Err(PanicObj::new( format!(
-                "unexpected operand types: {} {} {}",
-                "int",
-                "%",
-                other_type.get_type()
-            ), _state.clone())),
+            other_type => Err(PanicObj::new(
+                format!(
+                    "unexpected operand types: {} {} {}",
+                    "int",
+                    "%",
+                    other_type.get_type()
+                ),
+                _state.clone(),
+            )),
         }
     }
 
@@ -93,12 +109,15 @@ impl Integer {
             Object::FloatObj(right_float) => Ok(new_objectref(Object::FloatObj(FloatObj {
                 val: (self.value as f64).powf(right_float.val),
             }))),
-            other_type => Err(PanicObj::new( format!(
-                "unexpected operand types: {} {} {}",
-                "int",
-                "**",
-                other_type.get_type()
-            ), _state.clone())),
+            other_type => Err(PanicObj::new(
+                format!(
+                    "unexpected operand types: {} {} {}",
+                    "int",
+                    "**",
+                    other_type.get_type()
+                ),
+                _state.clone(),
+            )),
         }
     }
 
@@ -136,12 +155,15 @@ impl Integer {
             Object::FloatObj(right_float) => Ok(new_objectref(Object::get_native_boolean_object(
                 (self.value as f64) < right_float.val,
             ))),
-            other_type => Err(PanicObj::new( format!(
-                "unexpected operand types: {} {} {}",
-                "int",
-                "<",
-                other_type.get_type()
-            ), _state.clone())),
+            other_type => Err(PanicObj::new(
+                format!(
+                    "unexpected operand types: {} {} {}",
+                    "int",
+                    "<",
+                    other_type.get_type()
+                ),
+                _state.clone(),
+            )),
         }
     }
 
@@ -153,12 +175,15 @@ impl Integer {
             Object::FloatObj(right_float) => Ok(new_objectref(Object::get_native_boolean_object(
                 self.value as f64 <= right_float.val,
             ))),
-            other_type => Err(PanicObj::new( format!(
-                "unexpected operand types: {} {} {}",
-                "int",
-                "<=",
-                other_type.get_type()
-            ), _state.clone())),
+            other_type => Err(PanicObj::new(
+                format!(
+                    "unexpected operand types: {} {} {}",
+                    "int",
+                    "<=",
+                    other_type.get_type()
+                ),
+                _state.clone(),
+            )),
         }
     }
 
@@ -170,12 +195,15 @@ impl Integer {
             Object::FloatObj(right_float) => Ok(new_objectref(Object::get_native_boolean_object(
                 self.value as f64 > right_float.val,
             ))),
-            other_type => Err(PanicObj::new( format!(
-                "unexpected operand types: {} {} {}",
-                "int",
-                ">",
-                other_type.get_type()
-            ), _state.clone())),
+            other_type => Err(PanicObj::new(
+                format!(
+                    "unexpected operand types: {} {} {}",
+                    "int",
+                    ">",
+                    other_type.get_type()
+                ),
+                _state.clone(),
+            )),
         }
     }
 
@@ -187,12 +215,15 @@ impl Integer {
             Object::FloatObj(right_float) => Ok(new_objectref(Object::get_native_boolean_object(
                 self.value as f64 >= right_float.val,
             ))),
-            other_type => Err(PanicObj::new( format!(
-                "unexpected operand types: {} {} {}",
-                "int",
-                ">=",
-                other_type.get_type()
-            ), _state.clone())),
+            other_type => Err(PanicObj::new(
+                format!(
+                    "unexpected operand types: {} {} {}",
+                    "int",
+                    ">=",
+                    other_type.get_type()
+                ),
+                _state.clone(),
+            )),
         }
     }
 
@@ -201,12 +232,15 @@ impl Integer {
             Object::Int(right_integer) => Ok(new_objectref(Object::Int(Integer {
                 value: self.value << right_integer.value,
             }))),
-            other_type => Err(PanicObj::new( format!(
-                "unexpected operand types: {} {} {}",
-                "int",
-                "<<",
-                other_type.get_type()
-            ), _state.clone())),
+            other_type => Err(PanicObj::new(
+                format!(
+                    "unexpected operand types: {} {} {}",
+                    "int",
+                    "<<",
+                    other_type.get_type()
+                ),
+                _state.clone(),
+            )),
         }
     }
 
@@ -215,12 +249,15 @@ impl Integer {
             Object::Int(right_integer) => Ok(new_objectref(Object::Int(Integer {
                 value: self.value >> right_integer.value,
             }))),
-            other_type => Err(PanicObj::new( format!(
-                "unexpected operand types: {} {} {}",
-                "int",
-                ">>",
-                other_type.get_type()
-            ), _state.clone())),
+            other_type => Err(PanicObj::new(
+                format!(
+                    "unexpected operand types: {} {} {}",
+                    "int",
+                    ">>",
+                    other_type.get_type()
+                ),
+                _state.clone(),
+            )),
         }
     }
 
@@ -229,12 +266,15 @@ impl Integer {
             Object::Int(right_integer) => Ok(new_objectref(Object::Int(Integer {
                 value: self.value & right_integer.value,
             }))),
-            other_type => Err(PanicObj::new( format!(
-                "unexpected operand types: {} {} {}",
-                "int",
-                "&",
-                other_type.get_type()
-            ), _state.clone())),
+            other_type => Err(PanicObj::new(
+                format!(
+                    "unexpected operand types: {} {} {}",
+                    "int",
+                    "&",
+                    other_type.get_type()
+                ),
+                _state.clone(),
+            )),
         }
     }
 
@@ -243,12 +283,15 @@ impl Integer {
             Object::Int(right_integer) => Ok(new_objectref(Object::Int(Integer {
                 value: self.value | right_integer.value,
             }))),
-            other_type => Err(PanicObj::new( format!(
-                "unexpected operand types: {} {} {}",
-                "int",
-                "|",
-                other_type.get_type()
-            ), _state.clone())),
+            other_type => Err(PanicObj::new(
+                format!(
+                    "unexpected operand types: {} {} {}",
+                    "int",
+                    "|",
+                    other_type.get_type()
+                ),
+                _state.clone(),
+            )),
         }
     }
 
@@ -257,12 +300,15 @@ impl Integer {
             Object::Int(right_integer) => Ok(new_objectref(Object::Int(Integer {
                 value: self.value ^ right_integer.value,
             }))),
-            other_type => Err(PanicObj::new( format!(
-                "unexpected operand types: {} {} {}",
-                "int",
-                "^",
-                other_type.get_type()
-            ), _state.clone())),
+            other_type => Err(PanicObj::new(
+                format!(
+                    "unexpected operand types: {} {} {}",
+                    "int",
+                    "^",
+                    other_type.get_type()
+                ),
+                _state.clone(),
+            )),
         }
     }
 }

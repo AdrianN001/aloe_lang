@@ -1,4 +1,6 @@
-use crate::object::{Object, ObjectRef, new_objectref, panic_obj::PanicObj, state::StateRef, string_obj::StringObj};
+use crate::object::{
+    Object, ObjectRef, new_objectref, panic_obj::PanicObj, state::StateRef, string_obj::StringObj,
+};
 
 impl StringObj {
     pub fn add(&self, right: ObjectRef, _state: StateRef) -> Result<ObjectRef, PanicObj> {
@@ -6,67 +8,85 @@ impl StringObj {
             Object::String(str_obj) => Ok(new_objectref(Object::String(StringObj {
                 value: self.value.clone() + &str_obj.value,
             }))),
-            other_type => Err(PanicObj::new( format!(
-                "unexpected operand types: {} {} {}",
-                "string",
-                "+",
-                other_type.get_type()
-            ), _state.clone())),
+            other_type => Err(PanicObj::new(
+                format!(
+                    "unexpected operand types: {} {} {}",
+                    "string",
+                    "+",
+                    other_type.get_type()
+                ),
+                _state.clone(),
+            )),
         }
     }
 
     pub fn sub(&self, right: ObjectRef, _state: StateRef) -> Result<ObjectRef, PanicObj> {
         match &*right.borrow() {
-            other_type => Err(PanicObj::new( format!(
-                "unexpected operand types: {} {} {}",
-                "string",
-                "-",
-                other_type.get_type()
-            ), _state.clone())),
+            other_type => Err(PanicObj::new(
+                format!(
+                    "unexpected operand types: {} {} {}",
+                    "string",
+                    "-",
+                    other_type.get_type()
+                ),
+                _state.clone(),
+            )),
         }
     }
 
     pub fn mul(&self, right: ObjectRef, _state: StateRef) -> Result<ObjectRef, PanicObj> {
         match &*right.borrow() {
-            other_type => Err(PanicObj::new( format!(
-                "unexpected operand types: {} {} {}",
-                "string",
-                "*",
-                other_type.get_type()
-            ), _state.clone())),
+            other_type => Err(PanicObj::new(
+                format!(
+                    "unexpected operand types: {} {} {}",
+                    "string",
+                    "*",
+                    other_type.get_type()
+                ),
+                _state.clone(),
+            )),
         }
     }
 
     pub fn div(&self, right: ObjectRef, _state: StateRef) -> Result<ObjectRef, PanicObj> {
         match &*right.borrow() {
-            other_type => Err(PanicObj::new( format!(
-                "unexpected operand types: {} {} {}",
-                "string",
-                "/",
-                other_type.get_type()
-            ), _state.clone())),
+            other_type => Err(PanicObj::new(
+                format!(
+                    "unexpected operand types: {} {} {}",
+                    "string",
+                    "/",
+                    other_type.get_type()
+                ),
+                _state.clone(),
+            )),
         }
     }
 
     pub fn modulo(&self, right: ObjectRef, _state: StateRef) -> Result<ObjectRef, PanicObj> {
         match &*right.borrow() {
-            other_type => Err(PanicObj::new( format!(
-                "unexpected operand types: {} {} {}",
-                "string",
-                "%",
-                other_type.get_type()
-            ), _state.clone())),
+            other_type => Err(PanicObj::new(
+                format!(
+                    "unexpected operand types: {} {} {}",
+                    "string",
+                    "%",
+                    other_type.get_type()
+                ),
+                _state.clone(),
+            )),
         }
     }
 
     pub fn power(&self, right: ObjectRef, _state: StateRef) -> Result<ObjectRef, PanicObj> {
         match &*right.borrow() {
-            other_type => Err(PanicObj::new( format!(
-                "unexpected operand types: {} {} {}",
-                "string",
-                "**",
-                other_type.get_type()
-            ), _state.clone())),
+            other_type => Err(PanicObj::new(
+                format!(
+                    "unexpected operand types: {} {} {}",
+                    "string",
+                    "**",
+                    other_type.get_type()
+                ),
+                _state.clone(),
+            )),
         }
     }
 
@@ -98,45 +118,57 @@ impl StringObj {
 
     pub fn lt(&self, right: ObjectRef, _state: StateRef) -> Result<ObjectRef, PanicObj> {
         match &*right.borrow() {
-            other_type => Err(PanicObj::new( format!(
-                "unexpected operand types: {} {} {}",
-                "string",
-                "<",
-                other_type.get_type()
-            ), _state.clone())),
+            other_type => Err(PanicObj::new(
+                format!(
+                    "unexpected operand types: {} {} {}",
+                    "string",
+                    "<",
+                    other_type.get_type()
+                ),
+                _state.clone(),
+            )),
         }
     }
 
     pub fn le(&self, right: ObjectRef, _state: StateRef) -> Result<ObjectRef, PanicObj> {
         match &*right.borrow() {
-            other_type => Err(PanicObj::new( format!(
-                "unexpected operand types: {} {} {}",
-                "string",
-                "<=",
-                other_type.get_type()
-            ), _state.clone())),
+            other_type => Err(PanicObj::new(
+                format!(
+                    "unexpected operand types: {} {} {}",
+                    "string",
+                    "<=",
+                    other_type.get_type()
+                ),
+                _state.clone(),
+            )),
         }
     }
 
     pub fn gt(&self, right: ObjectRef, _state: StateRef) -> Result<ObjectRef, PanicObj> {
         match &*right.borrow() {
-            other_type => Err(PanicObj::new( format!(
-                "unexpected operand types: {} {} {}",
-                "string",
-                ">",
-                other_type.get_type()
-            ), _state.clone())),
+            other_type => Err(PanicObj::new(
+                format!(
+                    "unexpected operand types: {} {} {}",
+                    "string",
+                    ">",
+                    other_type.get_type()
+                ),
+                _state.clone(),
+            )),
         }
     }
 
     pub fn ge(&self, right: ObjectRef, _state: StateRef) -> Result<ObjectRef, PanicObj> {
         match &*right.borrow() {
-            other_type => Err(PanicObj::new( format!(
-                "unexpected operand types: {} {} {}",
-                "string",
-                ">=",
-                other_type.get_type()
-            ), _state.clone())),
+            other_type => Err(PanicObj::new(
+                format!(
+                    "unexpected operand types: {} {} {}",
+                    "string",
+                    ">=",
+                    other_type.get_type()
+                ),
+                _state.clone(),
+            )),
         }
     }
 }

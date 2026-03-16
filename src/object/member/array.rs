@@ -228,7 +228,9 @@ impl Array {
                 );
                 match mapped_item {
                     Ok(ok_value) => mapped_array_content.push(ok_value.clone()),
-                    Err(error) => return Rc::new(RefCell::new(Object::new_error(error.to_string(), state))),
+                    Err(error) => {
+                        return Rc::new(RefCell::new(Object::new_error(error.to_string(), state)));
+                    }
                 }
             }
 
@@ -272,7 +274,9 @@ impl Array {
                             mapped_array_content.push(item.clone())
                         }
                     }
-                    Err(error) => return Rc::new(RefCell::new(Object::new_error(error.to_string(), state))),
+                    Err(error) => {
+                        return Rc::new(RefCell::new(Object::new_error(error.to_string(), state)));
+                    }
                 }
             }
 

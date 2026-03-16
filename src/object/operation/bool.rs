@@ -1,69 +1,89 @@
-use crate::object::{Object, ObjectRef, boolean::Boolean, new_objectref, panic_obj::PanicObj, state::StateRef};
+use crate::object::{
+    Object, ObjectRef, boolean::Boolean, new_objectref, panic_obj::PanicObj, state::StateRef,
+};
 
 impl Boolean {
     pub fn add(&self, right: ObjectRef, _state: StateRef) -> Result<ObjectRef, PanicObj> {
         match &*right.borrow() {
-            other_type => Err(PanicObj::new( format!(
-                "unexpected operand types: {} {} {}",
-                "boolean",
-                "+",
-                other_type.get_type()
-            ), _state.clone())),
+            other_type => Err(PanicObj::new(
+                format!(
+                    "unexpected operand types: {} {} {}",
+                    "boolean",
+                    "+",
+                    other_type.get_type()
+                ),
+                _state.clone(),
+            )),
         }
     }
 
     pub fn sub(&self, right: ObjectRef, _state: StateRef) -> Result<ObjectRef, PanicObj> {
         match &*right.borrow() {
-            other_type => Err(PanicObj::new( format!(
-                "unexpected operand types: {} {} {}",
-                "boolean",
-                "-",
-                other_type.get_type()
-            ), _state.clone())),
+            other_type => Err(PanicObj::new(
+                format!(
+                    "unexpected operand types: {} {} {}",
+                    "boolean",
+                    "-",
+                    other_type.get_type()
+                ),
+                _state.clone(),
+            )),
         }
     }
 
     pub fn mul(&self, right: ObjectRef, _state: StateRef) -> Result<ObjectRef, PanicObj> {
         match &*right.borrow() {
-            other_type => Err(PanicObj::new( format!(
-                "unexpected operand types: {} {} {}",
-                "boolean",
-                "*",
-                other_type.get_type()
-            ), _state.clone())),
+            other_type => Err(PanicObj::new(
+                format!(
+                    "unexpected operand types: {} {} {}",
+                    "boolean",
+                    "*",
+                    other_type.get_type()
+                ),
+                _state.clone(),
+            )),
         }
     }
 
     pub fn div(&self, right: ObjectRef, _state: StateRef) -> Result<ObjectRef, PanicObj> {
         match &*right.borrow() {
-            other_type => Err(PanicObj::new( format!(
-                "unexpected operand types: {} {} {}",
-                "boolean",
-                "/",
-                other_type.get_type()
-            ), _state.clone())),
+            other_type => Err(PanicObj::new(
+                format!(
+                    "unexpected operand types: {} {} {}",
+                    "boolean",
+                    "/",
+                    other_type.get_type()
+                ),
+                _state.clone(),
+            )),
         }
     }
 
     pub fn modulo(&self, right: ObjectRef, _state: StateRef) -> Result<ObjectRef, PanicObj> {
         match &*right.borrow() {
-            other_type => Err(PanicObj::new( format!(
-                "unexpected operand types: {} {} {}",
-                "boolean",
-                "%",
-                other_type.get_type()
-            ), _state.clone())),
+            other_type => Err(PanicObj::new(
+                format!(
+                    "unexpected operand types: {} {} {}",
+                    "boolean",
+                    "%",
+                    other_type.get_type()
+                ),
+                _state.clone(),
+            )),
         }
     }
 
     pub fn power(&self, right: ObjectRef, _state: StateRef) -> Result<ObjectRef, PanicObj> {
         match &*right.borrow() {
-            other_type => Err(PanicObj::new( format!(
-                "unexpected operand types: {} {} {}",
-                "boolean",
-                "**",
-                other_type.get_type()
-            ), _state.clone())),
+            other_type => Err(PanicObj::new(
+                format!(
+                    "unexpected operand types: {} {} {}",
+                    "boolean",
+                    "**",
+                    other_type.get_type()
+                ),
+                _state.clone(),
+            )),
         }
     }
 
@@ -93,45 +113,57 @@ impl Boolean {
 
     pub fn lt(&self, right: ObjectRef, _state: StateRef) -> Result<ObjectRef, PanicObj> {
         match &*right.borrow() {
-            other_type => Err(PanicObj::new( format!(
-                "unexpected operand types: {} {} {}",
-                "boolean",
-                "<",
-                other_type.get_type()
-            ), _state.clone())),
+            other_type => Err(PanicObj::new(
+                format!(
+                    "unexpected operand types: {} {} {}",
+                    "boolean",
+                    "<",
+                    other_type.get_type()
+                ),
+                _state.clone(),
+            )),
         }
     }
 
     pub fn le(&self, right: ObjectRef, _state: StateRef) -> Result<ObjectRef, PanicObj> {
         match &*right.borrow() {
-            other_type => Err(PanicObj::new( format!(
-                "unexpected operand types: {} {} {}",
-                "boolean",
-                "<=",
-                other_type.get_type()
-            ), _state.clone())),
+            other_type => Err(PanicObj::new(
+                format!(
+                    "unexpected operand types: {} {} {}",
+                    "boolean",
+                    "<=",
+                    other_type.get_type()
+                ),
+                _state.clone(),
+            )),
         }
     }
 
     pub fn gt(&self, right: ObjectRef, _state: StateRef) -> Result<ObjectRef, PanicObj> {
         match &*right.borrow() {
-            other_type => Err(PanicObj::new( format!(
-                "unexpected operand types: {} {} {}",
-                "boolean",
-                ">",
-                other_type.get_type()
-            ), _state.clone())),
+            other_type => Err(PanicObj::new(
+                format!(
+                    "unexpected operand types: {} {} {}",
+                    "boolean",
+                    ">",
+                    other_type.get_type()
+                ),
+                _state.clone(),
+            )),
         }
     }
 
     pub fn ge(&self, right: ObjectRef, _state: StateRef) -> Result<ObjectRef, PanicObj> {
         match &*right.borrow() {
-            other_type => Err(PanicObj::new( format!(
-                "unexpected operand types: {} {} {}",
-                "boolean",
-                ">=",
-                other_type.get_type()
-            ), _state.clone())),
+            other_type => Err(PanicObj::new(
+                format!(
+                    "unexpected operand types: {} {} {}",
+                    "boolean",
+                    ">=",
+                    other_type.get_type()
+                ),
+                _state.clone(),
+            )),
         }
     }
 
@@ -142,12 +174,15 @@ impl Boolean {
             Object::Bool(other_bool) => Ok(new_objectref(Object::get_native_boolean_object(
                 self.value && other_bool.value,
             ))),
-            other_type => Err(PanicObj::new( format!(
-                "unexpected operand types: {} {} {}",
-                "boolean",
-                "&&",
-                other_type.get_type()
-            ), _state.clone())),
+            other_type => Err(PanicObj::new(
+                format!(
+                    "unexpected operand types: {} {} {}",
+                    "boolean",
+                    "&&",
+                    other_type.get_type()
+                ),
+                _state.clone(),
+            )),
         }
     }
 
@@ -156,12 +191,15 @@ impl Boolean {
             Object::Bool(other_bool) => Ok(new_objectref(Object::get_native_boolean_object(
                 self.value || other_bool.value,
             ))),
-            other_type => Err(PanicObj::new( format!(
-                "unexpected operand types: {} {} {}",
-                "boolean",
-                "||",
-                other_type.get_type()
-            ), _state.clone())),
+            other_type => Err(PanicObj::new(
+                format!(
+                    "unexpected operand types: {} {} {}",
+                    "boolean",
+                    "||",
+                    other_type.get_type()
+                ),
+                _state.clone(),
+            )),
         }
     }
 
@@ -170,12 +208,15 @@ impl Boolean {
             Object::Bool(other_bool) => Ok(new_objectref(Object::get_native_boolean_object(
                 self.value ^ other_bool.value,
             ))),
-            other_type => Err(PanicObj::new( format!(
-                "unexpected operand types: {} {} {}",
-                "boolean",
-                "^",
-                other_type.get_type()
-            ), _state.clone())),
+            other_type => Err(PanicObj::new(
+                format!(
+                    "unexpected operand types: {} {} {}",
+                    "boolean",
+                    "^",
+                    other_type.get_type()
+                ),
+                _state.clone(),
+            )),
         }
     }
 
@@ -184,12 +225,15 @@ impl Boolean {
             Object::Bool(right_bool) => Ok(new_objectref(Object::get_native_boolean_object(
                 self.value & right_bool.value,
             ))),
-            other_type => Err(PanicObj::new( format!(
-                "unexpected operand types: {} {} {}",
-                "boolean",
-                "&",
-                other_type.get_type()
-            ), _state.clone())),
+            other_type => Err(PanicObj::new(
+                format!(
+                    "unexpected operand types: {} {} {}",
+                    "boolean",
+                    "&",
+                    other_type.get_type()
+                ),
+                _state.clone(),
+            )),
         }
     }
 
@@ -198,12 +242,15 @@ impl Boolean {
             Object::Bool(right_bool) => Ok(new_objectref(Object::get_native_boolean_object(
                 self.value | right_bool.value,
             ))),
-            other_type => Err(PanicObj::new( format!(
-                "unexpected operand types: {} {} {}",
-                "boolean",
-                "|",
-                other_type.get_type()
-            ), _state.clone())),
+            other_type => Err(PanicObj::new(
+                format!(
+                    "unexpected operand types: {} {} {}",
+                    "boolean",
+                    "|",
+                    other_type.get_type()
+                ),
+                _state.clone(),
+            )),
         }
     }
 }

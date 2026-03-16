@@ -11,10 +11,10 @@ impl ValueAssignExpression {
             Expression::Identifier(identifier) => {
                 let mut environ_borrow = environ.borrow_mut();
                 if !environ_borrow.try_to_assign(&identifier.value, right.clone()) {
-                    return Err(PanicObj::new(format!(
-                        "variable '{}' is not initialized.",
-                        &identifier.value
-                    ), state.clone()));
+                    return Err(PanicObj::new(
+                        format!("variable '{}' is not initialized.", &identifier.value),
+                        state.clone(),
+                    ));
                 }
                 Ok(right.clone())
             }
@@ -22,10 +22,10 @@ impl ValueAssignExpression {
                 index_expr.evaluate_value_assign(environ.clone(), right.clone(), state.clone())?;
                 Ok(right.clone())
             }
-            other_expression => Err(PanicObj::new(format!(
-                "expected LValue, got {}",
-                other_expression.to_string()
-            ), state.clone())),
+            other_expression => Err(PanicObj::new(
+                format!("expected LValue, got {}", other_expression.to_string()),
+                state.clone(),
+            )),
         }
     }
 }

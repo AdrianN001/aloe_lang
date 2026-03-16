@@ -20,7 +20,10 @@ impl BlockStatement {
                     if state.borrow().is_function_context() {
                         return Ok(result.clone());
                     } else {
-                        return Err(PanicObj::new_simple("cannot return from a non-function context", state.clone()));
+                        return Err(PanicObj::new_simple(
+                            "cannot return from a non-function context",
+                            state.clone(),
+                        ));
                     }
                 }
                 Object::Err(_) => return Ok(result.clone()),
@@ -44,10 +47,16 @@ impl BlockStatement {
 
             match &*borrowed_result {
                 Object::BreakVal(_) => {
-                    return Err(PanicObj::new_simple("unexpected break keyword in non-loop context", state.clone()));
+                    return Err(PanicObj::new_simple(
+                        "unexpected break keyword in non-loop context",
+                        state.clone(),
+                    ));
                 }
                 Object::Continue => {
-                    return Err(PanicObj::new_simple("unexpected continue keyword in non-loop context", state.clone()));
+                    return Err(PanicObj::new_simple(
+                        "unexpected continue keyword in non-loop context",
+                        state.clone(),
+                    ));
                 }
                 Object::ReturnVal(_ret_val) => return Ok(result.clone()),
                 Object::Err(_) => return Ok(result.clone()),

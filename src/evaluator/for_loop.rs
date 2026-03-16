@@ -6,14 +6,12 @@ use crate::{
         statement::Statement,
     },
     object::{
-        Object, ObjectRef,
-        stack_environment::{EnvRef, StackEnvironment},
-        state::StateRef,
+        Object, ObjectRef, panic_obj::PanicObj, stack_environment::{EnvRef, StackEnvironment}, state::StateRef
     },
 };
 
 impl ForLoopExpression {
-    pub fn evaluate(&self, environ: EnvRef, state: StateRef) -> Result<ObjectRef, String> {
+    pub fn evaluate(&self, environ: EnvRef, state: StateRef) -> Result<ObjectRef, PanicObj> {
         let new_environment = Rc::new(RefCell::new(StackEnvironment::new_enclosed(
             environ.clone(),
             if let Some(variable) = &self.variable
@@ -40,7 +38,7 @@ impl ForLoopExpression {
                         iterable_expression,
                         state,
                     ),
-                _ => return Err("err".into()),
+                _ => return Err(PanicObj::new_simple("expected identifier for 'for loop', got nothing", state.clone())),
             };
         }
 
@@ -53,14 +51,15 @@ impl ForLoopExpression {
         variable: &Identifier,
         iterable: &Expression,
         state: StateRef,
-    ) -> Result<ObjectRef, String> {
+    ) -> Result<ObjectRef, PanicObj> {
         let provided_object = iterable.evaluate(environ.clone(), state.clone())?;
 
         let mut iterator = match &*provided_object.borrow() {
             Object::Iterator(iterator) => iterator.clone(),
             Object::Array(arr) => arr.build_iterator(),
             Object::String(str) => str.build_char_iterator(),
-            _ => panic!("value provided is not an iterator"),
+            Object::ReturnVal(_) => return Ok(provided_object.clone()), // propagated 
+            _ => return Err(PanicObj::new_simple("value provided to for loop is not an iterator", state.clone())),
         };
 
         while let Some(current_value) = iterator._next() {
@@ -70,7 +69,7 @@ impl ForLoopExpression {
                 if matches!(statement, Statement::Return(_))
                     && !state.borrow().is_function_context()
                 {
-                    return Err("return statement was used in a non-function context".to_string());
+                    return Err(PanicObj::new_simple("return statement was used in a non-function context", state.clone()));
                 }
 
                 let result = statement.evaluate(environ.clone(), state.clone())?;
@@ -92,13 +91,13 @@ impl ForLoopExpression {
         &self,
         environ: EnvRef,
         state: StateRef,
-    ) -> Result<ObjectRef, String> {
+    ) -> Result<ObjectRef, PanicObj> {
         loop {
             for statement in &self.block.statements {
                 if matches!(statement, Statement::Return(_))
                     && !state.borrow().is_function_context()
                 {
-                    return Err("return statement was used in a non-function context".to_string());
+                    return Err(PanicObj::new_simple("return statement was used in a non-function context", state.clone()));
                 }
 
                 let result = statement.evaluate(environ.clone(), state.clone())?;

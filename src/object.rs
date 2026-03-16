@@ -18,6 +18,7 @@ pub mod stack_environment;
 pub mod state;
 pub mod string_obj;
 pub mod truthy;
+pub mod panic_obj;
 
 use std::{cell::RefCell, rc::Rc};
 

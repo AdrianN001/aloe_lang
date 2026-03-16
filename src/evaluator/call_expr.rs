@@ -3,13 +3,14 @@ use std::rc::Rc;
 
 use crate::ast::expression::Expression;
 use crate::ast::expression::call_expression::CallExpression;
+use crate::object::panic_obj::PanicObj;
 use crate::object::return_value::ReturnValue;
 use crate::object::stack_environment::EnvRef;
 use crate::object::state::StateRef;
 use crate::object::{Object, ObjectRef};
 
 impl CallExpression {
-    pub fn evaluate(&self, environ: EnvRef, state: StateRef) -> Result<ObjectRef, String> {
+    pub fn evaluate(&self, environ: EnvRef, state: StateRef) -> Result<ObjectRef, PanicObj> {
         let function_object = self
             .function
             .evaluate(environ.clone(), state.clone())?
@@ -34,21 +35,21 @@ impl CallExpression {
             Object::BuiltIn(built_in_function) => {
                 Ok(built_in_function.call(&args, environ.clone(), state.clone()))
             }
-            other_type => Err(format!(
+            other_type => Err(PanicObj::new(format!(
                 "'{}' is not a function. It cannot be called.",
                 other_type.inspect()
-            )),
+            ), state.clone())),
         };
 
         let ok_return_value = return_value?;
 
         if let Object::Err(error) = &*ok_return_value.borrow() {
             if self.question_mark_set && !state.borrow().is_function_context() {
-                return Err("tried to use ? on a function, without function-context".to_string());
+                return Err(PanicObj::new("tried to use ? on a function, without function-context".to_string(), state.clone()));
             }
 
             if self.bang_set {
-                return Err(error.value.clone());
+                return Err(PanicObj::from_error(&error, state));
             } else if self.question_mark_set {
                 return Ok(Rc::new(RefCell::new(Object::ReturnVal(ReturnValue {
                     value: Box::new(ok_return_value.clone()),
@@ -63,7 +64,7 @@ impl CallExpression {
         &self,
         environ: EnvRef,
         state: StateRef,
-    ) -> Result<Vec<ObjectRef>, String> {
+    ) -> Result<Vec<ObjectRef>, PanicObj> {
         self.arguments
             .iter()
             .map(|argument| argument.evaluate(environ.clone(), state.clone()).clone())

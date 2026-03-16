@@ -11,6 +11,7 @@ mod infix_expr;
 mod member_expr;
 mod prefix_expr;
 mod value_assign;
+mod import_statement;
 
 use std::cell::RefCell;
 use std::rc::Rc;
@@ -22,6 +23,7 @@ use crate::object::break_value::BreakValue;
 use crate::object::function::Function;
 use crate::object::integer::Integer;
 use crate::object::null::Null;
+use crate::object::panic_obj::PanicObj;
 use crate::object::return_value::ReturnValue;
 use crate::object::stack_environment::{EnvRef, StackEnvironment};
 use crate::object::state::{DEFAULT_INTERPRETER_STATE, StateRef};
@@ -33,7 +35,7 @@ use super::ast::expression::Expression;
 use super::ast::statement::Statement;
 
 impl Expression {
-    pub fn evaluate(&self, environ: EnvRef, state: StateRef) -> Result<ObjectRef, String> {
+    pub fn evaluate(&self, environ: EnvRef, state: StateRef) -> Result<ObjectRef, PanicObj> {
         match self {
             Expression::IntegerLiteral(literal) => {
                 Ok(Rc::new(RefCell::new(Object::Int(Integer {
@@ -41,16 +43,16 @@ impl Expression {
                 }))))
             }
             Expression::FloatLiteral(float_literal) => Ok(float_literal.evaluate()),
-            Expression::Identifier(identifier) => identifier.evaluate(environ.clone()),
+            Expression::Identifier(identifier) => identifier.evaluate(environ.clone(), state),
             Expression::Bool(bool_literal) => Ok(Rc::new(RefCell::new(
                 Object::get_native_boolean_object(bool_literal.value),
             ))),
             Expression::Prefix(prefix_expr) => {
-                let right_side = prefix_expr.right.evaluate(environ.clone(), state)?;
+                let right_side = prefix_expr.right.evaluate(environ.clone(), state.clone())?;
 
                 right_side
                     .borrow_mut()
-                    .evaluate_prefix(&prefix_expr.operator)
+                    .evaluate_prefix(&prefix_expr.operator, state)
             }
             Expression::ValueAssign(value_assign) => value_assign.evaluate(environ.clone(), state),
             Expression::HashMapLiteral(hashmap) => hashmap.evaluate(environ.clone(), state),
@@ -92,7 +94,7 @@ impl Expression {
 }
 
 impl Statement {
-    pub fn evaluate(&self, environ: EnvRef, state: StateRef) -> Result<ObjectRef, String> {
+    pub fn evaluate(&self, environ: EnvRef, state: StateRef) -> Result<ObjectRef, PanicObj> {
         match self {
             Statement::Expression(expr) => expr.expression.evaluate(environ, state),
             Statement::Block(block_stmt) => block_stmt.evaluate(environ, state),
@@ -135,7 +137,7 @@ impl Statement {
 }
 
 impl Program {
-    pub fn evaluate(&self) -> Result<ObjectRef, String> {
+    pub fn evaluate(&self) -> Result<ObjectRef, PanicObj> {
         let mut result = Rc::new(RefCell::new(Object::Null(Null {})));
         let environ = Rc::new(RefCell::new(StackEnvironment::new()));
         let state = Rc::new(RefCell::new(DEFAULT_INTERPRETER_STATE));
@@ -146,14 +148,14 @@ impl Program {
 
             match &*borrowed_result {
                 Object::BreakVal(_) => {
-                    return Err("unexpected break keyword in non-loop context".into());
+                    return Err(PanicObj::new_simple("unexpected break keyword in non-loop context", state));
                 }
                 Object::Continue => {
-                    return Err("unexpected continue keyword in non-loop context".into());
+                    return Err(PanicObj::new_simple("unexpected continue keyword in non-loop context", state));
                 }
 
                 Object::ReturnVal(_) => {
-                    return Err("unexpected return keyword in non-function context".into());
+                    return Err(PanicObj::new_simple("unexpected return keyword in non-function context", state));
                 }
                 Object::Err(_) => return Ok(result.clone()),
                 _ => {}
@@ -163,7 +165,7 @@ impl Program {
         Ok(result)
     }
 
-    pub fn evaluate_with_other_environment(&self, environ: EnvRef) -> Result<ObjectRef, String> {
+    pub fn evaluate_with_other_environment(&self, environ: EnvRef) -> Result<ObjectRef, PanicObj> {
         let mut result = Rc::new(RefCell::new(Object::Null(Null {})));
         let state = Rc::new(RefCell::new(DEFAULT_INTERPRETER_STATE));
 
@@ -173,13 +175,13 @@ impl Program {
 
             match &*borrowed_result {
                 Object::BreakVal(_) => {
-                    return Err("unexpected break keyword in non-loop context".into());
+                    return Err(PanicObj::new_simple("unexpected break keyword in non-loop context", state));
                 }
                 Object::Continue => {
-                    return Err("unexpected continue keyword in non-loop context".into());
+                    return Err(PanicObj::new_simple("unexpected continue keyword in non-loop context", state));
                 }
                 Object::ReturnVal(_) => {
-                    return Err("unexpected return keyword in non-function context".into());
+                    return Err(PanicObj::new_simple("unexpected return keyword in non-function context", state));
                 }
                 Object::Err(_) => return Ok(result.clone()),
                 _ => {}

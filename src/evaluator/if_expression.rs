@@ -1,5 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
+use crate::object::panic_obj::PanicObj;
 use crate::object::stack_environment::EnvRef;
 
 use crate::object::state::StateRef;
@@ -9,7 +10,7 @@ use crate::{
 };
 
 impl IfExpression {
-    pub fn evaluate(&self, environ: EnvRef, state: StateRef) -> Result<ObjectRef, String> {
+    pub fn evaluate(&self, environ: EnvRef, state: StateRef) -> Result<ObjectRef, PanicObj> {
         let condition = self.condition.evaluate(environ.clone(), state.clone())?;
 
         if condition.borrow().is_truthy() {

@@ -1,6 +1,7 @@
 use std::{cell::RefCell, rc::Rc};
 
 use crate::object::hashmap::HashPair;
+use crate::object::panic_obj::PanicObj;
 use crate::object::stack_environment::EnvRef;
 use crate::object::state::StateRef;
 use crate::object::string_obj::StringObj;
@@ -10,7 +11,7 @@ use crate::{
 };
 
 impl IndexExpression {
-    pub fn evaluate(&self, environ: EnvRef, state: StateRef) -> Result<ObjectRef, String> {
+    pub fn evaluate(&self, environ: EnvRef, state: StateRef) -> Result<ObjectRef, PanicObj> {
         let left_expr = self.left.evaluate(environ.clone(), state.clone())?;
         let index = self.right.evaluate(environ.clone(), state.clone())?;
 
@@ -55,10 +56,10 @@ impl IndexExpression {
                 }))))
             }
             (Object::HashMap(map), _) => Ok(map.get([index.clone()].as_ref(), state)),
-            _ => Err(format!(
+            _ => Err(PanicObj::new(format!(
                 "index operator not supported: {}",
                 index.borrow().get_type()
-            )),
+            ), state.clone())),
         }
     }
 
@@ -67,7 +68,7 @@ impl IndexExpression {
         environ: EnvRef,
         rvalue: ObjectRef,
         state: StateRef,
-    ) -> Result<(), String> {
+    ) -> Result<(), PanicObj> {
         let left_expr = self.left.evaluate(environ.clone(), state.clone())?;
         let index = self.right.evaluate(environ.clone(), state.clone())?;
 
@@ -78,7 +79,7 @@ impl IndexExpression {
             Object::Array(arr) => {
                 let idx = match &*index_borrow {
                     Object::Int(i) => i.value,
-                    _ => return Err("Index must be integer".into()),
+                    _ => return Err(PanicObj::new_simple("Index must be integer", state.clone())),
                 };
 
                 let len = arr.items.len() as i64;
@@ -86,7 +87,7 @@ impl IndexExpression {
                 let real_index = if idx < 0 { len + idx } else { idx };
 
                 if real_index < 0 || real_index >= len {
-                    return Err("IndexError".into());
+                    return Err(PanicObj::new_simple("out of bounds panic", state.clone()));
                 }
 
                 arr.items[real_index as usize] = rvalue;
@@ -94,7 +95,10 @@ impl IndexExpression {
             }
 
             Object::HashMap(map) => {
-                let hashed_object = index_borrow.hash()?;
+                let hashed_object = match index_borrow.hash(){
+                    Ok(ok_value) => ok_value,
+                    Err(err_feedback) => return Err(PanicObj::new(err_feedback, state.clone()))
+                };
 
                 map.pairs.insert(
                     hashed_object,
@@ -107,10 +111,10 @@ impl IndexExpression {
                 Ok(())
             }
 
-            _ => Err(format!(
+            _ => Err(PanicObj::new(format!(
                 "index operator not supported on {}",
                 left_borrow.get_type()
-            )),
+            ), state.clone())),
         }
     }
 }

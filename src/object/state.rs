@@ -8,7 +8,7 @@ pub type StateRef = Rc<RefCell<InterpreterState>>;
 
 pub const DEFAULT_INTERPRETER_STATE: InterpreterState = InterpreterState { stack: Vec::new() };
 
-#[derive(PartialEq, Eq, Clone, Default)]
+#[derive(PartialEq, Eq, Clone, Default, Debug)]
 pub struct InterpreterState {
     pub stack: Vec<CallFrame>,
 }

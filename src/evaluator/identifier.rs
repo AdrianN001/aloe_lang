@@ -2,7 +2,7 @@ use std::{cell::RefCell, rc::Rc};
 
 use crate::{
     ast::expression::identifier::Identifier,
-    object::{Object, ObjectRef, built_in::BuiltIn, stack_environment::EnvRef},
+    object::{Object, ObjectRef, built_in::BuiltIn, panic_obj::PanicObj, stack_environment::EnvRef, state::StateRef},
 };
 
 impl Identifier {
@@ -25,7 +25,7 @@ impl Identifier {
         }
     }
 
-    pub fn evaluate(&self, environ: EnvRef) -> Result<ObjectRef, String> {
+    pub fn evaluate(&self, environ: EnvRef, state: StateRef) -> Result<ObjectRef, PanicObj> {
         match environ.borrow().get(&self.value) {
             Some(obj) => Ok(obj.clone()),
             None => {
@@ -33,7 +33,7 @@ impl Identifier {
                     return Ok(Rc::new(RefCell::new(Object::BuiltIn(built_in))));
                 }
 
-                Err(format!("unknown identifier: {}", &self.value))
+                Err(PanicObj::new(format!("unknown identifier: {}", &self.value), state.clone()))
             }
         }
     }

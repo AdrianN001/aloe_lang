@@ -1843,7 +1843,7 @@ pub fn test_cases_for_input_output(testcases: &[(&str, &str)]) {
         let last_object = match program.evaluate() {
             Ok(x) => x,
             Err(err) => {
-                assert_eq!(err, expected_value);
+                assert_eq!(err.value, expected_value);
                 return;
             }
         };

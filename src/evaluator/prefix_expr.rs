@@ -1,11 +1,11 @@
-use std::{cell::RefCell, os::macos::raw::stat, rc::Rc};
+use std::{cell::RefCell, rc::Rc};
 
 use crate::object::{
     Object, ObjectRef,
     float_obj::FloatObj,
     integer::Integer,
     panic_obj::PanicObj,
-    state::{self, StateRef},
+    state::StateRef,
 };
 
 impl Object {

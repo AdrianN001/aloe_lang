@@ -7,7 +7,7 @@ use crate::{
         panic_obj::PanicObj,
         return_value::ReturnValue,
         stack_environment::EnvRef,
-        state::{self, StateRef},
+        state::StateRef,
     },
 };
 

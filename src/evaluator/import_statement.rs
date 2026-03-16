@@ -1,8 +1,3 @@
-use std::{
-    cell::RefCell,
-    collections::{HashMap, HashSet},
-    rc::Rc,
-};
 
 use crate::{
     ast::{expression::Expression, statement::import_statement::ImportStatement},
@@ -10,9 +5,9 @@ use crate::{
 };
 
 impl ImportStatement {
-    pub fn evaluate(&self, environ: EnvRef, state: StateRef) -> Result<ObjectRef, String> {
-        let imported_identifiers = Self::get_identifier_expressions(&self.identifiers)?;
-        let path = self.module_name.clone();
+    pub fn evaluate(&self, _environ: EnvRef, _state: StateRef) -> Result<ObjectRef, String> {
+        let _imported_identifiers = Self::get_identifier_expressions(&self.identifiers)?;
+        let _path = self.module_name.clone();
 
         Ok(new_objectref(Object::NULL_OBJECT))
     }

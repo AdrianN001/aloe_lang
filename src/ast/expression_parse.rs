@@ -531,13 +531,21 @@ impl Parser {
 
         while self.peek_token.token_type == TokenType::Comma {
             self.next_token();
+
+            // [1,2,3,]
+            if self.peek_token.token_type == end_token {
+                break;
+            }
             self.next_token();
 
             args.push(self.parse_expression(OperationPrecedence::Lowest)?);
         }
 
         if self.peek_token.token_type != end_token {
-            return Err("unexpected token. Got: 'RParen'".into());
+            return Err(format!(
+                "unexpected token. expected: {}, got: {}",
+                end_token, self.peek_token.token_type
+            ));
         }
         self.next_token();
 

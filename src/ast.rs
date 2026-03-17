@@ -7,6 +7,7 @@ use crate::ast::statement::continue_statement::ContinueStatement;
 use crate::ast::statement::function_statement::FunctionStatement;
 use crate::ast::statement::import_statement::ImportStatement;
 use crate::ast::statement::let_statement::LetStatement;
+use crate::ast::statement::struct_statement::StructStatement;
 use crate::{
     ast::{
         program::Program,
@@ -80,6 +81,7 @@ impl Parser {
             TokenType::KwContinue => self.parse_continue(),
             TokenType::KwFunctionStatement => self.parse_function_statement(),
             TokenType::KwImport => self.parse_import(),
+            TokenType::KwStruct => self.parse_struct_statement(),
             _ => self.parse_expression_statement(),
         }
     }
@@ -285,6 +287,41 @@ impl Parser {
         }
 
         Ok(Statement::Break(statement))
+    }
+
+    fn parse_struct_statement(&mut self) -> Result<Statement, String> {
+        let token = self.current_token.clone();
+
+        if self.peek_token.token_type != TokenType::Identifier {
+            return Err(format!(
+                "expected Identifier, got: '{}'",
+                self.peek_token.token_type
+            ));
+        }
+        self.next_token();
+
+        let name = self.parse_expression(OperationPrecedence::Lowest)?;
+
+        if self.peek_token.token_type != TokenType::LBrace {
+            return Err(format!(
+                "expected LBrace, got: '{}'",
+                self.peek_token.token_type
+            ));
+        }
+        self.next_token();
+
+        let attributes = self.parse_expression_list(TokenType::RBrace)?;
+        self.next_token();
+
+        if self.current_token.token_type == TokenType::Semicolon {
+            self.next_token();
+        }
+
+        Ok(Statement::Struct(StructStatement {
+            token,
+            name,
+            attributes,
+        }))
     }
 
     fn parse_expression_statement(&mut self) -> Result<Statement, String> {

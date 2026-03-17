@@ -807,3 +807,73 @@ fn test_import_statement() {
         assert_eq!(imp_statment.custom_name, expeted_alt_name);
     })
 }
+
+#[test]
+fn test_struct_statement() {
+    let testcases = [
+        (
+            "
+struct Person{
+            name
+        }
+    ",
+            "Person",
+            ["name"].to_vec(),
+        ),
+        (
+            "
+struct Person{
+            first_name,
+            last_name,
+        };
+    ",
+            "Person",
+            ["first_name", "last_name"].to_vec(),
+        ),
+        (
+            "
+struct Car{
+            color,
+            license_plate,
+    }
+    ",
+            "Car",
+            ["color", "license_plate"].to_vec(),
+        ),
+        (
+            "
+struct Car{};
+    ",
+            "Car",
+            [].to_vec(),
+        ),
+    ];
+
+    testcases.iter().for_each(|testcase| {
+        let input = testcase.0;
+        println!("{}", &input);
+        let expected_struct_name = testcase.1;
+        let expected_attributes = testcase.2.clone();
+
+        let lexer = Lexer::new(input.to_string());
+        let parser = Parser::new(lexer);
+        let program = parser.into_a_program().unwrap();
+
+        assert_eq!(program.statements.len(), 1);
+
+        let struct_statment = match &program.statements[0] {
+            Statement::Struct(struct_stmt) => struct_stmt,
+            _ => panic!(),
+        };
+
+        assert_eq!(
+            struct_statment
+                .attributes
+                .iter()
+                .map(|identifier| identifier.to_string())
+                .collect::<Vec<_>>(),
+            expected_attributes
+        );
+        assert_eq!(struct_statment.name.to_string(), expected_struct_name);
+    })
+}

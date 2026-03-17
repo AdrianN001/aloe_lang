@@ -67,6 +67,8 @@ pub enum TokenType {
     KwFrom,
     KwInto,
 
+    KwStruct,
+
     KwDefer,
 
     KwFor,
@@ -89,6 +91,8 @@ pub fn lookup_identifiers(identifier: &str) -> TokenType {
         "import" => TokenType::KwImport,
         "from" => TokenType::KwFrom,
         "into" => TokenType::KwInto,
+
+        "struct" => TokenType::KwStruct,
 
         "for" => TokenType::KwFor,
         "break" => TokenType::KwBreak,

@@ -7,12 +7,14 @@ pub mod function_statement;
 pub mod import_statement;
 pub mod let_statement;
 pub mod return_statement;
+pub mod struct_statement;
 
 use block_statement::BlockStatement;
 use expression_statement::ExpressionStatement;
 use import_statement::ImportStatement;
 use let_statement::LetStatement;
 use return_statement::ReturnStatement;
+use struct_statement::StructStatement;
 
 use crate::ast::statement::{
     break_statement::BreakStatement, continue_statement::ContinueStatement,
@@ -29,6 +31,7 @@ pub enum Statement {
     Block(BlockStatement),
     Function(FunctionStatement),
     Import(ImportStatement),
+    Struct(StructStatement),
 }
 
 impl Statement {
@@ -42,6 +45,7 @@ impl Statement {
             Statement::Continue(s) => &s.token.literal,
             Statement::Function(s) => &s.token.literal,
             Statement::Import(s) => &s.token.literal,
+            Statement::Struct(s) => &s.token.literal,
         }
     }
 
@@ -55,6 +59,7 @@ impl Statement {
             Statement::Break(s) => s.to_string(),
             Statement::Continue(s) => s.to_string(),
             Statement::Import(s) => s.to_string(),
+            Statement::Struct(s) => s.to_string(),
         }
     }
 }

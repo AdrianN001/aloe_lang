@@ -64,6 +64,8 @@ impl fmt::Display for TokenType {
             TokenType::KwFalse => "false",
             TokenType::KwDefer => "defer",
 
+            TokenType::KwStruct => "struct",
+
             TokenType::KwFor => "for",
             TokenType::KwBreak => "break",
             TokenType::KwContinue => "continue",

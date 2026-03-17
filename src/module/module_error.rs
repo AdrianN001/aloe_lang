@@ -1,3 +1,4 @@
+#[derive(Debug)]
 pub struct ModuleError {
     pub value: String,
     pub module_name: String,

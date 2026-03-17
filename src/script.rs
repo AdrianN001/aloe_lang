@@ -15,9 +15,7 @@ pub fn run_script(file_path: &str) -> Result<(), ModuleError> {
     let mut module_cache = ModuleLoader::new();
     module_cache.set(main_module.clone());
 
-    let _ = {
-        main_module.borrow_mut().execute(&mut module_cache);
-    };
+    main_module.borrow_mut().execute(&mut module_cache).unwrap();
 
     Ok(())
 }

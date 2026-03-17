@@ -17,7 +17,7 @@ fn main() {
     if args.len() < 2 {
         start_repl();
     } else {
-        run_script(&args[1]);
+        run_script(&args[1]).unwrap();
     }
 }
 

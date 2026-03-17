@@ -1605,6 +1605,21 @@ m.get(\"a\")?.as_str();
         ),
         (
             "
+fn(){
+let m = {\"a\": 3};
+m.get()?.as_str();
+                }()",
+            "expected 1 argument for hashmap.get(), got: 0",
+        ),
+        (
+            "
+let m = {\"a\": 3};
+m.get(\"b\")?.as_str();
+",
+            "null has no methods",
+        ),
+        (
+            "
 let f = fn(){
     [ {\"x\": {}.get()?} ];
 };

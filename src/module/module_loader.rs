@@ -2,6 +2,7 @@ use std::collections::HashMap;
 
 use crate::module::{Module, ModuleRef, module_error::ModuleError};
 
+#[derive(Default)]
 pub struct ModuleLoader {
     cache: HashMap<String, ModuleRef>,
 }
@@ -38,7 +39,7 @@ impl ModuleLoader {
 
         {
             let mut borrow = module.borrow_mut();
-            borrow.execute(self);
+            borrow.execute(self).unwrap();
         }
 
         Ok(module)

@@ -19,6 +19,7 @@ pub mod stack_environment;
 pub mod state;
 pub mod string_obj;
 pub mod truthy;
+pub mod struct_model;
 
 use std::{cell::RefCell, rc::Rc};
 
@@ -36,7 +37,7 @@ use string_obj::StringObj;
 
 use crate::object::{
     break_value::BreakValue, hashable::Hashable, hashmap::HashKey, iterator::Iterator,
-    state::StateRef,
+    state::StateRef, struct_model::StructModel,
 };
 
 pub type ObjectRef = Rc<RefCell<Object>>;
@@ -60,6 +61,8 @@ pub enum Object {
 
     Array(Array),
     HashMap(HashMap),
+
+    StructModel(StructModel),
 
     Null(Null),
 }
@@ -99,6 +102,7 @@ impl Object {
             Object::FloatObj(obj) => obj.get_type(),
             Object::Iterator(obj) => obj.get_type(),
             Object::BreakVal(obj) => obj.get_type(),
+            Object::StructModel(obj) => obj.get_type(),
             Object::Continue => "continue".to_string(),
         }
     }
@@ -118,6 +122,7 @@ impl Object {
             Object::FloatObj(obj) => obj.inspect(),
             Object::Iterator(obj) => obj.inspect(),
             Object::BreakVal(obj) => obj.inspect(),
+            Object::StructModel(obj) => obj.inspect(),
             Object::Continue => "continue".to_string(),
         }
     }
@@ -136,10 +141,10 @@ impl Object {
             Object::Bool(b) => Ok(b.hash()),
             Object::FloatObj(f) => Ok(f.hash()),
             _ => {
-                return Err(format!(
+                Err(format!(
                     "object with type: {} is not hashable",
                     &self.get_type()
-                ));
+                ))
             }
         }
     }

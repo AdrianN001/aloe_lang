@@ -12,6 +12,7 @@ mod infix_expr;
 mod member_expr;
 mod prefix_expr;
 mod value_assign;
+mod struct_statement;
 
 use std::cell::RefCell;
 use std::rc::Rc;
@@ -132,8 +133,8 @@ impl Statement {
                 }))))
             }
             Statement::Function(func_stmt) => Ok(func_stmt.evaluate(environ.clone())),
+            Statement::Struct(struct_stmt) => struct_stmt.evaluate(environ, state) ,
             Statement::Import(_) => panic!("already catched"),
-            Statement::Struct(_) => panic!(),
         }
     }
 }

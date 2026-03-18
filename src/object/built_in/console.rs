@@ -18,5 +18,5 @@ pub fn console_write_builtin_function(args: &[ObjectRef], _environ: EnvRef) -> O
         println!();
     }
 
-    args[0].clone()
+    Rc::new(RefCell::new(Object::NULL_OBJECT))
 }

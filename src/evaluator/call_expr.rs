@@ -55,7 +55,7 @@ impl CallExpression {
             }
 
             if self.bang_set {
-                return Err(PanicObj::from_error(&error, state));
+                return Err(PanicObj::from_error(error, state));
             } else if self.question_mark_set {
                 return Ok(Rc::new(RefCell::new(Object::ReturnVal(ReturnValue {
                     value: Box::new(ok_return_value.clone()),

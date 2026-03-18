@@ -533,7 +533,7 @@ impl Parser {
             self.next_token();
 
             // [1,2,3,]
-            if self.peek_token.token_type == end_token {
+            if self.peek_token.token_type == end_token{
                 break;
             }
             self.next_token();

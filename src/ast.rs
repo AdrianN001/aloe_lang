@@ -1,3 +1,5 @@
+use std::io::Write;
+
 use crate::ast::expression::Expression;
 use crate::ast::expression::identifier::Identifier;
 use crate::ast::expression::value_assign_expression::ValueAssignExpression;
@@ -311,9 +313,8 @@ impl Parser {
         self.next_token();
 
         let attributes = self.parse_expression_list(TokenType::RBrace)?;
-        self.next_token();
 
-        if self.current_token.token_type == TokenType::Semicolon {
+        if self.peek_token.token_type == TokenType::Semicolon {
             self.next_token();
         }
 

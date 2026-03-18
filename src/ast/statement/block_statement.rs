@@ -11,7 +11,17 @@ impl BlockStatement {
         let mut buffer = String::new();
 
         self.statements.iter().for_each(|statement| {
+            if self.statements.len() != 1{
+                buffer.push('\t');
+            }
             buffer.push_str(&statement.to_string());
+            if self.statements.len() != 1{
+                buffer.push(';');
+            }
+            if self.statements.len() == 1{
+                return;
+            }
+            buffer.push('\n');
         });
 
         buffer

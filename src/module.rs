@@ -77,6 +77,8 @@ impl Module {
         let parser = Parser::new(lexer);
         let program = parser.into_a_program().unwrap();
 
+        // println!("{}", program.to_string());
+
         let environment = Rc::new(RefCell::new(StackEnvironment::new()));
 
         let _last_obj = program.evaluate(environment.clone(), module_loader)?;

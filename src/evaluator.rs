@@ -21,7 +21,6 @@ use std::rc::Rc;
 use crate::ast::program::Program;
 use crate::module::module_loader::ModuleLoader;
 use crate::object::ObjectRef;
-use crate::object::array::Array;
 use crate::object::break_value::BreakValue;
 use crate::object::function::Function;
 use crate::object::integer::Integer;
@@ -66,7 +65,7 @@ impl Expression {
             Expression::Function(func_expr) => Ok(Rc::new(RefCell::new(Object::Func(
                 Function::from_function_expression(func_expr, environ.clone()),
             )))),
-            Expression::ForLoop(for_loop) => for_loop.evaluate(environ.clone(), state),
+            Expression::ForLoop(for_loop) => for_loop.evaluate(environ, state),
             Expression::Call(call_expr) => call_expr.evaluate(environ, state),
             Expression::Array(array) => array.evaluate(environ, state),
             Expression::If(if_expression) => if_expression.evaluate(environ.clone(), state),

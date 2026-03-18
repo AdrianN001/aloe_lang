@@ -14,6 +14,10 @@ impl Program {
 
         self.statements.iter().for_each(|statement| {
             buffer.push_str(&statement.to_string());
+            if self.statements.len() == 1{
+                return;
+            }
+            buffer.push('\n');
         });
 
         buffer

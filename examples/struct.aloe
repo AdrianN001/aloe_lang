@@ -1,0 +1,16 @@
+
+struct Vector{
+  x,
+  y,
+}
+
+fun greet(name){
+  print("Hello ", "");
+  print(name);
+}
+
+greet("james");
+
+print(inspect(print));
+print(inspect(Vector))
+

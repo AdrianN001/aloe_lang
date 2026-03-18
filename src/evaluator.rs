@@ -13,6 +13,7 @@ mod member_expr;
 mod prefix_expr;
 mod value_assign;
 mod struct_statement;
+mod array_expression;
 
 use std::cell::RefCell;
 use std::rc::Rc;
@@ -67,21 +68,7 @@ impl Expression {
             )))),
             Expression::ForLoop(for_loop) => for_loop.evaluate(environ.clone(), state),
             Expression::Call(call_expr) => call_expr.evaluate(environ, state),
-            Expression::Array(array) => {
-                let mut objects = Vec::new();
-
-                for element in &array.elements {
-                    let obj = element.evaluate(environ.clone(), state.clone())?;
-                    if let Object::ReturnVal(_) = &*obj.borrow() {
-                        return Ok(obj.clone());
-                    }
-                    objects.push(obj);
-                }
-
-                Ok(Rc::new(RefCell::new(Object::Array(Array {
-                    items: objects,
-                }))))
-            }
+            Expression::Array(array) => array.evaluate(environ, state),
             Expression::If(if_expression) => if_expression.evaluate(environ.clone(), state),
             Expression::Infix(infix_expr) => infix_expr.evaluate_infix_expression(environ, state),
             Expression::Member(member_expression) => {

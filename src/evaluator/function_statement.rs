@@ -2,7 +2,7 @@ use std::{cell::RefCell, rc::Rc};
 
 use crate::{
     ast::statement::function_statement::FunctionStatement,
-    object::{Object, ObjectRef, function::Function, stack_environment::EnvRef},
+    object::{Object, ObjectRef, function::Function, new_objectref, stack_environment::EnvRef},
 };
 
 impl FunctionStatement {
@@ -15,5 +15,13 @@ impl FunctionStatement {
             })))
         });
         Rc::new(RefCell::new(Object::NULL_OBJECT))
+    }
+
+    pub fn evauluate_without_registering(&self, environ: EnvRef) -> ObjectRef{
+        new_objectref(Object::Func(Function { 
+            parameters: self.parameters.clone(), 
+            body: self.block.clone(), 
+            env: environ.clone() 
+        }))
     }
 }

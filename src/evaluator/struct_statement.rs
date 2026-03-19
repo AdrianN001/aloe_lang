@@ -1,4 +1,6 @@
-use crate::{ast::{expression::Expression, statement::struct_statement::StructStatement}, object::{Object, ObjectRef, new_objectref, panic_obj::PanicObj, stack_environment::EnvRef, state::StateRef, struct_model::StructModel}};
+use std::collections::HashMap;
+
+use crate::{ast::{expression::Expression, statement::{Statement, struct_statement::StructStatement}}, object::{Object, ObjectRef, new_objectref, panic_obj::PanicObj, stack_environment::EnvRef, state::StateRef, struct_model::StructModel}};
 
 
 
@@ -11,21 +13,44 @@ impl StructStatement{
         };
 
         let attribute_name = self.get_attribute_names_from_expression(state.clone())?;
+        let methods = {
+            let mut map = HashMap::new();
+
+            self.methods
+                .iter()
+                .try_for_each(|stmt|{
+                    match stmt{
+                        Statement::Function(func_stmt) => {
+                            if func_stmt.parameters.is_empty(){
+                                return Err(PanicObj::new_simple("expected at least 1 parameter for method, got: 0", state.clone()))
+                            }
+                            let method_obj = func_stmt.evauluate_without_registering(environ.clone());
+                            let name = func_stmt.name.clone();
+
+                            map.insert(name, method_obj);
+                            Ok(())
+                        },
+                        other_stmt => Err(PanicObj::new(format!("expected the method the be function statement, got: '{}'", other_stmt.to_string() ), state.clone()))
+                    }
+                })?;
+            map
+        };
 
         let model = StructModel{
             name: struct_name.clone(),
             attributes: attribute_name,
-            methods: Vec::new()
+            methods
         };
 
+        let model = new_objectref(Object::StructModel(model));
         {
             let mut environ_borrow = environ.borrow_mut(); 
 
-            environ_borrow.set(&struct_name, new_objectref(Object::StructModel(model)));
+            environ_borrow.set(&struct_name, model.clone());
         }
 
 
-        Ok(new_objectref(Object::NULL_OBJECT))
+        Ok(model)
     }
 
     fn get_attribute_names_from_expression(&self, state: StateRef) -> Result<Vec<String>, PanicObj>{

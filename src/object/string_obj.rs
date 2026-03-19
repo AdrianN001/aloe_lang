@@ -14,7 +14,7 @@ impl StringObj {
     }
 
     pub fn inspect(&self) -> String {
-        format!("\"{}\"", &self.value)
+        self.value.clone()
     }
 }
 

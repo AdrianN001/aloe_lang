@@ -814,11 +814,12 @@ fn test_struct_statement() {
         (
             "
 struct Person{
-            name
+            name,
         }
     ",
             "Person",
             ["name"].to_vec(),
+            [].to_vec(),
         ),
         (
             "
@@ -829,23 +830,31 @@ struct Person{
     ",
             "Person",
             ["first_name", "last_name"].to_vec(),
+            [].to_vec(),
         ),
         (
             "
 struct Car{
             color,
             license_plate,
+            
+            fun get_color(this){}
     }
     ",
             "Car",
             ["color", "license_plate"].to_vec(),
+            ["get_color"].to_vec()
         ),
         (
             "
-struct Car{};
+struct Car{
+        fun get_color(this){}
+        fun get_plate(this){}
+};
     ",
             "Car",
             [].to_vec(),
+            ["get_color", "get_plate"].to_vec()
         ),
     ];
 
@@ -854,6 +863,7 @@ struct Car{};
         println!("{}", &input);
         let expected_struct_name = testcase.1;
         let expected_attributes = testcase.2.clone();
+        let expected_methods = testcase.3.clone();
 
         let lexer = Lexer::new(input.to_string());
         let parser = Parser::new(lexer);
@@ -875,5 +885,17 @@ struct Car{};
             expected_attributes
         );
         assert_eq!(struct_statment.name.to_string(), expected_struct_name);
+
+        assert_eq!(
+            struct_statment
+            .methods
+            .iter()
+            .map(|method|{
+                match method{
+                    Statement::Function(func_stmt) => func_stmt.name.clone(),
+                    _ => panic!()
+                }
+            }).collect::<Vec<_>>(), expected_methods)
+        
     })
 }

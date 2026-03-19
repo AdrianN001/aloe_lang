@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::io::Write;
 
 use crate::ast::expression::Expression;
@@ -312,7 +313,7 @@ impl Parser {
         }
         self.next_token();
 
-        let attributes = self.parse_expression_list(TokenType::RBrace)?;
+        let (attributes, methods) = self.parse_struct_body()?;
 
         if self.peek_token.token_type == TokenType::Semicolon {
             self.next_token();
@@ -322,7 +323,43 @@ impl Parser {
             token,
             name,
             attributes,
+            methods
         }))
+    }
+
+    fn parse_struct_body(&mut self) -> Result<(Vec<Expression>, Vec<Statement>), String>{
+        let mut attributes = Vec::new();
+        let mut methods = Vec::new();
+
+        if self.peek_token.token_type == TokenType::RBrace{
+            self.next_token();
+            return Ok((attributes, methods));
+        }
+
+        while self.peek_token.token_type != TokenType::RBrace{
+
+            self.next_token();
+            match self.current_token.token_type{
+                TokenType::Identifier => {
+                    let attribute = self.parse_identifier();
+
+                    if self.peek_token.token_type != TokenType::Comma{
+                        return Err(format!("illegal token found in struct body. expected: Comma, got: '{:?}'", self.peek_token))
+                    }
+                    self.next_token();
+
+                    attributes.push(attribute);
+                }
+                TokenType::KwFunctionStatement => {
+                    let method = self.parse_function_statement()?;
+                    methods.push(method);
+                }
+                _ => return Err(format!("illegal token found in struct body. expected: Identifier or KwFun, got: '{:?}'", self.current_token))
+            }
+        }
+        self.next_token();
+
+        Ok((attributes, methods))
     }
 
     fn parse_expression_statement(&mut self) -> Result<Statement, String> {

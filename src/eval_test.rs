@@ -513,7 +513,7 @@ fn eval_string_concat() {
 fn eval_index_operator() {
     let testcases = [
         ("[1,2,3][0]", "1"),
-        (r#"[true, 3, "asd", false, true][1+1]"#, r#""asd""#),
+        (r#"[true, 3, "asd", false, true][1+1]"#, "asd"),
         ("let i = 0; [i][i];", "0"),
         ("[][1];", "null"),
         ("[(fn(){return 15;})()][0];", "15"),
@@ -593,9 +593,9 @@ fn eval_len_for_arrays() {
 fn eval_rest_builtin() {
     let testcases = [
         (r#" rest([1,2,3]) "#, "[2, 3]"),
-        (r#" rest("abcd");  "#, r#""bcd""#),
+        (r#" rest("abcd");  "#, r#"bcd"#),
         (r#" rest([1]);"#, "[]"),
-        (r#" rest("a");"#, r#""""#),
+        (r#" rest("a");"#, r#""#),
     ];
 
     testcases.iter().for_each(|testcase| {
@@ -623,9 +623,9 @@ fn eval_rest_builtin() {
 fn eval_first_builtin() {
     let testcases = [
         (r#" first([1,2,3]) "#, "1"),
-        (r#" first("abcd");  "#, "\"a\""),
+        (r#" first("abcd");  "#, "a"),
         (r#" first([1]);"#, "1"),
-        (r#" first("a");"#, "\"a\""),
+        (r#" first("a");"#, "a"),
     ];
 
     test_cases_for_input_output(&testcases);
@@ -637,8 +637,8 @@ fn eval_push_builtin() {
         (r#" push([1,2,3], 4); "#, "[1, 2, 3, 4]"),
         (r#" push([1,2], [3,4]);  "#, "[1, 2, 3, 4]"),
         (r#" push([], [1,2,3,4]);"#, "[1, 2, 3, 4]"),
-        (r#" push("a", "bc");"#, r#""abc""#),
-        (r#" push("", "abc");"#, r#""abc""#),
+        (r#" push("a", "bc");"#, r#"abc"#),
+        (r#" push("", "abc");"#, r#"abc"#),
     ];
 
     test_cases_for_input_output(&testcases);
@@ -703,9 +703,9 @@ fn eval_member_operator() {
         (r#"let str = "abc"; str.length;"#, "3"),
         (
             r#" "valami".random_method(3); "#,
-            r#"unknown method for string: 'random_method'"#,
+            "unknown method for string: 'random_method'",
         ),
-        (r#" "abc".reversed(); "#, r#""cba""#),
+        (r#" "abc".reversed(); "#, "cba"),
     ];
 
     test_cases_for_input_output(&testcases);
@@ -779,24 +779,24 @@ fn eval_for_loop() {
 fn eval_array_join() {
     let testcases = [
         // Normal case
-        (r#"["a", "b", "c"].join(",")"#, r#""a,b,c""#),
+        (r#"["a", "b", "c"].join(",")"#, r#"a,b,c"#),
         // Empty separator
-        (r#"["a", "b", "c"].join("")"#, r#""abc""#),
+        (r#"["a", "b", "c"].join("")"#, r#"abc"#),
         // Single element
-        (r#"["hello"].join(",")"#, r#""hello""#),
+        (r#"["hello"].join(",")"#, r#"hello"#),
         // Empty array
-        (r#"[].join(",")"#, r#""""#),
+        (r#"[].join(",")"#, r#""#),
         // Numbers (if auto string conversion allowed)
-        (r#"[1,2,3].join("-")"#, r#""1-2-3""#),
+        (r#"[1,2,3].join("-")"#, r#"1-2-3"#),
         // Mixed types (if allowed)
-        (r#"[1,true,"x"].join("|")"#, r#""1|true|x""#),
+        (r#"[1,true,"x"].join("|")"#, r#"1|true|x"#),
         // Multi-character separator
-        (r#"["a","b","c"].join("--")"#, r#""a--b--c""#),
+        (r#"["a","b","c"].join("--")"#, r#"a--b--c"#),
         // Separator not provided
-        (r#"["a","b"].join()"#, r#""ab""#),
+        (r#"["a","b"].join()"#, r#"ab"#),
         // Non-array receiver
         (r#""hello".join(",")"#, "unknown method for string: 'join'"),
-        (r#""a,b,c".split(",").join("-")"#, r#""a-b-c""#),
+        (r#""a,b,c".split(",").join("-")"#, r#"a-b-c"#),
     ];
 
     test_cases_for_input_output(&testcases);
@@ -806,30 +806,30 @@ fn eval_array_join() {
 fn eval_str_split() {
     let testcases = [
         // Normal case
-        (r#""a,b,c".split(",")"#, r#"["a", "b", "c"]"#),
+        (r#""a,b,c".split(",")"#, r#"[a, b, c]"#),
         // Space split
         (
             r#""hello world test".split(" ")"#,
-            r#"["hello", "world", "test"]"#,
+            r#"[hello, world, test]"#,
         ),
         // Multi-character separator
-        (r#""a--b--c".split("--")"#, r#"["a", "b", "c"]"#),
+        (r#""a--b--c".split("--")"#, r#"[a, b, c]"#),
         // Separator not found
-        (r#""abc".split(",")"#, r#"["abc"]"#),
+        (r#""abc".split(",")"#, r#"[abc]"#),
         // Split empty string
-        (r#""".split(",")"#, r#"[""]"#),
+        (r#""".split(",")"#, r#"[]"#),
         // Empty separator (IMPORTANT EDGE CASE)
-        (r#""abc".split("")"#, r#"["a", "b", "c"]"#),
+        (r#""abc".split("")"#, r#"[a, b, c]"#),
         // Trailing separator
-        (r#""a,b,".split(",")"#, r#"["a", "b", ""]"#),
+        (r#""a,b,".split(",")"#, r#"[a, b, ]"#),
         // Leading separator
-        (r#"",a,b".split(",")"#, r#"["", "a", "b"]"#),
+        (r#"",a,b".split(",")"#, r#"[, a, b]"#),
         // Only separator
-        (r#""---".split("-")"#, r#"["", "", "", ""]"#),
+        (r#""---".split("-")"#, r#"[, , , ]"#),
         // Non-string receiver
         (r#"123.split(",")"#, "unknown method for int: 'split'"),
         // Missing argument
-        (r#""abc".split()"#, r#"["a", "b", "c"]"#),
+        (r#""abc".split()"#, r#"[a, b, c]"#),
     ];
     test_cases_for_input_output(&testcases);
 }
@@ -876,15 +876,15 @@ fn test_list_based_for_loop_evaluation() {
 fn test_string_based_for_loop_evaluation() {
     let testcases = [
         // Zeichen gefunden
-        ("for c <- \"hello\"{ if (c == \"e\"){ break c; } }", "\"e\""),
+        ("for c <- \"hello\"{ if (c == \"e\"){ break c; } }", "e"),
         // Nicht gefunden
         ("for c <- \"abc\"{ if (c == \"z\"){ break c; } }", "null"),
         // Direkt break
-        ("for c <- \"xyz\"{ break c; }", "\"x\""),
+        ("for c <- \"xyz\"{ break c; }", "x"),
         // Leerer String
         ("for c <- \"\"{ break 1; }", "null"),
         // Letztes Zeichen
-        ("for c <- \"abc\"{ if (c == \"c\"){ break c; } }", "\"c\""),
+        ("for c <- \"abc\"{ if (c == \"c\"){ break c; } }", "c"),
     ];
 
     test_cases_for_input_output(&testcases);
@@ -1275,9 +1275,9 @@ a[0];
 ",
             "1",
         ),
-        ("\"hello\".slice(1,4);", "\"ell\""),
-        ("\"hello\".slice(0,2);", "\"he\""),
-        ("\"hello\".slice(-3,5);", "\"llo\""),
+        ("\"hello\".slice(1,4);", "ell"),
+        ("\"hello\".slice(0,2);", "he"),
+        ("\"hello\".slice(-3,5);", "llo"),
     ];
 
     test_cases_for_input_output(&testcases);
@@ -1601,7 +1601,7 @@ f();
 let m = {\"a\": 3};
 m.get(\"a\")?.as_str();
 ",
-            "\"3\"",
+            "3",
         ),
         (
             "
@@ -1797,12 +1797,12 @@ fn test_coalescing() {
     let testcases = [
         ("1 ?? 2;", "1"),
         ("true ?? false;", "true"),
-        ("\"hello\" ?? \"world\";", "\"hello\""),
+        ("\"hello\" ?? \"world\";", "hello"),
         ("false ?? true;", "true"),
         ("0 ?? 10;", "10"),
-        ("\"\" ?? \"fallback\";", "\"fallback\""),
+        ("\"\" ?? \"fallback\";", "fallback"),
         ("[] ?? [1,2];", "[1, 2]"),
-        ("{} ?? {\"a\":1};", "{\"a\":1}"),
+        ("{} ?? {\"a\":1};", "{a:1}"),
         (
             "
 let f = fn(){

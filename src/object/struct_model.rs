@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use crate::object::ObjectRef;
 
 
@@ -8,7 +10,7 @@ pub struct StructModel{
     pub name: String, 
 
     pub attributes: Vec<String>,
-    pub methods: Vec<ObjectRef>
+    pub methods: HashMap<String, ObjectRef>
 }
 
 impl StructModel{

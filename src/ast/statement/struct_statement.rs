@@ -1,10 +1,11 @@
-use crate::{ast::expression::Expression, token::Token};
+use crate::{ast::{expression::Expression, statement::Statement}, token::Token};
 
 #[derive(Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
 pub struct StructStatement {
     pub token: Token,
     pub name: Expression,
     pub attributes: Vec<Expression>,
+    pub methods: Vec<Statement>
 }
 
 impl StructStatement {

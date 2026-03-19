@@ -7,11 +7,12 @@ use crate::object::panic_obj::PanicObj;
 use crate::object::return_value::ReturnValue;
 use crate::object::stack_environment::EnvRef;
 use crate::object::state::StateRef;
+use crate::object::struct_object::StructObject;
 use crate::object::{Object, ObjectRef};
 
 impl CallExpression {
     pub fn evaluate(&self, environ: EnvRef, state: StateRef) -> Result<ObjectRef, PanicObj> {
-        let function_object = self
+        let obj_to_call = self
             .function
             .evaluate(environ.clone(), state.clone())?
             .clone();
@@ -30,11 +31,10 @@ impl CallExpression {
             }
         }
 
-        let return_value = match &*function_object.borrow() {
+        let return_value = match &*obj_to_call.borrow() {
             Object::Func(function) => function.apply(function_name, &args, state.clone()),
-            Object::BuiltIn(built_in_function) => {
-                Ok(built_in_function.call(&args, environ.clone(), state.clone()))
-            }
+            Object::BuiltIn(built_in_function) => Ok(built_in_function.call(&args, environ.clone(), state.clone())),
+            Object::StructModel(_) => StructObject::init_new(obj_to_call.clone(), &args, state.clone()),
             other_type => Err(PanicObj::new(
                 format!(
                     "'{}' is not a function. It cannot be called.",

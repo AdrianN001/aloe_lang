@@ -20,6 +20,7 @@ pub mod state;
 pub mod string_obj;
 pub mod truthy;
 pub mod struct_model;
+pub mod struct_object;
 
 use std::{cell::RefCell, rc::Rc};
 
@@ -37,7 +38,7 @@ use string_obj::StringObj;
 
 use crate::object::{
     break_value::BreakValue, hashable::Hashable, hashmap::HashKey, iterator::Iterator,
-    state::StateRef, struct_model::StructModel,
+    state::StateRef, struct_model::StructModel, struct_object::StructObject,
 };
 
 pub type ObjectRef = Rc<RefCell<Object>>;
@@ -63,6 +64,7 @@ pub enum Object {
     HashMap(HashMap),
 
     StructModel(StructModel),
+    StructObject(StructObject),
 
     Null(Null),
 }
@@ -103,6 +105,7 @@ impl Object {
             Object::Iterator(obj) => obj.get_type(),
             Object::BreakVal(obj) => obj.get_type(),
             Object::StructModel(obj) => obj.get_type(),
+            Object::StructObject(obj) => obj.get_type(),
             Object::Continue => "continue".to_string(),
         }
     }
@@ -123,6 +126,7 @@ impl Object {
             Object::Iterator(obj) => obj.inspect(),
             Object::BreakVal(obj) => obj.inspect(),
             Object::StructModel(obj) => obj.inspect(),
+            Object::StructObject(obj) => obj.inspect(),
             Object::Continue => "continue".to_string(),
         }
     }

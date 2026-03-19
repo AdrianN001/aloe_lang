@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{cell::RefCell, collections::HashMap, rc::Rc};
 
 use crate::{ast::{expression::Expression, statement::{Statement, struct_statement::StructStatement}}, object::{Object, ObjectRef, new_objectref, panic_obj::PanicObj, stack_environment::EnvRef, state::StateRef, struct_model::StructModel}};
 
@@ -22,7 +22,7 @@ impl StructStatement{
                     match stmt{
                         Statement::Function(func_stmt) => {
                             if func_stmt.parameters.is_empty(){
-                                return Err(PanicObj::new_simple("expected at least 1 parameter for method, got: 0", state.clone()))
+                                return Err(PanicObj::new_simple("expected at least 1 parameter for method (to be used as 'this'), got: 0", state.clone()))
                             }
                             let method_obj = func_stmt.evauluate_without_registering(environ.clone());
                             let name = func_stmt.name.clone();
@@ -39,7 +39,7 @@ impl StructStatement{
         let model = StructModel{
             name: struct_name.clone(),
             attributes: attribute_name,
-            methods
+            methods: Rc::new(RefCell::new(methods))
         };
 
         let model = new_objectref(Object::StructModel(model));

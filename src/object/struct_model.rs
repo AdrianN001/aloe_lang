@@ -1,19 +1,21 @@
-use std::collections::HashMap;
+use std::{cell::RefCell, collections::HashMap, rc::Rc};
 
 use crate::object::ObjectRef;
 
 
 
+pub type MethodTableRef = Rc<RefCell<HashMap<String, ObjectRef>>>;
 
 #[derive(PartialEq, Eq, Clone)]
 pub struct StructModel{
     pub name: String, 
 
     pub attributes: Vec<String>,
-    pub methods: HashMap<String, ObjectRef>
+    pub methods: MethodTableRef
 }
 
 impl StructModel{
+
 
     pub fn get_type(&self) -> String{
         "<type struct>".to_string()

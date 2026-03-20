@@ -79,7 +79,7 @@ impl StructObject {
                 .map(|func| func.clone())
         };
 
-        if let Some(constr_func) = constructor_function {
+        if let Some(_constr_func) = constructor_function {
             Ok(())
         } else if !args.is_empty() {
             self.default_constructor(args, attribute_list, state)
@@ -118,7 +118,7 @@ impl StructObject {
 }
 
 impl StructObject {
-    pub fn apply_attribute(&self, name: &str, environ: EnvRef, state: StateRef) -> ObjectRef {
+    pub fn apply_attribute(&self, name: &str, _environ: EnvRef, _state: StateRef) -> ObjectRef {
         match self.attribute_table.get(name) {
             Some(attribute) => attribute.clone(),
             None => new_objectref(Object::NULL_OBJECT),

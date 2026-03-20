@@ -1,6 +1,5 @@
 use crate::{
     ast::expression::{Expression, value_assign_expression::ValueAssignExpression},
-    evaluator::member_expr,
     object::{ObjectRef, panic_obj::PanicObj, stack_environment::EnvRef, state::StateRef},
 };
 

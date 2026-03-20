@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-use std::io::Write;
 
 use crate::ast::expression::Expression;
 use crate::ast::expression::identifier::Identifier;

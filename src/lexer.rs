@@ -77,13 +77,28 @@ impl Lexer {
     fn read_identifier(&mut self) -> String {
         let start_pos = self.position;
 
+        if let Some(current_char) = self.read_char() {
+            if is_identifier_start(current_char) {
+                self.advance();
+            } else {
+                return String::new();
+            }
+        }
+
         while let Some(current_char) = self.read_char() {
-            if is_letter(current_char) {
+            if is_identifier_part(current_char) {
                 self.advance();
             } else {
                 self.step_back();
                 break;
             }
+        }
+        fn is_identifier_start(c: char) -> bool {
+            c.is_alphabetic() || c == '_'
+        }
+
+        fn is_identifier_part(c: char) -> bool {
+            c.is_alphanumeric() || c == '_'
         }
 
         self.input[start_pos..self.position]

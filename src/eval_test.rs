@@ -1842,6 +1842,211 @@ x;
     test_cases_for_input_output(&testcases);
 }
 
+#[test]
+pub fn test_basic_struct() {
+    let testcases = [
+        (
+            "
+struct Person{
+    first_name;
+    last_name;
+};
+let p = Person();
+p.first_name;
+",
+            "null",
+        ),
+        (
+            "
+struct Person{
+    first_name;
+    last_name;
+};
+let p = Person();
+p.last_name;
+",
+            "null",
+        ),
+        (
+            "
+struct Person{
+    first_name;
+    last_name;
+};
+let p = Person(\"Max\", \"Mustermann\");
+p.first_name;
+",
+            "Max",
+        ),
+        (
+            "
+struct Person{
+    first_name;
+    last_name;
+};
+let p = Person(\"Max\", \"Mustermann\");
+p.last_name;
+",
+            "Mustermann",
+        ),
+        (
+            "
+struct Person{
+    first_name;
+    last_name;
+};
+Person(\"Max\");
+",
+            "expected 2 arguments for default constructor, got: 1.",
+        ),
+        (
+            "
+struct Person{
+    first_name;
+    last_name;
+};
+Person(\"A\", \"B\", \"C\");
+",
+            "expected 2 arguments for default constructor, got: 3.",
+        ),
+        (
+            "
+struct Person{
+    first_name;
+    last_name;
+};
+let p = Person(\"Max\", \"A\");
+p.first_name = \"John\";
+p.first_name;
+",
+            "John",
+        ),
+        (
+            "
+struct Person{
+    first_name;
+    last_name;
+};
+let p = Person(\"Max\", \"A\");
+p.first_name = \"John\";
+p.last_name;
+",
+            "A",
+        ),
+        (
+            "
+struct Person{
+    name;
+};
+let p1 = Person(\"A\");
+let p2 = p1;
+
+p2.name = \"B\";
+p1.name;
+",
+            "B",
+        ),
+        (
+            "
+struct Person{
+    name;
+};
+
+struct Wrapper{
+    p;
+};
+
+let w = Wrapper(Person(\"Max\"));
+w.p.name;
+",
+            "Max",
+        ),
+        (
+            "
+struct Person{
+    name;
+};
+let p = Person(\"Max\");
+p.name = \"Anna\";
+p.name;
+",
+            "Anna",
+        ),
+        (
+            "
+struct Data{
+    a;
+    b;
+    c;
+};
+let d = Data(1, true, \"hi\");
+d.a;
+",
+            "1",
+        ),
+        (
+            "
+struct Data{
+    a;
+    b;
+    c;
+};
+let d = Data(1, true, \"hi\");
+d.b;
+",
+            "true",
+        ),
+        (
+            "
+struct Data{
+    a;
+    b;
+    c;
+};
+let d = Data(1, true, \"hi\");
+d.c;
+",
+            "hi",
+        ),
+        (
+            "
+struct Person{
+    name;
+};
+let p = Person(\"Max\");
+p.age;
+",
+            "null",
+        ),
+        (
+            "
+struct Person{
+    name;
+};
+
+let f = fn(p){ p.name };
+
+f(Person(\"Max\"));
+",
+            "Max",
+        ),
+        (
+            "
+struct Person{
+    name;
+};
+let p = Person(\"A\");
+p.name = \"B\";
+p.name = \"C\";
+p.name;
+",
+            "C",
+        ),
+    ];
+
+    test_cases_for_input_output(&testcases);
+}
+
 // util
 
 pub fn test_cases_for_input_output(testcases: &[(&str, &str)]) {

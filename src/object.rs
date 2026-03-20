@@ -18,9 +18,9 @@ pub mod return_value;
 pub mod stack_environment;
 pub mod state;
 pub mod string_obj;
-pub mod truthy;
 pub mod struct_model;
 pub mod struct_object;
+pub mod truthy;
 
 use std::{cell::RefCell, rc::Rc};
 
@@ -144,12 +144,10 @@ impl Object {
             Object::Int(i) => Ok(i.hash()),
             Object::Bool(b) => Ok(b.hash()),
             Object::FloatObj(f) => Ok(f.hash()),
-            _ => {
-                Err(format!(
-                    "object with type: {} is not hashable",
-                    &self.get_type()
-                ))
-            }
+            _ => Err(format!(
+                "object with type: {} is not hashable",
+                &self.get_type()
+            )),
         }
     }
 }

@@ -23,6 +23,8 @@ impl Object {
             Object::Iterator(iterator) => iterator.apply_attribute(name, state),
             Object::HashMap(hashmap) => hashmap.apply_attribute(name, environ, state),
 
+            Object::StructObject(struct_obj) => struct_obj.apply_attribute(name, environ, state),
+
             _ => Rc::new(RefCell::new(Object::new_error(
                 format!("{} has no attribute", self.get_type()),
                 state,

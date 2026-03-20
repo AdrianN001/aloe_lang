@@ -17,11 +17,11 @@ impl FunctionStatement {
         Rc::new(RefCell::new(Object::NULL_OBJECT))
     }
 
-    pub fn evauluate_without_registering(&self, environ: EnvRef) -> ObjectRef{
-        new_objectref(Object::Func(Function { 
-            parameters: self.parameters.clone(), 
-            body: self.block.clone(), 
-            env: environ.clone() 
+    pub fn evauluate_without_registering(&self, environ: EnvRef) -> ObjectRef {
+        new_objectref(Object::Func(Function {
+            parameters: self.parameters.clone(),
+            body: self.block.clone(),
+            env: environ.clone(),
         }))
     }
 }

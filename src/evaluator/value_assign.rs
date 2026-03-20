@@ -1,5 +1,6 @@
 use crate::{
     ast::expression::{Expression, value_assign_expression::ValueAssignExpression},
+    evaluator::member_expr,
     object::{ObjectRef, panic_obj::PanicObj, stack_environment::EnvRef, state::StateRef},
 };
 
@@ -21,6 +22,9 @@ impl ValueAssignExpression {
             Expression::Index(index_expr) => {
                 index_expr.evaluate_value_assign(environ.clone(), right.clone(), state.clone())?;
                 Ok(right.clone())
+            }
+            Expression::Member(member_expr) => {
+                member_expr.evaluate_value_assign(environ.clone(), state.clone(), right.clone())
             }
             other_expression => Err(PanicObj::new(
                 format!("expected LValue, got {}", other_expression.to_string()),

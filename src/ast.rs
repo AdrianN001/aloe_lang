@@ -244,7 +244,9 @@ impl Parser {
             token: self.current_token.clone(),
             left: {
                 match left {
-                    Expression::Index(_) | Expression::Identifier(_) => Box::new(left.clone()),
+                    Expression::Index(_) | Expression::Identifier(_) | Expression::Member(_) => {
+                        Box::new(left.clone())
+                    }
                     other_expression_type => {
                         return Err(format!(
                             "expected 'LValue', got: {}",
@@ -323,28 +325,30 @@ impl Parser {
             token,
             name,
             attributes,
-            methods
+            methods,
         }))
     }
 
-    fn parse_struct_body(&mut self) -> Result<(Vec<Expression>, Vec<Statement>), String>{
+    fn parse_struct_body(&mut self) -> Result<(Vec<Expression>, Vec<Statement>), String> {
         let mut attributes = Vec::new();
         let mut methods = Vec::new();
 
-        if self.peek_token.token_type == TokenType::RBrace{
+        if self.peek_token.token_type == TokenType::RBrace {
             self.next_token();
             return Ok((attributes, methods));
         }
 
-        while self.peek_token.token_type != TokenType::RBrace{
-
+        while self.peek_token.token_type != TokenType::RBrace {
             self.next_token();
-            match self.current_token.token_type{
+            match self.current_token.token_type {
                 TokenType::Identifier => {
                     let attribute = self.parse_identifier();
 
-                    if self.peek_token.token_type != TokenType::Comma{
-                        return Err(format!("illegal token found in struct body. expected: Comma, got: '{:?}'", self.peek_token))
+                    if self.peek_token.token_type != TokenType::Semicolon {
+                        return Err(format!(
+                            "illegal token found in struct body. expected: Semicolon, got: '{:?}'",
+                            self.peek_token
+                        ));
                     }
                     self.next_token();
 
@@ -354,7 +358,12 @@ impl Parser {
                     let method = self.parse_function_statement()?;
                     methods.push(method);
                 }
-                _ => return Err(format!("illegal token found in struct body. expected: Identifier or KwFun, got: '{:?}'", self.current_token))
+                _ => {
+                    return Err(format!(
+                        "illegal token found in struct body. expected: Identifier or KwFun, got: '{:?}'",
+                        self.current_token
+                    ));
+                }
             }
         }
         self.next_token();

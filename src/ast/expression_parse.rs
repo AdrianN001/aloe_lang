@@ -251,7 +251,8 @@ impl Parser {
     }
 
     fn parse_string_literal(&self) -> Expression {
-        Expression::String(StringExpr { token: self.current_token.clone(),
+        Expression::String(StringExpr {
+            token: self.current_token.clone(),
             value: self.current_token.literal.clone(),
         })
     }
@@ -523,7 +524,7 @@ impl Parser {
         if self.peek_token.token_type == end_token {
             self.next_token();
             return Ok(args);
-        } 
+        }
 
         self.next_token();
         args.push(self.parse_expression(OperationPrecedence::Lowest)?);
@@ -532,7 +533,7 @@ impl Parser {
             self.next_token();
 
             // [1,2,3,]
-            if self.peek_token.token_type == end_token{
+            if self.peek_token.token_type == end_token {
                 break;
             }
             self.next_token();

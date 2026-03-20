@@ -1,15 +1,29 @@
 use std::{cell::RefCell, collections::HashMap, rc::Rc};
 
-use crate::{ast::{expression::Expression, statement::{Statement, struct_statement::StructStatement}}, object::{Object, ObjectRef, new_objectref, panic_obj::PanicObj, stack_environment::EnvRef, state::StateRef, struct_model::StructModel}};
+use crate::{
+    ast::{
+        expression::Expression,
+        statement::{Statement, struct_statement::StructStatement},
+    },
+    object::{
+        Object, ObjectRef, new_objectref, panic_obj::PanicObj, stack_environment::EnvRef,
+        state::StateRef, struct_model::StructModel,
+    },
+};
 
-
-
-impl StructStatement{
-
-    pub fn evaluate(&self, environ: EnvRef, state: StateRef) -> Result<ObjectRef, PanicObj>{
-        let struct_name = match &self.name{
+impl StructStatement {
+    pub fn evaluate(&self, environ: EnvRef, state: StateRef) -> Result<ObjectRef, PanicObj> {
+        let struct_name = match &self.name {
             Expression::Identifier(identifier) => identifier.value.clone(),
-            other_expr => return Err(PanicObj::new(format!("expected an identifier expression for struct name, got: '{}'", other_expr.to_string()), state.clone()))
+            other_expr => {
+                return Err(PanicObj::new(
+                    format!(
+                        "expected an identifier expression for struct name, got: '{}'",
+                        other_expr.to_string()
+                    ),
+                    state.clone(),
+                ));
+            }
         };
 
         let attribute_name = self.get_attribute_names_from_expression(state.clone())?;
@@ -36,33 +50,40 @@ impl StructStatement{
             map
         };
 
-        let model = StructModel{
+        let model = StructModel {
             name: struct_name.clone(),
             attributes: attribute_name,
-            methods: Rc::new(RefCell::new(methods))
+            methods: Rc::new(RefCell::new(methods)),
         };
 
         let model = new_objectref(Object::StructModel(model));
         {
-            let mut environ_borrow = environ.borrow_mut(); 
+            let mut environ_borrow = environ.borrow_mut();
 
             environ_borrow.set(&struct_name, model.clone());
         }
 
-
         Ok(model)
     }
 
-    fn get_attribute_names_from_expression(&self, state: StateRef) -> Result<Vec<String>, PanicObj>{
+    fn get_attribute_names_from_expression(
+        &self,
+        state: StateRef,
+    ) -> Result<Vec<String>, PanicObj> {
         let mut attrs = Vec::new();
 
-        for attribute in &self.attributes{
-            match attribute{
+        for attribute in &self.attributes {
+            match attribute {
                 Expression::Identifier(identifier) => attrs.push(identifier.value.clone()),
-                other_expr => return Err(
-                    PanicObj::new(
-                        format!("expected an identifier expression for struct attribute, got: '{}'", other_expr.to_string()), state.clone()
-                    ))
+                other_expr => {
+                    return Err(PanicObj::new(
+                        format!(
+                            "expected an identifier expression for struct attribute, got: '{}'",
+                            other_expr.to_string()
+                        ),
+                        state.clone(),
+                    ));
+                }
             }
         }
 

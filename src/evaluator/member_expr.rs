@@ -76,4 +76,42 @@ impl MemberExpression {
             )),
         }
     }
+
+    pub fn evaluate_value_assign(
+        &self,
+        environ: EnvRef,
+        state: StateRef,
+        r_value: ObjectRef,
+    ) -> Result<ObjectRef, PanicObj> {
+        let left_obj = self.left.evaluate(environ.clone(), state.clone())?;
+
+        if let Object::ReturnVal(ret_val) = &*left_obj.borrow() {
+            return Ok(ret_val.unwrap_to_value().clone());
+        }
+
+        let right_side = if let Expression::Identifier(identifier) = &*self.right {
+            identifier
+        } else {
+            return Err(PanicObj::new(
+                format!(
+                    "{} = {} is illegal.",
+                    self.to_string(),
+                    r_value.borrow().inspect()
+                ),
+                state.clone(),
+            ));
+        };
+
+        let name_of_the_identifier = right_side.value.clone();
+
+        let left_side_object = {
+            let left_obj_borrow = left_obj.borrow();
+
+            left_obj_borrow.apply_attribute(&name_of_the_identifier, environ, state)
+        };
+
+        *left_side_object.borrow_mut() = r_value.borrow().clone();
+
+        Ok(r_value.clone())
+    }
 }

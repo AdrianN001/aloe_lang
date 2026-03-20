@@ -814,7 +814,7 @@ fn test_struct_statement() {
         (
             "
 struct Person{
-            name,
+            name;
         }
     ",
             "Person",
@@ -824,8 +824,8 @@ struct Person{
         (
             "
 struct Person{
-            first_name,
-            last_name,
+            first_name;
+            last_name;
         };
     ",
             "Person",
@@ -835,15 +835,15 @@ struct Person{
         (
             "
 struct Car{
-            color,
-            license_plate,
+            color;
+            license_plate;
             
             fun get_color(this){}
     }
     ",
             "Car",
             ["color", "license_plate"].to_vec(),
-            ["get_color"].to_vec()
+            ["get_color"].to_vec(),
         ),
         (
             "
@@ -854,7 +854,7 @@ struct Car{
     ",
             "Car",
             [].to_vec(),
-            ["get_color", "get_plate"].to_vec()
+            ["get_color", "get_plate"].to_vec(),
         ),
     ];
 
@@ -888,14 +888,16 @@ struct Car{
 
         assert_eq!(
             struct_statment
-            .methods
-            .iter()
-            .map(|method|{
-                match method{
-                    Statement::Function(func_stmt) => func_stmt.name.clone(),
-                    _ => panic!()
-                }
-            }).collect::<Vec<_>>(), expected_methods)
-        
+                .methods
+                .iter()
+                .map(|method| {
+                    match method {
+                        Statement::Function(func_stmt) => func_stmt.name.clone(),
+                        _ => panic!(),
+                    }
+                })
+                .collect::<Vec<_>>(),
+            expected_methods
+        )
     })
 }

@@ -66,12 +66,30 @@ impl Integer {
 
     pub fn div(&self, right: ObjectRef, _state: StateRef) -> Result<ObjectRef, PanicObj> {
         match &*right.borrow() {
-            Object::Int(right_integer) => Ok(new_objectref(Object::Int(Integer {
-                value: self.value / right_integer.value,
-            }))),
-            Object::FloatObj(right_float) => Ok(new_objectref(Object::FloatObj(FloatObj {
-                val: self.value as f64 / right_float.val,
-            }))),
+            Object::Int(right_integer) => {
+                if right_integer.value != 0 {
+                    Ok(new_objectref(Object::Int(Integer {
+                        value: self.value / right_integer.value,
+                    })))
+                } else {
+                    Err(PanicObj::new(
+                        "division by 0 is not allowed".to_string(),
+                        _state,
+                    ))
+                }
+            }
+            Object::FloatObj(right_float) => {
+                if right_float.val != 0 as f64 {
+                    Ok(new_objectref(Object::FloatObj(FloatObj {
+                        val: self.value as f64 / right_float.val,
+                    })))
+                } else {
+                    Err(PanicObj::new(
+                        "division by 0 is not allowed".to_string(),
+                        _state,
+                    ))
+                }
+            }
             other_type => Err(PanicObj::new(
                 format!(
                     "unexpected operand types: {} {} {}",

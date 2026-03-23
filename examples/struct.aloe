@@ -12,5 +12,5 @@ struct Car{
 
 let c = Car("red");
 c.set_color("yellow")!;
-let color = c.get_color()!;
+let color = c.get_color();
 print(color);

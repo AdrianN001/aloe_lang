@@ -29,7 +29,7 @@ impl FloatObj {
                 val: self.val - right_integer.value as f64,
             }))),
             Object::FloatObj(right_float) => Ok(new_objectref(Object::FloatObj(FloatObj {
-                val: self.val as f64 - right_float.val,
+                val: self.val - right_float.val,
             }))),
             other_type => Err(PanicObj::new(
                 format!(
@@ -49,7 +49,7 @@ impl FloatObj {
                 val: self.val * right_integer.value as f64,
             }))),
             Object::FloatObj(right_float) => Ok(new_objectref(Object::FloatObj(FloatObj {
-                val: self.val as f64 * right_float.val,
+                val: self.val * right_float.val,
             }))),
             other_type => Err(PanicObj::new(
                 format!(
@@ -65,12 +65,30 @@ impl FloatObj {
 
     pub fn div(&self, right: ObjectRef, _state: StateRef) -> Result<ObjectRef, PanicObj> {
         match &*right.borrow() {
-            Object::Int(right_integer) => Ok(new_objectref(Object::FloatObj(FloatObj {
-                val: self.val as f64 * right_integer.value as f64,
-            }))),
-            Object::FloatObj(right_float) => Ok(new_objectref(Object::FloatObj(FloatObj {
-                val: self.val as f64 * right_float.val,
-            }))),
+            Object::Int(right_integer) => {
+                if right_integer.value != 0 {
+                    Ok(new_objectref(Object::FloatObj(FloatObj {
+                        val: self.val / right_integer.value as f64,
+                    })))
+                } else {
+                    Err(PanicObj::new(
+                        "division by 0 is not allowed".to_string(),
+                        _state,
+                    ))
+                }
+            }
+            Object::FloatObj(right_float) => {
+                if right_float.val != 0 as f64 {
+                    Ok(new_objectref(Object::FloatObj(FloatObj {
+                        val: self.val / right_float.val,
+                    })))
+                } else {
+                    Err(PanicObj::new(
+                        "division by 0 is not allowed".to_string(),
+                        _state,
+                    ))
+                }
+            }
             other_type => Err(PanicObj::new(
                 format!(
                     "unexpected operand types: {} {} {}",

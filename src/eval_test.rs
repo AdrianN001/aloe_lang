@@ -2047,6 +2047,200 @@ p.name;
     test_cases_for_input_output(&testcases);
 }
 
+#[test]
+fn test_struct_methods() {
+    let testcases = [
+        (
+            "
+struct Car{
+    color;
+
+    fun get_color(this){
+        return this.color;
+    }
+};
+
+let c = Car(\"red\");
+c.get_color();
+",
+            "red",
+        ),
+        (
+            "
+struct Car{
+    color;
+    plate;
+
+    fun get_plate(this){
+        return this.plate;
+    }
+};
+
+let c = Car(\"red\", \"AB123\");
+c.get_plate();
+",
+            "AB123",
+        ),
+        (
+            "
+struct Car{
+    color;
+
+    fun get_color(this){
+        this.color;
+    }
+};
+
+let c = Car(\"blue\");
+c.get_color();
+",
+            "blue",
+        ),
+        (
+            "
+struct Car{
+    color;
+
+    fun set_color(this, new_color){
+        this.color = new_color;
+    }
+};
+
+let c = Car(\"red\");
+c.set_color(\"green\");
+c.color;
+",
+            "green",
+        ),
+        (
+            "
+struct Car{
+    color;
+
+    fun repaint(this, new_color){
+        this.color = new_color;
+        return this.color;
+    }
+};
+
+let c = Car(\"red\");
+c.repaint(\"black\");
+",
+            "black",
+        ),
+        (
+            "
+struct Car{
+    color;
+
+    fun get_color(this){
+        return this.color;
+    }
+
+    fun set_color(this, c){
+        this.color = c;
+    }
+};
+
+let c = Car(\"red\");
+c.set_color(\"yellow\");
+c.get_color();
+",
+            "yellow",
+        ),
+        (
+            "
+struct Car{
+    fun bad(){
+        return 1;
+    }
+};
+",
+            "expected at least 1 parameter for method (to be used as 'this'), got: 0",
+        ),
+        (
+            "
+struct Car{
+    color;
+
+    fun is_color(this, c){
+        return this.color == c;
+    }
+};
+
+let c = Car(\"red\");
+c.is_color(\"red\");
+",
+            "true",
+        ),
+        (
+            "
+struct Car{
+    color;
+
+    fun get_color(this){
+        return this.color;
+    }
+
+    fun same_color(this, other){
+        return this.get_color() == other;
+    }
+};
+
+let c = Car(\"blue\");
+c.same_color(\"blue\");
+",
+            "true",
+        ),
+        (
+            "
+struct Car{
+    color;
+
+    fun get_color(this){
+        return this.color;
+    }
+};
+
+let c = Car(\"red\");
+c.get_color().length;
+",
+            "3",
+        ),
+        (
+            "
+struct Car{
+    fun test(this, x){}
+};
+
+let c = Car();
+c.test();
+",
+            "expected 2 arguments, got: 1",
+        ),
+        (
+            "
+struct Car{
+    color;
+
+    fun set(this, c){
+        this.color = c;
+    }
+};
+
+let c1 = Car(\"red\");
+let c2 = c1;
+
+c2.set(\"green\");
+c1.color;
+",
+            "green",
+        ),
+    ];
+
+    test_cases_for_input_output(&testcases);
+}
+
 // util
 
 pub fn test_cases_for_input_output(testcases: &[(&str, &str)]) {

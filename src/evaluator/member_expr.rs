@@ -4,7 +4,7 @@ use crate::{
     ast::expression::{Expression, call_expression::CallExpression, member::MemberExpression},
     object::{
         Object, ObjectRef, panic_obj::PanicObj, return_value::ReturnValue,
-        stack_environment::EnvRef, state::StateRef,
+        stack_environment::EnvRef, state::StateRef, struct_object::StructObject,
     },
 };
 
@@ -21,6 +21,16 @@ impl MemberExpression {
                 let name_of_method =
                     Self::get_call_expressions_identifier(call_expr, state.clone())?;
                 let args = call_expr.evaluate_arguments(environ.clone(), state.clone())?;
+
+                if MemberExpression::check_early_for_struct_method_call(left_obj.clone()) {
+                    return StructObject::apply_method(
+                        &name_of_method,
+                        left_obj,
+                        &args,
+                        environ,
+                        state,
+                    );
+                }
 
                 let mut obj = left_obj.borrow_mut();
 
@@ -61,6 +71,15 @@ impl MemberExpression {
                 ),
                 state.clone(),
             )),
+        }
+    }
+
+    fn check_early_for_struct_method_call(left_obj: ObjectRef) -> bool {
+        let left_obj_borrow = left_obj.borrow();
+
+        match &*left_obj_borrow {
+            Object::StructObject(_) => return true,
+            _ => return false,
         }
     }
 

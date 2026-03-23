@@ -124,6 +124,72 @@ impl StructObject {
             None => new_objectref(Object::NULL_OBJECT),
         }
     }
+
+    pub fn apply_method(
+        name: &str,
+        this: ObjectRef,
+        args: &[ObjectRef],
+        _environ: EnvRef,
+        state: StateRef,
+    ) -> Result<ObjectRef, PanicObj> {
+        let method = {
+            let this_borrow = this.borrow();
+
+            let this_raw = match &*this_borrow {
+                Object::StructObject(struct_obj) => struct_obj,
+                other_type => {
+                    return Err(PanicObj::new(
+                        format!(
+                            "expected as the type of 'this': StructObject, got: '{}'",
+                            other_type.inspect()
+                        ),
+                        state,
+                    ));
+                }
+            };
+
+            let method_table_borrow = this_raw.method_table.borrow();
+
+            match method_table_borrow.get(name) {
+                Some(requested_method) => requested_method.clone(),
+                None => {
+                    return Err(PanicObj::new(
+                        format!("struct {} has no method '{}'().", this_raw.model_name, name),
+                        state,
+                    ));
+                }
+            }
+        };
+
+        let method_borrow = method.borrow();
+
+        let func_obj = match &*method_borrow {
+            Object::Func(func) => func,
+            other_type => {
+                return Err(PanicObj::new(
+                    format!(
+                        "expected function object for method, got: '{}'",
+                        other_type.inspect()
+                    ),
+                    state,
+                ));
+            }
+        };
+
+        let args_with_this = Self::insert_this_reference_to_args(this, args);
+
+        func_obj.apply(name.to_string(), &args_with_this, state)
+    }
+
+    fn insert_this_reference_to_args(this: ObjectRef, args: &[ObjectRef]) -> Vec<ObjectRef> {
+        let mut new_args = vec![this];
+
+        args.iter().for_each(|arg| {
+            new_args.push(arg.clone());
+        });
+
+        new_args
+    }
 }
 
 impl StructObject {

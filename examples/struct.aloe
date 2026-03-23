@@ -1,0 +1,16 @@
+struct Car{
+    color;
+
+    fun get_color(this){
+        return this.color;
+    }
+
+    fun set_color(this, c){
+        this.color = c;
+    }
+};
+
+let c = Car("red");
+c.set_color("yellow")!;
+let color = c.get_color()!;
+print(color);

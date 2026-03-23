@@ -108,7 +108,7 @@ impl Function {
             .iter()
             .enumerate()
             .for_each(|(indx, parameter)| {
-                new_env.set(&parameter.value, args[indx].clone());
+                new_env.set_to_lowest_level(&parameter.value, args[indx].clone());
             });
 
         Rc::new(RefCell::new(new_env))

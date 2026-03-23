@@ -1,14 +1,7 @@
-use std::{cell::RefCell, rc::Rc};
+use std::{cell::RefCell, env::args, rc::Rc};
 
 use crate::object::{
-    Object, ObjectRef,
-    array::Array,
-    integer::Integer,
-    iterator::{Iterator, list_based_iterator::ListBasedIterator},
-    null::Null,
-    stack_environment::EnvRef,
-    state::StateRef,
-    string_obj::StringObj,
+    Object, ObjectRef, array::Array, integer::Integer, iterator::{Iterator, list_based_iterator::ListBasedIterator}, new_objectref, null::Null, stack_environment::EnvRef, state::StateRef, string_obj::StringObj
 };
 
 impl Array {
@@ -37,8 +30,10 @@ impl Array {
 
             "remove" => self.remove(args, state),
             "slice" => self.slice(args, state),
+            "insert"  => self.insert(args, state),
 
             "clone" => self.deep_copy(),
+            "contains" => self.contains(args, state),
 
             "map" => self.map(args, state),
             "filter" => self.filter(args, state),
@@ -122,6 +117,44 @@ impl Array {
         Rc::new(RefCell::new(Object::NULL_OBJECT))
     }
 
+    fn insert(&mut self, args: &[ObjectRef], state: StateRef) -> ObjectRef{
+        if args.len() != 2{ 
+            return Rc::new(RefCell::new(Object::new_error(
+                format!(
+                    "expected {} arguments for array.insert(), got: {}",
+                    2,
+                    args.len()
+                ),
+                state,
+            )));
+        }
+
+        let mut insert_position = match &*args[0].borrow() {
+            Object::Int(integer) => integer.value,
+            other_type => {
+                return Rc::new(RefCell::new(Object::new_error(
+                    format!(
+                        "expected the first argument to be int, got: {}",
+                        other_type.get_type()
+                    ),
+                    state,
+                )));
+            }
+        };
+
+        if insert_position.is_negative(){
+            insert_position += self.items.len() as i64;
+        }
+
+        if insert_position as usize >= self.items.len(){
+            return new_objectref(Object::new_error("index position for insert >= array.length".into(), state))
+        }
+
+        self.items.insert(insert_position as usize, args[1].clone());
+
+        new_objectref(Object::NULL_OBJECT)
+    }
+
     fn slice(&mut self, args: &[ObjectRef], state: StateRef) -> ObjectRef {
         if args.len() != 2 {
             return Rc::new(RefCell::new(Object::new_error(
@@ -201,6 +234,21 @@ impl Array {
         self.items.clear();
 
         Rc::new(RefCell::new(Object::Null(Null {})))
+    }
+
+    fn contains(&mut self, args: &[ObjectRef], state: StateRef) -> ObjectRef{
+        if args.len() != 1 {
+            return Rc::new(RefCell::new(Object::new_error(
+                format!(
+                    "expected {} arguments for array.contains(), got: {}",
+                    1,
+                    args.len()
+                ),
+                state,
+            )));
+        }
+
+        new_objectref(Object::get_native_boolean_object( self.items.contains(&args[0]) ) )
     }
 
     fn map(&mut self, args: &[ObjectRef], state: StateRef) -> ObjectRef {

@@ -1,0 +1,5 @@
+import {names, squares} from "examples/list_methods.aloe";
+
+
+print(names);
+print(squares);

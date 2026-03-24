@@ -19,11 +19,13 @@ impl Identifier {
             "push" => Some(BuiltIn::Push),
 
             "print" => Some(BuiltIn::Print),
+            "__input" => Some(BuiltIn::Read),
 
             "type" => Some(BuiltIn::Type),
             "inspect" => Some(BuiltIn::Inspect),
 
             "range" => Some(BuiltIn::Range),
+            "__random" => Some(BuiltIn::Random),
             _ => None,
         }
     }

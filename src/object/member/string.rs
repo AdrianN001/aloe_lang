@@ -1,7 +1,15 @@
 use std::{cell::RefCell, rc::Rc};
 
 use crate::object::{
-    Object, ObjectRef, array::Array, float_obj::FloatObj, integer::Integer, iterator::{Iterator, list_based_iterator::ListBasedIterator}, new_objectref, stack_environment::EnvRef, state::StateRef, string_obj::StringObj
+    Object, ObjectRef,
+    array::Array,
+    float_obj::FloatObj,
+    integer::Integer,
+    iterator::{Iterator, list_based_iterator::ListBasedIterator},
+    new_objectref,
+    stack_environment::EnvRef,
+    state::StateRef,
+    string_obj::StringObj,
 };
 
 impl StringObj {
@@ -31,6 +39,15 @@ impl StringObj {
             "slice" => self.slice(args, state),
             "split" => self.split(args, state),
             "clone" => self.deep_copy(),
+
+            "to_lower" => self.to_lower(),
+            "to_upper" => self.to_upper(),
+
+            "is_empty" => self.is_empty(),
+            "is_ascii" => self.is_ascii(),
+
+            "starts_with" => self.starts_with(args, state),
+            "ends_with" => self.ends_with(args, state),
 
             _ => Rc::new(RefCell::new(Object::new_error(
                 format!("unknown method for string: '{}'", name),
@@ -84,7 +101,7 @@ impl StringObj {
         })
     }
 
-    fn contains(&mut self, args: &[ObjectRef], state: StateRef) -> ObjectRef{
+    fn contains(&mut self, args: &[ObjectRef], state: StateRef) -> ObjectRef {
         if args.len() != 1 {
             return Rc::new(RefCell::new(Object::new_error(
                 format!(
@@ -96,15 +113,24 @@ impl StringObj {
             )));
         }
 
-        let arg_borrow = args[1].borrow();
-        let substr = match &*arg_borrow{
+        let arg_borrow = args[0].borrow();
+        let substr = match &*arg_borrow {
             Object::String(str) => &str.value,
-            other_type => return new_objectref(Object::new_error(format!("expected as argument for string.contains() string, got: '{}'", other_type.inspect()), state))
+            other_type => {
+                return new_objectref(Object::new_error(
+                    format!(
+                        "expected as argument for string.contains() string, got: '{}'",
+                        other_type.inspect()
+                    ),
+                    state,
+                ));
+            }
         };
 
-        new_objectref(Object::get_native_boolean_object( self.value.contains(substr) ) )
+        new_objectref(Object::get_native_boolean_object(
+            self.value.contains(substr),
+        ))
     }
-
 
     fn slice(&self, args: &[ObjectRef], state: StateRef) -> ObjectRef {
         if args.len() != 2 {
@@ -223,5 +249,93 @@ impl StringObj {
         Rc::new(RefCell::new(Object::String(StringObj {
             value: self.value.clone(),
         })))
+    }
+
+    fn to_lower(&self) -> ObjectRef {
+        new_objectref(Object::String(StringObj {
+            value: self.value.to_lowercase(),
+        }))
+    }
+
+    fn to_upper(&self) -> ObjectRef {
+        new_objectref(Object::String(StringObj {
+            value: self.value.to_uppercase(),
+        }))
+    }
+
+    fn is_ascii(&self) -> ObjectRef{
+        new_objectref(Object::get_native_boolean_object(self.value.is_ascii()))
+    }
+
+    fn is_empty(&self) -> ObjectRef{
+        new_objectref(Object::get_native_boolean_object(self.value.is_empty()))
+    }
+
+    fn starts_with(&self, args: &[ObjectRef], state: StateRef) -> ObjectRef{
+        if args.len() != 1 {
+            return Rc::new(RefCell::new(Object::new_error(
+                format!(
+                    "expected {} argument for array.starts_with(), got: {}",
+                    1,
+                    args.len()
+                ),
+                state,
+            )));
+        }
+
+        let arg_borrow = args[0].borrow();
+        let substr = match &*arg_borrow {
+            Object::String(str) => &str.value,
+            other_type => {
+                return new_objectref(Object::new_error(
+                    format!(
+                        "expected as argument for string.starts_with() string, got: '{}'",
+                        other_type.inspect()
+                    ),
+                    state,
+                ));
+            }
+        };
+
+
+
+        new_objectref(Object::get_native_boolean_object(
+            self.value.starts_with(substr),
+        ))
+
+    }
+
+    fn ends_with(&self, args: &[ObjectRef], state: StateRef) -> ObjectRef{
+        if args.len() != 1 {
+            return Rc::new(RefCell::new(Object::new_error(
+                format!(
+                    "expected {} argument for array.ends_with(), got: {}",
+                    1,
+                    args.len()
+                ),
+                state,
+            )));
+        }
+
+        let arg_borrow = args[0].borrow();
+        let substr = match &*arg_borrow {
+            Object::String(str) => &str.value,
+            other_type => {
+                return new_objectref(Object::new_error(
+                    format!(
+                        "expected as argument for string.ends_with() string, got: '{}'",
+                        other_type.inspect()
+                    ),
+                    state,
+                ));
+            }
+        };
+
+
+
+        new_objectref(Object::get_native_boolean_object(
+            self.value.ends_with(substr),
+        ))
+
     }
 }

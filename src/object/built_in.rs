@@ -2,6 +2,7 @@ mod array_method;
 mod console;
 mod iterator;
 mod len;
+mod random;
 mod utils;
 
 use crate::object::{
@@ -11,9 +12,10 @@ use crate::object::{
             first_builtin_function, last_builtin_function, push_builtin_function,
             rest_builtin_function,
         },
-        console::console_write_builtin_function,
+        console::{console_read_builtin_function, console_write_builtin_function},
         iterator::range_builtin_function,
         len::len_builtin_function,
+        random::random_builtin_function,
         utils::{inspect_builtin_function, type_builtin_function},
     },
     stack_environment::EnvRef,
@@ -30,11 +32,14 @@ pub enum BuiltIn {
     Push,
 
     Print,
+    Read,
 
     Type,
     Inspect,
 
     Range,
+
+    Random,
 }
 
 impl BuiltIn {
@@ -56,11 +61,13 @@ impl BuiltIn {
             BuiltIn::Push => push_builtin_function(args, state),
 
             BuiltIn::Print => console_write_builtin_function(args, environ),
+            BuiltIn::Read => console_read_builtin_function(),
 
             BuiltIn::Type => type_builtin_function(args, state),
             BuiltIn::Inspect => inspect_builtin_function(args, state),
 
             BuiltIn::Range => range_builtin_function(args, state),
+            BuiltIn::Random => random_builtin_function(),
         }
     }
 }

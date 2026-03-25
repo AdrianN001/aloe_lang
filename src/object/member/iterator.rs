@@ -1,7 +1,13 @@
 use std::{cell::RefCell, rc::Rc};
 
 use crate::object::{
-    Object, ObjectRef, array::Array, error::{error_type::ErrorType, panic_type::PanicType}, iterator::Iterator, panic_obj::PanicObj, stack_environment::EnvRef, state::StateRef
+    Object, ObjectRef,
+    array::Array,
+    error::{error_type::ErrorType, panic_type::PanicType},
+    iterator::Iterator,
+    panic_obj::PanicObj,
+    stack_environment::EnvRef,
+    state::StateRef,
 };
 
 impl Iterator {

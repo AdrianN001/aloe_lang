@@ -1,12 +1,15 @@
 use std::fmt;
 
-use crate::object::{error::{Error, panic_type::PanicType}, state::StateRef};
+use crate::object::{
+    error::{Error, panic_type::PanicType},
+    state::StateRef,
+};
 
 #[derive(PartialEq, Eq, Clone, Debug)]
 pub struct PanicObj {
     pub value: String,
     pub state: StateRef,
-    pub panic_type: PanicType
+    pub panic_type: PanicType,
 }
 
 impl PanicObj {

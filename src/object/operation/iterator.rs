@@ -1,11 +1,14 @@
-use crate::object::{ObjectRef, error::panic_type::PanicType, iterator::Iterator, panic_obj::PanicObj, state::StateRef};
+use crate::object::{
+    ObjectRef, error::panic_type::PanicType, iterator::Iterator, panic_obj::PanicObj,
+    state::StateRef,
+};
 
 impl Iterator {
     pub fn add(&self, right: ObjectRef, _state: StateRef) -> Result<ObjectRef, PanicObj> {
         match &*right.borrow() {
             other_type => Err(PanicObj::new(
                 PanicType::OperatorIsNotSupported,
-                 format!(
+                format!(
                     "unexpected operand types: {} {} {}",
                     "iterator",
                     "-",
@@ -20,7 +23,7 @@ impl Iterator {
         match &*right.borrow() {
             other_type => Err(PanicObj::new(
                 PanicType::OperatorIsNotSupported,
-                 format!(
+                format!(
                     "unexpected operand types: {} {} {}",
                     "iterator",
                     "-",
@@ -35,7 +38,7 @@ impl Iterator {
         match &*right.borrow() {
             other_type => Err(PanicObj::new(
                 PanicType::OperatorIsNotSupported,
-                 format!(
+                format!(
                     "unexpected operand types: {} {} {}",
                     "iterator",
                     "*",
@@ -50,7 +53,7 @@ impl Iterator {
         match &*right.borrow() {
             other_type => Err(PanicObj::new(
                 PanicType::OperatorIsNotSupported,
-                 format!(
+                format!(
                     "unexpected operand types: {} {} {}",
                     "iterator",
                     "*",
@@ -65,7 +68,7 @@ impl Iterator {
         match &*right.borrow() {
             other_type => Err(PanicObj::new(
                 PanicType::OperatorIsNotSupported,
-                 format!(
+                format!(
                     "unexpected operand types: {} {} {}",
                     "iterator",
                     "*",
@@ -80,7 +83,7 @@ impl Iterator {
         match &*right.borrow() {
             other_type => Err(PanicObj::new(
                 PanicType::OperatorIsNotSupported,
-                 format!(
+                format!(
                     "unexpected operand types: {} {} {}",
                     "iterator",
                     "*",
@@ -99,7 +102,7 @@ impl Iterator {
         match &*right.borrow() {
             other_type => Err(PanicObj::new(
                 PanicType::OperatorIsNotSupported,
-                 format!(
+                format!(
                     "unexpected operand types: {} {} {}",
                     "iterator",
                     "==",
@@ -114,7 +117,7 @@ impl Iterator {
         match &*right.borrow() {
             other_type => Err(PanicObj::new(
                 PanicType::OperatorIsNotSupported,
-                 format!(
+                format!(
                     "unexpected operand types: {} {} {}",
                     "iterator",
                     "!=",
@@ -129,7 +132,7 @@ impl Iterator {
         match &*right.borrow() {
             other_type => Err(PanicObj::new(
                 PanicType::OperatorIsNotSupported,
-                 format!(
+                format!(
                     "unexpected operand types: {} {} {}",
                     "iterator",
                     "<",
@@ -144,7 +147,7 @@ impl Iterator {
         match &*right.borrow() {
             other_type => Err(PanicObj::new(
                 PanicType::OperatorIsNotSupported,
-                 format!(
+                format!(
                     "unexpected operand types: {} {} {}",
                     "iterator",
                     "<=",
@@ -159,7 +162,7 @@ impl Iterator {
         match &*right.borrow() {
             other_type => Err(PanicObj::new(
                 PanicType::OperatorIsNotSupported,
-                 format!(
+                format!(
                     "unexpected operand types: {} {} {}",
                     "iterator",
                     ">",
@@ -174,7 +177,7 @@ impl Iterator {
         match &*right.borrow() {
             other_type => Err(PanicObj::new(
                 PanicType::OperatorIsNotSupported,
-                 format!(
+                format!(
                     "unexpected operand types: {} {} {}",
                     "iterator",
                     ">=",

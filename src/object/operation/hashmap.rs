@@ -1,5 +1,6 @@
 use crate::object::{
-    Object, ObjectRef, error::panic_type::PanicType, hashmap::HashMap, new_objectref, panic_obj::PanicObj, state::StateRef
+    Object, ObjectRef, error::panic_type::PanicType, hashmap::HashMap, new_objectref,
+    panic_obj::PanicObj, state::StateRef,
 };
 
 impl HashMap {
@@ -7,7 +8,7 @@ impl HashMap {
         match &*right.borrow() {
             other_type => Err(PanicObj::new(
                 PanicType::OperatorIsNotSupported,
-                 format!(
+                format!(
                     "unexpected operand types: {} {} {}",
                     "hashmap",
                     "-",
@@ -22,7 +23,7 @@ impl HashMap {
         match &*right.borrow() {
             other_type => Err(PanicObj::new(
                 PanicType::OperatorIsNotSupported,
-                 format!(
+                format!(
                     "unexpected operand types: {} {} {}",
                     "hashmap",
                     "-",
@@ -37,7 +38,7 @@ impl HashMap {
         match &*right.borrow() {
             other_type => Err(PanicObj::new(
                 PanicType::OperatorIsNotSupported,
-                 format!(
+                format!(
                     "unexpected operand types: {} {} {}",
                     "hashmap",
                     "*",
@@ -52,7 +53,7 @@ impl HashMap {
         match &*right.borrow() {
             other_type => Err(PanicObj::new(
                 PanicType::OperatorIsNotSupported,
-                 format!(
+                format!(
                     "unexpected operand types: {} {} {}",
                     "hashmap",
                     "/",
@@ -67,7 +68,7 @@ impl HashMap {
         match &*right.borrow() {
             other_type => Err(PanicObj::new(
                 PanicType::OperatorIsNotSupported,
-                 format!(
+                format!(
                     "unexpected operand types: {} {} {}",
                     "hashmap",
                     "%",
@@ -82,7 +83,7 @@ impl HashMap {
         match &*right.borrow() {
             other_type => Err(PanicObj::new(
                 PanicType::OperatorIsNotSupported,
-                 format!(
+                format!(
                     "unexpected operand types: {} {} {}",
                     "hashmap",
                     "**",
@@ -123,7 +124,7 @@ impl HashMap {
         match &*right.borrow() {
             other_type => Err(PanicObj::new(
                 PanicType::OperatorIsNotSupported,
-                 format!(
+                format!(
                     "unexpected operand types: {} {} {}",
                     "hashmap",
                     "<",
@@ -138,7 +139,7 @@ impl HashMap {
         match &*right.borrow() {
             other_type => Err(PanicObj::new(
                 PanicType::OperatorIsNotSupported,
-                 format!(
+                format!(
                     "unexpected operand types: {} {} {}",
                     "hashmap",
                     "<=",
@@ -153,7 +154,7 @@ impl HashMap {
         match &*right.borrow() {
             other_type => Err(PanicObj::new(
                 PanicType::OperatorIsNotSupported,
-                 format!(
+                format!(
                     "unexpected operand types: {} {} {}",
                     "hashmap",
                     ">",
@@ -168,7 +169,7 @@ impl HashMap {
         match &*right.borrow() {
             other_type => Err(PanicObj::new(
                 PanicType::OperatorIsNotSupported,
-                 format!(
+                format!(
                     "unexpected operand types: {} {} {}",
                     "hashmap",
                     ">=",

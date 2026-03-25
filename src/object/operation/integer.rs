@@ -1,5 +1,6 @@
 use crate::object::{
-    Object, ObjectRef, error::panic_type::PanicType, float_obj::FloatObj, integer::Integer, new_objectref, panic_obj::PanicObj, state::StateRef
+    Object, ObjectRef, error::panic_type::PanicType, float_obj::FloatObj, integer::Integer,
+    new_objectref, panic_obj::PanicObj, state::StateRef,
 };
 
 impl Integer {
@@ -13,7 +14,7 @@ impl Integer {
             }))),
             other_type => Err(PanicObj::new(
                 PanicType::OperatorIsNotSupported,
-                 format!(
+                format!(
                     "unexpected operand types: {} {} {}",
                     "int",
                     "+",
@@ -34,7 +35,7 @@ impl Integer {
             }))),
             other_type => Err(PanicObj::new(
                 PanicType::OperatorIsNotSupported,
-                 format!(
+                format!(
                     "unexpected operand types: {} {} {}",
                     "int",
                     "-",
@@ -55,7 +56,7 @@ impl Integer {
             }))),
             other_type => Err(PanicObj::new(
                 PanicType::OperatorIsNotSupported,
-                 format!(
+                format!(
                     "unexpected operand types: {} {} {}",
                     "int",
                     "*",
@@ -96,7 +97,7 @@ impl Integer {
             }
             other_type => Err(PanicObj::new(
                 PanicType::OperatorIsNotSupported,
-                 format!(
+                format!(
                     "unexpected operand types: {} {} {}",
                     "int",
                     "/",
@@ -114,7 +115,7 @@ impl Integer {
             }))),
             other_type => Err(PanicObj::new(
                 PanicType::OperatorIsNotSupported,
-                 format!(
+                format!(
                     "unexpected operand types: {} {} {}",
                     "int",
                     "%",
@@ -135,7 +136,7 @@ impl Integer {
             }))),
             other_type => Err(PanicObj::new(
                 PanicType::OperatorIsNotSupported,
-                 format!(
+                format!(
                     "unexpected operand types: {} {} {}",
                     "int",
                     "**",
@@ -182,7 +183,7 @@ impl Integer {
             ))),
             other_type => Err(PanicObj::new(
                 PanicType::OperatorIsNotSupported,
-                 format!(
+                format!(
                     "unexpected operand types: {} {} {}",
                     "int",
                     "<",
@@ -203,7 +204,7 @@ impl Integer {
             ))),
             other_type => Err(PanicObj::new(
                 PanicType::OperatorIsNotSupported,
-                 format!(
+                format!(
                     "unexpected operand types: {} {} {}",
                     "int",
                     "<=",
@@ -224,7 +225,7 @@ impl Integer {
             ))),
             other_type => Err(PanicObj::new(
                 PanicType::OperatorIsNotSupported,
-                 format!(
+                format!(
                     "unexpected operand types: {} {} {}",
                     "int",
                     ">",
@@ -245,7 +246,7 @@ impl Integer {
             ))),
             other_type => Err(PanicObj::new(
                 PanicType::OperatorIsNotSupported,
-                 format!(
+                format!(
                     "unexpected operand types: {} {} {}",
                     "int",
                     ">=",
@@ -263,7 +264,7 @@ impl Integer {
             }))),
             other_type => Err(PanicObj::new(
                 PanicType::OperatorIsNotSupported,
-                 format!(
+                format!(
                     "unexpected operand types: {} {} {}",
                     "int",
                     "<<",
@@ -281,7 +282,7 @@ impl Integer {
             }))),
             other_type => Err(PanicObj::new(
                 PanicType::OperatorIsNotSupported,
-                 format!(
+                format!(
                     "unexpected operand types: {} {} {}",
                     "int",
                     ">>",
@@ -299,7 +300,7 @@ impl Integer {
             }))),
             other_type => Err(PanicObj::new(
                 PanicType::OperatorIsNotSupported,
-                 format!(
+                format!(
                     "unexpected operand types: {} {} {}",
                     "int",
                     "&",
@@ -317,7 +318,7 @@ impl Integer {
             }))),
             other_type => Err(PanicObj::new(
                 PanicType::OperatorIsNotSupported,
-                 format!(
+                format!(
                     "unexpected operand types: {} {} {}",
                     "int",
                     "|",
@@ -335,7 +336,7 @@ impl Integer {
             }))),
             other_type => Err(PanicObj::new(
                 PanicType::OperatorIsNotSupported,
-                 format!(
+                format!(
                     "unexpected operand types: {} {} {}",
                     "int",
                     "^",

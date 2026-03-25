@@ -1,7 +1,8 @@
 use std::{cell::RefCell, rc::Rc};
 
 use crate::object::{
-    Object, ObjectRef, error::panic_type::PanicType, float_obj::FloatObj, integer::Integer, panic_obj::PanicObj, stack_environment::EnvRef, state::StateRef, string_obj::StringObj
+    Object, ObjectRef, error::panic_type::PanicType, float_obj::FloatObj, integer::Integer,
+    panic_obj::PanicObj, stack_environment::EnvRef, state::StateRef, string_obj::StringObj,
 };
 
 impl FloatObj {

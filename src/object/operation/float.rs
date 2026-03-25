@@ -1,5 +1,6 @@
 use crate::object::{
-    Object, ObjectRef, error::panic_type::PanicType, float_obj::FloatObj, new_objectref, panic_obj::PanicObj, state::StateRef
+    Object, ObjectRef, error::panic_type::PanicType, float_obj::FloatObj, new_objectref,
+    panic_obj::PanicObj, state::StateRef,
 };
 
 impl FloatObj {

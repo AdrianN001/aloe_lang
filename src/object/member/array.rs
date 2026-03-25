@@ -1,11 +1,26 @@
 use std::{cell::RefCell, env::args, rc::Rc};
 
 use crate::object::{
-    Object, ObjectRef, array::Array, error::{error_type::ErrorType, panic_type::PanicType}, integer::Integer, iterator::{Iterator, list_based_iterator::ListBasedIterator}, new_objectref, null::Null, panic_obj::PanicObj, stack_environment::EnvRef, state::StateRef, string_obj::StringObj
+    Object, ObjectRef,
+    array::Array,
+    error::{error_type::ErrorType, panic_type::PanicType},
+    integer::Integer,
+    iterator::{Iterator, list_based_iterator::ListBasedIterator},
+    new_objectref,
+    null::Null,
+    panic_obj::PanicObj,
+    stack_environment::EnvRef,
+    state::StateRef,
+    string_obj::StringObj,
 };
 
 impl Array {
-    pub fn apply_attribute(&self, name: &str, _environ: EnvRef, state: StateRef) -> Result<ObjectRef, PanicObj> {
+    pub fn apply_attribute(
+        &self,
+        name: &str,
+        _environ: EnvRef,
+        state: StateRef,
+    ) -> Result<ObjectRef, PanicObj> {
         match name {
             "length" => Ok(self.length()),
 
@@ -89,7 +104,7 @@ impl Array {
         if args.len() != 1 {
             return Rc::new(RefCell::new(Object::new_error(
                 ErrorType::WrongArgumentCount,
-                 format!(
+                format!(
                     "expected {} arguments for array.remove(), got: {}",
                     1,
                     args.len()
@@ -101,7 +116,7 @@ impl Array {
             Object::Int(integer) => integer.value,
             other_type => {
                 return Rc::new(RefCell::new(Object::new_error(
-                    ErrorType::WrongArgumentType, 
+                    ErrorType::WrongArgumentType,
                     format!(
                         "expected the first argument to be int, got: {}",
                         other_type.get_type()
@@ -125,7 +140,7 @@ impl Array {
         if args.len() != 2 {
             return Rc::new(RefCell::new(Object::new_error(
                 ErrorType::WrongArgumentCount,
-                 format!(
+                format!(
                     "expected {} arguments for array.insert(), got: {}",
                     2,
                     args.len()
@@ -138,7 +153,7 @@ impl Array {
             Object::Int(integer) => integer.value,
             other_type => {
                 return Rc::new(RefCell::new(Object::new_error(
-                    ErrorType::WrongArgumentType, 
+                    ErrorType::WrongArgumentType,
                     format!(
                         "expected the first argument to be int, got: {}",
                         other_type.get_type()
@@ -169,7 +184,7 @@ impl Array {
         if args.len() != 2 {
             return Rc::new(RefCell::new(Object::new_error(
                 ErrorType::WrongArgumentCount,
-                 format!(
+                format!(
                     "expected {} arguments for array.slice(), got: {}",
                     2,
                     args.len()
@@ -181,7 +196,7 @@ impl Array {
             Object::Int(integer) => integer.value,
             other_type => {
                 return Rc::new(RefCell::new(Object::new_error(
-                    ErrorType::WrongArgumentType, 
+                    ErrorType::WrongArgumentType,
                     format!(
                         "expected the first argument to be int, got: {}",
                         other_type.get_type()
@@ -253,7 +268,7 @@ impl Array {
         if args.len() != 1 {
             return Rc::new(RefCell::new(Object::new_error(
                 ErrorType::WrongArgumentCount,
-                 format!(
+                format!(
                     "expected {} arguments for array.contains(), got: {}",
                     1,
                     args.len()
@@ -295,7 +310,11 @@ impl Array {
                 match mapped_item {
                     Ok(ok_value) => mapped_array_content.push(ok_value.clone()),
                     Err(error) => {
-                        return Rc::new(RefCell::new(Object::new_error(ErrorType::ErrorFromPanic, error.to_string(), state)));
+                        return Rc::new(RefCell::new(Object::new_error(
+                            ErrorType::ErrorFromPanic,
+                            error.to_string(),
+                            state,
+                        )));
                     }
                 }
             }
@@ -344,7 +363,11 @@ impl Array {
                         }
                     }
                     Err(error) => {
-                        return Rc::new(RefCell::new(Object::new_error(ErrorType::ErrorFromPanic, error.to_string(), state)));
+                        return Rc::new(RefCell::new(Object::new_error(
+                            ErrorType::ErrorFromPanic,
+                            error.to_string(),
+                            state,
+                        )));
                     }
                 }
             }

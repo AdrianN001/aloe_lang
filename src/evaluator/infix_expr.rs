@@ -3,7 +3,9 @@ use std::panic;
 use crate::{
     ast::expression::{Expression, infix::InfixExpression},
     object::{
-        Object, ObjectRef, array::Array, boolean::Boolean, error::panic_type::PanicType, float_obj::FloatObj, hashmap::HashMap, integer::Integer, panic_obj::PanicObj, stack_environment::EnvRef, state::StateRef, string_obj::StringObj
+        Object, ObjectRef, array::Array, boolean::Boolean, error::panic_type::PanicType,
+        float_obj::FloatObj, hashmap::HashMap, integer::Integer, panic_obj::PanicObj,
+        stack_environment::EnvRef, state::StateRef, string_obj::StringObj,
     },
 };
 

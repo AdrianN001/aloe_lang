@@ -6,7 +6,11 @@ use crate::{
         statement::Statement,
     },
     object::{
-        Object, ObjectRef, error::panic_type::PanicType, panic_obj::PanicObj, stack_environment::{EnvRef, StackEnvironment}, state::StateRef
+        Object, ObjectRef,
+        error::panic_type::PanicType,
+        panic_obj::PanicObj,
+        stack_environment::{EnvRef, StackEnvironment},
+        state::StateRef,
     },
 };
 

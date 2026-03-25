@@ -1,7 +1,12 @@
 use std::{cell::RefCell, rc::Rc};
 
 use crate::object::{
-    Object, ObjectRef, error::{error_type::ErrorType, panic_type::PanicType}, iterator::{Iterator, range_based_iterator::RangeBasedIterator}, new_objectref, panic_obj::PanicObj, state::StateRef
+    Object, ObjectRef,
+    error::{error_type::ErrorType, panic_type::PanicType},
+    iterator::{Iterator, range_based_iterator::RangeBasedIterator},
+    new_objectref,
+    panic_obj::PanicObj,
+    state::StateRef,
 };
 
 pub fn range_builtin_function(args: &[ObjectRef], state: StateRef) -> Result<ObjectRef, PanicObj> {

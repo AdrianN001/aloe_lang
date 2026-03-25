@@ -37,7 +37,8 @@ use return_value::ReturnValue;
 use string_obj::StringObj;
 
 use crate::object::{
-    break_value::BreakValue, error::error_type::ErrorType, hashable::Hashable, hashmap::HashKey, iterator::Iterator, state::StateRef, struct_model::StructModel, struct_object::StructObject
+    break_value::BreakValue, error::error_type::ErrorType, hashable::Hashable, hashmap::HashKey,
+    iterator::Iterator, state::StateRef, struct_model::StructModel, struct_object::StructObject,
 };
 
 pub type ObjectRef = Rc<RefCell<Object>>;
@@ -81,7 +82,7 @@ impl Object {
         }
     }
 
-    pub fn new_error(type_of: ErrorType,  error_value: String, state: StateRef) -> Self {
+    pub fn new_error(type_of: ErrorType, error_value: String, state: StateRef) -> Self {
         Object::Err(Error {
             type_of,
             value: error_value,

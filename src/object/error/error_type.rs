@@ -1,7 +1,5 @@
-
-
 #[derive(PartialEq, Eq, Clone)]
-pub enum ErrorType{
+pub enum ErrorType {
     IndexOutOfBound,
     IllegalCast,
 
@@ -17,7 +15,6 @@ pub enum ErrorType{
     ErrorFromPanic,
 
     IteratorRanOut,
-
 
     CustomError(),
 }

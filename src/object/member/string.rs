@@ -1,7 +1,17 @@
 use std::{cell::RefCell, rc::Rc};
 
 use crate::object::{
-    Object, ObjectRef, array::Array, error::{error_type::ErrorType, panic_type::PanicType}, float_obj::FloatObj, integer::Integer, iterator::{Iterator, list_based_iterator::ListBasedIterator}, new_objectref, panic_obj::PanicObj, stack_environment::EnvRef, state::StateRef, string_obj::StringObj
+    Object, ObjectRef,
+    array::Array,
+    error::{error_type::ErrorType, panic_type::PanicType},
+    float_obj::FloatObj,
+    integer::Integer,
+    iterator::{Iterator, list_based_iterator::ListBasedIterator},
+    new_objectref,
+    panic_obj::PanicObj,
+    stack_environment::EnvRef,
+    state::StateRef,
+    string_obj::StringObj,
 };
 
 impl StringObj {
@@ -131,7 +141,7 @@ impl StringObj {
     fn slice(&self, args: &[ObjectRef], state: StateRef) -> ObjectRef {
         if args.len() != 2 {
             return Rc::new(RefCell::new(Object::new_error(
-                ErrorType::WrongArgumentCount, 
+                ErrorType::WrongArgumentCount,
                 format!(
                     "expected {} arguments for array.slice(), got: {}",
                     2,
@@ -198,14 +208,22 @@ impl StringObj {
             Ok(float_value) => Rc::new(RefCell::new(Object::FloatObj(FloatObj {
                 val: float_value,
             }))),
-            Err(err) => Rc::new(RefCell::new(Object::new_error(ErrorType::IllegalCast, err.to_string(), state))),
+            Err(err) => Rc::new(RefCell::new(Object::new_error(
+                ErrorType::IllegalCast,
+                err.to_string(),
+                state,
+            ))),
         }
     }
 
     fn as_int(&self, state: StateRef) -> ObjectRef {
         match self.value.parse::<i64>() {
             Ok(int_value) => Rc::new(RefCell::new(Object::Int(Integer { value: int_value }))),
-            Err(err) => Rc::new(RefCell::new(Object::new_error(ErrorType::IllegalCast, err.to_string(), state))),
+            Err(err) => Rc::new(RefCell::new(Object::new_error(
+                ErrorType::IllegalCast,
+                err.to_string(),
+                state,
+            ))),
         }
     }
 
@@ -263,15 +281,15 @@ impl StringObj {
         }))
     }
 
-    fn is_ascii(&self) -> ObjectRef{
+    fn is_ascii(&self) -> ObjectRef {
         new_objectref(Object::get_native_boolean_object(self.value.is_ascii()))
     }
 
-    fn is_empty(&self) -> ObjectRef{
+    fn is_empty(&self) -> ObjectRef {
         new_objectref(Object::get_native_boolean_object(self.value.is_empty()))
     }
 
-    fn starts_with(&self, args: &[ObjectRef], state: StateRef) -> ObjectRef{
+    fn starts_with(&self, args: &[ObjectRef], state: StateRef) -> ObjectRef {
         if args.len() != 1 {
             return Rc::new(RefCell::new(Object::new_error(
                 ErrorType::WrongArgumentCount,
@@ -299,15 +317,12 @@ impl StringObj {
             }
         };
 
-
-
         new_objectref(Object::get_native_boolean_object(
             self.value.starts_with(substr),
         ))
-
     }
 
-    fn ends_with(&self, args: &[ObjectRef], state: StateRef) -> ObjectRef{
+    fn ends_with(&self, args: &[ObjectRef], state: StateRef) -> ObjectRef {
         if args.len() != 1 {
             return Rc::new(RefCell::new(Object::new_error(
                 ErrorType::WrongArgumentCount,
@@ -335,11 +350,8 @@ impl StringObj {
             }
         };
 
-
-
         new_objectref(Object::get_native_boolean_object(
             self.value.ends_with(substr),
         ))
-
     }
 }

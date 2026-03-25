@@ -1,5 +1,6 @@
 use crate::object::{
-    Object, ObjectRef, error::panic_type::PanicType, new_objectref, panic_obj::PanicObj, state::StateRef, string_obj::StringObj
+    Object, ObjectRef, error::panic_type::PanicType, new_objectref, panic_obj::PanicObj,
+    state::StateRef, string_obj::StringObj,
 };
 
 impl StringObj {
@@ -10,7 +11,7 @@ impl StringObj {
             }))),
             other_type => Err(PanicObj::new(
                 PanicType::OperatorIsNotSupported,
-                 format!(
+                format!(
                     "unexpected operand types: {} {} {}",
                     "string",
                     "+",
@@ -25,7 +26,7 @@ impl StringObj {
         match &*right.borrow() {
             other_type => Err(PanicObj::new(
                 PanicType::OperatorIsNotSupported,
-                 format!(
+                format!(
                     "unexpected operand types: {} {} {}",
                     "string",
                     "-",
@@ -40,7 +41,7 @@ impl StringObj {
         match &*right.borrow() {
             other_type => Err(PanicObj::new(
                 PanicType::OperatorIsNotSupported,
-                 format!(
+                format!(
                     "unexpected operand types: {} {} {}",
                     "string",
                     "*",
@@ -55,7 +56,7 @@ impl StringObj {
         match &*right.borrow() {
             other_type => Err(PanicObj::new(
                 PanicType::OperatorIsNotSupported,
-                 format!(
+                format!(
                     "unexpected operand types: {} {} {}",
                     "string",
                     "/",
@@ -70,7 +71,7 @@ impl StringObj {
         match &*right.borrow() {
             other_type => Err(PanicObj::new(
                 PanicType::OperatorIsNotSupported,
-                 format!(
+                format!(
                     "unexpected operand types: {} {} {}",
                     "string",
                     "%",
@@ -85,7 +86,7 @@ impl StringObj {
         match &*right.borrow() {
             other_type => Err(PanicObj::new(
                 PanicType::OperatorIsNotSupported,
-                 format!(
+                format!(
                     "unexpected operand types: {} {} {}",
                     "string",
                     "**",
@@ -126,7 +127,7 @@ impl StringObj {
         match &*right.borrow() {
             other_type => Err(PanicObj::new(
                 PanicType::OperatorIsNotSupported,
-                 format!(
+                format!(
                     "unexpected operand types: {} {} {}",
                     "string",
                     "<",
@@ -141,7 +142,7 @@ impl StringObj {
         match &*right.borrow() {
             other_type => Err(PanicObj::new(
                 PanicType::OperatorIsNotSupported,
-                 format!(
+                format!(
                     "unexpected operand types: {} {} {}",
                     "string",
                     "<=",
@@ -156,7 +157,7 @@ impl StringObj {
         match &*right.borrow() {
             other_type => Err(PanicObj::new(
                 PanicType::OperatorIsNotSupported,
-                 format!(
+                format!(
                     "unexpected operand types: {} {} {}",
                     "string",
                     ">",
@@ -171,7 +172,7 @@ impl StringObj {
         match &*right.borrow() {
             other_type => Err(PanicObj::new(
                 PanicType::OperatorIsNotSupported,
-                 format!(
+                format!(
                     "unexpected operand types: {} {} {}",
                     "string",
                     ">=",

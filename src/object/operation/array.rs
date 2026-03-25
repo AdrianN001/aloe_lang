@@ -1,5 +1,6 @@
 use crate::object::{
-    Object, ObjectRef, array::Array, error::panic_type::PanicType, new_objectref, panic_obj::PanicObj, state::StateRef
+    Object, ObjectRef, array::Array, error::panic_type::PanicType, new_objectref,
+    panic_obj::PanicObj, state::StateRef,
 };
 
 impl Array {

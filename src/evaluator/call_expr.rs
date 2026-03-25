@@ -34,12 +34,14 @@ impl CallExpression {
 
         let return_value = match &*obj_to_call.borrow() {
             Object::Func(function) => function.apply(function_name, &args, state.clone()),
-            Object::BuiltIn(built_in_function) => built_in_function.call(&args, environ.clone(), state.clone()),
+            Object::BuiltIn(built_in_function) => {
+                built_in_function.call(&args, environ.clone(), state.clone())
+            }
             Object::StructModel(_) => {
                 StructObject::create_new_object(obj_to_call.clone(), &args, state.clone())
             }
             other_type => Err(PanicObj::new(
-                    PanicType::NonfunctionalObjectCalled,
+                PanicType::NonfunctionalObjectCalled,
                 format!(
                     "'{}' is not a function. It cannot be called.",
                     other_type.inspect()

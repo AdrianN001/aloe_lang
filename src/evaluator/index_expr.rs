@@ -84,7 +84,13 @@ impl IndexExpression {
             Object::Array(arr) => {
                 let idx = match &*index_borrow {
                     Object::Int(i) => i.value,
-                    _ => return Err(PanicObj::new_simple(PanicType::WrongArgumentType, "Index must be integer", state.clone())),
+                    _ => {
+                        return Err(PanicObj::new_simple(
+                            PanicType::WrongArgumentType,
+                            "Index must be integer",
+                            state.clone(),
+                        ));
+                    }
                 };
 
                 let len = arr.items.len() as i64;
@@ -92,7 +98,11 @@ impl IndexExpression {
                 let real_index = if idx < 0 { len + idx } else { idx };
 
                 if real_index < 0 || real_index >= len {
-                    return Err(PanicObj::new_simple(PanicType::IndexOutOfBound, "out of bounds panic", state.clone()));
+                    return Err(PanicObj::new_simple(
+                        PanicType::IndexOutOfBound,
+                        "out of bounds panic",
+                        state.clone(),
+                    ));
                 }
 
                 arr.items[real_index as usize] = rvalue;
@@ -102,7 +112,13 @@ impl IndexExpression {
             Object::HashMap(map) => {
                 let hashed_object = match index_borrow.hash() {
                     Ok(ok_value) => ok_value,
-                    Err(err_feedback) => return Err(PanicObj::new(PanicType::ObjectNotHashable, err_feedback, state.clone())),
+                    Err(err_feedback) => {
+                        return Err(PanicObj::new(
+                            PanicType::ObjectNotHashable,
+                            err_feedback,
+                            state.clone(),
+                        ));
+                    }
                 };
 
                 map.pairs.insert(

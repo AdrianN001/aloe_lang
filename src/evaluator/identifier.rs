@@ -3,7 +3,8 @@ use std::{cell::RefCell, rc::Rc};
 use crate::{
     ast::expression::identifier::Identifier,
     object::{
-        Object, ObjectRef, built_in::BuiltIn, error::panic_type::PanicType, panic_obj::PanicObj, stack_environment::EnvRef, state::StateRef
+        Object, ObjectRef, built_in::BuiltIn, error::panic_type::PanicType, panic_obj::PanicObj,
+        stack_environment::EnvRef, state::StateRef,
     },
 };
 

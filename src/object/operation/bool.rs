@@ -1,5 +1,6 @@
 use crate::object::{
-    Object, ObjectRef, boolean::Boolean, error::panic_type::PanicType, new_objectref, panic_obj::PanicObj, state::StateRef
+    Object, ObjectRef, boolean::Boolean, error::panic_type::PanicType, new_objectref,
+    panic_obj::PanicObj, state::StateRef,
 };
 
 impl Boolean {
@@ -7,7 +8,7 @@ impl Boolean {
         match &*right.borrow() {
             other_type => Err(PanicObj::new(
                 PanicType::OperatorIsNotSupported,
-                 format!(
+                format!(
                     "unexpected operand types: {} {} {}",
                     "boolean",
                     "+",
@@ -22,7 +23,7 @@ impl Boolean {
         match &*right.borrow() {
             other_type => Err(PanicObj::new(
                 PanicType::OperatorIsNotSupported,
-                 format!(
+                format!(
                     "unexpected operand types: {} {} {}",
                     "boolean",
                     "-",
@@ -37,7 +38,7 @@ impl Boolean {
         match &*right.borrow() {
             other_type => Err(PanicObj::new(
                 PanicType::OperatorIsNotSupported,
-                 format!(
+                format!(
                     "unexpected operand types: {} {} {}",
                     "boolean",
                     "*",
@@ -52,7 +53,7 @@ impl Boolean {
         match &*right.borrow() {
             other_type => Err(PanicObj::new(
                 PanicType::OperatorIsNotSupported,
-                 format!(
+                format!(
                     "unexpected operand types: {} {} {}",
                     "boolean",
                     "/",
@@ -67,7 +68,7 @@ impl Boolean {
         match &*right.borrow() {
             other_type => Err(PanicObj::new(
                 PanicType::OperatorIsNotSupported,
-                 format!(
+                format!(
                     "unexpected operand types: {} {} {}",
                     "boolean",
                     "%",
@@ -82,7 +83,7 @@ impl Boolean {
         match &*right.borrow() {
             other_type => Err(PanicObj::new(
                 PanicType::OperatorIsNotSupported,
-                 format!(
+                format!(
                     "unexpected operand types: {} {} {}",
                     "boolean",
                     "**",
@@ -121,7 +122,7 @@ impl Boolean {
         match &*right.borrow() {
             other_type => Err(PanicObj::new(
                 PanicType::OperatorIsNotSupported,
-                 format!(
+                format!(
                     "unexpected operand types: {} {} {}",
                     "boolean",
                     "<",
@@ -136,7 +137,7 @@ impl Boolean {
         match &*right.borrow() {
             other_type => Err(PanicObj::new(
                 PanicType::OperatorIsNotSupported,
-                 format!(
+                format!(
                     "unexpected operand types: {} {} {}",
                     "boolean",
                     "<=",
@@ -151,7 +152,7 @@ impl Boolean {
         match &*right.borrow() {
             other_type => Err(PanicObj::new(
                 PanicType::OperatorIsNotSupported,
-                 format!(
+                format!(
                     "unexpected operand types: {} {} {}",
                     "boolean",
                     ">",
@@ -166,7 +167,7 @@ impl Boolean {
         match &*right.borrow() {
             other_type => Err(PanicObj::new(
                 PanicType::OperatorIsNotSupported,
-                 format!(
+                format!(
                     "unexpected operand types: {} {} {}",
                     "boolean",
                     ">=",
@@ -186,7 +187,7 @@ impl Boolean {
             ))),
             other_type => Err(PanicObj::new(
                 PanicType::OperatorIsNotSupported,
-                 format!(
+                format!(
                     "unexpected operand types: {} {} {}",
                     "boolean",
                     "&&",
@@ -204,7 +205,7 @@ impl Boolean {
             ))),
             other_type => Err(PanicObj::new(
                 PanicType::OperatorIsNotSupported,
-                 format!(
+                format!(
                     "unexpected operand types: {} {} {}",
                     "boolean",
                     "||",
@@ -222,7 +223,7 @@ impl Boolean {
             ))),
             other_type => Err(PanicObj::new(
                 PanicType::OperatorIsNotSupported,
-                 format!(
+                format!(
                     "unexpected operand types: {} {} {}",
                     "boolean",
                     "^",
@@ -240,7 +241,7 @@ impl Boolean {
             ))),
             other_type => Err(PanicObj::new(
                 PanicType::OperatorIsNotSupported,
-                 format!(
+                format!(
                     "unexpected operand types: {} {} {}",
                     "boolean",
                     "&",
@@ -258,7 +259,7 @@ impl Boolean {
             ))),
             other_type => Err(PanicObj::new(
                 PanicType::OperatorIsNotSupported,
-                 format!(
+                format!(
                     "unexpected operand types: {} {} {}",
                     "boolean",
                     "|",

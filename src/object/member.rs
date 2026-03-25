@@ -1,6 +1,9 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::object::{Object, ObjectRef, error::panic_type::PanicType, panic_obj::PanicObj, stack_environment::EnvRef, state::StateRef};
+use crate::object::{
+    Object, ObjectRef, error::panic_type::PanicType, panic_obj::PanicObj,
+    stack_environment::EnvRef, state::StateRef,
+};
 
 pub mod array;
 pub mod float;
@@ -10,7 +13,12 @@ pub mod iterator;
 pub mod string;
 
 impl Object {
-    pub fn apply_attribute(&self, name: &str, environ: EnvRef, state: StateRef) -> Result<ObjectRef, PanicObj> {
+    pub fn apply_attribute(
+        &self,
+        name: &str,
+        environ: EnvRef,
+        state: StateRef,
+    ) -> Result<ObjectRef, PanicObj> {
         if let Some(result) = self.check_early_attributes(name) {
             return Ok(result);
         }

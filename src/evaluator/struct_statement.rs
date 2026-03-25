@@ -6,7 +6,8 @@ use crate::{
         statement::{Statement, struct_statement::StructStatement},
     },
     object::{
-        Object, ObjectRef, error::panic_type::PanicType, new_objectref, panic_obj::PanicObj, stack_environment::EnvRef, state::StateRef, struct_model::StructModel
+        Object, ObjectRef, error::panic_type::PanicType, new_objectref, panic_obj::PanicObj,
+        stack_environment::EnvRef, state::StateRef, struct_model::StructModel,
     },
 };
 

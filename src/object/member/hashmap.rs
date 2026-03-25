@@ -1,11 +1,23 @@
 use std::{cell::RefCell, collections::BTreeMap, rc::Rc};
 
 use crate::object::{
-    Object, ObjectRef, array::Array, error::{error_type::ErrorType, panic_type::PanicType}, hashmap::{HashMap, HashPair}, integer::Integer, panic_obj::PanicObj, stack_environment::EnvRef, state::StateRef
+    Object, ObjectRef,
+    array::Array,
+    error::{error_type::ErrorType, panic_type::PanicType},
+    hashmap::{HashMap, HashPair},
+    integer::Integer,
+    panic_obj::PanicObj,
+    stack_environment::EnvRef,
+    state::StateRef,
 };
 
 impl HashMap {
-    pub fn apply_attribute(&self, name: &str, _environ: EnvRef, state: StateRef) -> Result<ObjectRef, PanicObj> {
+    pub fn apply_attribute(
+        &self,
+        name: &str,
+        _environ: EnvRef,
+        state: StateRef,
+    ) -> Result<ObjectRef, PanicObj> {
         match name {
             "length" => Ok(self.get_length()),
             "keys" => Ok(self.get_keys()),
@@ -73,7 +85,6 @@ impl HashMap {
             return Rc::new(RefCell::new(Object::new_error(
                 ErrorType::WrongArgumentCount,
                 format!(
-                    
                     "expected 2 arguments for hashmap.set(), got: {}",
                     args.len()
                 ),
@@ -84,7 +95,11 @@ impl HashMap {
         let hashed_key = match args[0].borrow().hash() {
             Ok(val) => val,
             Err(err_feedback) => {
-                return Rc::new(RefCell::new(Object::new_error(ErrorType::ErrorFromPanic, err_feedback, state)));
+                return Rc::new(RefCell::new(Object::new_error(
+                    ErrorType::ErrorFromPanic,
+                    err_feedback,
+                    state,
+                )));
             }
         };
 
@@ -111,7 +126,11 @@ impl HashMap {
         let hashed_key = match args[0].borrow().hash() {
             Ok(val) => val,
             Err(err_feedback) => {
-                return Rc::new(RefCell::new(Object::new_error(ErrorType::ErrorFromPanic, err_feedback, state)));
+                return Rc::new(RefCell::new(Object::new_error(
+                    ErrorType::ErrorFromPanic,
+                    err_feedback,
+                    state,
+                )));
             }
         };
 
@@ -159,7 +178,11 @@ impl HashMap {
         let hashed_key = match args[0].borrow().hash() {
             Ok(val) => val,
             Err(err_feedback) => {
-                return Rc::new(RefCell::new(Object::new_error(ErrorType::ErrorFromPanic, err_feedback, state)));
+                return Rc::new(RefCell::new(Object::new_error(
+                    ErrorType::ErrorFromPanic,
+                    err_feedback,
+                    state,
+                )));
             }
         };
 
@@ -171,7 +194,7 @@ impl HashMap {
     pub fn remove(&mut self, args: &[ObjectRef], state: StateRef) -> ObjectRef {
         if args.len() != 1 {
             return Rc::new(RefCell::new(Object::new_error(
-                ErrorType::WrongArgumentCount, 
+                ErrorType::WrongArgumentCount,
                 format!(
                     "expected 1 argument for hashmap.remove(), got: {}",
                     args.len()
@@ -183,7 +206,11 @@ impl HashMap {
         let hashed_key = match args[0].borrow().hash() {
             Ok(val) => val,
             Err(err_feedback) => {
-                return Rc::new(RefCell::new(Object::new_error(ErrorType::ErrorFromPanic, err_feedback, state)));
+                return Rc::new(RefCell::new(Object::new_error(
+                    ErrorType::ErrorFromPanic,
+                    err_feedback,
+                    state,
+                )));
             }
         };
 

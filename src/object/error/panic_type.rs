@@ -1,7 +1,5 @@
-
-
 #[derive(PartialEq, Eq, Clone, Debug)]
-pub enum PanicType{
+pub enum PanicType {
     IndexOutOfBound,
     UnknownIdentifier,
     UnknownMethod,

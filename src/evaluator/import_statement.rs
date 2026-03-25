@@ -2,7 +2,8 @@ use crate::{
     ast::{expression::Expression, statement::import_statement::ImportStatement},
     module::{ModuleRef, module_loader::ModuleLoader},
     object::{
-        Object, ObjectRef, error::panic_type::PanicType, new_objectref, panic_obj::PanicObj, stack_environment::EnvRef, state::StateRef
+        Object, ObjectRef, error::panic_type::PanicType, new_objectref, panic_obj::PanicObj,
+        stack_environment::EnvRef, state::StateRef,
     },
 };
 
@@ -19,7 +20,13 @@ impl ImportStatement {
 
         let resolved_module = match module_loader.import_module(&path) {
             Ok(module) => module,
-            Err(err_feedback) => return Err(PanicObj::new(PanicType::ModuleCouldNotBeLoaded, err_feedback.value, _state.clone())),
+            Err(err_feedback) => {
+                return Err(PanicObj::new(
+                    PanicType::ModuleCouldNotBeLoaded,
+                    err_feedback.value,
+                    _state.clone(),
+                ));
+            }
         };
 
         Self::load_exports_from_module(

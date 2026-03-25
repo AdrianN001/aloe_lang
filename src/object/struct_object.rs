@@ -1,7 +1,8 @@
 use std::collections::HashMap;
 
 use crate::object::{
-    Object, ObjectRef, error::panic_type::PanicType, new_objectref, panic_obj::PanicObj, stack_environment::EnvRef, state::StateRef, struct_model::MethodTableRef
+    Object, ObjectRef, error::panic_type::PanicType, new_objectref, panic_obj::PanicObj,
+    stack_environment::EnvRef, state::StateRef, struct_model::MethodTableRef,
 };
 
 #[derive(PartialEq, Eq, Clone)]
@@ -119,10 +120,19 @@ impl StructObject {
 }
 
 impl StructObject {
-    pub fn apply_attribute(&self, name: &str, _environ: EnvRef, _state: StateRef) -> Result<ObjectRef, PanicObj> {
+    pub fn apply_attribute(
+        &self,
+        name: &str,
+        _environ: EnvRef,
+        _state: StateRef,
+    ) -> Result<ObjectRef, PanicObj> {
         match self.attribute_table.get(name) {
             Some(attribute) => Ok(attribute.clone()),
-            None => Err(PanicObj::new(PanicType::UnknownAttribute, format!("{} has no attribute: '{}'", self.model_name, name), _state)),
+            None => Err(PanicObj::new(
+                PanicType::UnknownAttribute,
+                format!("{} has no attribute: '{}'", self.model_name, name),
+                _state,
+            )),
         }
     }
 
@@ -140,7 +150,7 @@ impl StructObject {
                 Object::StructObject(struct_obj) => struct_obj,
                 other_type => {
                     return Err(PanicObj::new(
-                        PanicType::WrongArgumentType, 
+                        PanicType::WrongArgumentType,
                         format!(
                             "expected as the type of 'this': StructObject, got: '{}'",
                             other_type.inspect()

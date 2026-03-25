@@ -1,8 +1,7 @@
 use std::collections::HashMap;
 
 use crate::object::{
-    Object, ObjectRef, new_objectref, panic_obj::PanicObj, stack_environment::EnvRef,
-    state::StateRef, struct_model::MethodTableRef,
+    Object, ObjectRef, error::panic_type::PanicType, new_objectref, panic_obj::PanicObj, stack_environment::EnvRef, state::StateRef, struct_model::MethodTableRef
 };
 
 #[derive(PartialEq, Eq, Clone)]
@@ -26,6 +25,7 @@ impl StructObject {
                 Object::StructModel(struct_model) => struct_model,
                 other_type => {
                     return Err(PanicObj::new(
+                        PanicType::IllegalExpression,
                         format!(
                             "expected to be the model a 'Struct Model', got: {}",
                             other_type.inspect()
@@ -96,6 +96,7 @@ impl StructObject {
     ) -> Result<(), PanicObj> {
         if args.len() != attribute_list.len() {
             return Err(PanicObj::new(
+                PanicType::WrongArgumentCount,
                 format!(
                     "expected {} arguments for default constructor, got: {}.",
                     attribute_list.len(),
@@ -118,10 +119,10 @@ impl StructObject {
 }
 
 impl StructObject {
-    pub fn apply_attribute(&self, name: &str, _environ: EnvRef, _state: StateRef) -> ObjectRef {
+    pub fn apply_attribute(&self, name: &str, _environ: EnvRef, _state: StateRef) -> Result<ObjectRef, PanicObj> {
         match self.attribute_table.get(name) {
-            Some(attribute) => attribute.clone(),
-            None => new_objectref(Object::NULL_OBJECT),
+            Some(attribute) => Ok(attribute.clone()),
+            None => Err(PanicObj::new(PanicType::UnknownAttribute, format!("{} has no attribute: '{}'", self.model_name, name), _state)),
         }
     }
 
@@ -139,6 +140,7 @@ impl StructObject {
                 Object::StructObject(struct_obj) => struct_obj,
                 other_type => {
                     return Err(PanicObj::new(
+                        PanicType::WrongArgumentType, 
                         format!(
                             "expected as the type of 'this': StructObject, got: '{}'",
                             other_type.inspect()
@@ -154,6 +156,7 @@ impl StructObject {
                 Some(requested_method) => requested_method.clone(),
                 None => {
                     return Err(PanicObj::new(
+                        PanicType::UnknownMethod,
                         format!("struct {} has no method '{}'().", this_raw.model_name, name),
                         state,
                     ));
@@ -167,6 +170,7 @@ impl StructObject {
             Object::Func(func) => func,
             other_type => {
                 return Err(PanicObj::new(
+                    PanicType::IllegalExpression,
                     format!(
                         "expected function object for method, got: '{}'",
                         other_type.inspect()

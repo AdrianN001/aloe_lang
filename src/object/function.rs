@@ -3,6 +3,7 @@ use std::rc::Rc;
 
 use crate::ast::expression::function_expression::FunctionExpression;
 use crate::object::ObjectRef;
+use crate::object::error::panic_type::PanicType;
 use crate::object::panic_obj::PanicObj;
 use crate::object::stack_environment::EnvRef;
 use crate::object::state::StateRef;
@@ -63,9 +64,11 @@ impl Function {
     ) -> Result<ObjectRef, PanicObj> {
         if arguments.len() != self.parameters.len() {
             return Err(PanicObj::new(
+                PanicType::WrongArgumentCount,
                 format!(
-                    "expected {} arguments, got: {}",
+                    "expected {} arguments for function '{}()', got: {}",
                     self.parameters.len(),
+                    name_of_the_function,
                     arguments.len()
                 ),
                 state.clone(),

@@ -1,5 +1,5 @@
 use crate::object::{
-    Object, ObjectRef, array::Array, new_objectref, panic_obj::PanicObj, state::StateRef,
+    Object, ObjectRef, array::Array, error::panic_type::PanicType, new_objectref, panic_obj::PanicObj, state::StateRef
 };
 
 impl Array {
@@ -29,6 +29,7 @@ impl Array {
     pub fn sub(&self, right: ObjectRef, _state: StateRef) -> Result<ObjectRef, PanicObj> {
         match &*right.borrow() {
             other_type => Err(PanicObj::new(
+                PanicType::OperatorIsNotSupported,
                 format!(
                     "unexpected operand types: {} {} {}",
                     "array",
@@ -43,6 +44,7 @@ impl Array {
     pub fn mul(&self, right: ObjectRef, _state: StateRef) -> Result<ObjectRef, PanicObj> {
         match &*right.borrow() {
             other_type => Err(PanicObj::new(
+                PanicType::OperatorIsNotSupported,
                 format!(
                     "unexpected operand types: {} {} {}",
                     "array",
@@ -57,6 +59,7 @@ impl Array {
     pub fn div(&self, right: ObjectRef, _state: StateRef) -> Result<ObjectRef, PanicObj> {
         match &*right.borrow() {
             other_type => Err(PanicObj::new(
+                PanicType::OperatorIsNotSupported,
                 format!(
                     "unexpected operand types: {} {} {}",
                     "array",
@@ -71,6 +74,7 @@ impl Array {
     pub fn modulo(&self, right: ObjectRef, _state: StateRef) -> Result<ObjectRef, PanicObj> {
         match &*right.borrow() {
             other_type => Err(PanicObj::new(
+                PanicType::OperatorIsNotSupported,
                 format!(
                     "unexpected operand types: {} {} {}",
                     "array",
@@ -85,6 +89,7 @@ impl Array {
     pub fn power(&self, right: ObjectRef, _state: StateRef) -> Result<ObjectRef, PanicObj> {
         match &*right.borrow() {
             other_type => Err(PanicObj::new(
+                PanicType::OperatorIsNotSupported,
                 format!(
                     "unexpected operand types: {} {} {}",
                     "array",
@@ -125,6 +130,7 @@ impl Array {
     pub fn lt(&self, right: ObjectRef, _state: StateRef) -> Result<ObjectRef, PanicObj> {
         match &*right.borrow() {
             other_type => Err(PanicObj::new(
+                PanicType::OperatorIsNotSupported,
                 format!(
                     "unexpected operand types: {} {} {}",
                     "array",
@@ -139,6 +145,7 @@ impl Array {
     pub fn le(&self, right: ObjectRef, _state: StateRef) -> Result<ObjectRef, PanicObj> {
         match &*right.borrow() {
             other_type => Err(PanicObj::new(
+                PanicType::OperatorIsNotSupported,
                 format!(
                     "unexpected operand types: {} {} {}",
                     "array",
@@ -153,6 +160,7 @@ impl Array {
     pub fn gt(&self, right: ObjectRef, _state: StateRef) -> Result<ObjectRef, PanicObj> {
         match &*right.borrow() {
             other_type => Err(PanicObj::new(
+                PanicType::OperatorIsNotSupported,
                 format!(
                     "unexpected operand types: {} {} {}",
                     "array",
@@ -167,6 +175,7 @@ impl Array {
     pub fn ge(&self, right: ObjectRef, _state: StateRef) -> Result<ObjectRef, PanicObj> {
         match &*right.borrow() {
             other_type => Err(PanicObj::new(
+                PanicType::OperatorIsNotSupported,
                 format!(
                     "unexpected operand types: {} {} {}",
                     "array",

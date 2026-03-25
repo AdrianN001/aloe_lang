@@ -1,5 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
+use crate::object::error::panic_type::PanicType;
 use crate::object::hashmap::HashPair;
 use crate::object::panic_obj::PanicObj;
 use crate::object::stack_environment::EnvRef;
@@ -57,8 +58,9 @@ impl IndexExpression {
             }
             (Object::HashMap(map), _) => Ok(map.get([index.clone()].as_ref(), state)),
             _ => Err(PanicObj::new(
+                PanicType::OperatorIsNotSupported,
                 format!(
-                    "index operator not supported: {}",
+                    "index operator not supported on: {}",
                     index.borrow().get_type()
                 ),
                 state.clone(),
@@ -82,7 +84,7 @@ impl IndexExpression {
             Object::Array(arr) => {
                 let idx = match &*index_borrow {
                     Object::Int(i) => i.value,
-                    _ => return Err(PanicObj::new_simple("Index must be integer", state.clone())),
+                    _ => return Err(PanicObj::new_simple(PanicType::WrongArgumentType, "Index must be integer", state.clone())),
                 };
 
                 let len = arr.items.len() as i64;
@@ -90,7 +92,7 @@ impl IndexExpression {
                 let real_index = if idx < 0 { len + idx } else { idx };
 
                 if real_index < 0 || real_index >= len {
-                    return Err(PanicObj::new_simple("out of bounds panic", state.clone()));
+                    return Err(PanicObj::new_simple(PanicType::IndexOutOfBound, "out of bounds panic", state.clone()));
                 }
 
                 arr.items[real_index as usize] = rvalue;
@@ -100,7 +102,7 @@ impl IndexExpression {
             Object::HashMap(map) => {
                 let hashed_object = match index_borrow.hash() {
                     Ok(ok_value) => ok_value,
-                    Err(err_feedback) => return Err(PanicObj::new(err_feedback, state.clone())),
+                    Err(err_feedback) => return Err(PanicObj::new(PanicType::ObjectNotHashable, err_feedback, state.clone())),
                 };
 
                 map.pairs.insert(
@@ -115,6 +117,7 @@ impl IndexExpression {
             }
 
             _ => Err(PanicObj::new(
+                PanicType::OperatorIsNotSupported,
                 format!("index operator not supported on {}", left_borrow.get_type()),
                 state.clone(),
             )),

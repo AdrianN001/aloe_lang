@@ -1,9 +1,13 @@
-use crate::object::state::StateRef;
+pub mod error_type;
+pub mod panic_type;
+
+use crate::object::{error::error_type::ErrorType, state::StateRef};
 
 #[derive(PartialEq, Eq, Clone)]
 pub struct Error {
     pub value: String,
     pub state: StateRef,
+    pub type_of: ErrorType,
 }
 
 impl Error {

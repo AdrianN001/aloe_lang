@@ -1,5 +1,5 @@
 use crate::object::{
-    Object, ObjectRef, new_objectref, panic_obj::PanicObj, state::StateRef, string_obj::StringObj,
+    Object, ObjectRef, error::panic_type::PanicType, new_objectref, panic_obj::PanicObj, state::StateRef, string_obj::StringObj
 };
 
 impl StringObj {
@@ -9,7 +9,8 @@ impl StringObj {
                 value: self.value.clone() + &str_obj.value,
             }))),
             other_type => Err(PanicObj::new(
-                format!(
+                PanicType::OperatorIsNotSupported,
+                 format!(
                     "unexpected operand types: {} {} {}",
                     "string",
                     "+",
@@ -23,7 +24,8 @@ impl StringObj {
     pub fn sub(&self, right: ObjectRef, _state: StateRef) -> Result<ObjectRef, PanicObj> {
         match &*right.borrow() {
             other_type => Err(PanicObj::new(
-                format!(
+                PanicType::OperatorIsNotSupported,
+                 format!(
                     "unexpected operand types: {} {} {}",
                     "string",
                     "-",
@@ -37,7 +39,8 @@ impl StringObj {
     pub fn mul(&self, right: ObjectRef, _state: StateRef) -> Result<ObjectRef, PanicObj> {
         match &*right.borrow() {
             other_type => Err(PanicObj::new(
-                format!(
+                PanicType::OperatorIsNotSupported,
+                 format!(
                     "unexpected operand types: {} {} {}",
                     "string",
                     "*",
@@ -51,7 +54,8 @@ impl StringObj {
     pub fn div(&self, right: ObjectRef, _state: StateRef) -> Result<ObjectRef, PanicObj> {
         match &*right.borrow() {
             other_type => Err(PanicObj::new(
-                format!(
+                PanicType::OperatorIsNotSupported,
+                 format!(
                     "unexpected operand types: {} {} {}",
                     "string",
                     "/",
@@ -65,7 +69,8 @@ impl StringObj {
     pub fn modulo(&self, right: ObjectRef, _state: StateRef) -> Result<ObjectRef, PanicObj> {
         match &*right.borrow() {
             other_type => Err(PanicObj::new(
-                format!(
+                PanicType::OperatorIsNotSupported,
+                 format!(
                     "unexpected operand types: {} {} {}",
                     "string",
                     "%",
@@ -79,7 +84,8 @@ impl StringObj {
     pub fn power(&self, right: ObjectRef, _state: StateRef) -> Result<ObjectRef, PanicObj> {
         match &*right.borrow() {
             other_type => Err(PanicObj::new(
-                format!(
+                PanicType::OperatorIsNotSupported,
+                 format!(
                     "unexpected operand types: {} {} {}",
                     "string",
                     "**",
@@ -119,7 +125,8 @@ impl StringObj {
     pub fn lt(&self, right: ObjectRef, _state: StateRef) -> Result<ObjectRef, PanicObj> {
         match &*right.borrow() {
             other_type => Err(PanicObj::new(
-                format!(
+                PanicType::OperatorIsNotSupported,
+                 format!(
                     "unexpected operand types: {} {} {}",
                     "string",
                     "<",
@@ -133,7 +140,8 @@ impl StringObj {
     pub fn le(&self, right: ObjectRef, _state: StateRef) -> Result<ObjectRef, PanicObj> {
         match &*right.borrow() {
             other_type => Err(PanicObj::new(
-                format!(
+                PanicType::OperatorIsNotSupported,
+                 format!(
                     "unexpected operand types: {} {} {}",
                     "string",
                     "<=",
@@ -147,7 +155,8 @@ impl StringObj {
     pub fn gt(&self, right: ObjectRef, _state: StateRef) -> Result<ObjectRef, PanicObj> {
         match &*right.borrow() {
             other_type => Err(PanicObj::new(
-                format!(
+                PanicType::OperatorIsNotSupported,
+                 format!(
                     "unexpected operand types: {} {} {}",
                     "string",
                     ">",
@@ -161,7 +170,8 @@ impl StringObj {
     pub fn ge(&self, right: ObjectRef, _state: StateRef) -> Result<ObjectRef, PanicObj> {
         match &*right.borrow() {
             other_type => Err(PanicObj::new(
-                format!(
+                PanicType::OperatorIsNotSupported,
+                 format!(
                     "unexpected operand types: {} {} {}",
                     "string",
                     ">=",

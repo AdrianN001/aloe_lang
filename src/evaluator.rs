@@ -22,6 +22,7 @@ use crate::ast::program::Program;
 use crate::module::module_loader::ModuleLoader;
 use crate::object::ObjectRef;
 use crate::object::break_value::BreakValue;
+use crate::object::error::panic_type::PanicType;
 use crate::object::function::Function;
 use crate::object::integer::Integer;
 use crate::object::null::Null;
@@ -147,18 +148,21 @@ impl Program {
             match &*borrowed_result {
                 Object::BreakVal(_) => {
                     return Err(PanicObj::new_simple(
+                        PanicType::UnexpectedKeyword,
                         "unexpected break keyword in non-loop context",
                         state,
                     ));
                 }
                 Object::Continue => {
                     return Err(PanicObj::new_simple(
+                        PanicType::UnexpectedKeyword,
                         "unexpected continue keyword in non-loop context",
                         state,
                     ));
                 }
                 Object::ReturnVal(_) => {
                     return Err(PanicObj::new_simple(
+                        PanicType::ReturnFromNonfunctionalContext,
                         "unexpected return keyword in non-function context",
                         state,
                     ));
@@ -178,6 +182,7 @@ impl Program {
             result = match stmt {
                 Statement::Import(_) => {
                     return Err(PanicObj::new_simple(
+                        PanicType::ImportUnsupported,
                         "import is not supported in repl",
                         state,
                     ));
@@ -190,18 +195,21 @@ impl Program {
             match &*borrowed_result {
                 Object::BreakVal(_) => {
                     return Err(PanicObj::new_simple(
+                        PanicType::UnexpectedKeyword,
                         "unexpected break keyword in non-loop context",
                         state,
                     ));
                 }
                 Object::Continue => {
                     return Err(PanicObj::new_simple(
+                        PanicType::UnexpectedKeyword,
                         "unexpected continue keyword in non-loop context",
                         state,
                     ));
                 }
                 Object::ReturnVal(_) => {
                     return Err(PanicObj::new_simple(
+                        PanicType::ReturnFromNonfunctionalContext,
                         "unexpected return keyword in non-function context",
                         state,
                     ));
@@ -223,6 +231,7 @@ impl Program {
             result = match stmt {
                 Statement::Import(_) => {
                     return Err(PanicObj::new_simple(
+                        PanicType::ImportUnsupported,
                         "import is not supported in repl",
                         state,
                     ));
@@ -235,18 +244,21 @@ impl Program {
             match &*borrowed_result {
                 Object::BreakVal(_) => {
                     return Err(PanicObj::new_simple(
+                        PanicType::UnexpectedKeyword,
                         "unexpected break keyword in non-loop context",
                         state,
                     ));
                 }
                 Object::Continue => {
                     return Err(PanicObj::new_simple(
+                        PanicType::UnexpectedKeyword,
                         "unexpected continue keyword in non-loop context",
                         state,
                     ));
                 }
                 Object::ReturnVal(_) => {
                     return Err(PanicObj::new_simple(
+                        PanicType::ReturnFromNonfunctionalContext,
                         "unexpected return keyword in non-function context",
                         state,
                     ));

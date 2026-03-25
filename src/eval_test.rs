@@ -1774,19 +1774,21 @@ let m = {\"a\": 1};
         (
             "
 let m = {\"a\": 3};
-m.get(\"a\")!.to_string();
+m.get(\"a\")!.as_str();
 ",
             true,
         ),
     ];
 
     testcases.iter().for_each(|testcase| {
-        let input = testcase.0.into();
+        let input: String = testcase.0.into();
         let is_ok = testcase.1;
 
-        let lexer = Lexer::new(input);
+        let lexer = Lexer::new(input.clone());
         let parser = Parser::new(lexer);
         let program = parser.into_a_program().unwrap();
+
+        println!("{}", input);
 
         assert_eq!(program.evaluate_with_default().is_ok(), is_ok);
     });
@@ -2016,7 +2018,7 @@ struct Person{
 let p = Person(\"Max\");
 p.age;
 ",
-            "null",
+            "Person has no attribute: 'age'",
         ),
         (
             "
@@ -2216,7 +2218,7 @@ struct Car{
 let c = Car();
 c.test();
 ",
-            "expected 2 arguments, got: 1",
+            "expected 2 arguments for function 'test()', got: 1",
         ),
         (
             "

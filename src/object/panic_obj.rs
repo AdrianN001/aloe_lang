@@ -1,28 +1,32 @@
 use std::fmt;
 
-use crate::object::{error::Error, state::StateRef};
+use crate::object::{error::{Error, panic_type::PanicType}, state::StateRef};
 
 #[derive(PartialEq, Eq, Clone, Debug)]
 pub struct PanicObj {
     pub value: String,
     pub state: StateRef,
+    pub panic_type: PanicType
 }
 
 impl PanicObj {
-    pub fn new(value: String, state: StateRef) -> Self {
+    pub fn new(type_of: PanicType, value: String, state: StateRef) -> Self {
         Self {
             value,
+            panic_type: type_of,
             state: state.clone(),
         }
     }
-    pub fn new_simple(value: &str, state: StateRef) -> Self {
+    pub fn new_simple(type_of: PanicType, value: &str, state: StateRef) -> Self {
         Self {
+            panic_type: type_of,
             value: value.into(),
             state: state.clone(),
         }
     }
     pub fn from_error(error: &Error, state: StateRef) -> Self {
         Self {
+            panic_type: PanicType::Propagation,
             value: error.value.to_string(),
             state: state.clone(),
         }

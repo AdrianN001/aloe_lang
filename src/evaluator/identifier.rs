@@ -3,8 +3,7 @@ use std::{cell::RefCell, rc::Rc};
 use crate::{
     ast::expression::identifier::Identifier,
     object::{
-        Object, ObjectRef, built_in::BuiltIn, panic_obj::PanicObj, stack_environment::EnvRef,
-        state::StateRef,
+        Object, ObjectRef, built_in::BuiltIn, error::panic_type::PanicType, panic_obj::PanicObj, stack_environment::EnvRef, state::StateRef
     },
 };
 
@@ -26,6 +25,8 @@ impl Identifier {
 
             "range" => Some(BuiltIn::Range),
             "__random" => Some(BuiltIn::Random),
+
+            "__err" => Some(BuiltIn::Err),
             _ => None,
         }
     }
@@ -39,6 +40,7 @@ impl Identifier {
                 }
 
                 Err(PanicObj::new(
+                    PanicType::UnknownIdentifier,
                     format!("unknown identifier: {}", &self.value),
                     state.clone(),
                 ))

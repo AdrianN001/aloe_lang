@@ -6,10 +6,7 @@ use crate::{
         statement::Statement,
     },
     object::{
-        Object, ObjectRef,
-        panic_obj::PanicObj,
-        stack_environment::{EnvRef, StackEnvironment},
-        state::StateRef,
+        Object, ObjectRef, error::panic_type::PanicType, panic_obj::PanicObj, stack_environment::{EnvRef, StackEnvironment}, state::StateRef
     },
 };
 
@@ -43,6 +40,7 @@ impl ForLoopExpression {
                     ),
                 _ => {
                     return Err(PanicObj::new_simple(
+                        PanicType::MissingIdentifier,
                         "expected identifier for 'for loop', got nothing",
                         state.clone(),
                     ));
@@ -69,6 +67,7 @@ impl ForLoopExpression {
             Object::ReturnVal(_) => return Ok(provided_object.clone()), // propagated
             _ => {
                 return Err(PanicObj::new_simple(
+                    PanicType::ObjectNotIterable,
                     "value provided to for loop is not an iterator",
                     state.clone(),
                 ));
@@ -83,6 +82,7 @@ impl ForLoopExpression {
                     && !state.borrow().is_function_context()
                 {
                     return Err(PanicObj::new_simple(
+                        PanicType::ReturnFromNonfunctionalContext,
                         "return statement was used in a non-function context",
                         state.clone(),
                     ));
@@ -114,6 +114,7 @@ impl ForLoopExpression {
                     && !state.borrow().is_function_context()
                 {
                     return Err(PanicObj::new_simple(
+                        PanicType::ReturnFromNonfunctionalContext,
                         "return statement was used in a non-function context",
                         state.clone(),
                     ));

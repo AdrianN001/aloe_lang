@@ -1,6 +1,5 @@
 use crate::object::{
-    Object, ObjectRef, float_obj::FloatObj, integer::Integer, new_objectref, panic_obj::PanicObj,
-    state::StateRef,
+    Object, ObjectRef, error::panic_type::PanicType, float_obj::FloatObj, integer::Integer, new_objectref, panic_obj::PanicObj, state::StateRef
 };
 
 impl Integer {
@@ -13,7 +12,8 @@ impl Integer {
                 val: self.value as f64 + right_float.val,
             }))),
             other_type => Err(PanicObj::new(
-                format!(
+                PanicType::OperatorIsNotSupported,
+                 format!(
                     "unexpected operand types: {} {} {}",
                     "int",
                     "+",
@@ -33,7 +33,8 @@ impl Integer {
                 val: self.value as f64 - right_float.val,
             }))),
             other_type => Err(PanicObj::new(
-                format!(
+                PanicType::OperatorIsNotSupported,
+                 format!(
                     "unexpected operand types: {} {} {}",
                     "int",
                     "-",
@@ -53,7 +54,8 @@ impl Integer {
                 val: self.value as f64 * right_float.val,
             }))),
             other_type => Err(PanicObj::new(
-                format!(
+                PanicType::OperatorIsNotSupported,
+                 format!(
                     "unexpected operand types: {} {} {}",
                     "int",
                     "*",
@@ -73,6 +75,7 @@ impl Integer {
                     })))
                 } else {
                     Err(PanicObj::new(
+                        PanicType::DivisionByNull,
                         "division by 0 is not allowed".to_string(),
                         _state,
                     ))
@@ -85,13 +88,15 @@ impl Integer {
                     })))
                 } else {
                     Err(PanicObj::new(
+                        PanicType::DivisionByNull,
                         "division by 0 is not allowed".to_string(),
                         _state,
                     ))
                 }
             }
             other_type => Err(PanicObj::new(
-                format!(
+                PanicType::OperatorIsNotSupported,
+                 format!(
                     "unexpected operand types: {} {} {}",
                     "int",
                     "/",
@@ -108,7 +113,8 @@ impl Integer {
                 value: self.value % right_integer.value,
             }))),
             other_type => Err(PanicObj::new(
-                format!(
+                PanicType::OperatorIsNotSupported,
+                 format!(
                     "unexpected operand types: {} {} {}",
                     "int",
                     "%",
@@ -128,7 +134,8 @@ impl Integer {
                 val: (self.value as f64).powf(right_float.val),
             }))),
             other_type => Err(PanicObj::new(
-                format!(
+                PanicType::OperatorIsNotSupported,
+                 format!(
                     "unexpected operand types: {} {} {}",
                     "int",
                     "**",
@@ -174,7 +181,8 @@ impl Integer {
                 (self.value as f64) < right_float.val,
             ))),
             other_type => Err(PanicObj::new(
-                format!(
+                PanicType::OperatorIsNotSupported,
+                 format!(
                     "unexpected operand types: {} {} {}",
                     "int",
                     "<",
@@ -194,7 +202,8 @@ impl Integer {
                 self.value as f64 <= right_float.val,
             ))),
             other_type => Err(PanicObj::new(
-                format!(
+                PanicType::OperatorIsNotSupported,
+                 format!(
                     "unexpected operand types: {} {} {}",
                     "int",
                     "<=",
@@ -214,7 +223,8 @@ impl Integer {
                 self.value as f64 > right_float.val,
             ))),
             other_type => Err(PanicObj::new(
-                format!(
+                PanicType::OperatorIsNotSupported,
+                 format!(
                     "unexpected operand types: {} {} {}",
                     "int",
                     ">",
@@ -234,7 +244,8 @@ impl Integer {
                 self.value as f64 >= right_float.val,
             ))),
             other_type => Err(PanicObj::new(
-                format!(
+                PanicType::OperatorIsNotSupported,
+                 format!(
                     "unexpected operand types: {} {} {}",
                     "int",
                     ">=",
@@ -251,7 +262,8 @@ impl Integer {
                 value: self.value << right_integer.value,
             }))),
             other_type => Err(PanicObj::new(
-                format!(
+                PanicType::OperatorIsNotSupported,
+                 format!(
                     "unexpected operand types: {} {} {}",
                     "int",
                     "<<",
@@ -268,7 +280,8 @@ impl Integer {
                 value: self.value >> right_integer.value,
             }))),
             other_type => Err(PanicObj::new(
-                format!(
+                PanicType::OperatorIsNotSupported,
+                 format!(
                     "unexpected operand types: {} {} {}",
                     "int",
                     ">>",
@@ -285,7 +298,8 @@ impl Integer {
                 value: self.value & right_integer.value,
             }))),
             other_type => Err(PanicObj::new(
-                format!(
+                PanicType::OperatorIsNotSupported,
+                 format!(
                     "unexpected operand types: {} {} {}",
                     "int",
                     "&",
@@ -302,7 +316,8 @@ impl Integer {
                 value: self.value | right_integer.value,
             }))),
             other_type => Err(PanicObj::new(
-                format!(
+                PanicType::OperatorIsNotSupported,
+                 format!(
                     "unexpected operand types: {} {} {}",
                     "int",
                     "|",
@@ -319,7 +334,8 @@ impl Integer {
                 value: self.value ^ right_integer.value,
             }))),
             other_type => Err(PanicObj::new(
-                format!(
+                PanicType::OperatorIsNotSupported,
+                 format!(
                     "unexpected operand types: {} {} {}",
                     "int",
                     "^",

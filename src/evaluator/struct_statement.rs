@@ -6,8 +6,7 @@ use crate::{
         statement::{Statement, struct_statement::StructStatement},
     },
     object::{
-        Object, ObjectRef, new_objectref, panic_obj::PanicObj, stack_environment::EnvRef,
-        state::StateRef, struct_model::StructModel,
+        Object, ObjectRef, error::panic_type::PanicType, new_objectref, panic_obj::PanicObj, stack_environment::EnvRef, state::StateRef, struct_model::StructModel
     },
 };
 
@@ -17,6 +16,7 @@ impl StructStatement {
             Expression::Identifier(identifier) => identifier.value.clone(),
             other_expr => {
                 return Err(PanicObj::new(
+                    PanicType::IllegalExpression,
                     format!(
                         "expected an identifier expression for struct name, got: '{}'",
                         other_expr.to_string()
@@ -36,7 +36,7 @@ impl StructStatement {
                     match stmt{
                         Statement::Function(func_stmt) => {
                             if func_stmt.parameters.is_empty(){
-                                return Err(PanicObj::new_simple("expected at least 1 parameter for method (to be used as 'this'), got: 0", state.clone()))
+                                return Err(PanicObj::new_simple(PanicType::MethodMissingThis, "expected at least 1 parameter for method (to be used as 'this'), got: 0", state.clone()))
                             }
                             let method_obj = func_stmt.evauluate_without_registering(environ.clone());
                             let name = func_stmt.name.clone();
@@ -44,7 +44,7 @@ impl StructStatement {
                             map.insert(name, method_obj);
                             Ok(())
                         },
-                        other_stmt => Err(PanicObj::new(format!("expected the method the be function statement, got: '{}'", other_stmt.to_string() ), state.clone()))
+                        other_stmt => Err(PanicObj::new(PanicType::IllegalExpression, format!("expected the method the be function statement, got: '{}'", other_stmt.to_string() ), state.clone()))
                     }
                 })?;
             map
@@ -77,6 +77,7 @@ impl StructStatement {
                 Expression::Identifier(identifier) => attrs.push(identifier.value.clone()),
                 other_expr => {
                     return Err(PanicObj::new(
+                        PanicType::IllegalExpression,
                         format!(
                             "expected an identifier expression for struct attribute, got: '{}'",
                             other_expr.to_string()

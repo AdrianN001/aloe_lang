@@ -1,12 +1,13 @@
 use crate::object::{
-    Object, ObjectRef, boolean::Boolean, new_objectref, panic_obj::PanicObj, state::StateRef,
+    Object, ObjectRef, boolean::Boolean, error::panic_type::PanicType, new_objectref, panic_obj::PanicObj, state::StateRef
 };
 
 impl Boolean {
     pub fn add(&self, right: ObjectRef, _state: StateRef) -> Result<ObjectRef, PanicObj> {
         match &*right.borrow() {
             other_type => Err(PanicObj::new(
-                format!(
+                PanicType::OperatorIsNotSupported,
+                 format!(
                     "unexpected operand types: {} {} {}",
                     "boolean",
                     "+",
@@ -20,7 +21,8 @@ impl Boolean {
     pub fn sub(&self, right: ObjectRef, _state: StateRef) -> Result<ObjectRef, PanicObj> {
         match &*right.borrow() {
             other_type => Err(PanicObj::new(
-                format!(
+                PanicType::OperatorIsNotSupported,
+                 format!(
                     "unexpected operand types: {} {} {}",
                     "boolean",
                     "-",
@@ -34,7 +36,8 @@ impl Boolean {
     pub fn mul(&self, right: ObjectRef, _state: StateRef) -> Result<ObjectRef, PanicObj> {
         match &*right.borrow() {
             other_type => Err(PanicObj::new(
-                format!(
+                PanicType::OperatorIsNotSupported,
+                 format!(
                     "unexpected operand types: {} {} {}",
                     "boolean",
                     "*",
@@ -48,7 +51,8 @@ impl Boolean {
     pub fn div(&self, right: ObjectRef, _state: StateRef) -> Result<ObjectRef, PanicObj> {
         match &*right.borrow() {
             other_type => Err(PanicObj::new(
-                format!(
+                PanicType::OperatorIsNotSupported,
+                 format!(
                     "unexpected operand types: {} {} {}",
                     "boolean",
                     "/",
@@ -62,7 +66,8 @@ impl Boolean {
     pub fn modulo(&self, right: ObjectRef, _state: StateRef) -> Result<ObjectRef, PanicObj> {
         match &*right.borrow() {
             other_type => Err(PanicObj::new(
-                format!(
+                PanicType::OperatorIsNotSupported,
+                 format!(
                     "unexpected operand types: {} {} {}",
                     "boolean",
                     "%",
@@ -76,7 +81,8 @@ impl Boolean {
     pub fn power(&self, right: ObjectRef, _state: StateRef) -> Result<ObjectRef, PanicObj> {
         match &*right.borrow() {
             other_type => Err(PanicObj::new(
-                format!(
+                PanicType::OperatorIsNotSupported,
+                 format!(
                     "unexpected operand types: {} {} {}",
                     "boolean",
                     "**",
@@ -114,7 +120,8 @@ impl Boolean {
     pub fn lt(&self, right: ObjectRef, _state: StateRef) -> Result<ObjectRef, PanicObj> {
         match &*right.borrow() {
             other_type => Err(PanicObj::new(
-                format!(
+                PanicType::OperatorIsNotSupported,
+                 format!(
                     "unexpected operand types: {} {} {}",
                     "boolean",
                     "<",
@@ -128,7 +135,8 @@ impl Boolean {
     pub fn le(&self, right: ObjectRef, _state: StateRef) -> Result<ObjectRef, PanicObj> {
         match &*right.borrow() {
             other_type => Err(PanicObj::new(
-                format!(
+                PanicType::OperatorIsNotSupported,
+                 format!(
                     "unexpected operand types: {} {} {}",
                     "boolean",
                     "<=",
@@ -142,7 +150,8 @@ impl Boolean {
     pub fn gt(&self, right: ObjectRef, _state: StateRef) -> Result<ObjectRef, PanicObj> {
         match &*right.borrow() {
             other_type => Err(PanicObj::new(
-                format!(
+                PanicType::OperatorIsNotSupported,
+                 format!(
                     "unexpected operand types: {} {} {}",
                     "boolean",
                     ">",
@@ -156,7 +165,8 @@ impl Boolean {
     pub fn ge(&self, right: ObjectRef, _state: StateRef) -> Result<ObjectRef, PanicObj> {
         match &*right.borrow() {
             other_type => Err(PanicObj::new(
-                format!(
+                PanicType::OperatorIsNotSupported,
+                 format!(
                     "unexpected operand types: {} {} {}",
                     "boolean",
                     ">=",
@@ -175,7 +185,8 @@ impl Boolean {
                 self.value && other_bool.value,
             ))),
             other_type => Err(PanicObj::new(
-                format!(
+                PanicType::OperatorIsNotSupported,
+                 format!(
                     "unexpected operand types: {} {} {}",
                     "boolean",
                     "&&",
@@ -192,7 +203,8 @@ impl Boolean {
                 self.value || other_bool.value,
             ))),
             other_type => Err(PanicObj::new(
-                format!(
+                PanicType::OperatorIsNotSupported,
+                 format!(
                     "unexpected operand types: {} {} {}",
                     "boolean",
                     "||",
@@ -209,7 +221,8 @@ impl Boolean {
                 self.value ^ other_bool.value,
             ))),
             other_type => Err(PanicObj::new(
-                format!(
+                PanicType::OperatorIsNotSupported,
+                 format!(
                     "unexpected operand types: {} {} {}",
                     "boolean",
                     "^",
@@ -226,7 +239,8 @@ impl Boolean {
                 self.value & right_bool.value,
             ))),
             other_type => Err(PanicObj::new(
-                format!(
+                PanicType::OperatorIsNotSupported,
+                 format!(
                     "unexpected operand types: {} {} {}",
                     "boolean",
                     "&",
@@ -243,7 +257,8 @@ impl Boolean {
                 self.value | right_bool.value,
             ))),
             other_type => Err(PanicObj::new(
-                format!(
+                PanicType::OperatorIsNotSupported,
+                 format!(
                     "unexpected operand types: {} {} {}",
                     "boolean",
                     "|",

@@ -1,12 +1,13 @@
 use crate::object::{
-    Object, ObjectRef, hashmap::HashMap, new_objectref, panic_obj::PanicObj, state::StateRef,
+    Object, ObjectRef, error::panic_type::PanicType, hashmap::HashMap, new_objectref, panic_obj::PanicObj, state::StateRef
 };
 
 impl HashMap {
     pub fn add(&self, right: ObjectRef, _state: StateRef) -> Result<ObjectRef, PanicObj> {
         match &*right.borrow() {
             other_type => Err(PanicObj::new(
-                format!(
+                PanicType::OperatorIsNotSupported,
+                 format!(
                     "unexpected operand types: {} {} {}",
                     "hashmap",
                     "-",
@@ -20,7 +21,8 @@ impl HashMap {
     pub fn sub(&self, right: ObjectRef, _state: StateRef) -> Result<ObjectRef, PanicObj> {
         match &*right.borrow() {
             other_type => Err(PanicObj::new(
-                format!(
+                PanicType::OperatorIsNotSupported,
+                 format!(
                     "unexpected operand types: {} {} {}",
                     "hashmap",
                     "-",
@@ -34,7 +36,8 @@ impl HashMap {
     pub fn mul(&self, right: ObjectRef, _state: StateRef) -> Result<ObjectRef, PanicObj> {
         match &*right.borrow() {
             other_type => Err(PanicObj::new(
-                format!(
+                PanicType::OperatorIsNotSupported,
+                 format!(
                     "unexpected operand types: {} {} {}",
                     "hashmap",
                     "*",
@@ -48,7 +51,8 @@ impl HashMap {
     pub fn div(&self, right: ObjectRef, _state: StateRef) -> Result<ObjectRef, PanicObj> {
         match &*right.borrow() {
             other_type => Err(PanicObj::new(
-                format!(
+                PanicType::OperatorIsNotSupported,
+                 format!(
                     "unexpected operand types: {} {} {}",
                     "hashmap",
                     "/",
@@ -62,7 +66,8 @@ impl HashMap {
     pub fn modulo(&self, right: ObjectRef, _state: StateRef) -> Result<ObjectRef, PanicObj> {
         match &*right.borrow() {
             other_type => Err(PanicObj::new(
-                format!(
+                PanicType::OperatorIsNotSupported,
+                 format!(
                     "unexpected operand types: {} {} {}",
                     "hashmap",
                     "%",
@@ -76,7 +81,8 @@ impl HashMap {
     pub fn power(&self, right: ObjectRef, _state: StateRef) -> Result<ObjectRef, PanicObj> {
         match &*right.borrow() {
             other_type => Err(PanicObj::new(
-                format!(
+                PanicType::OperatorIsNotSupported,
+                 format!(
                     "unexpected operand types: {} {} {}",
                     "hashmap",
                     "**",
@@ -116,7 +122,8 @@ impl HashMap {
     pub fn lt(&self, right: ObjectRef, _state: StateRef) -> Result<ObjectRef, PanicObj> {
         match &*right.borrow() {
             other_type => Err(PanicObj::new(
-                format!(
+                PanicType::OperatorIsNotSupported,
+                 format!(
                     "unexpected operand types: {} {} {}",
                     "hashmap",
                     "<",
@@ -130,7 +137,8 @@ impl HashMap {
     pub fn le(&self, right: ObjectRef, _state: StateRef) -> Result<ObjectRef, PanicObj> {
         match &*right.borrow() {
             other_type => Err(PanicObj::new(
-                format!(
+                PanicType::OperatorIsNotSupported,
+                 format!(
                     "unexpected operand types: {} {} {}",
                     "hashmap",
                     "<=",
@@ -144,7 +152,8 @@ impl HashMap {
     pub fn gt(&self, right: ObjectRef, _state: StateRef) -> Result<ObjectRef, PanicObj> {
         match &*right.borrow() {
             other_type => Err(PanicObj::new(
-                format!(
+                PanicType::OperatorIsNotSupported,
+                 format!(
                     "unexpected operand types: {} {} {}",
                     "hashmap",
                     ">",
@@ -158,7 +167,8 @@ impl HashMap {
     pub fn ge(&self, right: ObjectRef, _state: StateRef) -> Result<ObjectRef, PanicObj> {
         match &*right.borrow() {
             other_type => Err(PanicObj::new(
-                format!(
+                PanicType::OperatorIsNotSupported,
+                 format!(
                     "unexpected operand types: {} {} {}",
                     "hashmap",
                     ">=",

@@ -1,26 +1,19 @@
 use std::{cell::RefCell, env::args, rc::Rc};
 
 use crate::object::{
-    Object, ObjectRef,
-    array::Array,
-    integer::Integer,
-    iterator::{Iterator, list_based_iterator::ListBasedIterator},
-    new_objectref,
-    null::Null,
-    stack_environment::EnvRef,
-    state::StateRef,
-    string_obj::StringObj,
+    Object, ObjectRef, array::Array, error::{error_type::ErrorType, panic_type::PanicType}, integer::Integer, iterator::{Iterator, list_based_iterator::ListBasedIterator}, new_objectref, null::Null, panic_obj::PanicObj, stack_environment::EnvRef, state::StateRef, string_obj::StringObj
 };
 
 impl Array {
-    pub fn apply_attribute(&self, name: &str, _environ: EnvRef, state: StateRef) -> ObjectRef {
+    pub fn apply_attribute(&self, name: &str, _environ: EnvRef, state: StateRef) -> Result<ObjectRef, PanicObj> {
         match name {
-            "length" => self.length(),
+            "length" => Ok(self.length()),
 
-            _ => Rc::new(RefCell::new(Object::new_error(
+            _ => Err(PanicObj::new(
+                PanicType::UnknownAttribute,
                 format!("unknown attribute for array: '{}'", name),
                 state,
-            ))),
+            )),
         }
     }
     pub fn apply_method(
@@ -29,30 +22,31 @@ impl Array {
         args: &[ObjectRef],
         _environ: EnvRef,
         state: StateRef,
-    ) -> ObjectRef {
+    ) -> Result<ObjectRef, PanicObj> {
         match name {
-            "reversed" => self.reversed(),
-            "push" => self.push(args),
-            "extend" => self.extend(args),
-            "clear" => self.clear(),
+            "reversed" => Ok(self.reversed()),
+            "push" => Ok(self.push(args)),
+            "extend" => Ok(self.extend(args)),
+            "clear" => Ok(self.clear()),
 
-            "remove" => self.remove(args, state),
-            "slice" => self.slice(args, state),
-            "insert" => self.insert(args, state),
+            "remove" => Ok(self.remove(args, state)),
+            "slice" => Ok(self.slice(args, state)),
+            "insert" => Ok(self.insert(args, state)),
 
-            "clone" => self.deep_copy(),
-            "contains" => self.contains(args, state),
+            "clone" => Ok(self.deep_copy()),
+            "contains" => Ok(self.contains(args, state)),
 
-            "map" => self.map(args, state),
-            "filter" => self.filter(args, state),
+            "map" => Ok(self.map(args, state)),
+            "filter" => Ok(self.filter(args, state)),
 
-            "as_iter" => self.as_iter(),
-            "join" => self.join(args, state),
+            "as_iter" => Ok(self.as_iter()),
+            "join" => Ok(self.join(args, state)),
 
-            _ => Rc::new(RefCell::new(Object::new_error(
+            _ => Err(PanicObj::new(
+                PanicType::UnknownMethod,
                 format!("unknown method for array: '{}'", name),
                 state,
-            ))),
+            )),
         }
     }
 
@@ -94,7 +88,8 @@ impl Array {
     fn remove(&mut self, args: &[ObjectRef], state: StateRef) -> ObjectRef {
         if args.len() != 1 {
             return Rc::new(RefCell::new(Object::new_error(
-                format!(
+                ErrorType::WrongArgumentCount,
+                 format!(
                     "expected {} arguments for array.remove(), got: {}",
                     1,
                     args.len()
@@ -106,6 +101,7 @@ impl Array {
             Object::Int(integer) => integer.value,
             other_type => {
                 return Rc::new(RefCell::new(Object::new_error(
+                    ErrorType::WrongArgumentType, 
                     format!(
                         "expected the first argument to be int, got: {}",
                         other_type.get_type()
@@ -128,7 +124,8 @@ impl Array {
     fn insert(&mut self, args: &[ObjectRef], state: StateRef) -> ObjectRef {
         if args.len() != 2 {
             return Rc::new(RefCell::new(Object::new_error(
-                format!(
+                ErrorType::WrongArgumentCount,
+                 format!(
                     "expected {} arguments for array.insert(), got: {}",
                     2,
                     args.len()
@@ -141,6 +138,7 @@ impl Array {
             Object::Int(integer) => integer.value,
             other_type => {
                 return Rc::new(RefCell::new(Object::new_error(
+                    ErrorType::WrongArgumentType, 
                     format!(
                         "expected the first argument to be int, got: {}",
                         other_type.get_type()
@@ -156,6 +154,7 @@ impl Array {
 
         if insert_position as usize >= self.items.len() {
             return new_objectref(Object::new_error(
+                ErrorType::IndexOutOfBound,
                 "index position for insert >= array.length".into(),
                 state,
             ));
@@ -169,7 +168,8 @@ impl Array {
     fn slice(&mut self, args: &[ObjectRef], state: StateRef) -> ObjectRef {
         if args.len() != 2 {
             return Rc::new(RefCell::new(Object::new_error(
-                format!(
+                ErrorType::WrongArgumentCount,
+                 format!(
                     "expected {} arguments for array.slice(), got: {}",
                     2,
                     args.len()
@@ -181,6 +181,7 @@ impl Array {
             Object::Int(integer) => integer.value,
             other_type => {
                 return Rc::new(RefCell::new(Object::new_error(
+                    ErrorType::WrongArgumentType, 
                     format!(
                         "expected the first argument to be int, got: {}",
                         other_type.get_type()
@@ -193,6 +194,7 @@ impl Array {
             Object::Int(integer) => integer.value,
             other_type => {
                 return Rc::new(RefCell::new(Object::new_error(
+                    ErrorType::WrongArgumentType,
                     format!(
                         "expected the second argument to be int, got: {}",
                         other_type.get_type()
@@ -250,7 +252,8 @@ impl Array {
     fn contains(&mut self, args: &[ObjectRef], state: StateRef) -> ObjectRef {
         if args.len() != 1 {
             return Rc::new(RefCell::new(Object::new_error(
-                format!(
+                ErrorType::WrongArgumentCount,
+                 format!(
                     "expected {} arguments for array.contains(), got: {}",
                     1,
                     args.len()
@@ -267,15 +270,17 @@ impl Array {
     fn map(&mut self, args: &[ObjectRef], state: StateRef) -> ObjectRef {
         if args.is_empty() {
             return Rc::new(RefCell::new(Object::new_error(
+                ErrorType::WrongArgumentCount,
                 "no function was provided for map".into(),
                 state,
             )));
         }
 
         if let Object::Func(function) = &*args[0].borrow() {
-            if function.parameters.len() > 1 {
+            if function.parameters.len() != 1 {
                 return Rc::new(RefCell::new(Object::new_error(
-                    "function provided to the map needs more than 1 argument".into(),
+                    ErrorType::FunctionHasMismatchingNumberOfParameters,
+                    "function provided to the map must have only one element".into(),
                     state,
                 )));
             }
@@ -290,7 +295,7 @@ impl Array {
                 match mapped_item {
                     Ok(ok_value) => mapped_array_content.push(ok_value.clone()),
                     Err(error) => {
-                        return Rc::new(RefCell::new(Object::new_error(error.to_string(), state)));
+                        return Rc::new(RefCell::new(Object::new_error(ErrorType::ErrorFromPanic, error.to_string(), state)));
                     }
                 }
             }
@@ -301,6 +306,7 @@ impl Array {
         }
 
         Rc::new(RefCell::new(Object::new_error(
+            ErrorType::WrongArgumentType,
             "argument provided is not a function".into(),
             state,
         )))
@@ -309,15 +315,17 @@ impl Array {
     fn filter(&mut self, args: &[ObjectRef], state: StateRef) -> ObjectRef {
         if args.is_empty() {
             return Rc::new(RefCell::new(Object::new_error(
+                ErrorType::WrongArgumentCount,
                 "no function was provided for filter".into(),
                 state,
             )));
         }
 
         if let Object::Func(function) = &*args[0].borrow() {
-            if function.parameters.len() > 1 {
+            if function.parameters.len() != 1 {
                 return Rc::new(RefCell::new(Object::new_error(
-                    "function provided to the filter needs more than 1 argument".into(),
+                    ErrorType::FunctionHasMismatchingNumberOfParameters,
+                    "function provided to the filter must have only one element".into(),
                     state,
                 )));
             }
@@ -336,7 +344,7 @@ impl Array {
                         }
                     }
                     Err(error) => {
-                        return Rc::new(RefCell::new(Object::new_error(error.to_string(), state)));
+                        return Rc::new(RefCell::new(Object::new_error(ErrorType::ErrorFromPanic, error.to_string(), state)));
                     }
                 }
             }
@@ -347,6 +355,7 @@ impl Array {
         }
 
         Rc::new(RefCell::new(Object::new_error(
+            ErrorType::WrongArgumentType,
             "argument provided is not a function".into(),
             state,
         )))
@@ -371,6 +380,7 @@ impl Array {
                 Object::String(str) => str.value.clone(),
                 other_type => {
                     return Rc::new(RefCell::new(Object::new_error(
+                        ErrorType::WrongArgumentType,
                         format!(
                             "expected to be the first paramter a 'str', got: {}",
                             other_type.get_type()
@@ -392,6 +402,7 @@ impl Array {
 
                 other_type => {
                     return Rc::new(RefCell::new(Object::new_error(
+                        ErrorType::WrongArgumentType,
                         format!(
                             "not all elements can be converted to str. Element {} is {}",
                             index,

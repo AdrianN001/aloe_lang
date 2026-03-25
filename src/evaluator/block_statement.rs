@@ -2,6 +2,7 @@ use std::cell::RefCell;
 use std::rc::Rc;
 
 use crate::ast::statement::block_statement::BlockStatement;
+use crate::object::error::panic_type::PanicType;
 use crate::object::panic_obj::PanicObj;
 use crate::object::stack_environment::EnvRef;
 use crate::object::state::StateRef;
@@ -21,6 +22,7 @@ impl BlockStatement {
                         return Ok(result.clone());
                     } else {
                         return Err(PanicObj::new_simple(
+                            PanicType::ReturnFromNonfunctionalContext,
                             "cannot return from a non-function context",
                             state.clone(),
                         ));
@@ -48,12 +50,14 @@ impl BlockStatement {
             match &*borrowed_result {
                 Object::BreakVal(_) => {
                     return Err(PanicObj::new_simple(
+                        PanicType::UnexpectedKeyword,
                         "unexpected break keyword in non-loop context",
                         state.clone(),
                     ));
                 }
                 Object::Continue => {
                     return Err(PanicObj::new_simple(
+                        PanicType::UnexpectedKeyword,
                         "unexpected continue keyword in non-loop context",
                         state.clone(),
                     ));

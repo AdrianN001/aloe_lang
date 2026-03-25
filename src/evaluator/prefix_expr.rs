@@ -1,7 +1,7 @@
 use std::{cell::RefCell, rc::Rc};
 
 use crate::object::{
-    Object, ObjectRef, float_obj::FloatObj, integer::Integer, panic_obj::PanicObj, state::StateRef,
+    Object, ObjectRef, error::panic_type::PanicType, float_obj::FloatObj, integer::Integer, panic_obj::PanicObj, state::StateRef
 };
 
 impl Object {
@@ -10,6 +10,7 @@ impl Object {
             "!" => self.evaluate_bang_operator_expression(state),
             "-" => self.evaluate_minus_prefix_operator_expression(state),
             _ => Err(PanicObj::new(
+                PanicType::OperatorIsNotSupported,
                 format!("unexpected prefix operator: '{}'", operator),
                 state.clone(),
             )),
@@ -27,6 +28,7 @@ impl Object {
             ))));
         }
         Err(PanicObj::new(
+            PanicType::OperatorIsNotSupported,
             format!(
                 "unexpected expression ('{}') on the right side of the '!' operator ",
                 self.inspect()
@@ -48,6 +50,7 @@ impl Object {
             })))),
 
             _ => Err(PanicObj::new(
+                PanicType::OperatorIsNotSupported,
                 format!(
                     "unexpected expression ('{}') on the right side of the '-' operator",
                     self.inspect()

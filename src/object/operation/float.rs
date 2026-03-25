@@ -1,5 +1,5 @@
 use crate::object::{
-    Object, ObjectRef, float_obj::FloatObj, new_objectref, panic_obj::PanicObj, state::StateRef,
+    Object, ObjectRef, error::panic_type::PanicType, float_obj::FloatObj, new_objectref, panic_obj::PanicObj, state::StateRef
 };
 
 impl FloatObj {
@@ -12,6 +12,7 @@ impl FloatObj {
                 val: self.val + right_float.val,
             }))),
             other_type => Err(PanicObj::new(
+                PanicType::OperatorIsNotSupported,
                 format!(
                     "unexpected operand types: {} {} {}",
                     "float",
@@ -32,6 +33,7 @@ impl FloatObj {
                 val: self.val - right_float.val,
             }))),
             other_type => Err(PanicObj::new(
+                PanicType::OperatorIsNotSupported,
                 format!(
                     "unexpected operand types: {} {} {}",
                     "float",
@@ -52,6 +54,7 @@ impl FloatObj {
                 val: self.val * right_float.val,
             }))),
             other_type => Err(PanicObj::new(
+                PanicType::OperatorIsNotSupported,
                 format!(
                     "unexpected operand types: {} {} {}",
                     "float",
@@ -72,6 +75,7 @@ impl FloatObj {
                     })))
                 } else {
                     Err(PanicObj::new(
+                        PanicType::DivisionByNull,
                         "division by 0 is not allowed".to_string(),
                         _state,
                     ))
@@ -84,12 +88,14 @@ impl FloatObj {
                     })))
                 } else {
                     Err(PanicObj::new(
+                        PanicType::DivisionByNull,
                         "division by 0 is not allowed".to_string(),
                         _state,
                     ))
                 }
             }
             other_type => Err(PanicObj::new(
+                PanicType::OperatorIsNotSupported,
                 format!(
                     "unexpected operand types: {} {} {}",
                     "float",
@@ -104,6 +110,7 @@ impl FloatObj {
     pub fn modulo(&self, right: ObjectRef, _state: StateRef) -> Result<ObjectRef, PanicObj> {
         match &*right.borrow() {
             other_type => Err(PanicObj::new(
+                PanicType::OperatorIsNotSupported,
                 format!(
                     "unexpected operand types: {} {} {}",
                     "float",
@@ -124,6 +131,7 @@ impl FloatObj {
                 val: self.val.powf(right_float.val),
             }))),
             other_type => Err(PanicObj::new(
+                PanicType::OperatorIsNotSupported,
                 format!(
                     "unexpected operand types: {} {} {}",
                     "float",
@@ -170,6 +178,7 @@ impl FloatObj {
                 self.val < right_float.val,
             ))),
             other_type => Err(PanicObj::new(
+                PanicType::OperatorIsNotSupported,
                 format!(
                     "unexpected operand types: {} {} {}",
                     "float",
@@ -190,6 +199,7 @@ impl FloatObj {
                 self.val <= right_float.val,
             ))),
             other_type => Err(PanicObj::new(
+                PanicType::OperatorIsNotSupported,
                 format!(
                     "unexpected operand types: {} {} {}",
                     "float",
@@ -210,6 +220,7 @@ impl FloatObj {
                 self.val > right_float.val,
             ))),
             other_type => Err(PanicObj::new(
+                PanicType::OperatorIsNotSupported,
                 format!(
                     "unexpected operand types: {} {} {}",
                     "float",
@@ -230,6 +241,7 @@ impl FloatObj {
                 self.val >= right_float.val,
             ))),
             other_type => Err(PanicObj::new(
+                PanicType::OperatorIsNotSupported,
                 format!(
                     "unexpected operand types: {} {} {}",
                     "float",

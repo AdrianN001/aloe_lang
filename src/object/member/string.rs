@@ -1,26 +1,19 @@
 use std::{cell::RefCell, rc::Rc};
 
 use crate::object::{
-    Object, ObjectRef,
-    array::Array,
-    float_obj::FloatObj,
-    integer::Integer,
-    iterator::{Iterator, list_based_iterator::ListBasedIterator},
-    new_objectref,
-    stack_environment::EnvRef,
-    state::StateRef,
-    string_obj::StringObj,
+    Object, ObjectRef, array::Array, error::{error_type::ErrorType, panic_type::PanicType}, float_obj::FloatObj, integer::Integer, iterator::{Iterator, list_based_iterator::ListBasedIterator}, new_objectref, panic_obj::PanicObj, stack_environment::EnvRef, state::StateRef, string_obj::StringObj
 };
 
 impl StringObj {
-    pub fn apply_attribute(&self, name: &str, state: StateRef) -> ObjectRef {
+    pub fn apply_attribute(&self, name: &str, state: StateRef) -> Result<ObjectRef, PanicObj> {
         match name {
-            "length" => self.length(),
+            "length" => Ok(self.length()),
 
-            _ => Rc::new(RefCell::new(Object::new_error(
+            _ => Err(PanicObj::new(
+                PanicType::UnknownAttribute,
                 format!("unknown attribute for string: '{}'", name),
                 state,
-            ))),
+            )),
         }
     }
     pub fn apply_method(
@@ -29,30 +22,31 @@ impl StringObj {
         args: &[ObjectRef],
         _environ: EnvRef,
         state: StateRef,
-    ) -> ObjectRef {
+    ) -> Result<ObjectRef, PanicObj> {
         match name {
-            "reversed" => self.reversed(),
-            "chars" => self.chars(),
-            "as_float" => self.as_float(state),
-            "as_int" => self.as_int(state),
-            "contains" => self.contains(args, state),
-            "slice" => self.slice(args, state),
-            "split" => self.split(args, state),
-            "clone" => self.deep_copy(),
+            "reversed" => Ok(self.reversed()),
+            "chars" => Ok(self.chars()),
+            "as_float" => Ok(self.as_float(state)),
+            "as_int" => Ok(self.as_int(state)),
+            "contains" => Ok(self.contains(args, state)),
+            "slice" => Ok(self.slice(args, state)),
+            "split" => Ok(self.split(args, state)),
+            "clone" => Ok(self.deep_copy()),
 
-            "to_lower" => self.to_lower(),
-            "to_upper" => self.to_upper(),
+            "to_lower" => Ok(self.to_lower()),
+            "to_upper" => Ok(self.to_upper()),
 
-            "is_empty" => self.is_empty(),
-            "is_ascii" => self.is_ascii(),
+            "is_empty" => Ok(self.is_empty()),
+            "is_ascii" => Ok(self.is_ascii()),
 
-            "starts_with" => self.starts_with(args, state),
-            "ends_with" => self.ends_with(args, state),
+            "starts_with" => Ok(self.starts_with(args, state)),
+            "ends_with" => Ok(self.ends_with(args, state)),
 
-            _ => Rc::new(RefCell::new(Object::new_error(
+            _ => Err(PanicObj::new(
+                PanicType::UnknownMethod,
                 format!("unknown method for string: '{}'", name),
                 state,
-            ))),
+            )),
         }
     }
 
@@ -104,6 +98,7 @@ impl StringObj {
     fn contains(&mut self, args: &[ObjectRef], state: StateRef) -> ObjectRef {
         if args.len() != 1 {
             return Rc::new(RefCell::new(Object::new_error(
+                ErrorType::WrongArgumentCount,
                 format!(
                     "expected {} arguments for string.contains(), got: {}",
                     1,
@@ -118,6 +113,7 @@ impl StringObj {
             Object::String(str) => &str.value,
             other_type => {
                 return new_objectref(Object::new_error(
+                    ErrorType::WrongArgumentType,
                     format!(
                         "expected as argument for string.contains() string, got: '{}'",
                         other_type.inspect()
@@ -135,6 +131,7 @@ impl StringObj {
     fn slice(&self, args: &[ObjectRef], state: StateRef) -> ObjectRef {
         if args.len() != 2 {
             return Rc::new(RefCell::new(Object::new_error(
+                ErrorType::WrongArgumentCount, 
                 format!(
                     "expected {} arguments for array.slice(), got: {}",
                     2,
@@ -147,6 +144,7 @@ impl StringObj {
             Object::Int(integer) => integer.value,
             other_type => {
                 return Rc::new(RefCell::new(Object::new_error(
+                    ErrorType::WrongArgumentType,
                     format!(
                         "expected the first argument to be int, got: {}",
                         other_type.get_type()
@@ -159,6 +157,7 @@ impl StringObj {
             Object::Int(integer) => integer.value,
             other_type => {
                 return Rc::new(RefCell::new(Object::new_error(
+                    ErrorType::WrongArgumentType,
                     format!(
                         "expected the second argument to be int, got: {}",
                         other_type.get_type()
@@ -199,14 +198,14 @@ impl StringObj {
             Ok(float_value) => Rc::new(RefCell::new(Object::FloatObj(FloatObj {
                 val: float_value,
             }))),
-            Err(err) => Rc::new(RefCell::new(Object::new_error(err.to_string(), state))),
+            Err(err) => Rc::new(RefCell::new(Object::new_error(ErrorType::IllegalCast, err.to_string(), state))),
         }
     }
 
     fn as_int(&self, state: StateRef) -> ObjectRef {
         match self.value.parse::<i64>() {
             Ok(int_value) => Rc::new(RefCell::new(Object::Int(Integer { value: int_value }))),
-            Err(err) => Rc::new(RefCell::new(Object::new_error(err.to_string(), state))),
+            Err(err) => Rc::new(RefCell::new(Object::new_error(ErrorType::IllegalCast, err.to_string(), state))),
         }
     }
 
@@ -218,6 +217,7 @@ impl StringObj {
                 Object::String(str) => str.value.clone(),
                 other_type => {
                     return Rc::new(RefCell::new(Object::new_error(
+                        ErrorType::WrongArgumentType,
                         format!(
                             "expected to be the first paramter a 'str', got: {}",
                             other_type.get_type()
@@ -274,6 +274,7 @@ impl StringObj {
     fn starts_with(&self, args: &[ObjectRef], state: StateRef) -> ObjectRef{
         if args.len() != 1 {
             return Rc::new(RefCell::new(Object::new_error(
+                ErrorType::WrongArgumentCount,
                 format!(
                     "expected {} argument for array.starts_with(), got: {}",
                     1,
@@ -288,6 +289,7 @@ impl StringObj {
             Object::String(str) => &str.value,
             other_type => {
                 return new_objectref(Object::new_error(
+                    ErrorType::WrongArgumentType,
                     format!(
                         "expected as argument for string.starts_with() string, got: '{}'",
                         other_type.inspect()
@@ -308,6 +310,7 @@ impl StringObj {
     fn ends_with(&self, args: &[ObjectRef], state: StateRef) -> ObjectRef{
         if args.len() != 1 {
             return Rc::new(RefCell::new(Object::new_error(
+                ErrorType::WrongArgumentCount,
                 format!(
                     "expected {} argument for array.ends_with(), got: {}",
                     1,
@@ -322,6 +325,7 @@ impl StringObj {
             Object::String(str) => &str.value,
             other_type => {
                 return new_objectref(Object::new_error(
+                    ErrorType::WrongArgumentType,
                     format!(
                         "expected as argument for string.ends_with() string, got: '{}'",
                         other_type.inspect()

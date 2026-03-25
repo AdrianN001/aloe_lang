@@ -2,8 +2,7 @@ use crate::{
     ast::{expression::Expression, statement::import_statement::ImportStatement},
     module::{ModuleRef, module_loader::ModuleLoader},
     object::{
-        Object, ObjectRef, new_objectref, panic_obj::PanicObj, stack_environment::EnvRef,
-        state::StateRef,
+        Object, ObjectRef, error::panic_type::PanicType, new_objectref, panic_obj::PanicObj, stack_environment::EnvRef, state::StateRef
     },
 };
 
@@ -20,7 +19,7 @@ impl ImportStatement {
 
         let resolved_module = match module_loader.import_module(&path) {
             Ok(module) => module,
-            Err(err_feedback) => return Err(PanicObj::new(err_feedback.value, _state.clone())),
+            Err(err_feedback) => return Err(PanicObj::new(PanicType::ModuleCouldNotBeLoaded, err_feedback.value, _state.clone())),
         };
 
         Self::load_exports_from_module(
@@ -44,6 +43,7 @@ impl ImportStatement {
                 Expression::Identifier(identifier) => res.push(identifier.value.clone()),
                 other_expr => {
                     return Err(PanicObj::new(
+                        PanicType::MissingIdentifier,
                         format!(
                             "expected identifier in import, got: '{}'",
                             other_expr.to_string()
@@ -70,6 +70,7 @@ impl ImportStatement {
                 Some(environ) => environ.clone(),
                 None => {
                     return Err(PanicObj::new_simple(
+                        PanicType::ModuleCouldNotBeExecuted,
                         "module was not executed",
                         state.clone(),
                     ));
@@ -85,6 +86,7 @@ impl ImportStatement {
                 Some(export) => export,
                 None => {
                     return Err(PanicObj::new(
+                        PanicType::IdentifierNotFoundInModule,
                         format!("module has no identifier: '{}'", identifier),
                         state.clone(),
                     ));

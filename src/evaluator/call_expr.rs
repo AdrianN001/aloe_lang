@@ -3,6 +3,7 @@ use std::rc::Rc;
 
 use crate::ast::expression::Expression;
 use crate::ast::expression::call_expression::CallExpression;
+use crate::object::error::panic_type::PanicType;
 use crate::object::panic_obj::PanicObj;
 use crate::object::return_value::ReturnValue;
 use crate::object::stack_environment::EnvRef;
@@ -33,13 +34,12 @@ impl CallExpression {
 
         let return_value = match &*obj_to_call.borrow() {
             Object::Func(function) => function.apply(function_name, &args, state.clone()),
-            Object::BuiltIn(built_in_function) => {
-                Ok(built_in_function.call(&args, environ.clone(), state.clone()))
-            }
+            Object::BuiltIn(built_in_function) => built_in_function.call(&args, environ.clone(), state.clone()),
             Object::StructModel(_) => {
                 StructObject::create_new_object(obj_to_call.clone(), &args, state.clone())
             }
             other_type => Err(PanicObj::new(
+                    PanicType::NonfunctionalObjectCalled,
                 format!(
                     "'{}' is not a function. It cannot be called.",
                     other_type.inspect()
@@ -53,6 +53,7 @@ impl CallExpression {
         if let Object::Err(error) = &*ok_return_value.borrow() {
             if self.question_mark_set && !state.borrow().is_function_context() {
                 return Err(PanicObj::new(
+                    PanicType::PropagationFromNonfunctionalContext,
                     "tried to use ? on a function, without function-context".to_string(),
                     state.clone(),
                 ));

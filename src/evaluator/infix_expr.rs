@@ -3,9 +3,7 @@ use std::panic;
 use crate::{
     ast::expression::{Expression, infix::InfixExpression},
     object::{
-        Object, ObjectRef, array::Array, boolean::Boolean, float_obj::FloatObj, hashmap::HashMap,
-        integer::Integer, panic_obj::PanicObj, stack_environment::EnvRef, state::StateRef,
-        string_obj::StringObj,
+        Object, ObjectRef, array::Array, boolean::Boolean, error::panic_type::PanicType, float_obj::FloatObj, hashmap::HashMap, integer::Integer, panic_obj::PanicObj, stack_environment::EnvRef, state::StateRef, string_obj::StringObj
     },
 };
 
@@ -51,6 +49,7 @@ impl InfixExpression {
                     Self::boolean_infix_operation_dispatch(bool, &self.operator, right_side, state)
                 }
                 _ => Err(PanicObj::new(
+                    PanicType::OperatorIsNotSupported,
                     format!(
                         "unexpected operand types: {} {} {}",
                         left_side.borrow().get_type(),
@@ -76,6 +75,7 @@ impl InfixExpression {
                 }
             }
             other_operator => Err(PanicObj::new(
+                PanicType::OperatorIsNotSupported,
                 format!(
                     "unexpected operand types: {} {} {}",
                     left_side.borrow().get_type(),
@@ -132,6 +132,7 @@ impl InfixExpression {
             "^" => integer.bxor(right, state),
 
             other_operator => Err(PanicObj::new(
+                PanicType::OperatorIsNotSupported,
                 format!(
                     "unexpected operand types: {} {} {}",
                     "int",
@@ -164,6 +165,7 @@ impl InfixExpression {
             ">=" => float.ge(right, state),
 
             other_operator => Err(PanicObj::new(
+                PanicType::OperatorIsNotSupported,
                 format!(
                     "unexpected operand types: {} {} {}",
                     "float",
@@ -196,6 +198,7 @@ impl InfixExpression {
             ">=" => string.ge(right, state),
 
             other_operator => Err(PanicObj::new(
+                PanicType::OperatorIsNotSupported,
                 format!(
                     "unexpected operand types: {} {} {}",
                     "string",
@@ -228,6 +231,7 @@ impl InfixExpression {
             ">=" => array.ge(right, state),
 
             other_operator => Err(PanicObj::new(
+                PanicType::OperatorIsNotSupported,
                 format!(
                     "unexpected operand types: {} {} {}",
                     "array",
@@ -260,6 +264,7 @@ impl InfixExpression {
             ">=" => hashmap.ge(right, state),
 
             other_operator => Err(PanicObj::new(
+                PanicType::OperatorIsNotSupported,
                 format!(
                     "unexpected operand types: {} {} {}",
                     "hashmap",
@@ -299,6 +304,7 @@ impl InfixExpression {
             "|" => bool.bor(right, state),
 
             other_operator => Err(PanicObj::new(
+                PanicType::OperatorIsNotSupported,
                 format!(
                     "unexpected operand types: {} {} {}",
                     "boolean",
@@ -325,6 +331,7 @@ impl InfixExpression {
             Object::Iterator(hmap) => hmap.bool()?,
             other => {
                 return Err(PanicObj::new(
+                    PanicType::IllegalTypeCasting,
                     format!("cannot cast {} to boolean.", other.get_type()),
                     state.clone(),
                 ));
@@ -341,6 +348,7 @@ impl InfixExpression {
             Object::Iterator(hmap) => hmap.bool()?,
             other => {
                 return Err(PanicObj::new(
+                    PanicType::IllegalTypeCasting,
                     format!("cannot cast {} to boolean.", other.get_type()),
                     state.clone(),
                 ));

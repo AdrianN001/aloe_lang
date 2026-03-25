@@ -1,6 +1,6 @@
 use crate::{
     ast::expression::{Expression, value_assign_expression::ValueAssignExpression},
-    object::{ObjectRef, panic_obj::PanicObj, stack_environment::EnvRef, state::StateRef},
+    object::{ObjectRef, error::panic_type::PanicType, panic_obj::PanicObj, stack_environment::EnvRef, state::StateRef},
 };
 
 impl ValueAssignExpression {
@@ -12,6 +12,7 @@ impl ValueAssignExpression {
                 let mut environ_borrow = environ.borrow_mut();
                 if !environ_borrow.try_to_assign(&identifier.value, right.clone()) {
                     return Err(PanicObj::new(
+                    PanicType::VariableIsNotDeclared,
                         format!("variable '{}' is not initialized.", &identifier.value),
                         state.clone(),
                     ));
@@ -26,6 +27,7 @@ impl ValueAssignExpression {
                 member_expr.evaluate_value_assign(environ.clone(), state.clone(), right.clone())
             }
             other_expression => Err(PanicObj::new(
+                PanicType::UnexpectedRValue,
                 format!("expected LValue, got {}", other_expression.to_string()),
                 state.clone(),
             )),

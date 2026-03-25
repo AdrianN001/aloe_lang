@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::object::{Object, ObjectRef, stack_environment::EnvRef, state::StateRef};
+use crate::object::{Object, ObjectRef, error::panic_type::PanicType, panic_obj::PanicObj, stack_environment::EnvRef, state::StateRef};
 
 pub mod array;
 pub mod float;
@@ -10,9 +10,9 @@ pub mod iterator;
 pub mod string;
 
 impl Object {
-    pub fn apply_attribute(&self, name: &str, environ: EnvRef, state: StateRef) -> ObjectRef {
+    pub fn apply_attribute(&self, name: &str, environ: EnvRef, state: StateRef) -> Result<ObjectRef, PanicObj> {
         if let Some(result) = self.check_early_attributes(name) {
-            return result;
+            return Ok(result);
         }
 
         match self {
@@ -25,10 +25,11 @@ impl Object {
 
             Object::StructObject(struct_obj) => struct_obj.apply_attribute(name, environ, state),
 
-            _ => Rc::new(RefCell::new(Object::new_error(
+            _ => Err(PanicObj::new(
+                PanicType::UnknownAttribute,
                 format!("{} has no attribute", self.get_type()),
                 state,
-            ))),
+            )),
         }
     }
 
@@ -38,7 +39,7 @@ impl Object {
         args: &[ObjectRef],
         environ: EnvRef,
         state: StateRef,
-    ) -> ObjectRef {
+    ) -> Result<ObjectRef, PanicObj> {
         match self {
             Object::String(str) => str.apply_method(name, args, environ, state),
             Object::Array(arr) => arr.apply_method(name, args, environ, state),
@@ -47,10 +48,11 @@ impl Object {
             Object::Iterator(iterator) => iterator.apply_method(name, args, environ, state),
             Object::HashMap(hashmap) => hashmap.apply_method(name, args, environ, state),
 
-            _ => Rc::new(RefCell::new(Object::new_error(
+            _ => Err(PanicObj::new(
+                PanicType::UnknownMethod,
                 format!("{} has no methods", self.get_type()),
                 state,
-            ))),
+            )),
         }
     }
 

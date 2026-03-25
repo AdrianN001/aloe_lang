@@ -1,17 +1,17 @@
 use std::{cell::RefCell, rc::Rc};
 
 use crate::object::{
-    Object, ObjectRef, float_obj::FloatObj, integer::Integer, stack_environment::EnvRef,
-    state::StateRef, string_obj::StringObj,
+    Object, ObjectRef, error::panic_type::PanicType, float_obj::FloatObj, integer::Integer, panic_obj::PanicObj, stack_environment::EnvRef, state::StateRef, string_obj::StringObj
 };
 
 impl FloatObj {
-    pub fn apply_attribute(&self, name: &str, state: StateRef) -> ObjectRef {
+    pub fn apply_attribute(&self, name: &str, state: StateRef) -> Result<ObjectRef, PanicObj> {
         match name {
-            _ => Rc::new(RefCell::new(Object::new_error(
+            _ => Err(PanicObj::new(
+                PanicType::UnknownAttribute,
                 format!("unknown attribute for float: '{}'", name),
                 state,
-            ))),
+            )),
         }
     }
     pub fn apply_method(
@@ -20,16 +20,17 @@ impl FloatObj {
         _args: &[ObjectRef],
         _environ: EnvRef,
         state: StateRef,
-    ) -> ObjectRef {
+    ) -> Result<ObjectRef, PanicObj> {
         match name {
-            "as_str" => self.as_str(),
-            "as_int" => self.as_int(),
-            "clone" => self.deep_copy(),
+            "as_str" => Ok(self.as_str()),
+            "as_int" => Ok(self.as_int()),
+            "clone" => Ok(self.deep_copy()),
 
-            _ => Rc::new(RefCell::new(Object::new_error(
+            _ => Err(PanicObj::new(
+                PanicType::UnknownMethod,
                 format!("unknown method for float: '{}'", name),
                 state,
-            ))),
+            )),
         }
     }
 

@@ -68,6 +68,7 @@ impl ForLoopExpression {
             Object::Iterator(iterator) => iterator.clone(),
             Object::Array(arr) => arr.build_iterator(),
             Object::String(str) => str.build_char_iterator(),
+            Object::HashMap(hashmap) => hashmap.build_iterator(),
             Object::ReturnVal(_) => return Ok(provided_object.clone()), // propagated
             _ => {
                 return Err(PanicObj::new_simple(

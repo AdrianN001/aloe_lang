@@ -6,6 +6,8 @@ use crate::object::{
     error::{error_type::ErrorType, panic_type::PanicType},
     hashmap::{HashMap, HashPair},
     integer::Integer,
+    iterator::{Iterator, list_based_iterator::ListBasedIterator},
+    new_objectref,
     panic_obj::PanicObj,
     stack_environment::EnvRef,
     state::StateRef,
@@ -22,6 +24,7 @@ impl HashMap {
             "length" => Ok(self.get_length()),
             "keys" => Ok(self.get_keys()),
             "values" => Ok(self.get_values()),
+            "items" => Ok(self.items()),
 
             _ => Err(PanicObj::new(
                 PanicType::UnknownAttribute,
@@ -43,6 +46,7 @@ impl HashMap {
             "remove" => Ok(self.remove(args, state)),
             "clear" => Ok(self.clear()),
             "has_key" => Ok(self.has_key(args, state)),
+            "as_iter" => Ok(self.as_iter()),
 
             "clone" => Ok(self.deep_copy()),
 
@@ -76,6 +80,23 @@ impl HashMap {
                 .map(|value| value.value.clone())
                 .collect(),
         })))
+    }
+
+    pub fn items(&self) -> ObjectRef {
+        new_objectref(Object::Array(Array {
+            items: self
+                .pairs
+                .values()
+                .map(|value| {
+                    let key = value.key.clone();
+                    let value = value.value.clone();
+
+                    new_objectref(Object::Array(Array {
+                        items: vec![key, value],
+                    }))
+                })
+                .collect(),
+        }))
     }
 
     // Methods
@@ -161,6 +182,28 @@ impl HashMap {
         }
 
         Rc::new(RefCell::new(Object::HashMap(HashMap { pairs: new_pairs })))
+    }
+
+    pub fn as_iter(&self) -> ObjectRef {
+        new_objectref(Object::Iterator(self.build_iterator()))
+    }
+
+    pub fn build_iterator(&self) -> Iterator {
+        Iterator::ListBasedIterator(ListBasedIterator {
+            list: self
+                .pairs
+                .values()
+                .map(|value| {
+                    let key = value.key.clone();
+                    let value = value.value.clone();
+
+                    new_objectref(Object::Array(Array {
+                        items: vec![key, value],
+                    }))
+                })
+                .collect(),
+            index: 0,
+        })
     }
 
     pub fn has_key(&self, args: &[ObjectRef], state: StateRef) -> ObjectRef {

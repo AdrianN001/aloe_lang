@@ -27,7 +27,7 @@ impl BlockStatement {
         buffer
     }
 
-    pub fn to_string_for_function(&self) -> String{
+    pub fn to_string_for_function(&self) -> String {
         let mut buffer = String::new();
 
         self.statements.iter().for_each(|statement| {

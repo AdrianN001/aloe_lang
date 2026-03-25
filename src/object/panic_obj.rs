@@ -47,8 +47,8 @@ impl PanicObj {
             buffer.push_str(&state_borrow.collect_as_stack_trace().join("\n\t at "));
         }
 
-        buffer.push_str("\nPanic: ");
-        buffer.push_str(&self.value);
+        buffer.push('\n');
+        buffer.push_str(&format!("{:?}: {}", self.panic_type, self.value));
 
         buffer
     }
@@ -60,6 +60,6 @@ impl PanicObj {
 
 impl fmt::Display for PanicObj {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.value.clone())
+        write!(f, "{}", self.inspect())
     }
 }

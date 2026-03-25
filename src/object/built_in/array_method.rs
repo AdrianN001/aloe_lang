@@ -3,7 +3,7 @@ use std::{cell::RefCell, rc::Rc};
 use crate::object::{
     Object, ObjectRef,
     array::Array,
-    error::{error_type::ErrorType, panic_type::PanicType},
+    error::panic_type::PanicType,
     panic_obj::PanicObj,
     state::StateRef,
     string_obj::StringObj,

@@ -40,7 +40,7 @@ impl Function {
         );
 
         buffer.push_str(") {\n");
-        buffer.push_str(&self.body.to_string());
+        buffer.push_str(&self.body.to_string_for_function());
         buffer.push_str("\n}");
 
         buffer

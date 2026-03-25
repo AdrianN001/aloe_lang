@@ -26,4 +26,16 @@ impl BlockStatement {
 
         buffer
     }
+
+    pub fn to_string_for_function(&self) -> String{
+        let mut buffer = String::new();
+
+        self.statements.iter().for_each(|statement| {
+            buffer.push('\t');
+            buffer.push_str(&statement.to_string());
+            buffer.push('\n');
+        });
+
+        buffer
+    }
 }

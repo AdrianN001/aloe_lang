@@ -31,7 +31,7 @@ pub fn start_repl() {
         match program.evaluate_as_repl(environ.clone()) {
             Ok(last_object) => println!("{}", last_object.borrow().inspect()),
             Err(panic_reason) => {
-                println!("[!] panic: {} [!]", panic_reason);
+                println!("{}", panic_reason);
                 break;
             }
         };

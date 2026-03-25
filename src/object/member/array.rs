@@ -1,4 +1,4 @@
-use std::{cell::RefCell, env::args, rc::Rc};
+use std::{cell::RefCell, rc::Rc};
 
 use crate::object::{
     Object, ObjectRef,

@@ -6,7 +6,6 @@ use std::{
 
 use crate::object::{
     Object, ObjectRef,
-    boolean::Boolean,
     error::{error_type::ErrorType, panic_type::PanicType},
     integer::Integer,
     new_objectref,

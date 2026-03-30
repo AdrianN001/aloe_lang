@@ -1,11 +1,10 @@
 pub mod file;
 
 use crate::object::{
-    Object, ObjectRef,
+    ObjectRef,
     native_object::file::FileWrapper,
-    new_objectref,
     panic_obj::PanicObj,
-    state::{self, StateRef},
+    state::StateRef,
 };
 
 #[derive(PartialEq, Eq, Clone)]

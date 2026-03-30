@@ -3,6 +3,10 @@ pub enum ErrorType {
     IndexOutOfBound,
     IllegalCast,
 
+    FileMode,
+    FileRead,
+    FileSeek,
+
     RangeInput,
 
     ObjectIsNotHashable,

@@ -11,6 +11,7 @@ pub mod hashmap;
 pub mod integer;
 pub mod iterator;
 pub mod member;
+pub mod native_object;
 pub mod null;
 pub mod operation;
 pub mod panic_obj;
@@ -38,7 +39,8 @@ use string_obj::StringObj;
 
 use crate::object::{
     break_value::BreakValue, error::error_type::ErrorType, hashable::Hashable, hashmap::HashKey,
-    iterator::Iterator, state::StateRef, struct_model::StructModel, struct_object::StructObject,
+    iterator::Iterator, native_object::NativeObject, state::StateRef, struct_model::StructModel,
+    struct_object::StructObject,
 };
 
 pub type ObjectRef = Rc<RefCell<Object>>;
@@ -65,6 +67,8 @@ pub enum Object {
 
     StructModel(StructModel),
     StructObject(StructObject),
+
+    Native(NativeObject),
 
     Null(Null),
 }
@@ -108,6 +112,7 @@ impl Object {
             Object::StructModel(obj) => obj.get_type(),
             Object::StructObject(obj) => obj.get_type(),
             Object::Continue => "continue".to_string(),
+            Object::Native(native) => native.get_type(),
         }
     }
 
@@ -129,6 +134,7 @@ impl Object {
             Object::StructModel(obj) => obj.inspect(),
             Object::StructObject(obj) => obj.inspect(),
             Object::Continue => "continue".to_string(),
+            Object::Native(native) => native.inspect(),
         }
     }
 

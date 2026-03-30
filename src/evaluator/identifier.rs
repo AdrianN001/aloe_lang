@@ -28,6 +28,8 @@ impl Identifier {
             "__random" => Some(BuiltIn::Random),
 
             "__err" => Some(BuiltIn::Err),
+
+            "__open" => Some(BuiltIn::Open),
             _ => None,
         }
     }

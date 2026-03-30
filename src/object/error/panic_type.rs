@@ -36,5 +36,7 @@ pub enum PanicType {
     IllegalExpression,
     Propagation,
 
+    FileOpen,
+
     MethodMissingThis,
 }

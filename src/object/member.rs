@@ -30,6 +30,7 @@ impl Object {
             Object::FloatObj(float) => float.apply_attribute(name, state),
             Object::Iterator(iterator) => iterator.apply_attribute(name, state),
             Object::HashMap(hashmap) => hashmap.apply_attribute(name, environ, state),
+            Object::Native(native) => native.apply_attribute(name, state),
 
             Object::StructObject(struct_obj) => struct_obj.apply_attribute(name, environ, state),
 
@@ -55,6 +56,7 @@ impl Object {
             Object::FloatObj(float) => float.apply_method(name, args, environ, state),
             Object::Iterator(iterator) => iterator.apply_method(name, args, environ, state),
             Object::HashMap(hashmap) => hashmap.apply_method(name, args, environ, state),
+            Object::Native(native) => native.apply_method(name, args, state),
 
             _ => Err(PanicObj::new(
                 PanicType::UnknownMethod,

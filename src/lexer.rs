@@ -129,20 +129,34 @@ impl Lexer {
         self.advance();
         self.read_char();
 
-        let start_pos = self.position;
+        let mut result = String::new();
 
         while let Some(current_char) = self.read_char() {
-            if current_char == '"' || current_char == '\0' {
-                break;
-            }
+            match current_char {
+                '\\' => {
+                    // escape
+                    self.advance();
 
+                    if let Some(escaped_char) = self.read_char() {
+                        let real_char = match escaped_char {
+                            'n' => '\n',
+                            't' => '\t',
+                            'r' => '\r',
+                            '"' => '"',
+                            '\\' => '\\',
+                            _ => escaped_char, // unknown escapes → 그대로
+                        };
+                        result.push(real_char);
+                    }
+                }
+                '"' => break, // nur echtes Ende
+                '\0' => break,
+                _ => result.push(current_char),
+            }
             self.advance();
         }
 
-        self.input[start_pos..self.position]
-            .iter()
-            .copied()
-            .collect()
+        result
     }
 
     pub fn next_token(&mut self) -> Token {

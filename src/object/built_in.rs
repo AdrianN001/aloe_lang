@@ -1,6 +1,7 @@
 mod array_method;
 mod console;
 mod error;
+mod io;
 mod iterator;
 mod len;
 mod random;
@@ -15,6 +16,7 @@ use crate::object::{
         },
         console::{console_read_builtin_function, console_write_builtin_function},
         error::error_builtin_function,
+        io::open_builtin_function,
         iterator::range_builtin_function,
         len::len_builtin_function,
         random::random_builtin_function,
@@ -44,6 +46,8 @@ pub enum BuiltIn {
 
     Random,
     Err,
+
+    Open,
 }
 
 impl BuiltIn {
@@ -77,7 +81,10 @@ impl BuiltIn {
 
             BuiltIn::Range => range_builtin_function(args, state),
             BuiltIn::Random => Ok(random_builtin_function()),
+
             BuiltIn::Err => error_builtin_function(args, state),
+
+            BuiltIn::Open => open_builtin_function(args, state),
         }
     }
 }

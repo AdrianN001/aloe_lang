@@ -80,7 +80,7 @@ impl CallExpression {
     ) -> Result<Vec<ObjectRef>, PanicObj> {
         self.arguments
             .iter()
-            .map(|argument| argument.evaluate(environ.clone(), state.clone()).clone())
+            .map(|argument| argument.evaluate(environ.clone(), state.clone()))
             .collect()
     }
 }

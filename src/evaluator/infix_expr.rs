@@ -4,8 +4,8 @@ use crate::{
     ast::expression::{Expression, infix::InfixExpression},
     object::{
         Object, ObjectRef, array::Array, boolean::Boolean, error::panic_type::PanicType,
-        float_obj::FloatObj, hashmap::HashMap, integer::Integer, panic_obj::PanicObj,
-        stack_environment::EnvRef, state::StateRef, string_obj::StringObj,
+        float_obj::FloatObj, hashmap::HashMap, integer::Integer, native_object::NativeObject,
+        panic_obj::PanicObj, stack_environment::EnvRef, state::StateRef, string_obj::StringObj,
     },
 };
 
@@ -43,6 +43,12 @@ impl InfixExpression {
                 }
                 Object::HashMap(hashmap) => Self::hashmap_infix_operation_dispatch(
                     hashmap,
+                    &self.operator,
+                    right_side,
+                    state,
+                ),
+                Object::Native(native) => Self::native_type_infix_operation_dispatch(
+                    native,
                     &self.operator,
                     right_side,
                     state,
@@ -264,6 +270,29 @@ impl InfixExpression {
             "<=" => hashmap.le(right, state),
             ">" => hashmap.gt(right, state),
             ">=" => hashmap.ge(right, state),
+
+            other_operator => Err(PanicObj::new(
+                PanicType::OperatorIsNotSupported,
+                format!(
+                    "unexpected operand types: {} {} {}",
+                    "hashmap",
+                    other_operator,
+                    right.borrow().get_type()
+                ),
+                state.clone(),
+            )),
+        }
+    }
+
+    fn native_type_infix_operation_dispatch(
+        native_type: &NativeObject,
+        operator: &str,
+        right: ObjectRef,
+        state: StateRef,
+    ) -> Result<ObjectRef, PanicObj> {
+        match operator {
+            "==" => native_type.eq(right),
+            "!=" => native_type.neq(right),
 
             other_operator => Err(PanicObj::new(
                 PanicType::OperatorIsNotSupported,

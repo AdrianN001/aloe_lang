@@ -1,10 +1,7 @@
 pub mod file;
 
 use crate::object::{
-    ObjectRef,
-    native_object::file::FileWrapper,
-    panic_obj::PanicObj,
-    state::StateRef,
+    ObjectRef, native_object::file::FileWrapper, panic_obj::PanicObj, state::StateRef,
 };
 
 #[derive(PartialEq, Eq, Clone)]
@@ -22,6 +19,12 @@ impl NativeObject {
     pub fn inspect(&self) -> String {
         match self {
             NativeObject::File(file) => file.inspect(),
+        }
+    }
+
+    pub fn as_bool(&self) -> ObjectRef {
+        match self {
+            NativeObject::File(file) => file.get_is_open(),
         }
     }
 

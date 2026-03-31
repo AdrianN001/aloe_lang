@@ -35,31 +35,30 @@ This project is designed to be:
 
 ## ✨ Features
 
-* Custom lexer and parser
-* AST with precedence-based expression parsing
-* `let` and `return` statements
-* First-class functions
-* Stack-based environment
-* Built-in functions and methods
-* Error handling system
-* Truthy evaluation logic
-* Arrays and hash maps
-* Script execution support
-* Evaluation tests included
+*   **Custom Lexer & Parser**: A hand-written lexer and precedence-climbing (Pratt) parser that produces a clean AST.
+*   **Core Language Constructs**: Support for `let` bindings, `return`, `if/elif/else`, and `for` loops.
+*   **First-Class Functions**: Functions are objects and can be assigned to variables, passed as arguments, and returned from other functions, enabling closures.
+*   **Rich Data Types**: Built-in support for integers, floats, booleans, strings, arrays, and hash maps.
+*   **Comprehensive Object System**: Includes built-in methods for primary data types (e.g., `string.length`, `array.push()`).
+*   **Error Handling**: Robust error and panic handling with stack traces.
+*   **Module System**: Support for importing code from other files using `import { ... } from "..."`.
+*   **Interactive REPL**: A Read-Eval-Print Loop for interactive coding and experimentation.
+*   **Script Execution**: Run `.aloe` files directly from the command line.
 
 ---
 
 ## 🧱 Supported Data Types
 
-* Integer
-* Float
-* Boolean
-* String
-* Array
-* Hash Map
-* Iterator
-* Function
-* Null
+*   Integer
+*   Float
+*   Boolean
+*   String
+*   Array
+*   Hash Map
+*   Iterator
+*   Function
+*   Structs
+*   Null
 
 ---
 
@@ -67,34 +66,26 @@ This project is designed to be:
 
 ```
 src/
-├── ast/                # Abstract Syntax Tree definitions
-│   ├── expression/
-│   ├── statement/
-│   ├── program.rs
-│   ├── precedence.rs
-│   └── error.rs
+├── ast/                # Abstract Syntax Tree definitions and parser logic
+│   ├── expression/     # Expression node types (Infix, Prefix, Call, etc.)
+│   └── statement/      # Statement node types (Let, Return, Struct, etc.)
 │
-├── object/             # Runtime object system
-│   ├── built_in/
-│   ├── member/
-│   ├── array.rs
-│   ├── boolean.rs
-│   ├── float_obj.rs
-│   ├── integer.rs
-│   ├── string_obj.rs
-│   ├── function.rs
-│   ├── return_value.rs
-│   ├── error.rs
-│   ├── hashmap.rs
-│   ├── null.rs
-│   ├── stack_environment.rs
-│   └── truthy.rs
+├── evaluator/          # Logic for evaluating AST nodes
 │
-├── script.rs
-├── eval_test.rs
+├── lexer.rs            # Converts source code into a stream of tokens
+│
+├── object/             # Defines the runtime object system and built-in functionality
+│   ├── built_in/       # Implementations for global functions (print, len, etc.)
+│   ├── member/         # Implementations for type methods (array.map, string.split)
+│   ├── operation/      # Operator overloading for different types
+│   └── stack_environment.rs # Handles variable scoping and closures
+│
+├── main.rs             # Entry point for REPL and script execution
+└── repl.rs             # REPL implementation
 ```
 
 ---
+
 
 ## 🛠 Installation
 
@@ -142,63 +133,94 @@ cargo run -- path/to/script.aloe
 
 ## 📜 Example Syntax
 
-### Variables
+### Variables & Functions
 
 ```aloe
-let x = 10;
+# Define a variable
 let name = "Aloe";
-```
 
-### Functions
-
-```aloe
+# Define a function
 let add = fn(a, b) {
     return a + b;
 };
 
-add(2, 3);
+# Call the function
+let result = add(2, 3);
+print(result); # Outputs: 5
 ```
 
 ### Conditionals
 
 ```aloe
+let x = 10;
 if (x > 5) {
-    console("Large");
+    print("x is large");
 } else {
-    console("Small");
+    print("x is small");
 }
-```
-
-### Arrays
-
-```aloe
-let arr = [1, 2, 3];
-len(arr);
 ```
 
 ### Loops
 
+The `for` loop works with any iterable object, such as ranges, arrays, or strings.
+
 ```aloe
-let found = for i <- range(10){
-    if (i == 3){
-        continue;
+// Loop over a range
+let result = for i <- range(10) {
+    if (i == 3) {
+        continue; # Skip the rest of this iteration
     }
-    if (i == 5){
-        break true;
+    if (i == 5) {
+        break "Found it!"; # Exit the loop and return a value
     }
 }
+print(result); # Outputs: Found it!
 ```
+
+### Arrays & Hash Maps
+
+```aloe
+# Array literal and methods
+let list = [1, 2, 3];
+let squares = list.map(fn(n) { return n * n; });
+print(squares); # Outputs: [1, 4, 9]
+
+# Hash map literal
+let person = {"name": "James", "age": 30};
+print(person["name"]); # Outputs: James
+```
+
+### Structs
+
+```aloe
+struct Car {
+    color;
+
+    fun get_color(this) {
+        return this.color;
+    }
+
+    fun set_color(this, c) {
+        this.color = c;
+    }
+}
+
+let c = Car("red");
+c.set_color("yellow")!;
+print(c.get_color()); # Outputs: yellow
+```
+
 ---
 
 ## 🧠 Architecture
 
-Aloe follows a traditional interpreter design:
+Aloe follows a classic interpreter design pattern:
 
-1. Lexer → Tokenizes input
-2. Parser → Builds AST
-3. Evaluator → Walks AST
-4. Environment → Manages scope
-5. Object System → Runtime values
+1.  **Lexer (`lexer.rs`)**: The input source code string is fed into the lexer, which tokenizes it into a sequence of tokens (e.g., `KwLet`, `Identifier`, `Assign`).
+2.  **Parser (`ast.rs`)**: The stream of tokens is parsed into an Abstract Syntax Tree (AST), which is a hierarchical representation of the code's structure. The parser uses precedence rules to correctly handle complex expressions.
+3.  **Evaluator (`evaluator.rs`)**: The evaluator walks the AST, node by node, executing the program's logic.
+4.  **Environment (`object/stack_environment.rs`)**: A stack-based environment manages variable scope. Nested scopes (like in function calls) are created by enclosing the parent environment, enabling support for closures.
+5.  **Object System (`object/`)**: During evaluation, all runtime values are represented as `Object` variants (e.g., `Object::Int`, `Object::String`). This allows for dynamic typing and a unified way to handle all values.
 
 ---
 
@@ -213,7 +235,6 @@ cargo test
 ## 🗺 Roadmap
 
 * Improved diagnostics
-* Module system
 * Expanded standard library
 * Optional bytecode backend
 

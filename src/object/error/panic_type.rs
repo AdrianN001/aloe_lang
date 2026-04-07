@@ -1,3 +1,5 @@
+use core::fmt;
+
 #[derive(PartialEq, Eq, Clone, Debug)]
 pub enum PanicType {
     IndexOutOfBound,

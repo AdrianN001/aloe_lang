@@ -48,7 +48,7 @@ impl PanicObj {
         }
 
         buffer.push('\n');
-        buffer.push_str(&format!("{:?}: {}", self.panic_type, self.value));
+        buffer.push_str(&format!("{:?}Panic: {}", self.panic_type, self.value));
 
         buffer
     }

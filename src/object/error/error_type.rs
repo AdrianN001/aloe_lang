@@ -1,4 +1,6 @@
-#[derive(PartialEq, Eq, Clone)]
+use std::fmt::{self};
+
+#[derive(PartialEq, Eq, Clone, Debug)]
 pub enum ErrorType {
     IndexOutOfBound,
     IllegalCast,

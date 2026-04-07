@@ -27,9 +27,8 @@ impl Error {
             buffer.push_str(&state_borrow.collect_as_stack_trace().join("\n\t at "));
         }
 
-        buffer.push_str("\nError: ");
-        buffer.push_str(&self.value);
-
+        buffer.push('\n');
+        buffer.push_str(&format!("{:?}Error: {}", self.type_of, self.value));
         buffer
     }
 

@@ -165,7 +165,7 @@ if (x > 5) {
 The `for` loop works with any iterable object, such as ranges, arrays, or strings.
 
 ```aloe
-// Loop over a range
+# Loop over a range
 let result = for i <- range(10) {
     if (i == 3) {
         continue; # Skip the rest of this iteration

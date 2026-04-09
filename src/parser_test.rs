@@ -122,7 +122,12 @@ fn test_return_statement() {
             _ => panic!(),
         };
 
-        let variable_value_expression = match &return_statement.value {
+        let return_statement_value = match &return_statement.value {
+            Some(val) => val,
+            None => panic!(),
+        };
+
+        let variable_value_expression = match return_statement_value {
             Expression::IntegerLiteral(integer_expression) => integer_expression,
             _ => panic!(),
         };

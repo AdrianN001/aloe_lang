@@ -20,7 +20,6 @@ use std::rc::Rc;
 
 use crate::ast::program::Program;
 use crate::module::module_loader::ModuleLoader;
-use crate::object::ObjectRef;
 use crate::object::break_value::BreakValue;
 use crate::object::error::panic_type::PanicType;
 use crate::object::function::Function;
@@ -31,6 +30,7 @@ use crate::object::return_value::ReturnValue;
 use crate::object::stack_environment::{EnvRef, StackEnvironment};
 use crate::object::state::{DEFAULT_INTERPRETER_STATE, StateRef};
 use crate::object::string_obj::StringObj;
+use crate::object::{ObjectRef, new_objectref};
 
 use super::object::Object;
 
@@ -96,7 +96,10 @@ impl Statement {
                 Ok(value.clone())
             }
             Statement::Return(return_stmt) => {
-                let val = return_stmt.value.evaluate(environ, state)?;
+                let val = match &return_stmt.value {
+                    Some(return_value) => return_value.evaluate(environ, state)?,
+                    None => new_objectref(Object::NULL_OBJECT),
+                };
                 if let Object::ReturnVal(ret_val) = &*val.borrow() {
                     return Ok(ret_val.unwrap_to_value().clone());
                 }

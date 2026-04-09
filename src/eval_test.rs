@@ -515,7 +515,10 @@ fn eval_index_operator() {
         ("[1,2,3][0]", "1"),
         (r#"[true, 3, "asd", false, true][1+1]"#, "asd"),
         ("let i = 0; [i][i];", "0"),
-        ("[][1];", "null"),
+        (
+            "[][1];",
+            "indexing an array of size '0' with index '1' is illegal.",
+        ),
         ("[(fn(){return 15;})()][0];", "15"),
     ];
 
@@ -553,9 +556,18 @@ fn eval_len_for_strings() {
 #[test]
 fn test_array_indexing_edgecases() {
     let testcases = [
-        ("[1,2,3][100]", "null"),
-        ("[1,2,3][-10]", "null"),
-        ("[][0]", "null"),
+        (
+            "[1,2,3][100]",
+            "indexing an array of size '3' with index '100' is illegal.",
+        ),
+        (
+            "[1,2,3][-10]",
+            "indexing an array of size '3' with index '-7' is illegal.",
+        ),
+        (
+            "[][0]",
+            "indexing an array of size '0' with index '0' is illegal.",
+        ),
     ];
 
     test_cases_for_input_output(&testcases);

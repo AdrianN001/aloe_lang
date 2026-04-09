@@ -29,7 +29,15 @@ impl IndexExpression {
                 if index_interior_value > (arr_interior_value.len() as i64) - 1
                     || index_interior_value < 0
                 {
-                    return Ok(Rc::new(RefCell::new(Object::NULL_OBJECT)));
+                    return Err(PanicObj::new(
+                        PanicType::IndexOutOfBound,
+                        format!(
+                            "indexing an array of size '{}' with index '{}' is illegal.",
+                            arr.items.len(),
+                            index_interior_value
+                        ),
+                        state,
+                    ));
                 }
 
                 Ok(arr_interior_value[index_interior_value as usize].clone())
@@ -45,7 +53,15 @@ impl IndexExpression {
                 if index_interior_value > (arr_interior_value.len() as i64) - 1
                     || index_interior_value < 0
                 {
-                    return Ok(Rc::new(RefCell::new(Object::NULL_OBJECT)));
+                    return Err(PanicObj::new(
+                        PanicType::IndexOutOfBound,
+                        format!(
+                            "indexing a string of size '{}' with index '{}' is illegal.",
+                            str.value.len(),
+                            index_interior_value
+                        ),
+                        state,
+                    ));
                 }
 
                 Ok(Rc::new(RefCell::new(Object::String(StringObj {

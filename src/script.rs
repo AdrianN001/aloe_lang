@@ -12,12 +12,14 @@ pub fn run_script(file_path: &str) -> Result<(), ModuleError> {
         Err(err) => return Err(err),
     };
 
-    let mut module_cache = ModuleLoader::new();
+    let mut module_cache = ModuleLoader::new(file_path);
     module_cache.set(main_module.clone());
 
-    let _ = {
-        main_module.borrow_mut().execute(&mut module_cache).unwrap();
-    };
+    let result_of_the_script = main_module.borrow_mut().execute(&mut module_cache);
+
+    if let Err(panic_obj) = result_of_the_script {
+        println!("{}", panic_obj);
+    }
 
     Ok(())
 }

@@ -31,5 +31,8 @@ pub fn console_read_builtin_function() -> ObjectRef {
 
     std::io::stdin().read_line(&mut buffer).unwrap();
 
+    // \n
+    buffer.pop();
+
     new_objectref(Object::String(StringObj { value: buffer }))
 }

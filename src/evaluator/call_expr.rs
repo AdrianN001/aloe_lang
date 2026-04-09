@@ -43,7 +43,7 @@ impl CallExpression {
             other_type => Err(PanicObj::new(
                 PanicType::NonfunctionalObjectCalled,
                 format!(
-                    "'{}' is not a function. It cannot be called.",
+                    "'{}' is not callable. It cannot be called.",
                     other_type.inspect()
                 ),
                 state.clone(),

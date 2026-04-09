@@ -138,13 +138,6 @@ impl Object {
         }
     }
 
-    pub fn is_hashable(&self) -> bool {
-        matches!(
-            self,
-            Object::String(_) | Object::Int(_) | Object::Bool(_) | Object::FloatObj(_)
-        )
-    }
-
     pub fn hash(&self) -> Result<HashKey, String> {
         match self {
             Object::String(s) => Ok(s.hash()),

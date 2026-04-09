@@ -225,7 +225,11 @@ impl Parser {
             token: self.current_token.clone(),
             value: {
                 self.next_token();
-                self.parse_expression(OperationPrecedence::Lowest)?
+                if self.current_token.token_type == TokenType::Semicolon {
+                    None
+                } else {
+                    Some(self.parse_expression(OperationPrecedence::Lowest)?)
+                }
             },
         };
 

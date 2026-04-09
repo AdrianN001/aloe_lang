@@ -14,7 +14,7 @@ pub fn range_builtin_function(args: &[ObjectRef], state: StateRef) -> Result<Obj
         // range(end)
         1 => {
             if let Object::Int(end) = &*args[0].borrow() {
-                if end.value.is_positive() {
+                if end.value >= 0 {
                     return Ok(new_objectref(Object::Iterator(
                         Iterator::RangeBasedIterator(RangeBasedIterator::new(end.value)),
                     )));

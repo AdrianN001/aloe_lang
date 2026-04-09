@@ -23,14 +23,6 @@ impl HashMapLiteral {
                 return Ok(key.clone());
             }
 
-            if !key.borrow().is_hashable() {
-                return Err(PanicObj::new(
-                    PanicType::ObjectNotHashable,
-                    format!("unhashable as hash key: {}", key.borrow().get_type()),
-                    state.clone(),
-                ));
-            }
-
             let value = v.evaluate(environ.clone(), state.clone())?;
 
             if let Object::ReturnVal(_) = &*value.borrow() {

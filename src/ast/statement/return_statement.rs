@@ -4,7 +4,7 @@ use crate::token::Token;
 #[derive(Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
 pub struct ReturnStatement {
     pub token: Token,
-    pub value: Expression,
+    pub value: Option<Expression>,
 }
 
 impl ReturnStatement {
@@ -12,8 +12,9 @@ impl ReturnStatement {
         let mut buffer = String::new();
 
         buffer.push_str("return ");
-
-        buffer.push_str(&self.value.to_string());
+        if let Some(val) = &self.value {
+            buffer.push_str(&val.to_string());
+        }
 
         buffer.push(';');
 

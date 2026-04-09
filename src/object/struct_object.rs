@@ -18,6 +18,7 @@ impl StructObject {
     pub fn create_new_object(
         model: ObjectRef,
         args: &[ObjectRef],
+
         state: StateRef,
     ) -> Result<ObjectRef, PanicObj> {
         let (attribute_list, method_table, name) = {
@@ -55,41 +56,39 @@ impl StructObject {
 
         let mut new_object = Self {
             model: model.clone(),
-            model_name: name,
+            model_name: name.clone(),
 
             attribute_table,
             method_table,
         };
 
-        new_object.init_object(args, &attribute_list, state)?;
-
-        Ok(new_objectref(Object::StructObject(new_object)))
-    }
-
-    fn init_object(
-        &mut self,
-        args: &[ObjectRef],
-        attribute_list: &[String],
-        state: StateRef,
-    ) -> Result<(), PanicObj> {
         let constructor_function = {
-            let method_table_borrow = self.method_table.borrow();
+            let method_table_borrow = new_object.method_table.borrow();
 
-            method_table_borrow
-                .get("constructor")
-                .map(|func| func.clone())
+            method_table_borrow.get("constructor").cloned()
         };
 
-        if let Some(_constr_func) = constructor_function {
-            Ok(())
-        } else if !args.is_empty() {
-            self.default_constructor(args, attribute_list, state)
-        } else {
-            Ok(())
+        if !args.is_empty() && constructor_function.is_none() {
+            new_object.run_default_constructor(args, &attribute_list, state)?;
+            return Ok(new_objectref(Object::StructObject(new_object)));
         }
+
+        let reference_to_new_object = new_objectref(Object::StructObject(new_object));
+
+        if let Some(constructor) = constructor_function {
+            StructObject::run_custom_constructor(
+                reference_to_new_object.clone(),
+                args,
+                constructor,
+                &name,
+                state,
+            )?;
+        }
+
+        Ok(reference_to_new_object)
     }
 
-    fn default_constructor(
+    fn run_default_constructor(
         &mut self,
         args: &[ObjectRef],
         attribute_list: &[String],
@@ -114,6 +113,41 @@ impl StructObject {
                 self.attribute_table
                     .insert(attribute_name.to_string(), argument.clone());
             });
+
+        Ok(())
+    }
+
+    fn run_custom_constructor(
+        this: ObjectRef,
+        args: &[ObjectRef],
+        function: ObjectRef,
+        model_name: &str,
+        state: StateRef,
+    ) -> Result<(), PanicObj> {
+        let function_borrow = function.borrow();
+
+        let raw_function = match &*function_borrow {
+            Object::Func(func) => func,
+            other_type => {
+                return Err(PanicObj::new(
+                    PanicType::ConstructorIsNotAMethod,
+                    format!(
+                        "expected the 'constructor' of <struct '{}'> to be a method, got: {} ",
+                        model_name,
+                        other_type.get_type()
+                    ),
+                    state,
+                ));
+            }
+        };
+
+        let arg_list = StructObject::insert_this_reference_to_args(this, args);
+
+        raw_function.apply(
+            format!("<struct '{}'>::constructor", model_name),
+            &arg_list,
+            state,
+        )?;
 
         Ok(())
     }

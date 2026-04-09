@@ -94,6 +94,7 @@ impl FileWrapper {
         match name {
             "read" => Ok(self.read(state)),
             "write" => Ok(self.write(args, state)),
+            "seek" => Ok(self.seek(args, state)),
 
             unknown_method => Err(PanicObj::new(
                 PanicType::UnknownMethod,
@@ -168,14 +169,6 @@ impl FileWrapper {
             ));
         }
 
-        if let Err(error_feedback) = self.native_file.seek(SeekFrom::Start(0)) {
-            return new_objectref(Object::new_error(
-                ErrorType::FileSeek,
-                error_feedback.to_string(),
-                state,
-            ));
-        }
-
         new_objectref(Object::String(StringObj { value: buffer }))
     }
 
@@ -225,6 +218,45 @@ impl FileWrapper {
                 state,
             )),
         }
+    }
+
+    fn seek(&mut self, args: &[ObjectRef], state: StateRef) -> ObjectRef {
+        if args.len() != 1 {
+            return new_objectref(Object::new_error(
+                ErrorType::WrongArgumentCount,
+                format!(
+                    "expected {} parameters for file.write(), got: {}",
+                    1,
+                    args.len()
+                ),
+                state,
+            ));
+        }
+
+        let arg_borrow = args[0].borrow();
+        let position = match &*arg_borrow {
+            Object::Int(int) => int.value,
+            other_type => {
+                return new_objectref(Object::new_error(
+                    ErrorType::WrongArgumentType,
+                    format!(
+                        "expected int as parameter for file.seek(), got: {}",
+                        other_type.get_type()
+                    ),
+                    state,
+                ));
+            }
+        };
+
+        if let Err(error_feedback) = self.native_file.seek(SeekFrom::Start(position as u64)) {
+            return new_objectref(Object::new_error(
+                ErrorType::FileSeek,
+                error_feedback.to_string(),
+                state,
+            ));
+        }
+
+        new_objectref(Object::NULL_OBJECT)
     }
 }
 

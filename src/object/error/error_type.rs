@@ -1,5 +1,3 @@
-use std::fmt::{self};
-
 #[derive(PartialEq, Eq, Clone, Debug)]
 pub enum ErrorType {
     IndexOutOfBound,
@@ -15,6 +13,8 @@ pub enum ErrorType {
 
     WrongArgumentType,
     WrongArgumentCount,
+
+    ItemNotFound,
 
     FunctionHasMismatchingNumberOfParameters,
 

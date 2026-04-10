@@ -144,7 +144,9 @@ impl HashMap {
             )));
         }
 
-        let hashed_key = match args[0].borrow().hash() {
+        let arg_borrow = args[0].borrow();
+
+        let hashed_key = match arg_borrow.hash() {
             Ok(val) => val,
             Err(err_feedback) => {
                 return Rc::new(RefCell::new(Object::new_error(
@@ -159,7 +161,11 @@ impl HashMap {
             return value.value.clone();
         }
 
-        Rc::new(RefCell::new(Object::NULL_OBJECT))
+        new_objectref(Object::new_error(
+            ErrorType::ItemNotFound,
+            format!("hashmap has no key: '{}'", &*arg_borrow.inspect()),
+            state,
+        ))
     }
 
     pub fn clear(&mut self) -> ObjectRef {

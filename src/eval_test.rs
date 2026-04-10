@@ -688,7 +688,10 @@ fn eval_hashmap_pair_count() {
 fn eval_hashmap_indexing() {
     let testcases = [
         (r#"{"asd": 123, true: "abc"}["asd"]"#, "123"),
-        (r#"{}["asd"]"#, "null"),
+        (
+            r#"{}["asd"]"#,
+            "Stack trace:\n\t at <global>\nItemNotFoundError: hashmap has no key: 'asd'",
+        ),
         (r#"{false: fn(){return 5;}()}[false]"#, "5"),
     ];
 
@@ -1125,10 +1128,12 @@ fn test_hashmap_methods_and_attributes() {
         // return value of set
         ("let m = {}; m.set(\"x\", 99);", "99"),
         ("let m = {\"a\":1}; m.get(\"a\");", "1"),
-        // non existing → null
-        ("let m = {\"a\":1}; m.get(\"b\");", "null"),
+        (
+            "let m = {\"a\":1}; m.get(\"b\");",
+            "hashmap has no key: 'b'",
+        ),
         // empty map
-        ("let m = {}; m.get(\"x\");", "null"),
+        ("let m = {}; m.get(\"x\");", "hashmap has no key: 'x'"),
         ("let m = {\"a\":1}; m.has_key(\"a\");", "true"),
         ("let m = {\"a\":1}; m.has_key(\"b\");", "false"),
         ("let m = {}; m.has_key(\"x\");", "false"),
@@ -1543,7 +1548,7 @@ let f = fn(){
 };
 f();
 ",
-            "unexpected operand types: null + integer",
+            "unexpected operand types: return value + integer",
         ),
         (
             "
@@ -1628,7 +1633,7 @@ m.get()?.as_str();
 let m = {\"a\": 3};
 m.get(\"b\")?.as_str();
 ",
-            "null has no methods",
+            "tried to use ? on a function, without function-context",
         ),
         (
             "

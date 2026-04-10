@@ -209,7 +209,6 @@ impl Parser {
             }
         } else if self.peek_token.token_type == TokenType::Semicolon {
             self.next_token();
-            self.next_token();
         }
 
         Ok(Statement::Import(ImportStatement {

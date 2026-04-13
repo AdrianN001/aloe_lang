@@ -27,6 +27,18 @@ pub enum TokenType {
     BinaryOr,         // |
     BinaryLeftShift,  // <<
     BinaryRightShift, // >>
+    
+    PlusEq,
+    MinusEq,
+    MulEq,
+    DivEq,
+    ExpoEq,
+    ModEq,
+    BinaryAndEq,
+    BinaryOrEq,
+    BinaryXorEq,
+    BinaryLeftShiftEq,
+    BinaryRightShiftEq,
 
     Eq,
     NotEq,

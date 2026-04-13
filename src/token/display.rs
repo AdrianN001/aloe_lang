@@ -31,6 +31,19 @@ impl fmt::Display for TokenType {
             TokenType::BinaryLeftShift => "<<",
             TokenType::BinaryRightShift => ">>",
 
+
+            TokenType::PlusEq => "+=",
+            TokenType::MinusEq => "-=",
+            TokenType::MulEq => "*=",
+            TokenType::DivEq => "/=",
+            TokenType::ExpoEq => "**=",
+            TokenType::ModEq => "%=",
+            TokenType::BinaryAndEq => "&=",
+            TokenType::BinaryOrEq => "|=",
+            TokenType::BinaryXorEq => "^=",
+            TokenType::BinaryLeftShiftEq => "<<=",
+            TokenType::BinaryRightShiftEq => ">>=",
+
             TokenType::IteratorAssign => "<-",
             TokenType::Dot => ".",
 

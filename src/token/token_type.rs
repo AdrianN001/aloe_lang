@@ -27,7 +27,7 @@ pub enum TokenType {
     BinaryOr,         // |
     BinaryLeftShift,  // <<
     BinaryRightShift, // >>
-    
+
     PlusEq,
     MinusEq,
     MulEq,
@@ -83,6 +83,7 @@ pub enum TokenType {
 
     KwDefer,
 
+    KwWhile,
     KwFor,
     KwBreak,
     KwContinue,
@@ -106,6 +107,7 @@ pub fn lookup_identifiers(identifier: &str) -> TokenType {
 
         "struct" => TokenType::KwStruct,
 
+        "while" => TokenType::KwWhile,
         "for" => TokenType::KwFor,
         "break" => TokenType::KwBreak,
         // "defer" => TokenType::KwDefer,

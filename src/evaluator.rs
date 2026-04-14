@@ -14,6 +14,7 @@ mod member_expr;
 mod prefix_expr;
 mod struct_statement;
 mod value_assign;
+mod while_loop;
 
 use std::cell::RefCell;
 use std::rc::Rc;
@@ -74,6 +75,7 @@ impl Expression {
             Expression::Member(member_expression) => {
                 member_expression.evaluate(environ.clone(), state)
             }
+            Expression::WhileLoop(while_loop) => while_loop.evaluate(environ, state),
 
             Expression::InvalidExpression => {
                 panic!("unexpected expression type")

@@ -31,7 +31,6 @@ impl fmt::Display for TokenType {
             TokenType::BinaryLeftShift => "<<",
             TokenType::BinaryRightShift => ">>",
 
-
             TokenType::PlusEq => "+=",
             TokenType::MinusEq => "-=",
             TokenType::MulEq => "*=",
@@ -79,6 +78,7 @@ impl fmt::Display for TokenType {
 
             TokenType::KwStruct => "struct",
 
+            TokenType::KwWhile => "while",
             TokenType::KwFor => "for",
             TokenType::KwBreak => "break",
             TokenType::KwContinue => "continue",

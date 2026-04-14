@@ -2260,6 +2260,126 @@ c1.color;
     test_cases_for_input_output(&testcases);
 }
 
+#[test]
+fn test_while_loop_eval() {
+    let testcases = [
+        ("let i = 0; while i < 5 { i = i + 1; }", "null"),
+        (
+            "let i = 0; while i < 10 { if (i == 3){ break i; } i = i + 1; }",
+            "3",
+        ),
+        ("let i = 0; while i < 3 { i = i + 1; }", "null"),
+        (
+            "let i = 0; while { if (i == 4){ break i; } i = i + 1; }",
+            "4",
+        ),
+        ("let cond = true; while cond { break 42; }", "42"),
+        ("while false { break 1; }", "null"),
+        ("while true { break; }", "null"),
+        (
+            "
+    let i = 0;
+    let sum = 0;
+    while i < 5 {
+        i = i + 1;
+        if (i == 3){ continue; }
+        sum = sum + i;
+    }
+    sum;
+    ",
+            "12",
+        ),
+        (
+            "
+    let i = 0;
+    while i < 3 {
+        let j = 0;
+        while j < 3 {
+            break 99;
+        }
+        i = i + 1;
+    }
+    ",
+            "null",
+        ),
+        (
+            "
+    let i = 0;
+    while i < 5 {
+        if (i == 2){
+            break 100;
+        }
+        i = i + 1;
+    }
+    ",
+            "100",
+        ),
+        (
+            "let i = 0;
+    while (i < 3) {
+        i = i + 1;
+    }
+    ",
+            "null",
+        ),
+        (
+            "
+    let f = fn(){
+        let i = 0;
+        while i < 5 {
+            if (i == 3){
+                return i;
+            }
+            i = i + 1;
+        }
+        return 99;
+    };
+    f();
+    ",
+            "3",
+        ),
+        (
+            "let i = 0;
+    while true {
+        break i + 10;
+    }
+    ",
+            "10",
+        ),
+        (
+            "
+    let s = \"abc\";
+    let i = 0;
+    while i < s.length {
+        if (s[i] == \"b\"){
+            break s[i];
+        }
+        i = i + 1;
+    }
+    ",
+            "b",
+        ),
+        (
+            "
+    let arr = [1,2,3];
+    let i = 0;
+    while i < 3 {
+        arr[i] = arr[i] * 2;
+        i = i + 1;
+    }
+    arr[2];
+    ",
+            "6",
+        ),
+        (
+            "continue;",
+            "unexpected continue keyword in non-loop context",
+        ),
+    ];
+
+    test_cases_for_input_output(&testcases);
+}
+
 // util
 
 pub fn test_cases_for_input_output(testcases: &[(&str, &str)]) {

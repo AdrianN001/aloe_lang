@@ -14,6 +14,7 @@ pub mod member;
 pub mod prefix_expression;
 pub mod string_expr;
 pub mod value_assign_expression;
+pub mod while_loop;
 
 use array_literal::ArrayLiteral;
 use boolean::Boolean;
@@ -31,7 +32,7 @@ use prefix_expression::PrefixExpression;
 use string_expr::StringExpr;
 use value_assign_expression::ValueAssignExpression;
 
-use crate::ast::expression::for_loop::ForLoopExpression;
+use crate::ast::expression::{for_loop::ForLoopExpression, while_loop::WhileLoopExpression};
 
 #[derive(Default, PartialOrd, Ord, Clone, PartialEq, Eq, Hash)]
 pub enum Expression {
@@ -48,6 +49,7 @@ pub enum Expression {
     Index(IndexExpression),
     HashMapLiteral(HashMapLiteral),
     ForLoop(ForLoopExpression),
+    WhileLoop(WhileLoopExpression),
     ValueAssign(ValueAssignExpression),
 
     Member(MemberExpression),

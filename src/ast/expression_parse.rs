@@ -5,6 +5,7 @@ use crate::ast::expression::float_literal::FloatLiteral;
 use crate::ast::expression::for_loop::ForLoopExpression;
 use crate::ast::expression::identifier::Identifier;
 use crate::ast::expression::member::MemberExpression;
+use crate::ast::expression::while_loop::WhileLoopExpression;
 use crate::{
     ast::{
         Parser,
@@ -32,6 +33,7 @@ impl Parser {
             TokenType::LBracket => self.parse_array_literal(),
             TokenType::LBrace => self.parse_hashmap_literal(),
             TokenType::KwFor => self.parse_for_loop_expression(),
+            TokenType::KwWhile => self.parse_while_loop_expression(),
 
             TokenType::String => Ok(self.parse_string_literal()),
 
@@ -150,6 +152,34 @@ impl Parser {
             token,
             variable: Some(Box::new(identifier)),
             iterator: Some(Box::new(iterator_expr)),
+            block,
+        }))
+    }
+
+    fn parse_while_loop_expression(&mut self) -> Result<Expression, String> {
+        let token = self.current_token.clone();
+
+        self.next_token();
+
+        if self.current_token.token_type == TokenType::LBrace {
+            let block = self.parse_block_statement()?;
+
+            return Ok(Expression::WhileLoop(WhileLoopExpression {
+                token,
+                condition: None,
+                block,
+            }));
+        }
+
+        let condition = self.parse_expression(OperationPrecedence::Lowest)?;
+
+        self.next_token();
+
+        let block = self.parse_block_statement()?;
+
+        Ok(Expression::WhileLoop(WhileLoopExpression {
+            token,
+            condition: Some(Box::new(condition)),
             block,
         }))
     }

@@ -906,3 +906,43 @@ struct Car{
         )
     })
 }
+
+#[test]
+fn test_while_loop_parse() {
+    let testcases = [
+        ("while true {}", true, "true"),
+        ("while {}", false, ""),
+        ("while is_playing {}", true, "is_playing"),
+        ("while i < 3 {}", true, "(i < 3)"),
+    ];
+
+    testcases.iter().for_each(|test_case| {
+        let input = test_case.0.into();
+        let expected_condition_set = test_case.1;
+        let expected_condition_str = test_case.2;
+
+        let lexer = Lexer::new(input);
+        let parser = Parser::new(lexer);
+        let program = parser.into_a_program().unwrap();
+
+        assert_eq!(program.statements.len(), 1);
+
+        let last_expr = match &program.statements[0] {
+            Statement::Expression(expr) => expr,
+            _ => panic!(),
+        };
+
+        let while_expression = match &last_expr.expression {
+            Expression::WhileLoop(while_expr) => while_expr,
+            _ => panic!("not a loop"),
+        };
+
+        assert_eq!(while_expression.condition.is_some(), expected_condition_set);
+
+        if expected_condition_set {
+            let condition_str = (*while_expression.condition.clone().unwrap()).to_string();
+
+            assert_eq!(expected_condition_str, condition_str);
+        }
+    });
+}

@@ -244,10 +244,7 @@ impl Array {
 
         Rc::new(RefCell::new(Object::Array(Array {
             items: if start_index < end_index {
-                self.items[start_index as usize..end_index as usize]
-                    .iter()
-                    .map(|item| item.clone())
-                    .collect()
+                self.items[start_index as usize..end_index as usize].to_vec()
             } else {
                 Vec::new()
             },

@@ -1296,8 +1296,65 @@ let b=a.slice(0,2);
 b[0]=99;
 a[0];
 ",
-            "1",
+            "99",
         ),
+        (
+"
+let arr = [1,2,3,4];
+let s = arr.slice(1,3);
+s[0] = 99;
+arr[1];
+",
+"99"
+),
+        ("let arr = [1,2,3,4];
+let s = arr.slice(1,4);
+s[0] = 10;
+s[1] = 20;
+arr[1] + arr[2];
+",
+"30"
+),
+(
+"
+let arr = [1,2,3,4];
+let s = arr.slice(1,3);
+arr[1] = 77;
+s[0];
+",
+"77"
+),
+(
+"
+let arr = [10,20,30,40];
+let s = arr.slice(1,3);
+s[1] = 999;
+arr[2];
+",
+"999"
+),
+(
+"
+let arr = [1,2,3,4,5];
+let s1 = arr.slice(1,5);
+let s2 = s1.slice(1,3);
+
+s2[0] = 100;
+arr[2];
+",
+"100"
+),
+(
+"
+let arr = [1,2,3,4];
+let s1 = arr.slice(1,3);
+let s2 = arr.slice(1,3);
+
+s1[0] = 500;
+s2[0];
+",
+"500"
+),
         ("\"hello\".slice(1,4);", "ell"),
         ("\"hello\".slice(0,2);", "he"),
         ("\"hello\".slice(-3,5);", "llo"),

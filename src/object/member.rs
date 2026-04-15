@@ -1,11 +1,12 @@
 use std::{cell::RefCell, rc::Rc};
 
 use crate::object::{
-    Object, ObjectRef, error::panic_type::PanicType, panic_obj::PanicObj,
+    Object, ObjectRef, error::panic_type::PanicType, new_objectref, panic_obj::PanicObj,
     stack_environment::EnvRef, state::StateRef,
 };
 
 pub mod array;
+pub mod file_wrapper;
 pub mod float;
 pub mod hashmap;
 pub mod int;
@@ -69,20 +70,12 @@ impl Object {
     fn check_early_attributes(&self, name: &str) -> Option<ObjectRef> {
         match name {
             "is_ok" => match &self {
-                Object::Err(_) => Some(Rc::new(RefCell::new(Object::get_native_boolean_object(
-                    false,
-                )))),
-                _ => Some(Rc::new(RefCell::new(Object::get_native_boolean_object(
-                    true,
-                )))),
+                Object::Err(_) => Some(new_objectref(Object::get_native_boolean_object(false))),
+                _ => Some(new_objectref(Object::get_native_boolean_object(true))),
             },
             "is_err" => match &self {
-                Object::Err(_) => Some(Rc::new(RefCell::new(Object::get_native_boolean_object(
-                    true,
-                )))),
-                _ => Some(Rc::new(RefCell::new(Object::get_native_boolean_object(
-                    false,
-                )))),
+                Object::Err(_) => Some(new_objectref(Object::get_native_boolean_object(true))),
+                _ => Some(new_objectref(Object::get_native_boolean_object(false))),
             },
 
             _ => None,

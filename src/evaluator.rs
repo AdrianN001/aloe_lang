@@ -70,9 +70,7 @@ impl Expression {
             Expression::Array(array) => array.evaluate(environ, state),
             Expression::If(if_expression) => if_expression.evaluate(environ, state),
             Expression::Infix(infix_expr) => infix_expr.evaluate_infix_expression(environ, state),
-            Expression::Member(member_expression) => {
-                member_expression.evaluate(environ, state)
-            }
+            Expression::Member(member_expression) => member_expression.evaluate(environ, state),
             Expression::WhileLoop(while_loop) => while_loop.evaluate(environ, state),
 
             Expression::InvalidExpression => {

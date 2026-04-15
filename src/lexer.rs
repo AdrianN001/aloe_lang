@@ -93,14 +93,6 @@ impl Lexer {
                 break;
             }
         }
-        fn is_identifier_start(c: char) -> bool {
-            c.is_alphabetic() || c == '_'
-        }
-
-        fn is_identifier_part(c: char) -> bool {
-            c.is_alphanumeric() || c == '_'
-        }
-
         self.input[start_pos..self.position]
             .iter()
             .copied()
@@ -110,17 +102,43 @@ impl Lexer {
     fn read_number(&mut self) -> String {
         let start_pos = self.position;
 
+        let mut last_was_underscore = false;
+
         while let Some(current_char) = self.read_char() {
-            if current_char.is_ascii_digit() {
-                self.advance();
-            } else {
-                self.step_back();
-                break;
+            match current_char {
+                c if c.is_ascii_digit() => {
+                    last_was_underscore = false;
+                    self.advance();
+                }
+
+                '_' => {
+                    // darf nicht am Anfang oder doppelt sein
+                    if self.position == start_pos || last_was_underscore {
+                        break;
+                    }
+
+                    last_was_underscore = true;
+                    self.advance();
+                }
+
+                _ => {
+                    self.step_back();
+                    break;
+                }
             }
         }
 
-        self.input[start_pos..self.position]
+        // darf nicht mit '_' enden
+        let end_pos = if last_was_underscore {
+            self.position - 1
+        } else {
+            self.position
+        };
+
+        // '_' entfernen
+        self.input[start_pos..end_pos]
             .iter()
+            .filter(|c| **c != '_')
             .copied()
             .collect()
     }
@@ -179,13 +197,35 @@ impl Lexer {
             '[' => Token::simple(TokenType::LBracket, "["),
             ']' => Token::simple(TokenType::RBracket, "]"),
             ',' => Token::simple(TokenType::Comma, ","),
-            '+' => Token::simple(TokenType::Plus, "+"),
-            '-' => Token::simple(TokenType::Minus, "-"),
-            '/' => Token::simple(TokenType::Slash, "/"),
+            '+' => match self.peek() {
+                Some('=') => {
+                    self.advance();
+                    Token::simple(TokenType::PlusEq, "+=")
+                }
+                _ => Token::simple(TokenType::Plus, "+"),
+            },
+            '-' => match self.peek() {
+                Some('=') => {
+                    self.advance();
+                    Token::simple(TokenType::MinusEq, "-=")
+                }
+                _ => Token::simple(TokenType::Minus, "-"),
+            },
+            '/' => match self.peek() {
+                Some('=') => {
+                    self.advance();
+                    Token::simple(TokenType::DivEq, "/=")
+                }
+                _ => Token::simple(TokenType::Slash, "/"),
+            },
             '&' => match self.peek() {
                 Some('&') => {
                     self.advance();
                     Token::simple(TokenType::LogicalAnd, "&&")
+                }
+                Some('=') => {
+                    self.advance();
+                    Token::simple(TokenType::BinaryAndEq, "&=")
                 }
                 _ => Token::simple(TokenType::BinaryAnd, "&"),
             },
@@ -194,44 +234,70 @@ impl Lexer {
                     self.advance();
                     Token::simple(TokenType::LogicalOr, "||")
                 }
+                Some('=') => {
+                    self.advance();
+                    Token::simple(TokenType::BinaryOrEq, "|=")
+                }
                 _ => Token::simple(TokenType::BinaryOr, "|"),
             },
-            '^' => Token::simple(TokenType::LogicalXor, "^"),
-            '*' => {
-                if let Some(next_char) = self.peek()
-                    && next_char == '*'
-                {
+            '^' => match self.peek() {
+                Some('=') => {
                     self.advance();
-                    Token::simple(TokenType::Exponent, "**")
-                } else {
-                    Token::simple(TokenType::Asterisk, "*")
+                    Token::simple(TokenType::BinaryXorEq, "^=")
                 }
-            }
-            '<' => {
-                if let Some(next_char) = self.peek()
-                    && next_char == '-'
-                {
+                _ => Token::simple(TokenType::LogicalXor, "^"),
+            },
+            '*' => match self.peek() {
+                Some('*') => {
+                    self.advance();
+                    match self.peek() {
+                        Some('=') => {
+                            self.advance();
+                            Token::simple(TokenType::ExpoEq, "**=")
+                        }
+                        _ => Token::simple(TokenType::Exponent, "**"),
+                    }
+                }
+                _ => Token::simple(TokenType::Asterisk, "*"),
+            },
+            '<' => match self.peek() {
+                Some('-') => {
                     self.advance();
                     Token::simple(TokenType::IteratorAssign, "<-")
-                } else if let Some(next_char) = self.peek()
-                    && next_char == '<'
-                {
+                }
+                Some('<') => {
                     self.advance();
-                    Token::simple(TokenType::BinaryLeftShift, "<<")
-                } else if let Some(next_char) = self.peek()
-                    && next_char == '='
-                {
+                    match self.peek() {
+                        Some('=') => {
+                            self.advance();
+                            Token::simple(TokenType::BinaryLeftShiftEq, "<<=")
+                        }
+                        _ => Token::simple(TokenType::BinaryLeftShift, "<<"),
+                    }
+                }
+                Some('=') => {
                     self.advance();
                     Token::simple(TokenType::LE, "<=")
-                } else {
-                    Token::simple(TokenType::LT, "<")
                 }
-            }
-            '%' => Token::simple(TokenType::Modulo, "%"),
+                _ => Token::simple(TokenType::LT, "<"),
+            },
+            '%' => match self.peek() {
+                Some('=') => {
+                    self.advance();
+                    Token::simple(TokenType::ModEq, "&=")
+                }
+                _ => Token::simple(TokenType::Modulo, "%"),
+            },
             '>' => match self.peek() {
                 Some('>') => {
                     self.advance();
-                    Token::simple(TokenType::BinaryRightShift, ">>")
+                    match self.peek() {
+                        Some('=') => {
+                            self.advance();
+                            Token::simple(TokenType::BinaryRightShiftEq, ">>=")
+                        }
+                        _ => Token::simple(TokenType::BinaryRightShift, ">>"),
+                    }
                 }
                 Some('=') => {
                     self.advance();
@@ -297,4 +363,12 @@ impl Lexer {
 
 fn is_letter(character: char) -> bool {
     character.is_ascii_lowercase() || character.is_ascii_uppercase() || character == '_'
+}
+
+fn is_identifier_start(c: char) -> bool {
+    c.is_alphabetic() || c == '_'
+}
+
+fn is_identifier_part(c: char) -> bool {
+    c.is_alphanumeric() || c == '_'
 }

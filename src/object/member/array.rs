@@ -133,7 +133,15 @@ impl Array {
             return self.items.remove(index as usize).clone();
         }
 
-        Rc::new(RefCell::new(Object::NULL_OBJECT))
+        new_objectref(Object::new_error(
+            ErrorType::IndexOutOfBound,
+            format!(
+                "array.remove(), array with size: {} was indexed with: {}",
+                self.items.len(),
+                index
+            ),
+            state,
+        ))
     }
 
     fn insert(&mut self, args: &[ObjectRef], state: StateRef) -> ObjectRef {

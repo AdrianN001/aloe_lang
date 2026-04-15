@@ -1,8 +1,5 @@
 use crate::{
-    ast::{
-        Parser, program,
-        statement::{self, Statement},
-    },
+    ast::{Parser, program},
     lexer::Lexer,
     object::{Object, integer::Integer},
 };
@@ -1215,11 +1212,20 @@ a;
             "[]",
         ),
         // Remove out of bounds
-        ("let a=[1,2,3]; a.remove(10);", "null"),
+        (
+            "let a=[1,2,3]; a.remove(10);",
+            "array.remove(), array with size: 3 was indexed with: 10",
+        ),
         // Negative out of bounds
-        ("let a=[1,2,3]; a.remove(-10);", "null"),
+        (
+            "let a=[1,2,3]; a.remove(-10);",
+            "array.remove(), array with size: 3 was indexed with: -7",
+        ),
         // Remove on empty array
-        ("let a=[]; a.remove(0);", "null"),
+        (
+            "let a=[]; a.remove(0);",
+            "array.remove(), array with size: 0 was indexed with: 0",
+        ),
     ];
 
     test_cases_for_input_output(&testcases);

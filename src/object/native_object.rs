@@ -28,6 +28,12 @@ impl NativeObject {
         }
     }
 
+    pub fn as_bool_raw(&self) -> bool {
+        match self{
+            NativeObject::File(file) => file.get_is_open_raw()
+        }
+    }
+
     pub fn apply_method(
         &mut self,
         name: &str,

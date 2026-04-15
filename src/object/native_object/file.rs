@@ -137,6 +137,10 @@ impl FileWrapper {
         new_objectref(Object::get_native_boolean_object(self.is_open))
     }
 
+    pub fn get_is_open_raw(&self) -> bool {
+        self.is_open
+    }
+
     pub fn get_mode(&self) -> ObjectRef {
         new_objectref(Object::String(StringObj {
             value: self.mode.clone(),

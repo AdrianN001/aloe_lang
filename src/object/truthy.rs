@@ -10,6 +10,7 @@ impl Object {
             Object::Array(arr) => !arr.items.is_empty(),
             Object::HashMap(hmap) => !hmap.pairs.is_empty(),
             Object::Iterator(iterator) => iterator._has_next_raw(),
+            Object::Native(native_obj) => native_obj.as_bool_raw(),
             Object::Null(_) | Object::Err(_) => false,
             _ => false,
         }

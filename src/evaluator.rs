@@ -41,39 +41,37 @@ use super::ast::statement::Statement;
 impl Expression {
     pub fn evaluate(&self, environ: EnvRef, state: StateRef) -> Result<ObjectRef, PanicObj> {
         match self {
-            Expression::IntegerLiteral(literal) => {
-                Ok(Rc::new(RefCell::new(Object::Int(Integer {
-                    value: literal.value,
-                }))))
-            }
+            Expression::IntegerLiteral(literal) => Ok(new_objectref(Object::Int(Integer {
+                value: literal.value,
+            }))),
             Expression::FloatLiteral(float_literal) => Ok(float_literal.evaluate()),
-            Expression::Identifier(identifier) => identifier.evaluate(environ.clone(), state),
-            Expression::Bool(bool_literal) => Ok(Rc::new(RefCell::new(
-                Object::get_native_boolean_object(bool_literal.value),
+            Expression::Identifier(identifier) => identifier.evaluate(environ, state),
+            Expression::Bool(bool_literal) => Ok(new_objectref(Object::get_native_boolean_object(
+                bool_literal.value,
             ))),
             Expression::Prefix(prefix_expr) => {
-                let right_side = prefix_expr.right.evaluate(environ.clone(), state.clone())?;
+                let right_side = prefix_expr.right.evaluate(environ, state.clone())?;
 
                 right_side
                     .borrow_mut()
                     .evaluate_prefix(&prefix_expr.operator, state)
             }
-            Expression::ValueAssign(value_assign) => value_assign.evaluate(environ.clone(), state),
-            Expression::HashMapLiteral(hashmap) => hashmap.evaluate(environ.clone(), state),
-            Expression::Index(indx_expr) => indx_expr.evaluate(environ.clone(), state),
-            Expression::String(str_exr) => Ok(Rc::new(RefCell::new(Object::String(StringObj {
+            Expression::ValueAssign(value_assign) => value_assign.evaluate(environ, state),
+            Expression::HashMapLiteral(hashmap) => hashmap.evaluate(environ, state),
+            Expression::Index(indx_expr) => indx_expr.evaluate(environ, state),
+            Expression::String(str_exr) => Ok(new_objectref(Object::String(StringObj {
                 value: str_exr.value.clone(),
-            })))),
-            Expression::Function(func_expr) => Ok(Rc::new(RefCell::new(Object::Func(
+            }))),
+            Expression::Function(func_expr) => Ok(new_objectref(Object::Func(
                 Function::from_function_expression(func_expr, environ.clone()),
-            )))),
+            ))),
             Expression::ForLoop(for_loop) => for_loop.evaluate(environ, state),
             Expression::Call(call_expr) => call_expr.evaluate(environ, state),
             Expression::Array(array) => array.evaluate(environ, state),
-            Expression::If(if_expression) => if_expression.evaluate(environ.clone(), state),
+            Expression::If(if_expression) => if_expression.evaluate(environ, state),
             Expression::Infix(infix_expr) => infix_expr.evaluate_infix_expression(environ, state),
             Expression::Member(member_expression) => {
-                member_expression.evaluate(environ.clone(), state)
+                member_expression.evaluate(environ, state)
             }
             Expression::WhileLoop(while_loop) => while_loop.evaluate(environ, state),
 

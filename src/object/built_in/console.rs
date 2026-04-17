@@ -23,6 +23,17 @@ pub fn console_write_builtin_function(args: &[ObjectRef], _environ: EnvRef) -> O
     Rc::new(RefCell::new(Object::NULL_OBJECT))
 }
 
+// println(object_0, ...object_n)
+pub fn console_writeln_builtin_function(args: &[ObjectRef]) -> ObjectRef {
+    args.iter().for_each(|arg| {
+        let borrow = arg.borrow();
+        print!("{} ", borrow.inspect());
+    });
+    println!();
+
+    Rc::new(RefCell::new(Object::NULL_OBJECT))
+}
+
 // __input()
 pub fn console_read_builtin_function() -> ObjectRef {
     std::io::stdout().flush().unwrap();

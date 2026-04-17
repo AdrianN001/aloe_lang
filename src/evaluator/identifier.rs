@@ -19,6 +19,7 @@ impl Identifier {
             "push" => Some(BuiltIn::Push),
 
             "print" => Some(BuiltIn::Print),
+            "println" => Some(BuiltIn::Println),
             "__input" => Some(BuiltIn::Read),
 
             "type" => Some(BuiltIn::Type),

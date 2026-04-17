@@ -108,21 +108,6 @@ impl FloatObj {
         }
     }
 
-    pub fn modulo(&self, right: ObjectRef, _state: StateRef) -> Result<ObjectRef, PanicObj> {
-        match &*right.borrow() {
-            other_type => Err(PanicObj::new(
-                PanicType::OperatorIsNotSupported,
-                format!(
-                    "unexpected operand types: {} {} {}",
-                    "float",
-                    "%",
-                    other_type.get_type()
-                ),
-                _state.clone(),
-            )),
-        }
-    }
-
     pub fn power(&self, right: ObjectRef, _state: StateRef) -> Result<ObjectRef, PanicObj> {
         match &*right.borrow() {
             Object::Int(right_integer) => Ok(new_objectref(Object::FloatObj(FloatObj {
@@ -151,23 +136,41 @@ impl FloatObj {
     }
 
     pub fn eq(&self, right: ObjectRef) -> Result<ObjectRef, PanicObj> {
-        if let Object::FloatObj(float) = &*right.borrow() {
-            return Ok(new_objectref(Object::get_native_boolean_object(
-                float.val.to_bits() == self.val.to_bits(),
-            )));
-        }
+        let objects_matches = match &*right.borrow() {
+            Object::Int(integer) => {
+                if self.val.fract() == 0.0 {
+                    (self.val as i64) == integer.value
+                } else {
+                    false
+                }
+            }
+            Object::FloatObj(float) => float.val.to_bits() == self.val.to_bits(),
 
-        Ok(new_objectref(Object::get_native_boolean_object(false)))
+            _ => false,
+        };
+
+        Ok(new_objectref(Object::get_native_boolean_object(
+            objects_matches,
+        )))
     }
 
     pub fn neq(&self, right: ObjectRef) -> Result<ObjectRef, PanicObj> {
-        if let Object::FloatObj(float) = &*right.borrow() {
-            return Ok(new_objectref(Object::get_native_boolean_object(
-                float.val.to_bits() != self.val.to_bits(),
-            )));
-        }
+        let objects_matches = match &*right.borrow() {
+            Object::Int(integer) => {
+                if self.val.fract() == 0.0 {
+                    (self.val as i64) == integer.value
+                } else {
+                    false
+                }
+            }
+            Object::FloatObj(float) => float.val.to_bits() == self.val.to_bits(),
 
-        Ok(new_objectref(Object::get_native_boolean_object(true)))
+            _ => false,
+        };
+
+        Ok(new_objectref(Object::get_native_boolean_object(
+            !objects_matches,
+        )))
     }
 
     pub fn lt(&self, right: ObjectRef, _state: StateRef) -> Result<ObjectRef, PanicObj> {

@@ -124,7 +124,7 @@ impl IndexExpression {
                 let left_side = &arr.items[real_index as usize];
                 let right_side = rvalue;
 
-                if left_side.as_ptr() != right_side.as_ptr(){
+                if left_side.as_ptr() != right_side.as_ptr() {
                     *left_side.borrow_mut() = right_side.borrow().clone();
                 }
 

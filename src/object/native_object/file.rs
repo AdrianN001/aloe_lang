@@ -78,8 +78,8 @@ impl Clone for FileWrapper {
 }
 
 impl PartialEq for FileWrapper {
-    fn eq(&self, other: &FileWrapper) -> bool {
-        self.path == other.path && self.mode == other.mode
+    fn eq(&self, _other: &FileWrapper) -> bool {
+        false
     }
 }
 

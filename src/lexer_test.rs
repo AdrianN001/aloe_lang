@@ -43,6 +43,8 @@ int.as_float()!
 false ?? true
 1 << 1
 2 >> 1
++= -= *= /= %= **=
+<<= >>= &= |= ^=
 "#;
     let mut lexer = Lexer::new(input.to_string());
 
@@ -140,6 +142,17 @@ false ?? true
         Token::simple(TokenType::Integer, "2"),
         Token::simple(TokenType::BinaryRightShift, ">>"),
         Token::simple(TokenType::Integer, "1"),
+        Token::simple(TokenType::PlusEq, "+="),
+        Token::simple(TokenType::MinusEq, "-="),
+        Token::simple(TokenType::MulEq, "*="),
+        Token::simple(TokenType::DivEq, "/="),
+        Token::simple(TokenType::ModEq, "%="),
+        Token::simple(TokenType::ExpoEq, "**="),
+        Token::simple(TokenType::BinaryLeftShiftEq, "<<="),
+        Token::simple(TokenType::BinaryRightShiftEq, ">>="),
+        Token::simple(TokenType::BinaryAndEq, "&="),
+        Token::simple(TokenType::BinaryOrEq, "|="),
+        Token::simple(TokenType::BinaryXorEq, "^="),
         Token::simple(TokenType::Eof, ""),
     ];
 

@@ -71,8 +71,8 @@ impl Integer {
         match &*right.borrow() {
             Object::Int(right_integer) => {
                 if right_integer.value != 0 {
-                    Ok(new_objectref(Object::Int(Integer {
-                        value: self.value / right_integer.value,
+                    Ok(new_objectref(Object::FloatObj(FloatObj {
+                        val: self.value as f64 / right_integer.value as f64,
                     })))
                 } else {
                     Err(PanicObj::new(
@@ -154,23 +154,41 @@ impl Integer {
     }
 
     pub fn eq(&self, right: ObjectRef) -> Result<ObjectRef, PanicObj> {
-        if let Object::Int(integer) = &*right.borrow() {
-            return Ok(new_objectref(Object::get_native_boolean_object(
-                integer.value == self.value,
-            )));
-        }
+        let objects_matches = match &*right.borrow() {
+            Object::Int(integer) => integer.value == self.value,
+            Object::FloatObj(float) => {
+                if float.val.fract() == 0.0 {
+                    self.value == (float.val as i64)
+                } else {
+                    false
+                }
+            }
 
-        Ok(new_objectref(Object::get_native_boolean_object(false)))
+            _ => false,
+        };
+
+        Ok(new_objectref(Object::get_native_boolean_object(
+            objects_matches,
+        )))
     }
 
     pub fn neq(&self, right: ObjectRef) -> Result<ObjectRef, PanicObj> {
-        if let Object::Int(integer) = &*right.borrow() {
-            return Ok(new_objectref(Object::get_native_boolean_object(
-                integer.value != self.value,
-            )));
-        }
+        let objects_matches = match &*right.borrow() {
+            Object::Int(integer) => integer.value == self.value,
+            Object::FloatObj(float) => {
+                if float.val.fract() == 0.0 {
+                    self.value == (float.val as i64)
+                } else {
+                    false
+                }
+            }
 
-        Ok(new_objectref(Object::get_native_boolean_object(true)))
+            _ => false,
+        };
+
+        Ok(new_objectref(Object::get_native_boolean_object(
+            !objects_matches,
+        )))
     }
 
     pub fn lt(&self, right: ObjectRef, _state: StateRef) -> Result<ObjectRef, PanicObj> {

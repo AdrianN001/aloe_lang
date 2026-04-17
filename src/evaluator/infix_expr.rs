@@ -163,7 +163,6 @@ impl InfixExpression {
             "-" => float.sub(right, state),
             "*" => float.mul(right, state),
             "/" => float.div(right, state),
-            "%" => float.modulo(right, state),
             "**" => float.power(right, state),
             "==" => float.eq(right),
             "!=" => float.neq(right),

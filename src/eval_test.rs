@@ -1299,42 +1299,43 @@ a[0];
             "99",
         ),
         (
-"
+            "
 let arr = [1,2,3,4];
 let s = arr.slice(1,3);
 s[0] = 99;
 arr[1];
 ",
-"99"
-),
-        ("let arr = [1,2,3,4];
+            "99",
+        ),
+        (
+            "let arr = [1,2,3,4];
 let s = arr.slice(1,4);
 s[0] = 10;
 s[1] = 20;
 arr[1] + arr[2];
 ",
-"30"
-),
-(
-"
+            "30",
+        ),
+        (
+            "
 let arr = [1,2,3,4];
 let s = arr.slice(1,3);
 arr[1] = 77;
 s[0];
 ",
-"77"
-),
-(
-"
+            "77",
+        ),
+        (
+            "
 let arr = [10,20,30,40];
 let s = arr.slice(1,3);
 s[1] = 999;
 arr[2];
 ",
-"999"
-),
-(
-"
+            "999",
+        ),
+        (
+            "
 let arr = [1,2,3,4,5];
 let s1 = arr.slice(1,5);
 let s2 = s1.slice(1,3);
@@ -1342,10 +1343,10 @@ let s2 = s1.slice(1,3);
 s2[0] = 100;
 arr[2];
 ",
-"100"
-),
-(
-"
+            "100",
+        ),
+        (
+            "
 let arr = [1,2,3,4];
 let s1 = arr.slice(1,3);
 let s2 = arr.slice(1,3);
@@ -1353,8 +1354,8 @@ let s2 = arr.slice(1,3);
 s1[0] = 500;
 s2[0];
 ",
-"500"
-),
+            "500",
+        ),
         ("\"hello\".slice(1,4);", "ell"),
         ("\"hello\".slice(0,2);", "he"),
         ("\"hello\".slice(-3,5);", "llo"),
@@ -2438,6 +2439,26 @@ fn test_while_loop_eval() {
             "continue;",
             "unexpected continue keyword in non-loop context",
         ),
+    ];
+
+    test_cases_for_input_output(&testcases);
+}
+
+#[test]
+fn test_compound_assignment() {
+    let testcases = [
+        ("let i = 0; i += 3; i;", "3"),
+        ("let i = 6; i += (i + 3); i;", "15"),
+        ("let i = 0; i -= 3; i;", "-3"),
+        ("let i = 2; i *= 3; i;", "6"),
+        ("let i = 3; i /= 2; i;", "1.5"),
+        ("let i = 4; i **= 2; i;", "16"),
+        ("let i = 10; i %= 2; i;", "0"),
+        ("let i = 4; i <<= 3; i;", "32"),
+        ("let i = 4; i >>= 2; i;", "1"),
+        ("let i = 5; i &= 3; i;", "1"),
+        ("let i = 5; i |= 2; i;", "7"),
+        ("let i = 65565; i ^= i; i;", "0")
     ];
 
     test_cases_for_input_output(&testcases);

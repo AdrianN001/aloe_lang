@@ -84,7 +84,7 @@ pub fn open_builtin_function(args: &[ObjectRef], state: StateRef) -> Result<Obje
         other_n_of_args => Err(PanicObj::new(
             PanicType::WrongArgumentType,
             format!(
-                "unexpected number of parameter for __open(). Expected: 'str', got: '{}'",
+                "unexpected number of parameter for __open(). Expected: 1 or 2, got: '{}'",
                 other_n_of_args
             ),
             state,

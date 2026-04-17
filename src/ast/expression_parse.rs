@@ -5,7 +5,9 @@ use crate::ast::expression::float_literal::FloatLiteral;
 use crate::ast::expression::for_loop::ForLoopExpression;
 use crate::ast::expression::identifier::Identifier;
 use crate::ast::expression::member::MemberExpression;
+use crate::ast::expression::value_assign_expression::ValueAssignExpression;
 use crate::ast::expression::while_loop::WhileLoopExpression;
+use crate::token::Token;
 use crate::{
     ast::{
         Parser,
@@ -78,6 +80,23 @@ impl Parser {
                 TokenType::Assign => {
                     self.next_token();
                     left_expression = self.parse_value_assign(&left_expression)?;
+                }
+
+                TokenType::PlusEq
+                | TokenType::MinusEq
+                | TokenType::MulEq
+                | TokenType::DivEq
+                | TokenType::ExpoEq
+                | TokenType::ModEq
+                | TokenType::BinaryAndEq
+                | TokenType::BinaryOrEq
+                | TokenType::BinaryXorEq
+                | TokenType::BinaryLeftShiftEq
+                | TokenType::BinaryRightShiftEq => {
+                    self.next_token();
+                    let copy_of_operator_token = self.current_token.token_type.clone();
+                    left_expression =
+                        self.parse_compount_assignment(&left_expression, &copy_of_operator_token)?;
                 }
 
                 TokenType::Dot => {
@@ -306,6 +325,63 @@ impl Parser {
         expression.right = Box::new(right_from_prefix);
 
         Ok(Expression::Prefix(expression))
+    }
+
+    pub fn parse_compount_assignment(
+        &mut self,
+        left: &Expression,
+        operator: &TokenType,
+    ) -> Result<Expression, String> {
+        let left_side = match left {
+            Expression::Index(_) | Expression::Identifier(_) | Expression::Member(_) => {
+                Box::new(left.clone())
+            }
+            other_expression_type => {
+                return Err(format!(
+                    "expected 'LValue', got: {}",
+                    other_expression_type.to_string()
+                ));
+            }
+        };
+
+        let matching_operator = match operator {
+            TokenType::PlusEq => TokenType::Plus,
+            TokenType::MinusEq => TokenType::Minus,
+            TokenType::DivEq => TokenType::Slash,
+            TokenType::MulEq => TokenType::Asterisk,
+            TokenType::ExpoEq => TokenType::Exponent,
+            TokenType::ModEq => TokenType::Modulo,
+            TokenType::BinaryLeftShiftEq => TokenType::BinaryLeftShift,
+            TokenType::BinaryRightShiftEq => TokenType::BinaryRightShift,
+            TokenType::BinaryAndEq => TokenType::BinaryAnd,
+            TokenType::BinaryOrEq => TokenType::BinaryOr,
+            TokenType::BinaryXorEq => TokenType::LogicalXor,
+            _ => panic!(),
+        };
+
+        let matching_operator_str = matching_operator.to_string();
+
+        let infix_expression = InfixExpression {
+            token: self.current_token.clone(),
+            operator: matching_operator_str,
+            left: left_side.clone(),
+            right: {
+                let precedence = get_precedence_of_operator(&Token::simple(matching_operator, ""));
+                self.next_token();
+                match self.parse_expression(precedence) {
+                    Ok(expr) => Box::new(expr),
+                    Err(error) => return Err(error),
+                }
+            },
+        };
+
+        let value_assign_expression = ValueAssignExpression {
+            token: self.current_token.clone(),
+            left: left_side,
+            right: Box::new(Expression::Infix(infix_expression)),
+        };
+
+        Ok(Expression::ValueAssign(value_assign_expression))
     }
 
     fn parse_infix_expression(&mut self, left: &Expression) -> Result<Expression, String> {

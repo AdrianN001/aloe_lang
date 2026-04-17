@@ -14,7 +14,10 @@ use crate::object::{
             first_builtin_function, last_builtin_function, push_builtin_function,
             rest_builtin_function,
         },
-        console::{console_read_builtin_function, console_write_builtin_function},
+        console::{
+            console_read_builtin_function, console_write_builtin_function,
+            console_writeln_builtin_function,
+        },
         error::error_builtin_function,
         io::open_builtin_function,
         iterator::range_builtin_function,
@@ -37,6 +40,7 @@ pub enum BuiltIn {
     Push,
 
     Print,
+    Println,
     Read,
 
     Type,
@@ -74,6 +78,7 @@ impl BuiltIn {
             BuiltIn::Push => push_builtin_function(args, state),
 
             BuiltIn::Print => Ok(console_write_builtin_function(args, environ)),
+            BuiltIn::Println => Ok(console_writeln_builtin_function(args)),
             BuiltIn::Read => Ok(console_read_builtin_function()),
 
             BuiltIn::Type => type_builtin_function(args, state),

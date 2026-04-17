@@ -27,7 +27,18 @@ pub enum OperationPrecedence {
 
 pub fn get_precedence_of_operator(token: &Token) -> OperationPrecedence {
     match token.token_type {
-        TokenType::Assign => OperationPrecedence::Assignment,
+        TokenType::Assign
+        | TokenType::PlusEq
+        | TokenType::MinusEq
+        | TokenType::MulEq
+        | TokenType::DivEq
+        | TokenType::ExpoEq
+        | TokenType::ModEq
+        | TokenType::BinaryAndEq
+        | TokenType::BinaryOrEq
+        | TokenType::BinaryXorEq
+        | TokenType::BinaryLeftShiftEq
+        | TokenType::BinaryRightShiftEq => OperationPrecedence::Assignment,
         TokenType::Coalescing => OperationPrecedence::Coalescing,
 
         TokenType::LogicalOr => OperationPrecedence::LogicalOr,

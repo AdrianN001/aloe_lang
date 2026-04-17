@@ -258,6 +258,10 @@ impl Lexer {
                         _ => Token::simple(TokenType::Exponent, "**"),
                     }
                 }
+                Some('=') => {
+                    self.advance();
+                    Token::simple(TokenType::MulEq, "*=")
+                }
                 _ => Token::simple(TokenType::Asterisk, "*"),
             },
             '<' => match self.peek() {
@@ -284,7 +288,7 @@ impl Lexer {
             '%' => match self.peek() {
                 Some('=') => {
                     self.advance();
-                    Token::simple(TokenType::ModEq, "&=")
+                    Token::simple(TokenType::ModEq, "%=")
                 }
                 _ => Token::simple(TokenType::Modulo, "%"),
             },

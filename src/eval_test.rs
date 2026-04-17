@@ -2458,7 +2458,7 @@ fn test_compound_assignment() {
         ("let i = 4; i >>= 2; i;", "1"),
         ("let i = 5; i &= 3; i;", "1"),
         ("let i = 5; i |= 2; i;", "7"),
-        ("let i = 65565; i ^= i; i;", "0")
+        ("let i = 65565; i ^= i; i;", "0"),
     ];
 
     test_cases_for_input_output(&testcases);

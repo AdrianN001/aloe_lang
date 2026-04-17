@@ -170,6 +170,10 @@ impl StructObject {
         }
     }
 
+    pub fn set_attribute(&mut self, name: &str, value: ObjectRef) {
+        self.attribute_table.insert(name.to_string(), value);
+    }
+
     pub fn apply_method(
         name: &str,
         this: ObjectRef,

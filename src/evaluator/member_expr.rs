@@ -80,10 +80,7 @@ impl MemberExpression {
     fn check_early_for_struct_method_call(left_obj: ObjectRef) -> bool {
         let left_obj_borrow = left_obj.borrow();
 
-        match &*left_obj_borrow {
-            Object::StructObject(_) => return true,
-            _ => return false,
-        }
+        matches!(&*left_obj_borrow, Object::StructObject(_))
     }
 
     fn get_call_expressions_identifier(
@@ -107,34 +104,72 @@ impl MemberExpression {
         r_value: ObjectRef,
     ) -> Result<ObjectRef, PanicObj> {
         let left_obj = self.left.evaluate(environ.clone(), state.clone())?;
+        let mut left_obj_borrow = left_obj.borrow_mut();
 
-        if let Object::ReturnVal(ret_val) = &*left_obj.borrow() {
+        if let Object::ReturnVal(ret_val) = &*left_obj_borrow {
             return Ok(ret_val.unwrap_to_value().clone());
         }
 
-        let right_side = if let Expression::Identifier(identifier) = &*self.right {
-            identifier
-        } else {
-            return Err(PanicObj::new(
-                PanicType::IllegalExpression,
-                format!(
-                    "{} = {} is illegal.",
-                    self.to_string(),
-                    r_value.borrow().inspect()
-                ),
-                state.clone(),
-            ));
+        match &*self.right {
+            Expression::Identifier(attribute) => {
+                match &mut *left_obj_borrow {
+                    Object::StructObject(struct_object) => {
+                        struct_object.set_attribute(&attribute.value, r_value.clone());
+                    }
+                    other_type => {
+                        return Err(PanicObj::new(
+                            PanicType::IllegalExpression,
+                            format!(
+                                "cannot overwrite the attribute of a native ({}) object.",
+                                other_type.get_type()
+                            ),
+                            state,
+                        ));
+                    }
+                };
+            }
+            Expression::Call(method_call) => {
+                match &mut *left_obj_borrow {
+                    Object::StructObject(_) => {
+                        let args =
+                            method_call.evaluate_arguments(environ.clone(), state.clone())?;
+                        let method_name =
+                            Self::get_call_expressions_identifier(method_call, state.clone())?;
+
+                        let method_return_value = StructObject::apply_method(
+                            &method_name,
+                            left_obj.clone(),
+                            &args,
+                            environ.clone(),
+                            state,
+                        )?;
+
+                        *method_return_value.borrow_mut() = r_value.borrow().clone();
+                    }
+                    other_type => {
+                        return Err(PanicObj::new(
+                            PanicType::IllegalExpression,
+                            format!(
+                                "cannot overwrite the attribute of a native ({}) object.",
+                                other_type.get_type()
+                            ),
+                            state,
+                        ));
+                    }
+                };
+            }
+            _ => {
+                return Err(PanicObj::new(
+                    PanicType::IllegalExpression,
+                    format!(
+                        "{} = {} is illegal.",
+                        self.to_string(),
+                        r_value.borrow().inspect()
+                    ),
+                    state.clone(),
+                ));
+            }
         };
-
-        let name_of_the_identifier = right_side.value.clone();
-
-        let left_side_object = {
-            let left_obj_borrow = left_obj.borrow();
-
-            left_obj_borrow.apply_attribute(&name_of_the_identifier, environ, state)?
-        };
-
-        *left_side_object.borrow_mut() = r_value.borrow().clone();
 
         Ok(r_value.clone())
     }

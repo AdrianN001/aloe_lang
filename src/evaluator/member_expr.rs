@@ -30,6 +30,8 @@ impl MemberExpression {
                         &args,
                         environ,
                         state,
+                        call_expr.bang_set,
+                        call_expr.question_mark_set,
                     );
                 }
 
@@ -142,6 +144,8 @@ impl MemberExpression {
                             &args,
                             environ.clone(),
                             state,
+                            method_call.bang_set,
+                            method_call.question_mark_set,
                         )?;
 
                         *method_return_value.borrow_mut() = r_value.borrow().clone();

@@ -91,7 +91,7 @@ impl Statement {
                 environ
                     .borrow_mut()
                     .set_to_lowest_level(&let_stmt.name.value, value.clone());
-                Ok(value.clone())
+                Ok(new_objectref(Object::NULL_OBJECT))
             }
             Statement::Return(return_stmt) => {
                 let val = match &return_stmt.value {

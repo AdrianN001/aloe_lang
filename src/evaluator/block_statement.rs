@@ -28,7 +28,6 @@ impl BlockStatement {
                         ));
                     }
                 }
-                Object::Err(_) => return Ok(result.clone()),
                 _ => {}
             }
         }
@@ -63,7 +62,6 @@ impl BlockStatement {
                     ));
                 }
                 Object::ReturnVal(_ret_val) => return Ok(result.clone()),
-                Object::Err(_) => return Ok(result.clone()),
                 _ => {}
             }
         }

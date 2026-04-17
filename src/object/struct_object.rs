@@ -2,7 +2,8 @@ use std::collections::HashMap;
 
 use crate::object::{
     Object, ObjectRef, error::panic_type::PanicType, new_objectref, panic_obj::PanicObj,
-    stack_environment::EnvRef, state::StateRef, struct_model::MethodTableRef,
+    return_value::ReturnValue, stack_environment::EnvRef, state::StateRef,
+    struct_model::MethodTableRef,
 };
 
 #[derive(PartialEq, Eq, Clone)]
@@ -180,6 +181,8 @@ impl StructObject {
         args: &[ObjectRef],
         _environ: EnvRef,
         state: StateRef,
+        is_bang_set: bool,
+        is_questionmark_set: bool,
     ) -> Result<ObjectRef, PanicObj> {
         let method = {
             let this_borrow = this.borrow();
@@ -230,7 +233,28 @@ impl StructObject {
 
         let args_with_this = Self::insert_this_reference_to_args(this, args);
 
-        func_obj.apply(name.to_string(), &args_with_this, state)
+        let return_value = func_obj.apply(name.to_string(), &args_with_this, state.clone())?;
+
+        let return_value_cloned = return_value.clone();
+
+        if let Object::Err(err) = &*return_value_cloned.borrow() {
+            if is_questionmark_set && !state.borrow().is_function_context() {
+                return Err(PanicObj::new_simple(
+                    PanicType::PropagationFromNonfunctionalContext,
+                    "tried to use ? on a function, without function-context",
+                    state.clone(),
+                ));
+            }
+            if is_bang_set {
+                return Err(PanicObj::from_error(err, state.clone()));
+            } else if is_questionmark_set {
+                return Ok(new_objectref(Object::ReturnVal(ReturnValue {
+                    value: Box::new(return_value.clone()),
+                })));
+            }
+        }
+
+        Ok(return_value)
     }
 
     fn insert_this_reference_to_args(this: ObjectRef, args: &[ObjectRef]) -> Vec<ObjectRef> {

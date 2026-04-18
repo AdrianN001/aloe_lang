@@ -168,7 +168,6 @@ impl Program {
                         state,
                     ));
                 }
-                Object::Err(_) => return Ok(result.clone()),
                 _ => {}
             }
         }
@@ -215,7 +214,6 @@ impl Program {
                         state,
                     ));
                 }
-                Object::Err(_) => return Ok(result.clone()),
                 _ => {}
             }
         }
@@ -264,7 +262,6 @@ impl Program {
                         state,
                     ));
                 }
-                Object::Err(_) => return Ok(result.clone()),
                 _ => {}
             }
         }

@@ -31,6 +31,8 @@ impl Identifier {
             "__err" => Some(BuiltIn::Err),
 
             "__open" => Some(BuiltIn::Open),
+            
+            "__sleep" => Some(BuiltIn::Sleep),
             _ => None,
         }
     }

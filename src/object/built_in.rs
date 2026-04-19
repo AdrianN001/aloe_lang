@@ -5,8 +5,8 @@ mod io;
 mod iterator;
 mod len;
 mod random;
-mod utils;
 mod time;
+mod utils;
 
 use crate::object::{
     ObjectRef,
@@ -14,10 +14,18 @@ use crate::object::{
         array_method::{
             first_builtin_function, last_builtin_function, push_builtin_function,
             rest_builtin_function,
-        }, console::{
+        },
+        console::{
             console_read_builtin_function, console_write_builtin_function,
             console_writeln_builtin_function,
-        }, error::error_builtin_function, io::open_builtin_function, iterator::range_builtin_function, len::len_builtin_function, random::random_builtin_function, time::sleep, utils::{inspect_builtin_function, type_builtin_function}
+        },
+        error::error_builtin_function,
+        io::{open_builtin_function, path_builtin_function},
+        iterator::range_builtin_function,
+        len::len_builtin_function,
+        random::random_builtin_function,
+        time::sleep,
+        utils::{inspect_builtin_function, type_builtin_function},
     },
     panic_obj::PanicObj,
     stack_environment::EnvRef,
@@ -46,6 +54,7 @@ pub enum BuiltIn {
     Err,
 
     Open,
+    Path,
 
     Sleep,
 }
@@ -86,8 +95,9 @@ impl BuiltIn {
             BuiltIn::Err => error_builtin_function(args, state),
 
             BuiltIn::Open => open_builtin_function(args, state),
+            BuiltIn::Path => path_builtin_function(args, state),
 
-            BuiltIn::Sleep => sleep(args, state)
+            BuiltIn::Sleep => sleep(args, state),
         }
     }
 }

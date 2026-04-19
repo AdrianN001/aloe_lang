@@ -1,7 +1,7 @@
 use crate::object::{
     Object, ObjectRef,
     error::panic_type::PanicType,
-    native_object::{NativeObject, file::FileWrapper},
+    native_object::{NativeObject, file::FileWrapper, path::PathWrapper},
     new_objectref,
     panic_obj::PanicObj,
     state::StateRef,
@@ -36,7 +36,9 @@ pub fn open_builtin_function(args: &[ObjectRef], state: StateRef) -> Result<Obje
                 }
             };
 
-            Ok(new_objectref(Object::Native(NativeObject::File(wrapper))))
+            Ok(new_objectref(Object::Native(NativeObject::File(Box::new(
+                wrapper,
+            )))))
         }
 
         2 => {
@@ -79,10 +81,12 @@ pub fn open_builtin_function(args: &[ObjectRef], state: StateRef) -> Result<Obje
                 }
             };
 
-            Ok(new_objectref(Object::Native(NativeObject::File(wrapper))))
+            Ok(new_objectref(Object::Native(NativeObject::File(Box::new(
+                wrapper,
+            )))))
         }
         other_n_of_args => Err(PanicObj::new(
-            PanicType::WrongArgumentType,
+            PanicType::WrongArgumentCount,
             format!(
                 "unexpected number of parameter for __open(). Expected: 1 or 2, got: '{}'",
                 other_n_of_args
@@ -90,4 +94,42 @@ pub fn open_builtin_function(args: &[ObjectRef], state: StateRef) -> Result<Obje
             state,
         )),
     }
+}
+
+pub fn path_builtin_function(args: &[ObjectRef], state: StateRef) -> Result<ObjectRef, PanicObj> {
+    if args.len() != 1 {
+        return Err(PanicObj::new(
+            PanicType::WrongArgumentType,
+            format!(
+                "unexpected number of parameter for __path(). Expected: 1, got: '{}'",
+                args.len()
+            ),
+            state,
+        ));
+    }
+
+    let arg_borrow = args[0].borrow();
+
+    let path_arg = match &*arg_borrow {
+        Object::String(str_obj) => &str_obj.value,
+        other_type => {
+            return Err(PanicObj::new(
+                PanicType::WrongArgumentType,
+                format!(
+                    "unexpected parameter type for __path(). Expected: 'str', got: '{}'",
+                    other_type.get_type()
+                ),
+                state,
+            ));
+        }
+    };
+
+    let wrapper = match PathWrapper::new(path_arg) {
+        Ok(wrapper) => wrapper,
+        Err(err_feedback) => {
+            return Err(PanicObj::new(PanicType::PathResolve, err_feedback, state));
+        }
+    };
+
+    Ok(new_objectref(Object::Native(NativeObject::Path(wrapper))))
 }

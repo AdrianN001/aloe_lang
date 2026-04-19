@@ -42,7 +42,7 @@ impl FileWrapper {
             unknown_attribute => Err(PanicObj::new(
                 PanicType::UnknownAttribute,
                 format!(
-                    "unknown attribte {} on {}",
+                    "unknown attribute {} on {}",
                     unknown_attribute,
                     self.type_name()
                 ),

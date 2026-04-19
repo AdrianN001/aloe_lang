@@ -38,6 +38,9 @@ pub enum PanicType {
 
     FileOpen,
 
+    PathResolve,
+    PathChildResolve,
+
     MethodMissingThis,
     ConstructorIsNotAMethod,
 }

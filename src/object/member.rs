@@ -9,6 +9,7 @@ pub mod float;
 pub mod hashmap;
 pub mod int;
 pub mod iterator;
+pub mod path_wrapper;
 pub mod string;
 
 impl Object {

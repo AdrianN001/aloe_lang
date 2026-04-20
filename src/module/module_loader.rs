@@ -8,7 +8,7 @@ use crate::module::{Module, ModuleRef, module_error::ModuleError};
 #[derive(Default)]
 pub struct ModuleLoader {
     cache: HashMap<String, ModuleRef>,
-    root_file: PathBuf,
+    pub root_file: PathBuf,
 }
 
 impl ModuleLoader {

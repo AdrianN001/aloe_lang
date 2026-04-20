@@ -8,8 +8,10 @@ use crate::{
     lexer::Lexer,
     module::{module_error::ModuleError, module_loader::ModuleLoader},
     object::{
+        Object, new_objectref,
         panic_obj::PanicObj,
         stack_environment::{EnvRef, StackEnvironment},
+        string_obj::StringObj,
     },
 };
 
@@ -38,9 +40,8 @@ impl Module {
                     return Err(ModuleError::new(&name, &err_feedback.to_string()));
                 }
             },
-
-            name,
             rel_path,
+            name,
             ..Default::default()
         })
     }
@@ -77,13 +78,37 @@ impl Module {
         let parser = Parser::new(lexer);
         let program = parser.into_a_program().unwrap();
 
-        let environment = Rc::new(RefCell::new(StackEnvironment::new()));
+        let mut raw_environment = StackEnvironment::new();
+        self.load_dunder_into_env(&mut raw_environment, module_loader);
+
+        let environment = Rc::new(RefCell::new(raw_environment));
 
         let _last_obj = program.evaluate(environment.clone(), module_loader)?;
 
         self.environ = Some(environment);
 
         Ok(())
+    }
+
+    fn load_dunder_into_env(
+        &self,
+        environment: &mut StackEnvironment,
+        module_loader: &ModuleLoader,
+    ) {
+        let name = new_objectref(Object::String(StringObj {
+            value: self.rel_path.display().to_string(),
+        }));
+        environment.set("__name__", name);
+
+        let module_path = new_objectref(Object::String(StringObj {
+            value: self.abs_path.display().to_string(),
+        }));
+        environment.set("__module__", module_path);
+
+        let root_file = new_objectref(Object::String(StringObj {
+            value: module_loader.root_file.display().to_string(),
+        }));
+        environment.set("__main__", root_file);
     }
 
     pub fn to_reference(self) -> ModuleRef {

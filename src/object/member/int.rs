@@ -1,7 +1,16 @@
 use std::{cell::RefCell, char, rc::Rc};
 
 use crate::object::{
-    Object, ObjectRef, boolean::Boolean, error::{error_type::ErrorType, panic_type::PanicType}, float_obj::FloatObj, integer::Integer, new_objectref, panic_obj::PanicObj, stack_environment::EnvRef, state::StateRef, string_obj::StringObj
+    Object, ObjectRef,
+    boolean::Boolean,
+    error::{error_type::ErrorType, panic_type::PanicType},
+    float_obj::FloatObj,
+    integer::Integer,
+    new_objectref,
+    panic_obj::PanicObj,
+    stack_environment::EnvRef,
+    state::StateRef,
+    string_obj::StringObj,
 };
 
 impl Integer {
@@ -37,21 +46,20 @@ impl Integer {
             )),
         }
     }
-
 }
 
-impl Integer{
-    // Attributes 
+impl Integer {
+    // Attributes
 
-    pub fn is_negative(&self) -> ObjectRef{
-        new_objectref(Object::Bool(Boolean{
-            value: self.value.is_negative()
+    pub fn is_negative(&self) -> ObjectRef {
+        new_objectref(Object::Bool(Boolean {
+            value: self.value.is_negative(),
         }))
     }
 
-    pub fn is_positive(&self) -> ObjectRef{
-        new_objectref(Object::Bool(Boolean{
-            value: self.value.is_positive()
+    pub fn is_positive(&self) -> ObjectRef {
+        new_objectref(Object::Bool(Boolean {
+            value: self.value.is_positive(),
         }))
     }
 
@@ -70,14 +78,26 @@ impl Integer{
     }
 
     pub fn as_utf_char(&self, state: StateRef) -> ObjectRef {
-        let bytes_value: u32 = match self.value.try_into(){
+        let bytes_value: u32 = match self.value.try_into() {
             Ok(bytes) => bytes,
-            Err(_) => return new_objectref(Object::new_error(ErrorType::UTFValueCasting, format!("{} can not be converted to character.", self.value), state))
+            Err(_) => {
+                return new_objectref(Object::new_error(
+                    ErrorType::UTFValueCasting,
+                    format!("{} can not be converted to character.", self.value),
+                    state,
+                ));
+            }
         };
 
-        let mapped_char = match char::from_u32(bytes_value){
+        let mapped_char = match char::from_u32(bytes_value) {
             Some(mapped_char) => mapped_char,
-            None => return new_objectref(Object::new_error(ErrorType::UTFValueCasting, format!("{} can not be converted to character.", self.value), state))
+            None => {
+                return new_objectref(Object::new_error(
+                    ErrorType::UTFValueCasting,
+                    format!("{} can not be converted to character.", self.value),
+                    state,
+                ));
+            }
         };
 
         let str = String::from(mapped_char);

@@ -230,15 +230,21 @@ impl StringObj {
         }
     }
 
-    fn as_byte_array(&self) -> ObjectRef{
+    fn as_byte_array(&self) -> ObjectRef {
         let value = &self.value;
-        let new_raw_array = value.as_bytes().iter().map(|byte| {
-            new_objectref(Object::Int(Integer{
-                value: *byte as i64
-            }))
-        }).collect();
+        let new_raw_array = value
+            .as_bytes()
+            .iter()
+            .map(|byte| {
+                new_objectref(Object::Int(Integer {
+                    value: *byte as i64,
+                }))
+            })
+            .collect();
 
-        new_objectref(Object::Array(Array { items: new_raw_array }))
+        new_objectref(Object::Array(Array {
+            items: new_raw_array,
+        }))
     }
 
     fn split(&self, args: &[ObjectRef], state: StateRef) -> ObjectRef {

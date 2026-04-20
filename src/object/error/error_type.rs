@@ -24,5 +24,7 @@ pub enum ErrorType {
 
     IteratorRanOut,
 
+    UTFValueCasting,
+
     CustomError(),
 }

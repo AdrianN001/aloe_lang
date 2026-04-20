@@ -38,6 +38,9 @@ impl StringObj {
             "chars" => Ok(self.chars()),
             "as_float" => Ok(self.as_float(state)),
             "as_int" => Ok(self.as_int(state)),
+
+            "as_byte_array" => Ok(self.as_byte_array()),
+
             "contains" => Ok(self.contains(args, state)),
             "slice" => Ok(self.slice(args, state)),
             "split" => Ok(self.split(args, state)),
@@ -225,6 +228,17 @@ impl StringObj {
                 state,
             ))),
         }
+    }
+
+    fn as_byte_array(&self) -> ObjectRef{
+        let value = &self.value;
+        let new_raw_array = value.as_bytes().iter().map(|byte| {
+            new_objectref(Object::Int(Integer{
+                value: *byte as i64
+            }))
+        }).collect();
+
+        new_objectref(Object::Array(Array { items: new_raw_array }))
     }
 
     fn split(&self, args: &[ObjectRef], state: StateRef) -> ObjectRef {

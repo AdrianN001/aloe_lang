@@ -1,4 +1,6 @@
 pub mod array_literal;
+pub mod async_function_expression;
+pub mod await_expression;
 pub mod boolean;
 pub mod call_expression;
 pub mod float_literal;
@@ -32,7 +34,10 @@ use prefix_expression::PrefixExpression;
 use string_expr::StringExpr;
 use value_assign_expression::ValueAssignExpression;
 
-use crate::ast::expression::{for_loop::ForLoopExpression, while_loop::WhileLoopExpression};
+use crate::ast::expression::{
+    async_function_expression::AsyncFunctionExpression, await_expression::AwaitExpression,
+    for_loop::ForLoopExpression, while_loop::WhileLoopExpression,
+};
 
 #[derive(Default, PartialOrd, Ord, Clone, PartialEq, Eq, Hash)]
 pub enum Expression {
@@ -43,7 +48,9 @@ pub enum Expression {
     Infix(InfixExpression),
     Bool(Boolean),
     Function(FunctionExpression),
+    AsyncFunction(AsyncFunctionExpression),
     Call(CallExpression),
+    AwaitExpr(AwaitExpression),
     String(StringExpr),
     Array(ArrayLiteral),
     Index(IndexExpression),

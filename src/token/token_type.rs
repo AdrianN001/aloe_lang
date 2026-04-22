@@ -87,6 +87,9 @@ pub enum TokenType {
     KwFor,
     KwBreak,
     KwContinue,
+
+    KwAsync,
+    KwAwait,
 }
 
 pub fn lookup_identifiers(identifier: &str) -> TokenType {
@@ -112,6 +115,9 @@ pub fn lookup_identifiers(identifier: &str) -> TokenType {
         "break" => TokenType::KwBreak,
         // "defer" => TokenType::KwDefer,
         "continue" => TokenType::KwContinue,
+
+        "async" => TokenType::KwAsync,
+        "await" => TokenType::KwAwait,
 
         _ => TokenType::Identifier,
     }

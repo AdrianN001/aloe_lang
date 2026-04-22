@@ -1,5 +1,6 @@
 use std::collections::BTreeMap;
 
+use crate::ast::expression::async_function_expression::AsyncFunctionExpression;
 use crate::ast::expression::boolean::Boolean;
 use crate::ast::expression::float_literal::FloatLiteral;
 use crate::ast::expression::for_loop::ForLoopExpression;
@@ -32,6 +33,7 @@ impl Parser {
             TokenType::LParen => self.parse_grouped_expression(),
             TokenType::KwIf => self.parse_if_expression(),
             TokenType::KwFunction => self.parse_function_expression(),
+            TokenType::KwAsync => self.parse_async_function_expr(),
             TokenType::LBracket => self.parse_array_literal(),
             TokenType::LBrace => self.parse_hashmap_literal(),
             TokenType::KwFor => self.parse_for_loop_expression(),
@@ -132,6 +134,24 @@ impl Parser {
             token: self.current_token.clone(),
             value: self.current_token.token_type == TokenType::KwTrue,
         })
+    }
+
+    fn parse_async_function_expr(&mut self) -> Result<Expression, String> {
+        self.next_token();
+
+        if self.current_token.token_type != TokenType::KwFunction {
+            return Err(format!(
+                "expected 'fn' or 'fun' after 'async', got: '{}",
+                self.current_token.token_type
+            ));
+        }
+
+        let async_fn_expr = Expression::AsyncFunction(AsyncFunctionExpression {
+            token: self.current_token.clone(),
+            function: Box::new(self.parse_expression(OperationPrecedence::Lowest)?),
+        });
+
+        Ok(async_fn_expr)
     }
 
     fn parse_for_loop_expression(&mut self) -> Result<Expression, String> {

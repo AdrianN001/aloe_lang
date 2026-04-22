@@ -1,4 +1,5 @@
 mod array_expression;
+mod async_function_eval;
 mod block_statement;
 mod call_expr;
 mod float_obj;
@@ -65,6 +66,7 @@ impl Expression {
             Expression::Function(func_expr) => Ok(new_objectref(Object::Func(
                 Function::from_function_expression(func_expr, environ.clone()),
             ))),
+            Expression::AsyncFunction(async_func_expr) => async_func_expr.evaluate(environ),
             Expression::ForLoop(for_loop) => for_loop.evaluate(environ, state),
             Expression::Call(call_expr) => call_expr.evaluate(environ, state),
             Expression::Array(array) => array.evaluate(environ, state),
@@ -72,6 +74,8 @@ impl Expression {
             Expression::Infix(infix_expr) => infix_expr.evaluate_infix_expression(environ, state),
             Expression::Member(member_expression) => member_expression.evaluate(environ, state),
             Expression::WhileLoop(while_loop) => while_loop.evaluate(environ, state),
+
+            Expression::AwaitExpr(_) => todo!(),
 
             Expression::InvalidExpression => {
                 panic!("unexpected expression type")
@@ -122,6 +126,7 @@ impl Statement {
             }
             Statement::Function(func_stmt) => Ok(func_stmt.evaluate(environ.clone())),
             Statement::Struct(struct_stmt) => struct_stmt.evaluate(environ, state),
+            Statement::AsyncFunction(async_func_stmt) => async_func_stmt.evaluate(environ),
             Statement::Import(_) => panic!("already catched"),
         }
     }

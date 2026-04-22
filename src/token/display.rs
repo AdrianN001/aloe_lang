@@ -86,6 +86,9 @@ impl fmt::Display for TokenType {
             TokenType::KwImport => "import",
             TokenType::KwFrom => "from",
             TokenType::KwInto => "into",
+
+            TokenType::KwAsync => "async",
+            TokenType::KwAwait => "await",
         };
 
         write!(f, "{s}")

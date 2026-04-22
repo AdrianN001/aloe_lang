@@ -1,3 +1,4 @@
+pub mod async_function_statement;
 pub mod block_statement;
 pub mod break_statement;
 pub mod continue_statement;
@@ -17,8 +18,8 @@ use return_statement::ReturnStatement;
 use struct_statement::StructStatement;
 
 use crate::ast::statement::{
-    break_statement::BreakStatement, continue_statement::ContinueStatement,
-    function_statement::FunctionStatement,
+    async_function_statement::AsyncFunctionStatement, break_statement::BreakStatement,
+    continue_statement::ContinueStatement, function_statement::FunctionStatement,
 };
 
 #[derive(Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
@@ -30,6 +31,7 @@ pub enum Statement {
     Expression(ExpressionStatement),
     Block(BlockStatement),
     Function(FunctionStatement),
+    AsyncFunction(AsyncFunctionStatement),
     Import(ImportStatement),
     Struct(StructStatement),
 }
@@ -46,6 +48,7 @@ impl Statement {
             Statement::Function(s) => &s.token.literal,
             Statement::Import(s) => &s.token.literal,
             Statement::Struct(s) => &s.token.literal,
+            Statement::AsyncFunction(s) => &s.token.literal,
         }
     }
 
@@ -60,6 +63,7 @@ impl Statement {
             Statement::Continue(s) => s.to_string(),
             Statement::Import(s) => s.to_string(),
             Statement::Struct(s) => s.to_string(),
+            Statement::AsyncFunction(s) => s.to_string(),
         }
     }
 }

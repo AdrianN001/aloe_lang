@@ -1,4 +1,5 @@
 pub mod array;
+pub mod async_function;
 pub mod boolean;
 pub mod break_value;
 pub mod built_in;
@@ -38,9 +39,9 @@ use return_value::ReturnValue;
 use string_obj::StringObj;
 
 use crate::object::{
-    break_value::BreakValue, error::error_type::ErrorType, hashable::Hashable, hashmap::HashKey,
-    iterator::Iterator, native_object::NativeObject, state::StateRef, struct_model::StructModel,
-    struct_object::StructObject,
+    async_function::AsyncFunction, break_value::BreakValue, error::error_type::ErrorType,
+    hashable::Hashable, hashmap::HashKey, iterator::Iterator, native_object::NativeObject,
+    state::StateRef, struct_model::StructModel, struct_object::StructObject,
 };
 
 pub type ObjectRef = Rc<RefCell<Object>>;
@@ -56,6 +57,7 @@ pub enum Object {
     Iterator(Iterator),
 
     Func(Function),
+    AsyncFunc(AsyncFunction),
     ReturnVal(ReturnValue),
     BreakVal(BreakValue),
     Continue,
@@ -113,6 +115,7 @@ impl Object {
             Object::StructObject(obj) => obj.get_type(),
             Object::Continue => "continue".to_string(),
             Object::Native(native) => native.get_type(),
+            Object::AsyncFunc(async_function) => async_function.get_type(),
         }
     }
 
@@ -135,6 +138,7 @@ impl Object {
             Object::StructObject(obj) => obj.inspect(),
             Object::Continue => "continue".to_string(),
             Object::Native(native) => native.inspect(),
+            Object::AsyncFunc(async_function) => async_function.inspect(),
         }
     }
 

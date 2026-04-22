@@ -2,6 +2,7 @@ use crate::ast::expression::Expression;
 use crate::ast::expression::identifier::Identifier;
 use crate::ast::expression::value_assign_expression::ValueAssignExpression;
 use crate::ast::precedence::OperationPrecedence;
+use crate::ast::statement::async_function_statement::AsyncFunctionStatement;
 use crate::ast::statement::break_statement::BreakStatement;
 use crate::ast::statement::continue_statement::ContinueStatement;
 use crate::ast::statement::function_statement::FunctionStatement;
@@ -82,6 +83,7 @@ impl Parser {
             TokenType::KwFunctionStatement => self.parse_function_statement(),
             TokenType::KwImport => self.parse_import(),
             TokenType::KwStruct => self.parse_struct_statement(),
+            TokenType::KwAsync => self.parse_async_function_statement(),
             _ => self.parse_expression_statement(),
         }
     }
@@ -369,6 +371,28 @@ impl Parser {
         self.next_token();
 
         Ok((attributes, methods))
+    }
+
+    fn parse_async_function_statement(&mut self) -> Result<Statement, String> {
+        let token = self.current_token.clone();
+
+        match &self.peek_token.token_type {
+            TokenType::KwFunctionStatement => {
+                self.next_token();
+
+                let async_fun_stmt = self.parse_function_statement()?;
+
+                Ok(Statement::AsyncFunction(AsyncFunctionStatement {
+                    token,
+                    function: Box::new(async_fun_stmt),
+                }))
+            }
+
+            other_token => Err(format!(
+                "expected 'fn' or 'fun' after 'async', got: '{}",
+                other_token
+            )),
+        }
     }
 
     fn parse_expression_statement(&mut self) -> Result<Statement, String> {

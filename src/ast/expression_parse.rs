@@ -445,21 +445,11 @@ impl Parser {
             ..Default::default()
         };
 
-        if self.peek_token.token_type != TokenType::LParen {
-            return Err("unexpected token. Expected 'LParen'".to_string());
-        }
-        self.next_token();
-
         self.next_token();
         expr.condition = match self.parse_expression(OperationPrecedence::Lowest) {
             Ok(valid_expr) => Box::new(valid_expr),
             Err(error_feedback) => return Err(error_feedback),
         };
-
-        if self.peek_token.token_type != TokenType::RParen {
-            return Err("unexpected token: Expected 'RParen'".to_string());
-        }
-        self.next_token();
 
         if self.peek_token.token_type != TokenType::LBrace {
             return Err("unexpected token: Expected 'LBrace'".to_string());

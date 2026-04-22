@@ -153,7 +153,7 @@ print(result); # Outputs: 5
 
 ```aloe
 let x = 10;
-if (x > 5) {
+if x > 5 {
     print("x is large");
 } else {
     print("x is small");

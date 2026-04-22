@@ -24,7 +24,7 @@ use crate::object::{
         iterator::range_builtin_function,
         len::len_builtin_function,
         random::random_builtin_function,
-        time::sleep,
+        time::{sleep, time_builtin_function},
         utils::{inspect_builtin_function, type_builtin_function},
     },
     panic_obj::PanicObj,
@@ -57,6 +57,7 @@ pub enum BuiltIn {
     Path,
 
     Sleep,
+    Time,
 }
 
 impl BuiltIn {
@@ -98,6 +99,7 @@ impl BuiltIn {
             BuiltIn::Path => path_builtin_function(args, state),
 
             BuiltIn::Sleep => sleep(args, state),
+            BuiltIn::Time => time_builtin_function(),
         }
     }
 }

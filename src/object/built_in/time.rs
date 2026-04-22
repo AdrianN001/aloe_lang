@@ -1,6 +1,8 @@
+use std::time::{SystemTime, UNIX_EPOCH};
+
 use crate::object::{
-    Object, ObjectRef, error::panic_type::PanicType, new_objectref, panic_obj::PanicObj,
-    state::StateRef,
+    Object, ObjectRef, error::panic_type::PanicType, integer::Integer, new_objectref,
+    panic_obj::PanicObj, state::StateRef,
 };
 
 pub fn sleep(args: &[ObjectRef], state: StateRef) -> Result<ObjectRef, PanicObj> {
@@ -31,4 +33,14 @@ pub fn sleep(args: &[ObjectRef], state: StateRef) -> Result<ObjectRef, PanicObj>
     }
 
     Ok(new_objectref(Object::NULL_OBJECT))
+}
+
+pub fn time_builtin_function() -> Result<ObjectRef, PanicObj> {
+    let start = SystemTime::now();
+
+    let since_epoch = start.duration_since(UNIX_EPOCH).unwrap();
+
+    let in_ms = since_epoch.as_millis() as i64;
+
+    Ok(new_objectref(Object::Int(Integer { value: in_ms })))
 }

@@ -3,6 +3,7 @@ use std::{
     path::Path,
 };
 
+#[derive(Debug)]
 pub struct FileWrapper {
     pub native_file: Option<File>,
     pub metadata: Metadata,

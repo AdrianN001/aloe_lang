@@ -1,6 +1,6 @@
 use crate::{ast::expression::Expression, token::Token};
 
-#[derive(Default, PartialOrd, Ord, Clone, PartialEq, Eq, Hash)]
+#[derive(Default, PartialOrd, Ord, Clone, PartialEq, Eq, Hash, Debug)]
 pub struct MemberExpression {
     pub token: Token,
 

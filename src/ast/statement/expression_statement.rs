@@ -1,7 +1,7 @@
 use crate::ast::expression::Expression;
 use crate::token::Token;
 
-#[derive(Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Clone, Hash, PartialOrd, Ord, PartialEq, Eq, Debug)]
 pub struct ExpressionStatement {
     pub token: Token,
     pub expression: Expression,

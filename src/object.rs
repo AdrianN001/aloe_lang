@@ -23,6 +23,7 @@ pub mod string_obj;
 pub mod struct_model;
 pub mod struct_object;
 pub mod truthy;
+pub mod future;
 
 use std::{cell::RefCell, rc::Rc};
 
@@ -46,7 +47,7 @@ use crate::object::{
 
 pub type ObjectRef = Rc<RefCell<Object>>;
 
-#[derive(PartialEq, Eq, Clone)]
+#[derive(PartialEq, Eq, Clone, Debug)]
 pub enum Object {
     Int(Integer),
     FloatObj(FloatObj),

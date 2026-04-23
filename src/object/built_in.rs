@@ -32,7 +32,7 @@ use crate::object::{
     state::StateRef,
 };
 
-#[derive(Clone, PartialEq, Eq)]
+#[derive(Clone, PartialEq, Eq, Debug)]
 pub enum BuiltIn {
     Len, // len(string), len(array)
 

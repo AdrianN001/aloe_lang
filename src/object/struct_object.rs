@@ -6,7 +6,7 @@ use crate::object::{
     struct_model::MethodTableRef,
 };
 
-#[derive(PartialEq, Eq, Clone)]
+#[derive(PartialEq, Eq, Clone, Debug)]
 pub struct StructObject {
     pub model: ObjectRef,
     pub model_name: String,

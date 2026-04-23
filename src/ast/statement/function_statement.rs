@@ -3,7 +3,7 @@ use crate::{
     token::Token,
 };
 
-#[derive(Clone, Hash, PartialOrd, Ord, PartialEq, Default, Eq)]
+#[derive(Clone, Hash, PartialOrd, Ord, PartialEq, Default, Eq, Debug)]
 pub struct FunctionStatement {
     pub token: Token,
     pub name: String,

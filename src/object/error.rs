@@ -3,7 +3,7 @@ pub mod panic_type;
 
 use crate::object::{error::error_type::ErrorType, state::StateRef};
 
-#[derive(PartialEq, Eq, Clone)]
+#[derive(PartialEq, Eq, Clone, Debug)]
 pub struct Error {
     pub value: String,
     pub state: StateRef,

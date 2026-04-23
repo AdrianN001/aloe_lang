@@ -3,7 +3,7 @@ use std::hash::{DefaultHasher, Hash, Hasher};
 use crate::object::hashable::Hashable;
 use crate::object::hashmap::HashKey;
 
-#[derive(PartialEq, Eq, Clone)]
+#[derive(PartialEq, Eq, Clone, Debug)]
 pub struct StringObj {
     pub value: String,
 }

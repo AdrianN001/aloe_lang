@@ -3,7 +3,7 @@ use crate::{
     object::stack_environment::EnvRef,
 };
 
-#[derive(PartialEq, Eq, Clone)]
+#[derive(PartialEq, Eq, Clone, Debug)]
 pub struct AsyncFunction {
     pub parameters: Vec<Identifier>,
     pub body: BlockStatement,

@@ -22,7 +22,7 @@ use crate::ast::statement::{
     continue_statement::ContinueStatement, function_statement::FunctionStatement,
 };
 
-#[derive(Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Clone, Hash, PartialOrd, Ord, PartialEq, Eq, Debug)]
 pub enum Statement {
     Let(LetStatement),
     Return(ReturnStatement),

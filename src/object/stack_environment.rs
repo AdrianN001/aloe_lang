@@ -4,7 +4,7 @@ use crate::object::ObjectRef;
 
 pub type EnvRef = Rc<RefCell<StackEnvironment>>;
 
-#[derive(Default, Clone, PartialEq, Eq)]
+#[derive(Default, Clone, PartialEq, Eq, Debug)]
 pub struct StackEnvironment {
     pub map: HashMap<String, ObjectRef>,
     pub outer: Option<EnvRef>,

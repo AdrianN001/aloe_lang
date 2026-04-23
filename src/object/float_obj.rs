@@ -2,7 +2,7 @@ use std::hash::{DefaultHasher, Hash, Hasher};
 
 use crate::object::{hashable::Hashable, hashmap::HashKey};
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct FloatObj {
     pub val: f64,
 }

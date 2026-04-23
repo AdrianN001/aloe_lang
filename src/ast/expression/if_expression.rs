@@ -3,7 +3,7 @@ use crate::{
     token::Token,
 };
 
-#[derive(Clone, Hash, PartialOrd, Ord, Default, PartialEq, Eq)]
+#[derive(Clone, Hash, PartialOrd, Ord, Default, PartialEq, Eq, Debug)]
 pub struct IfExpression {
     pub token: Token,
     pub condition: Box<Expression>,

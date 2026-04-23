@@ -2,7 +2,7 @@ use std::collections::{BTreeMap, HashSet};
 
 use crate::object::{Object, ObjectRef};
 
-#[derive(PartialEq, Eq, Clone)]
+#[derive(PartialEq, Eq, Clone, Debug)]
 pub struct HashMap {
     pub pairs: BTreeMap<HashKey, HashPair>,
 }
@@ -73,13 +73,13 @@ impl HashMap {
     }
 }
 
-#[derive(PartialEq, Eq, PartialOrd, Ord, Clone)]
+#[derive(PartialEq, Eq, PartialOrd, Ord, Clone, Debug)]
 pub struct HashKey {
     pub obj_type: String,
     pub value: u64,
 }
 
-#[derive(PartialEq, Eq, Clone)]
+#[derive(PartialEq, Eq, Clone, Debug)]
 pub struct HashPair {
     pub key: ObjectRef,
     pub value: ObjectRef,

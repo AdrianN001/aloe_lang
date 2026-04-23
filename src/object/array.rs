@@ -2,7 +2,7 @@ use std::collections::HashSet;
 
 use crate::object::{Object, ObjectRef};
 
-#[derive(PartialEq, Eq, Clone)]
+#[derive(PartialEq, Eq, Clone, Debug)]
 pub struct Array {
     pub items: Vec<ObjectRef>,
 }

@@ -3,7 +3,7 @@ use crate::{
     token::Token,
 };
 
-#[derive(Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Clone, Hash, PartialOrd, Ord, PartialEq, Eq, Debug)]
 pub struct WhileLoopExpression {
     pub token: Token,
     pub condition: Option<Box<Expression>>,

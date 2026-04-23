@@ -2,7 +2,7 @@ use std::{cell::RefCell, rc::Rc};
 
 use crate::object::{Object, ObjectRef};
 
-#[derive(PartialEq, Eq, Clone)]
+#[derive(PartialEq, Eq, Clone, Debug)]
 pub struct ListBasedIterator {
     pub list: Vec<ObjectRef>,
     pub index: usize,

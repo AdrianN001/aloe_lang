@@ -1,6 +1,6 @@
 use crate::object::ObjectRef;
 
-#[derive(PartialEq, Eq, Clone)]
+#[derive(PartialEq, Eq, Clone, Debug)]
 pub struct BreakValue {
     pub value: Box<ObjectRef>,
 }

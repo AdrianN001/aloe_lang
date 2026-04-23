@@ -1,6 +1,6 @@
 use crate::{ast::expression::Expression, token::Token};
 
-#[derive(Clone, Hash, PartialOrd, Ord, Default, PartialEq, Eq)]
+#[derive(Clone, Hash, PartialOrd, Ord, Default, PartialEq, Eq, Debug)]
 pub struct AwaitExpression {
     pub token: Token,
     pub expr: Box<Expression>,

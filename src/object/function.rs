@@ -12,7 +12,7 @@ use crate::{
     object::{Object, stack_environment::StackEnvironment},
 };
 
-#[derive(Clone, PartialEq, Eq)]
+#[derive(Clone, PartialEq, Eq, Debug)]
 pub struct Function {
     pub parameters: Vec<Identifier>,
     pub body: BlockStatement,

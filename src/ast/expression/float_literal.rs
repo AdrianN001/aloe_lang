@@ -1,6 +1,6 @@
 use crate::token::Token;
 
-#[derive(Default, PartialOrd, Ord, Clone, PartialEq, Eq, Hash)]
+#[derive(Default, PartialOrd, Ord, Clone, PartialEq, Eq, Hash, Debug)]
 pub struct FloatLiteral {
     pub token: Token,
     pub integer_part: i32,

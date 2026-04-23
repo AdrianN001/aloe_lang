@@ -2,7 +2,7 @@ use std::{cell::RefCell, rc::Rc};
 
 use crate::object::{Object, ObjectRef, integer::Integer};
 
-#[derive(PartialEq, Eq, Clone)]
+#[derive(PartialEq, Eq, Clone, Debug)]
 pub struct RangeBasedIterator {
     pub start: i64,
     pub end: i64,

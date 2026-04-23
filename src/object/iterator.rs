@@ -6,7 +6,7 @@ use crate::object::{
 pub mod list_based_iterator;
 pub mod range_based_iterator;
 
-#[derive(PartialEq, Eq, Clone)]
+#[derive(PartialEq, Eq, Clone, Debug)]
 pub enum Iterator {
     RangeBasedIterator(RangeBasedIterator),
     ListBasedIterator(ListBasedIterator),

@@ -1,6 +1,6 @@
 use crate::{ast::expression::Expression, token::Token};
 
-#[derive(Clone, Hash, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Clone, Hash, PartialOrd, Ord, PartialEq, Eq, Debug)]
 pub struct ImportStatement {
     pub token: Token,
     pub identifiers: Vec<Expression>,

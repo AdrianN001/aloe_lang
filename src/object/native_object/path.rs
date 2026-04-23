@@ -1,6 +1,6 @@
 use std::path::{Path, PathBuf};
 
-#[derive(PartialEq, Eq, Clone)]
+#[derive(PartialEq, Eq, Clone, Debug)]
 pub struct PathWrapper {
     pub native_object: PathBuf,
 

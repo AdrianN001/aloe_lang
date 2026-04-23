@@ -39,7 +39,7 @@ use crate::ast::expression::{
     for_loop::ForLoopExpression, while_loop::WhileLoopExpression,
 };
 
-#[derive(Default, PartialOrd, Ord, Clone, PartialEq, Eq, Hash)]
+#[derive(Default, PartialOrd, Ord, Clone, PartialEq, Eq, Hash, Debug)]
 pub enum Expression {
     Identifier(Identifier),
     IntegerLiteral(IntegerLiteral),

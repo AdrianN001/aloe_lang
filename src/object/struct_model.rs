@@ -4,7 +4,7 @@ use crate::object::ObjectRef;
 
 pub type MethodTableRef = Rc<RefCell<HashMap<String, ObjectRef>>>;
 
-#[derive(PartialEq, Eq, Clone)]
+#[derive(PartialEq, Eq, Clone, Debug)]
 pub struct StructModel {
     pub name: String,
 

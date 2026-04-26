@@ -3,14 +3,18 @@ use std::{cell::RefCell, rc::Rc};
 use crate::{
     ast::expression::{Expression, call_expression::CallExpression, member::MemberExpression},
     object::{
-        Object, ObjectRef, error::panic_type::PanicType, panic_obj::PanicObj,
-        return_value::ReturnValue, stack_environment::EnvRef, state::StateRef,
+        Object, ObjectRef,
+        error::panic_type::PanicType,
+        panic_obj::{PanicObj, RuntimeSignal},
+        return_value::ReturnValue,
+        stack_environment::EnvRef,
+        state::StateRef,
         struct_object::StructObject,
     },
 };
 
 impl MemberExpression {
-    pub fn evaluate(&self, environ: EnvRef, state: StateRef) -> Result<ObjectRef, PanicObj> {
+    pub fn evaluate(&self, environ: EnvRef, state: StateRef) -> Result<ObjectRef, RuntimeSignal> {
         let left_obj = self.left.evaluate(environ.clone(), state.clone())?;
 
         if let Object::ReturnVal(ret_val) = &*left_obj.borrow() {
@@ -44,14 +48,17 @@ impl MemberExpression {
 
                 if let Object::Err(err) = &*return_value_cloned.borrow() {
                     if call_expr.question_mark_set && !state.borrow().is_function_context() {
-                        return Err(PanicObj::new_simple(
+                        return Err(RuntimeSignal::Panic(PanicObj::new_simple(
                             PanicType::PropagationFromNonfunctionalContext,
                             "tried to use ? on a function, without function-context",
                             state.clone(),
-                        ));
+                        )));
                     }
                     if call_expr.bang_set {
-                        return Err(PanicObj::from_error(err, state.clone()));
+                        return Err(RuntimeSignal::Panic(PanicObj::from_error(
+                            err,
+                            state.clone(),
+                        )));
                     } else if call_expr.question_mark_set {
                         return Ok(Rc::new(RefCell::new(Object::ReturnVal(ReturnValue {
                             value: Box::new(return_value.clone()),
@@ -67,7 +74,7 @@ impl MemberExpression {
                 let obj = left_obj.borrow();
                 obj.apply_attribute(name_of_attribute, environ, state)
             }
-            other_expr_type => Err(PanicObj::new(
+            other_expr_type => Err(RuntimeSignal::Panic(PanicObj::new(
                 PanicType::IllegalExpression,
                 format!(
                     "'{}.{}' is illegal.",
@@ -75,7 +82,7 @@ impl MemberExpression {
                     other_expr_type.to_string()
                 ),
                 state.clone(),
-            )),
+            ))),
         }
     }
 
@@ -88,14 +95,14 @@ impl MemberExpression {
     fn get_call_expressions_identifier(
         call_expr: &CallExpression,
         state: StateRef,
-    ) -> Result<String, PanicObj> {
+    ) -> Result<String, RuntimeSignal> {
         match &*call_expr.function {
             Expression::Identifier(identifier) => Ok(identifier.value.clone()),
-            _ => Err(PanicObj::new(
+            _ => Err(RuntimeSignal::Panic(PanicObj::new(
                 PanicType::IllegalExpression,
                 format!("'{}' is illegal", call_expr.to_string()),
                 state.clone(),
-            )),
+            ))),
         }
     }
 
@@ -104,7 +111,7 @@ impl MemberExpression {
         environ: EnvRef,
         state: StateRef,
         r_value: ObjectRef,
-    ) -> Result<ObjectRef, PanicObj> {
+    ) -> Result<ObjectRef, RuntimeSignal> {
         let left_obj = self.left.evaluate(environ.clone(), state.clone())?;
         let mut left_obj_borrow = left_obj.borrow_mut();
 
@@ -119,14 +126,14 @@ impl MemberExpression {
                         struct_object.set_attribute(&attribute.value, r_value.clone());
                     }
                     other_type => {
-                        return Err(PanicObj::new(
+                        return Err(RuntimeSignal::Panic(PanicObj::new(
                             PanicType::IllegalExpression,
                             format!(
                                 "cannot overwrite the attribute of a native ({}) object.",
                                 other_type.get_type()
                             ),
                             state,
-                        ));
+                        )));
                     }
                 };
             }
@@ -151,19 +158,19 @@ impl MemberExpression {
                         *method_return_value.borrow_mut() = r_value.borrow().clone();
                     }
                     other_type => {
-                        return Err(PanicObj::new(
+                        return Err(RuntimeSignal::Panic(PanicObj::new(
                             PanicType::IllegalExpression,
                             format!(
                                 "cannot overwrite the attribute of a native ({}) object.",
                                 other_type.get_type()
                             ),
                             state,
-                        ));
+                        )));
                     }
                 };
             }
             _ => {
-                return Err(PanicObj::new(
+                return Err(RuntimeSignal::Panic(PanicObj::new(
                     PanicType::IllegalExpression,
                     format!(
                         "{} = {} is illegal.",
@@ -171,7 +178,7 @@ impl MemberExpression {
                         r_value.borrow().inspect()
                     ),
                     state.clone(),
-                ));
+                )));
             }
         };
 

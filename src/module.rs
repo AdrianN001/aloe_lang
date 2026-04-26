@@ -9,7 +9,7 @@ use crate::{
     module::{module_error::ModuleError, module_loader::ModuleLoader},
     object::{
         Object, new_objectref,
-        panic_obj::PanicObj,
+        panic_obj::{PanicObj, RuntimeSignal},
         stack_environment::{EnvRef, StackEnvironment},
         string_obj::StringObj,
     },
@@ -71,7 +71,7 @@ impl Module {
         }
     }
 
-    pub fn execute(&mut self, module_loader: &mut ModuleLoader) -> Result<(), PanicObj> {
+    pub fn execute(&mut self, module_loader: &mut ModuleLoader) -> Result<(), RuntimeSignal> {
         let source_file_content = Self::read_source_file(&self.abs_path.display().to_string());
 
         let lexer = Lexer::new(source_file_content);

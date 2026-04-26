@@ -6,13 +6,16 @@ use crate::{
         statement::{Statement, async_function_statement::AsyncFunctionStatement},
     },
     object::{
-        Object, ObjectRef, async_function::AsyncFunction, new_objectref, panic_obj::PanicObj,
+        Object, ObjectRef,
+        async_function::AsyncFunction,
+        new_objectref,
+        panic_obj::{PanicObj, RuntimeSignal},
         stack_environment::EnvRef,
     },
 };
 
 impl AsyncFunctionStatement {
-    pub fn evaluate(&self, environ: EnvRef) -> Result<ObjectRef, PanicObj> {
+    pub fn evaluate(&self, environ: EnvRef) -> Result<ObjectRef, RuntimeSignal> {
         match &*self.function {
             Statement::Function(function_stmt) => {
                 let name = &function_stmt.name;
@@ -33,7 +36,7 @@ impl AsyncFunctionStatement {
 }
 
 impl AsyncFunctionExpression {
-    pub fn evaluate(&self, environ: EnvRef) -> Result<ObjectRef, PanicObj> {
+    pub fn evaluate(&self, environ: EnvRef) -> Result<ObjectRef, RuntimeSignal> {
         match &*self.function {
             Expression::Function(function) => {
                 return Ok(new_objectref(Object::AsyncFunc(AsyncFunction {

@@ -9,14 +9,14 @@ use crate::{
         Object, ObjectRef,
         error::panic_type::PanicType,
         new_objectref,
-        panic_obj::PanicObj,
+        panic_obj::{PanicObj, RuntimeSignal},
         stack_environment::{EnvRef, StackEnvironment},
         state::StateRef,
     },
 };
 
 impl WhileLoopExpression {
-    pub fn evaluate(&self, environ: EnvRef, state: StateRef) -> Result<ObjectRef, PanicObj> {
+    pub fn evaluate(&self, environ: EnvRef, state: StateRef) -> Result<ObjectRef, RuntimeSignal> {
         let new_environ = Rc::new(RefCell::new(StackEnvironment::new_enclosed(
             environ,
             if let Some(condition) = &self.condition {
@@ -36,7 +36,7 @@ impl WhileLoopExpression {
         &self,
         environ: EnvRef,
         state: StateRef,
-    ) -> Result<ObjectRef, PanicObj> {
+    ) -> Result<ObjectRef, RuntimeSignal> {
         let condition_expr = self.condition.clone().unwrap();
 
         let mut should_run =
@@ -47,11 +47,11 @@ impl WhileLoopExpression {
                 if matches!(statement, Statement::Return(_))
                     && !state.borrow().is_function_context()
                 {
-                    return Err(PanicObj::new_simple(
+                    return Err(RuntimeSignal::Panic(PanicObj::new_simple(
                         PanicType::ReturnFromNonfunctionalContext,
                         "return statement was used in a non-function context",
                         state.clone(),
-                    ));
+                    )));
                 }
                 let result = statement.evaluate(environ.clone(), state.clone())?;
 
@@ -78,17 +78,17 @@ impl WhileLoopExpression {
         &self,
         environ: EnvRef,
         state: StateRef,
-    ) -> Result<ObjectRef, PanicObj> {
+    ) -> Result<ObjectRef, RuntimeSignal> {
         loop {
             for statement in &self.block.statements {
                 if matches!(statement, Statement::Return(_))
                     && !state.borrow().is_function_context()
                 {
-                    return Err(PanicObj::new_simple(
+                    return Err(RuntimeSignal::Panic(PanicObj::new_simple(
                         PanicType::ReturnFromNonfunctionalContext,
                         "return statement was used in a non-function context",
                         state.clone(),
-                    ));
+                    )));
                 }
                 let result = statement.evaluate(environ.clone(), state.clone())?;
 
@@ -107,7 +107,7 @@ impl WhileLoopExpression {
         expr: &Expression,
         environ: EnvRef,
         state: StateRef,
-    ) -> Result<bool, PanicObj> {
+    ) -> Result<bool, RuntimeSignal> {
         let object_created = expr.evaluate(environ, state)?;
         let borrowed = object_created.borrow();
 

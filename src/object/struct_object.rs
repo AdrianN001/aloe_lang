@@ -1,8 +1,13 @@
 use std::collections::HashMap;
 
 use crate::object::{
-    Object, ObjectRef, error::panic_type::PanicType, new_objectref, panic_obj::PanicObj,
-    return_value::ReturnValue, stack_environment::EnvRef, state::StateRef,
+    Object, ObjectRef,
+    error::panic_type::PanicType,
+    new_objectref,
+    panic_obj::{PanicObj, RuntimeSignal},
+    return_value::ReturnValue,
+    stack_environment::EnvRef,
+    state::StateRef,
     struct_model::MethodTableRef,
 };
 
@@ -21,20 +26,20 @@ impl StructObject {
         args: &[ObjectRef],
 
         state: StateRef,
-    ) -> Result<ObjectRef, PanicObj> {
+    ) -> Result<ObjectRef, RuntimeSignal> {
         let (attribute_list, method_table, name) = {
             let borrow = model.borrow();
             let model_raw = match &*borrow {
                 Object::StructModel(struct_model) => struct_model,
                 other_type => {
-                    return Err(PanicObj::new(
+                    return Err(RuntimeSignal::Panic(PanicObj::new(
                         PanicType::IllegalExpression,
                         format!(
                             "expected to be the model a 'Struct Model', got: {}",
                             other_type.inspect()
                         ),
                         state,
-                    ));
+                    )));
                 }
             };
 
@@ -94,9 +99,9 @@ impl StructObject {
         args: &[ObjectRef],
         attribute_list: &[String],
         state: StateRef,
-    ) -> Result<(), PanicObj> {
+    ) -> Result<(), RuntimeSignal> {
         if args.len() != attribute_list.len() {
-            return Err(PanicObj::new(
+            return Err(RuntimeSignal::Panic(PanicObj::new(
                 PanicType::WrongArgumentCount,
                 format!(
                     "expected {} arguments for default constructor, got: {}.",
@@ -104,7 +109,7 @@ impl StructObject {
                     args.len()
                 ),
                 state,
-            ));
+            )));
         }
 
         attribute_list
@@ -124,13 +129,13 @@ impl StructObject {
         function: ObjectRef,
         model_name: &str,
         state: StateRef,
-    ) -> Result<(), PanicObj> {
+    ) -> Result<(), RuntimeSignal> {
         let function_borrow = function.borrow();
 
         let raw_function = match &*function_borrow {
             Object::Func(func) => func,
             other_type => {
-                return Err(PanicObj::new(
+                return Err(RuntimeSignal::Panic(PanicObj::new(
                     PanicType::ConstructorIsNotAMethod,
                     format!(
                         "expected the 'constructor' of <struct '{}'> to be a method, got: {} ",
@@ -138,7 +143,7 @@ impl StructObject {
                         other_type.get_type()
                     ),
                     state,
-                ));
+                )));
             }
         };
 
@@ -183,21 +188,21 @@ impl StructObject {
         state: StateRef,
         is_bang_set: bool,
         is_questionmark_set: bool,
-    ) -> Result<ObjectRef, PanicObj> {
+    ) -> Result<ObjectRef, RuntimeSignal> {
         let method = {
             let this_borrow = this.borrow();
 
             let this_raw = match &*this_borrow {
                 Object::StructObject(struct_obj) => struct_obj,
                 other_type => {
-                    return Err(PanicObj::new(
+                    return Err(RuntimeSignal::Panic(PanicObj::new(
                         PanicType::WrongArgumentType,
                         format!(
                             "expected as the type of 'this': StructObject, got: '{}'",
                             other_type.inspect()
                         ),
                         state,
-                    ));
+                    )));
                 }
             };
 
@@ -206,11 +211,11 @@ impl StructObject {
             match method_table_borrow.get(name) {
                 Some(requested_method) => requested_method.clone(),
                 None => {
-                    return Err(PanicObj::new(
+                    return Err(RuntimeSignal::Panic(PanicObj::new(
                         PanicType::UnknownMethod,
                         format!("struct {} has no method '{}'().", this_raw.model_name, name),
                         state,
-                    ));
+                    )));
                 }
             }
         };
@@ -220,14 +225,14 @@ impl StructObject {
         let func_obj = match &*method_borrow {
             Object::Func(func) => func,
             other_type => {
-                return Err(PanicObj::new(
+                return Err(RuntimeSignal::Panic(PanicObj::new(
                     PanicType::IllegalExpression,
                     format!(
                         "expected function object for method, got: '{}'",
                         other_type.inspect()
                     ),
                     state,
-                ));
+                )));
             }
         };
 
@@ -239,14 +244,17 @@ impl StructObject {
 
         if let Object::Err(err) = &*return_value_cloned.borrow() {
             if is_questionmark_set && !state.borrow().is_function_context() {
-                return Err(PanicObj::new_simple(
+                return Err(RuntimeSignal::Panic(PanicObj::new_simple(
                     PanicType::PropagationFromNonfunctionalContext,
                     "tried to use ? on a function, without function-context",
                     state.clone(),
-                ));
+                )));
             }
             if is_bang_set {
-                return Err(PanicObj::from_error(err, state.clone()));
+                return Err(RuntimeSignal::Panic(PanicObj::from_error(
+                    err,
+                    state.clone(),
+                )));
             } else if is_questionmark_set {
                 return Ok(new_objectref(Object::ReturnVal(ReturnValue {
                     value: Box::new(return_value.clone()),

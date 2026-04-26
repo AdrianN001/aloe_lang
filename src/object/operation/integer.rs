@@ -1,6 +1,11 @@
 use crate::object::{
-    Object, ObjectRef, error::panic_type::PanicType, float_obj::FloatObj, integer::Integer,
-    new_objectref, panic_obj::PanicObj, state::StateRef,
+    Object, ObjectRef,
+    error::panic_type::PanicType,
+    float_obj::FloatObj,
+    integer::Integer,
+    new_objectref,
+    panic_obj::{PanicObj, RuntimeSignal},
+    state::StateRef,
 };
 
 impl Integer {
@@ -147,7 +152,7 @@ impl Integer {
         }
     }
 
-    pub fn bool(&self) -> Result<ObjectRef, PanicObj> {
+    pub fn bool(&self) -> Result<ObjectRef, RuntimeSignal> {
         Ok(new_objectref(Object::get_native_boolean_object(
             self.value.is_positive(),
         )))

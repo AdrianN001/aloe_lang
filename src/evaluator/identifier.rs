@@ -3,8 +3,12 @@ use std::{cell::RefCell, rc::Rc};
 use crate::{
     ast::expression::identifier::Identifier,
     object::{
-        Object, ObjectRef, built_in::BuiltIn, error::panic_type::PanicType, panic_obj::PanicObj,
-        stack_environment::EnvRef, state::StateRef,
+        Object, ObjectRef,
+        built_in::BuiltIn,
+        error::panic_type::PanicType,
+        panic_obj::{PanicObj, RuntimeSignal},
+        stack_environment::EnvRef,
+        state::StateRef,
     },
 };
 
@@ -39,7 +43,7 @@ impl Identifier {
         }
     }
 
-    pub fn evaluate(&self, environ: EnvRef, state: StateRef) -> Result<ObjectRef, PanicObj> {
+    pub fn evaluate(&self, environ: EnvRef, state: StateRef) -> Result<ObjectRef, RuntimeSignal> {
         match environ.borrow().get(&self.value) {
             Some(obj) => Ok(obj.clone()),
             None => {
@@ -47,11 +51,11 @@ impl Identifier {
                     return Ok(Rc::new(RefCell::new(Object::BuiltIn(built_in))));
                 }
 
-                Err(PanicObj::new(
+                Err(RuntimeSignal::Panic(PanicObj::new(
                     PanicType::UnknownIdentifier,
                     format!("unknown identifier: {}", &self.value),
                     state.clone(),
-                ))
+                )))
             }
         }
     }

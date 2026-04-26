@@ -3,9 +3,18 @@ use std::panic;
 use crate::{
     ast::expression::{Expression, infix::InfixExpression},
     object::{
-        Object, ObjectRef, array::Array, boolean::Boolean, error::panic_type::PanicType,
-        float_obj::FloatObj, hashmap::HashMap, integer::Integer, native_object::NativeObject,
-        panic_obj::PanicObj, stack_environment::EnvRef, state::StateRef, string_obj::StringObj,
+        Object, ObjectRef,
+        array::Array,
+        boolean::Boolean,
+        error::panic_type::PanicType,
+        float_obj::FloatObj,
+        hashmap::HashMap,
+        integer::Integer,
+        native_object::NativeObject,
+        panic_obj::{PanicObj, RuntimeSignal},
+        stack_environment::EnvRef,
+        state::StateRef,
+        string_obj::StringObj,
     },
 };
 
@@ -14,7 +23,7 @@ impl InfixExpression {
         &self,
         environ: EnvRef,
         state: StateRef,
-    ) -> Result<ObjectRef, PanicObj> {
+    ) -> Result<ObjectRef, RuntimeSignal> {
         let left_side = self.left.evaluate(environ.clone(), state.clone())?;
 
         if self.operator == "??" {
@@ -23,7 +32,7 @@ impl InfixExpression {
 
         let right_side = self.right.evaluate(environ.clone(), state.clone())?;
 
-        match self.operator.as_str() {
+        let result = match self.operator.as_str() {
             "+" | "-" | "*" | "/" | "**" | "%" | "==" | "!=" | "<" | ">" | "<<" | ">>" | "&"
             | "|" | "^" | "<=" | ">=" => match &*left_side.borrow() {
                 Object::Int(integer) => Self::integer_infix_operation_dispatch(
@@ -92,6 +101,11 @@ impl InfixExpression {
                 ),
                 state.clone(),
             )),
+        };
+
+        match result {
+            Ok(ok_value) => Ok(ok_value),
+            Err(panic_value) => Err(RuntimeSignal::Panic(panic_value)),
         }
     }
 
@@ -100,7 +114,7 @@ impl InfixExpression {
         right: &Expression,
         environ: EnvRef,
         state: StateRef,
-    ) -> Result<ObjectRef, PanicObj> {
+    ) -> Result<ObjectRef, RuntimeSignal> {
         let left_bool = {
             let left_borrow = left.borrow();
 
@@ -350,7 +364,7 @@ impl InfixExpression {
         left: ObjectRef,
         right: ObjectRef,
         state: StateRef,
-    ) -> Result<(ObjectRef, ObjectRef), PanicObj> {
+    ) -> Result<(ObjectRef, ObjectRef), RuntimeSignal> {
         let left_bool = match &*left.borrow() {
             Object::Int(int) => int.bool()?,
             Object::FloatObj(float) => float.bool()?,
@@ -360,11 +374,11 @@ impl InfixExpression {
             Object::HashMap(hmap) => hmap.bool()?,
             Object::Iterator(hmap) => hmap.bool()?,
             other => {
-                return Err(PanicObj::new(
+                return Err(RuntimeSignal::Panic(PanicObj::new(
                     PanicType::IllegalTypeCasting,
                     format!("cannot cast {} to boolean.", other.get_type()),
                     state.clone(),
-                ));
+                )));
             }
         };
 
@@ -377,11 +391,11 @@ impl InfixExpression {
             Object::HashMap(hmap) => hmap.bool()?,
             Object::Iterator(hmap) => hmap.bool()?,
             other => {
-                return Err(PanicObj::new(
+                return Err(RuntimeSignal::Panic(PanicObj::new(
                     PanicType::IllegalTypeCasting,
                     format!("cannot cast {} to boolean.", other.get_type()),
                     state.clone(),
-                ));
+                )));
             }
         };
 

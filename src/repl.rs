@@ -4,7 +4,11 @@ use std::{
     rc::Rc,
 };
 
-use crate::{ast::Parser, lexer::Lexer, object::stack_environment::StackEnvironment};
+use crate::{
+    ast::Parser,
+    lexer::Lexer,
+    object::{panic_obj::RuntimeSignal, stack_environment::StackEnvironment},
+};
 
 pub fn start_repl() {
     println!("🌿 Aloe REPL 🌿");
@@ -30,10 +34,11 @@ pub fn start_repl() {
 
         match program.evaluate_as_repl(environ.clone()) {
             Ok(last_object) => println!("{}", last_object.borrow().inspect()),
-            Err(panic_reason) => {
+            Err(RuntimeSignal::Panic(panic_reason)) => {
                 println!("{}", panic_reason);
                 break;
             }
+            _ => todo!(),
         };
     }
 }

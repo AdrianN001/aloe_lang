@@ -27,7 +27,7 @@ use crate::object::error::panic_type::PanicType;
 use crate::object::function::Function;
 use crate::object::integer::Integer;
 use crate::object::null::Null;
-use crate::object::panic_obj::PanicObj;
+use crate::object::panic_obj::{PanicObj, RuntimeSignal};
 use crate::object::return_value::ReturnValue;
 use crate::object::stack_environment::{EnvRef, StackEnvironment};
 use crate::object::state::{DEFAULT_INTERPRETER_STATE, StateRef};
@@ -40,7 +40,7 @@ use super::ast::expression::Expression;
 use super::ast::statement::Statement;
 
 impl Expression {
-    pub fn evaluate(&self, environ: EnvRef, state: StateRef) -> Result<ObjectRef, PanicObj> {
+    pub fn evaluate(&self, environ: EnvRef, state: StateRef) -> Result<ObjectRef, RuntimeSignal> {
         match self {
             Expression::IntegerLiteral(literal) => Ok(new_objectref(Object::Int(Integer {
                 value: literal.value,
@@ -85,7 +85,7 @@ impl Expression {
 }
 
 impl Statement {
-    pub fn evaluate(&self, environ: EnvRef, state: StateRef) -> Result<ObjectRef, PanicObj> {
+    pub fn evaluate(&self, environ: EnvRef, state: StateRef) -> Result<ObjectRef, RuntimeSignal> {
         match self {
             Statement::Expression(expr) => expr.expression.evaluate(environ, state),
             Statement::Block(block_stmt) => block_stmt.evaluate(environ, state),
@@ -137,7 +137,7 @@ impl Program {
         &self,
         environ: EnvRef,
         module_loader: &mut ModuleLoader,
-    ) -> Result<ObjectRef, PanicObj> {
+    ) -> Result<ObjectRef, RuntimeSignal> {
         let mut result = Rc::new(RefCell::new(Object::Null(Null {})));
         let state = Rc::new(RefCell::new(DEFAULT_INTERPRETER_STATE));
 
@@ -153,25 +153,25 @@ impl Program {
 
             match &*borrowed_result {
                 Object::BreakVal(_) => {
-                    return Err(PanicObj::new_simple(
+                    return Err(RuntimeSignal::Panic(PanicObj::new_simple(
                         PanicType::UnexpectedKeyword,
                         "unexpected break keyword in non-loop context",
                         state,
-                    ));
+                    )));
                 }
                 Object::Continue => {
-                    return Err(PanicObj::new_simple(
+                    return Err(RuntimeSignal::Panic(PanicObj::new_simple(
                         PanicType::UnexpectedKeyword,
                         "unexpected continue keyword in non-loop context",
                         state,
-                    ));
+                    )));
                 }
                 Object::ReturnVal(_) => {
-                    return Err(PanicObj::new_simple(
+                    return Err(RuntimeSignal::Panic(PanicObj::new_simple(
                         PanicType::ReturnFromNonfunctionalContext,
                         "unexpected return keyword in non-function context",
                         state,
-                    ));
+                    )));
                 }
                 _ => {}
             }
@@ -179,18 +179,18 @@ impl Program {
         Ok(result)
     }
 
-    pub fn evaluate_as_repl(&self, environ: EnvRef) -> Result<ObjectRef, PanicObj> {
+    pub fn evaluate_as_repl(&self, environ: EnvRef) -> Result<ObjectRef, RuntimeSignal> {
         let mut result = Rc::new(RefCell::new(Object::Null(Null {})));
         let state = Rc::new(RefCell::new(DEFAULT_INTERPRETER_STATE));
 
         for stmt in self.statements.iter() {
             result = match stmt {
                 Statement::Import(_) => {
-                    return Err(PanicObj::new_simple(
+                    return Err(RuntimeSignal::Panic(PanicObj::new_simple(
                         PanicType::ImportUnsupported,
                         "import is not supported in repl",
                         state,
-                    ));
+                    )));
                 }
                 other_stmt => other_stmt.evaluate(environ.clone(), state.clone())?,
             };
@@ -199,25 +199,25 @@ impl Program {
 
             match &*borrowed_result {
                 Object::BreakVal(_) => {
-                    return Err(PanicObj::new_simple(
+                    return Err(RuntimeSignal::Panic(PanicObj::new_simple(
                         PanicType::UnexpectedKeyword,
                         "unexpected break keyword in non-loop context",
                         state,
-                    ));
+                    )));
                 }
                 Object::Continue => {
-                    return Err(PanicObj::new_simple(
+                    return Err(RuntimeSignal::Panic(PanicObj::new_simple(
                         PanicType::UnexpectedKeyword,
                         "unexpected continue keyword in non-loop context",
                         state,
-                    ));
+                    )));
                 }
                 Object::ReturnVal(_) => {
-                    return Err(PanicObj::new_simple(
+                    return Err(RuntimeSignal::Panic(PanicObj::new_simple(
                         PanicType::ReturnFromNonfunctionalContext,
                         "unexpected return keyword in non-function context",
                         state,
-                    ));
+                    )));
                 }
                 _ => {}
             }
@@ -226,7 +226,7 @@ impl Program {
         Ok(result)
     }
 
-    pub fn evaluate_with_default(&self) -> Result<ObjectRef, PanicObj> {
+    pub fn evaluate_with_default(&self) -> Result<ObjectRef, RuntimeSignal> {
         let mut result = Rc::new(RefCell::new(Object::Null(Null {})));
         let state = Rc::new(RefCell::new(DEFAULT_INTERPRETER_STATE));
         let environ = Rc::new(RefCell::new(StackEnvironment::new()));
@@ -234,11 +234,11 @@ impl Program {
         for stmt in self.statements.iter() {
             result = match stmt {
                 Statement::Import(_) => {
-                    return Err(PanicObj::new_simple(
+                    return Err(RuntimeSignal::Panic(PanicObj::new_simple(
                         PanicType::ImportUnsupported,
                         "import is not supported in repl",
                         state,
-                    ));
+                    )));
                 }
                 other_stmt => other_stmt.evaluate(environ.clone(), state.clone())?,
             };
@@ -247,25 +247,25 @@ impl Program {
 
             match &*borrowed_result {
                 Object::BreakVal(_) => {
-                    return Err(PanicObj::new_simple(
+                    return Err(RuntimeSignal::Panic(PanicObj::new_simple(
                         PanicType::UnexpectedKeyword,
                         "unexpected break keyword in non-loop context",
                         state,
-                    ));
+                    )));
                 }
                 Object::Continue => {
-                    return Err(PanicObj::new_simple(
+                    return Err(RuntimeSignal::Panic(PanicObj::new_simple(
                         PanicType::UnexpectedKeyword,
                         "unexpected continue keyword in non-loop context",
                         state,
-                    ));
+                    )));
                 }
                 Object::ReturnVal(_) => {
-                    return Err(PanicObj::new_simple(
+                    return Err(RuntimeSignal::Panic(PanicObj::new_simple(
                         PanicType::ReturnFromNonfunctionalContext,
                         "unexpected return keyword in non-function context",
                         state,
-                    ));
+                    )));
                 }
                 _ => {}
             }

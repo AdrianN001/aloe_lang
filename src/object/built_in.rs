@@ -27,7 +27,7 @@ use crate::object::{
         time::{sleep, time_builtin_function},
         utils::{inspect_builtin_function, type_builtin_function},
     },
-    panic_obj::PanicObj,
+    panic_obj::{PanicObj, RuntimeSignal},
     stack_environment::EnvRef,
     state::StateRef,
 };
@@ -74,7 +74,7 @@ impl BuiltIn {
         args: &[ObjectRef],
         environ: EnvRef,
         state: StateRef,
-    ) -> Result<ObjectRef, PanicObj> {
+    ) -> Result<ObjectRef, RuntimeSignal> {
         match self {
             BuiltIn::Len => len_builtin_function(args, state),
 

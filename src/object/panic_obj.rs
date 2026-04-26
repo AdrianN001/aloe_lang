@@ -2,8 +2,15 @@ use std::fmt;
 
 use crate::object::{
     error::{Error, panic_type::PanicType},
+    future::task::Task,
     state::StateRef,
 };
+
+#[derive(Debug)]
+pub enum RuntimeSignal {
+    Panic(PanicObj),
+    Yield(Task),
+}
 
 #[derive(PartialEq, Eq, Clone, Debug)]
 pub struct PanicObj {

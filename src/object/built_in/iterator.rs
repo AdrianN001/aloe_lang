@@ -5,11 +5,14 @@ use crate::object::{
     error::{error_type::ErrorType, panic_type::PanicType},
     iterator::{Iterator, range_based_iterator::RangeBasedIterator},
     new_objectref,
-    panic_obj::PanicObj,
+    panic_obj::{PanicObj, RuntimeSignal},
     state::StateRef,
 };
 
-pub fn range_builtin_function(args: &[ObjectRef], state: StateRef) -> Result<ObjectRef, PanicObj> {
+pub fn range_builtin_function(
+    args: &[ObjectRef],
+    state: StateRef,
+) -> Result<ObjectRef, RuntimeSignal> {
     match args.len() {
         // range(end)
         1 => {
@@ -27,11 +30,11 @@ pub fn range_builtin_function(args: &[ObjectRef], state: StateRef) -> Result<Obj
                 ))));
             }
 
-            Err(PanicObj::new(
+            Err(RuntimeSignal::Panic(PanicObj::new(
                 PanicType::WrongArgumentType,
                 "got a non-integer value as range input".into(),
                 state,
-            ))
+            )))
         }
 
         // range(start, end)
@@ -39,22 +42,22 @@ pub fn range_builtin_function(args: &[ObjectRef], state: StateRef) -> Result<Obj
             let start = match &*args[0].borrow() {
                 Object::Int(start_value) => start_value.value,
                 _ => {
-                    return Err(PanicObj::new(
+                    return Err(RuntimeSignal::Panic(PanicObj::new(
                         PanicType::WrongArgumentType,
                         "got a non-integer value as range start".into(),
                         state,
-                    ));
+                    )));
                 }
             };
 
             let end = match &*args[1].borrow() {
                 Object::Int(end_value) => end_value.value,
                 _ => {
-                    return Err(PanicObj::new(
+                    return Err(RuntimeSignal::Panic(PanicObj::new(
                         PanicType::WrongArgumentType,
                         "got a non-integer value as range end".into(),
                         state,
-                    ));
+                    )));
                 }
             };
 
@@ -77,33 +80,33 @@ pub fn range_builtin_function(args: &[ObjectRef], state: StateRef) -> Result<Obj
             let start = match &*args[0].borrow() {
                 Object::Int(start_value) => start_value.value,
                 _ => {
-                    return Err(PanicObj::new(
+                    return Err(RuntimeSignal::Panic(PanicObj::new(
                         PanicType::WrongArgumentType,
                         "got a non-integer value as range start".into(),
                         state,
-                    ));
+                    )));
                 }
             };
 
             let end = match &*args[1].borrow() {
                 Object::Int(end_value) => end_value.value,
                 _ => {
-                    return Err(PanicObj::new(
+                    return Err(RuntimeSignal::Panic(PanicObj::new(
                         PanicType::WrongArgumentType,
                         "got a non-integer value as range end".into(),
                         state,
-                    ));
+                    )));
                 }
             };
 
             let step = match &*args[2].borrow() {
                 Object::Int(step_value) => step_value.value,
                 _ => {
-                    return Err(PanicObj::new(
+                    return Err(RuntimeSignal::Panic(PanicObj::new(
                         PanicType::WrongArgumentType,
                         "got a non-integer value as range step".into(),
                         state,
-                    ));
+                    )));
                 }
             };
 
@@ -114,10 +117,10 @@ pub fn range_builtin_function(args: &[ObjectRef], state: StateRef) -> Result<Obj
             )))
         }
 
-        _ => Err(PanicObj::new(
+        _ => Err(RuntimeSignal::Panic(PanicObj::new(
             PanicType::WrongArgumentCount,
             format!("expected 1,2 or 3 value, got {} value.", args.len()),
             state,
-        )),
+        ))),
     }
 }

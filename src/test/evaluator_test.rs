@@ -1,7 +1,7 @@
 use crate::{
     ast::{Parser, program},
     lexer::Lexer,
-    object::{Object, integer::Integer},
+    object::{Object, integer::Integer, panic_obj::RuntimeSignal},
     test::util::test_cases_for_input_output,
 };
 
@@ -441,7 +441,8 @@ fn test_calling_expression() {
 
         let last_object = match program.evaluate_with_default() {
             Ok(x) => x,
-            Err(err) => panic!("{}", err),
+            Err(RuntimeSignal::Panic(err)) => panic!("{}", err),
+            _ => todo!(),
         };
 
         match &*last_object.borrow() {
@@ -470,7 +471,8 @@ fn test_basic_string_evaluation() {
 
         let last_object = match program.evaluate_with_default() {
             Ok(x) => x,
-            Err(err) => panic!("{}", err),
+            Err(RuntimeSignal::Panic(err)) => panic!("{}", err),
+            _ => todo!(),
         };
 
         match &*last_object.borrow() {
@@ -497,7 +499,8 @@ fn eval_string_concat() {
 
         let last_object = match program.evaluate_with_default() {
             Ok(x) => x,
-            Err(err) => panic!("{}", err),
+            Err(RuntimeSignal::Panic(err)) => panic!("{}", err),
+            _ => todo!(),
         };
 
         match &*last_object.borrow() {
@@ -541,7 +544,8 @@ fn eval_len_for_strings() {
 
         let last_object = match program.evaluate_with_default() {
             Ok(x) => x,
-            Err(err) => panic!("{}", err),
+            Err(RuntimeSignal::Panic(err)) => panic!("{}", err),
+            _ => todo!(),
         };
 
         match &*last_object.borrow() {
@@ -589,7 +593,8 @@ fn eval_len_for_arrays() {
 
         let last_object = match program.evaluate_with_default() {
             Ok(x) => x,
-            Err(err) => panic!("{}", err),
+            Err(RuntimeSignal::Panic(err)) => panic!("{}", err),
+            _ => todo!(),
         };
 
         match &*last_object.borrow() {
@@ -618,7 +623,8 @@ fn eval_rest_builtin() {
 
         let last_object = match program.evaluate_with_default() {
             Ok(x) => x,
-            Err(err) => panic!("{}", err),
+            Err(RuntimeSignal::Panic(err)) => panic!("{}", err),
+            _ => todo!(),
         };
 
         match &*last_object.borrow() {
@@ -672,7 +678,8 @@ fn eval_hashmap_pair_count() {
 
         let last_object = match program.evaluate_with_default() {
             Ok(x) => x,
-            Err(err) => panic!("{}", err),
+            Err(RuntimeSignal::Panic(err)) => panic!("{}", err),
+            _ => todo!(),
         };
 
         match &*last_object.borrow() {
@@ -703,7 +710,8 @@ fn eval_hashmap_indexing() {
 
         let last_object = match program.evaluate_with_default() {
             Ok(x) => x,
-            Err(err) => panic!("{}", err),
+            Err(RuntimeSignal::Panic(err)) => panic!("{}", err),
+            _ => todo!(),
         };
 
         assert_eq!(last_object.borrow().inspect(), expected_value)
@@ -738,7 +746,8 @@ fn eval_floats() {
 
         let last_object = match program.evaluate_with_default() {
             Ok(x) => x,
-            Err(err) => panic!("{}", err),
+            Err(RuntimeSignal::Panic(err)) => panic!("{}", err),
+            _ => todo!(),
         };
 
         assert!(matches!(&*last_object.borrow(), Object::FloatObj(_),));
@@ -767,7 +776,8 @@ fn eval_iterator_collect() {
 
         let last_object = match program.evaluate_with_default() {
             Ok(x) => x,
-            Err(err) => panic!("{}", err),
+            Err(RuntimeSignal::Panic(err)) => panic!("{}", err),
+            _ => todo!(),
         };
 
         assert!(matches!(&*last_object.borrow(), Object::Array(_),));

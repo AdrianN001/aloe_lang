@@ -4,7 +4,7 @@ use std::rc::Rc;
 use crate::ast::expression::function_expression::FunctionExpression;
 use crate::object::ObjectRef;
 use crate::object::error::panic_type::PanicType;
-use crate::object::panic_obj::PanicObj;
+use crate::object::panic_obj::{PanicObj, RuntimeSignal};
 use crate::object::stack_environment::EnvRef;
 use crate::object::state::StateRef;
 use crate::{
@@ -61,9 +61,9 @@ impl Function {
         name_of_the_function: String,
         arguments: &[ObjectRef],
         state: StateRef,
-    ) -> Result<ObjectRef, PanicObj> {
+    ) -> Result<ObjectRef, RuntimeSignal> {
         if arguments.len() != self.parameters.len() {
-            return Err(PanicObj::new(
+            return Err(RuntimeSignal::Panic(PanicObj::new(
                 PanicType::WrongArgumentCount,
                 format!(
                     "expected {} arguments for function '{}()', got: {}",
@@ -72,7 +72,7 @@ impl Function {
                     arguments.len()
                 ),
                 state.clone(),
-            ));
+            )));
         }
 
         {

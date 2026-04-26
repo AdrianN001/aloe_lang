@@ -6,14 +6,14 @@ use crate::{
         Object, ObjectRef,
         error::panic_type::PanicType,
         hashmap::{HashMap, HashPair},
-        panic_obj::PanicObj,
+        panic_obj::{PanicObj, RuntimeSignal},
         stack_environment::EnvRef,
         state::StateRef,
     },
 };
 
 impl HashMapLiteral {
-    pub fn evaluate(&self, environ: EnvRef, state: StateRef) -> Result<ObjectRef, PanicObj> {
+    pub fn evaluate(&self, environ: EnvRef, state: StateRef) -> Result<ObjectRef, RuntimeSignal> {
         let mut pairs = BTreeMap::new();
 
         for (k, v) in &self.pairs {
@@ -32,11 +32,11 @@ impl HashMapLiteral {
             let hashed_key = match key.borrow().hash() {
                 Ok(ok_value) => ok_value,
                 Err(err_feedback) => {
-                    return Err(PanicObj::new(
+                    return Err(RuntimeSignal::Panic(PanicObj::new(
                         PanicType::ObjectNotHashable,
                         err_feedback,
                         state.clone(),
-                    ));
+                    )));
                 }
             };
 

@@ -1,6 +1,10 @@
 use crate::object::{
-    Object, ObjectRef, error::panic_type::PanicType, new_objectref, panic_obj::PanicObj,
-    stack_environment::EnvRef, state::StateRef,
+    Object, ObjectRef,
+    error::panic_type::PanicType,
+    new_objectref,
+    panic_obj::{PanicObj, RuntimeSignal},
+    stack_environment::EnvRef,
+    state::StateRef,
 };
 
 pub mod array;
@@ -18,12 +22,12 @@ impl Object {
         name: &str,
         environ: EnvRef,
         state: StateRef,
-    ) -> Result<ObjectRef, PanicObj> {
+    ) -> Result<ObjectRef, RuntimeSignal> {
         if let Some(result) = self.check_early_attributes(name) {
             return Ok(result);
         }
 
-        match self {
+        let result = match self {
             Object::String(str) => str.apply_attribute(name, state),
             Object::Array(arr) => arr.apply_attribute(name, environ, state),
             Object::Int(int) => int.apply_attribute(name, state),
@@ -39,6 +43,11 @@ impl Object {
                 format!("{} has no attribute", self.get_type()),
                 state,
             )),
+        };
+
+        match result {
+            Ok(ok_value) => Ok(ok_value),
+            Err(panic_value) => Err(RuntimeSignal::Panic(panic_value)),
         }
     }
 
@@ -48,8 +57,8 @@ impl Object {
         args: &[ObjectRef],
         environ: EnvRef,
         state: StateRef,
-    ) -> Result<ObjectRef, PanicObj> {
-        match self {
+    ) -> Result<ObjectRef, RuntimeSignal> {
+        let result = match self {
             Object::String(str) => str.apply_method(name, args, environ, state),
             Object::Array(arr) => arr.apply_method(name, args, environ, state),
             Object::Int(int) => int.apply_method(name, args, environ, state),
@@ -63,6 +72,11 @@ impl Object {
                 format!("{} has no methods", self.get_type()),
                 state,
             )),
+        };
+
+        match result {
+            Ok(ok_value) => Ok(ok_value),
+            Err(panic_value) => Err(RuntimeSignal::Panic(panic_value)),
         }
     }
 

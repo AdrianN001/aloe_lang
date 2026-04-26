@@ -1,5 +1,8 @@
 use crate::object::{
-    ObjectRef, error::panic_type::PanicType, iterator::Iterator, panic_obj::PanicObj,
+    ObjectRef,
+    error::panic_type::PanicType,
+    iterator::Iterator,
+    panic_obj::{PanicObj, RuntimeSignal},
     state::StateRef,
 };
 
@@ -94,7 +97,7 @@ impl Iterator {
         }
     }
 
-    pub fn bool(&self) -> Result<ObjectRef, PanicObj> {
+    pub fn bool(&self) -> Result<ObjectRef, RuntimeSignal> {
         Ok(self._has_next())
     }
 

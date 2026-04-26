@@ -1,6 +1,10 @@
 use crate::object::{
-    Object, ObjectRef, error::panic_type::PanicType, hashmap::HashMap, new_objectref,
-    panic_obj::PanicObj, state::StateRef,
+    Object, ObjectRef,
+    error::panic_type::PanicType,
+    hashmap::HashMap,
+    new_objectref,
+    panic_obj::{PanicObj, RuntimeSignal},
+    state::StateRef,
 };
 
 impl HashMap {
@@ -94,7 +98,7 @@ impl HashMap {
         }
     }
 
-    pub fn bool(&self) -> Result<ObjectRef, PanicObj> {
+    pub fn bool(&self) -> Result<ObjectRef, RuntimeSignal> {
         Ok(new_objectref(Object::get_native_boolean_object(
             !self.pairs.is_empty(),
         )))

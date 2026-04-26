@@ -1,17 +1,24 @@
 use std::{cell::RefCell, rc::Rc};
 
 use crate::object::{
-    Object, ObjectRef, array::Array, error::panic_type::PanicType, panic_obj::PanicObj,
-    state::StateRef, string_obj::StringObj,
+    Object, ObjectRef,
+    array::Array,
+    error::panic_type::PanicType,
+    panic_obj::{PanicObj, RuntimeSignal},
+    state::StateRef,
+    string_obj::StringObj,
 };
 
-pub fn rest_builtin_function(args: &[ObjectRef], state: StateRef) -> Result<ObjectRef, PanicObj> {
+pub fn rest_builtin_function(
+    args: &[ObjectRef],
+    state: StateRef,
+) -> Result<ObjectRef, RuntimeSignal> {
     if args.len() != 1 {
-        return Err(PanicObj::new(
+        return Err(RuntimeSignal::Panic(PanicObj::new(
             PanicType::WrongArgumentCount,
             format!("expected 1 value, got {} value.", args.len()),
             state,
-        ));
+        )));
     }
 
     match &*args[0].borrow() {
@@ -38,24 +45,27 @@ pub fn rest_builtin_function(args: &[ObjectRef], state: StateRef) -> Result<Obje
             }))))
         }
 
-        _ => Err(PanicObj::new(
+        _ => Err(RuntimeSignal::Panic(PanicObj::new(
             PanicType::WrongArgumentType,
             format!(
                 "unexpected argument type for rest(): got {}",
                 &args[0].borrow().get_type()
             ),
             state,
-        )),
+        ))),
     }
 }
 
-pub fn first_builtin_function(args: &[ObjectRef], state: StateRef) -> Result<ObjectRef, PanicObj> {
+pub fn first_builtin_function(
+    args: &[ObjectRef],
+    state: StateRef,
+) -> Result<ObjectRef, RuntimeSignal> {
     if args.len() != 1 {
-        return Err(PanicObj::new(
+        return Err(RuntimeSignal::Panic(PanicObj::new(
             PanicType::WrongArgumentCount,
             format!("expected 1 value, got {} value.", args.len()),
             state,
-        ));
+        )));
     }
 
     match &*args[0].borrow() {
@@ -76,24 +86,27 @@ pub fn first_builtin_function(args: &[ObjectRef], state: StateRef) -> Result<Obj
             }
         }
 
-        _ => Err(PanicObj::new(
+        _ => Err(RuntimeSignal::Panic(PanicObj::new(
             PanicType::WrongArgumentType,
             format!(
                 "unexpected argument type for first(): got {}",
                 &args[0].borrow().get_type()
             ),
             state,
-        )),
+        ))),
     }
 }
 
-pub fn last_builtin_function(args: &[ObjectRef], state: StateRef) -> Result<ObjectRef, PanicObj> {
+pub fn last_builtin_function(
+    args: &[ObjectRef],
+    state: StateRef,
+) -> Result<ObjectRef, RuntimeSignal> {
     if args.len() != 1 {
-        return Err(PanicObj::new(
+        return Err(RuntimeSignal::Panic(PanicObj::new(
             PanicType::WrongArgumentCount,
             format!("expected 1 value, got {} value.", args.len()),
             state,
-        ));
+        )));
     }
 
     match &*args[0].borrow() {
@@ -114,35 +127,38 @@ pub fn last_builtin_function(args: &[ObjectRef], state: StateRef) -> Result<Obje
             }
         }
 
-        _ => Err(PanicObj::new(
+        _ => Err(RuntimeSignal::Panic(PanicObj::new(
             PanicType::WrongArgumentType,
             format!(
                 "unexpected argument type for last(): got {}",
                 &args[0].borrow().get_type()
             ),
             state,
-        )),
+        ))),
     }
 }
 
-pub fn push_builtin_function(args: &[ObjectRef], state: StateRef) -> Result<ObjectRef, PanicObj> {
+pub fn push_builtin_function(
+    args: &[ObjectRef],
+    state: StateRef,
+) -> Result<ObjectRef, RuntimeSignal> {
     if args.len() != 2 {
-        return Err(PanicObj::new(
+        return Err(RuntimeSignal::Panic(PanicObj::new(
             PanicType::WrongArgumentCount,
             format!("expected 2 value, got {} value.", args.len()),
             state,
-        ));
+        )));
     }
 
     if !matches!(&*args[0].borrow(), Object::Array(_) | Object::String(_)) {
-        return Err(PanicObj::new(
+        return Err(RuntimeSignal::Panic(PanicObj::new(
             PanicType::WrongArgumentType,
             format!(
                 "expected the first value to be array or string, got {}.",
                 args[0].borrow().get_type()
             ),
             state,
-        ));
+        )));
     }
 
     match &*args[0].borrow() {
@@ -152,11 +168,11 @@ pub fn push_builtin_function(args: &[ObjectRef], state: StateRef) -> Result<Obje
                     value: str.value.clone() + &second_parameter_str.value,
                 }))));
             }
-            Err(PanicObj::new(
+            Err(RuntimeSignal::Panic(PanicObj::new(
                 PanicType::WrongArgumentType,
                 "unmatching types: push(String, not String)".into(),
                 state,
-            ))
+            )))
         }
         Object::Array(arr) => {
             if let Object::Array(second_parameter_array) = &*args[1].borrow() {
@@ -173,13 +189,13 @@ pub fn push_builtin_function(args: &[ObjectRef], state: StateRef) -> Result<Obje
             }))))
         }
 
-        _ => Err(PanicObj::new(
+        _ => Err(RuntimeSignal::Panic(PanicObj::new(
             PanicType::WrongArgumentType,
             format!(
                 "unexpected argument type for push(): got {}",
                 &args[0].borrow().get_type()
             ),
             state,
-        )),
+        ))),
     }
 }

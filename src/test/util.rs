@@ -1,4 +1,8 @@
-use crate::{ast::Parser, lexer::Lexer, object::Object};
+use crate::{
+    ast::Parser,
+    lexer::Lexer,
+    object::{Object, panic_obj::RuntimeSignal},
+};
 
 pub fn test_cases_for_input_output(testcases: &[(&str, &str)]) {
     testcases.iter().for_each(|testcase| {
@@ -13,10 +17,11 @@ pub fn test_cases_for_input_output(testcases: &[(&str, &str)]) {
 
         let last_object = match program.evaluate_with_default() {
             Ok(x) => x,
-            Err(err) => {
+            Err(RuntimeSignal::Panic(err)) => {
                 assert_eq!(err.value, expected_value);
                 return;
             }
+            _ => todo!(),
         };
         match &*last_object.borrow() {
             Object::Err(err) => assert_eq!(err.inspect_message(), expected_value),

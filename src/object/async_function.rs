@@ -7,7 +7,7 @@ use crate::{
         error::panic_type::PanicType,
         future::{FutureObj, future_state::FutureState, task::Task},
         new_objectref,
-        panic_obj::PanicObj,
+        panic_obj::{PanicObj, RuntimeSignal},
         stack_environment::{EnvRef, StackEnvironment},
         state::StateRef,
     },
@@ -54,9 +54,9 @@ impl AsyncFunction {
         name_of_the_function: String,
         arguments: &[ObjectRef],
         state: StateRef,
-    ) -> Result<ObjectRef, PanicObj> {
+    ) -> Result<ObjectRef, RuntimeSignal> {
         if arguments.len() != self.parameters.len() {
-            return Err(PanicObj::new(
+            return Err(RuntimeSignal::Panic(PanicObj::new(
                 PanicType::WrongArgumentCount,
                 format!(
                     "expected {} arguments for function '{}()', got: {}",
@@ -65,7 +65,7 @@ impl AsyncFunction {
                     arguments.len()
                 ),
                 state.clone(),
-            ));
+            )));
         }
 
         let env = self.extend_environment_with_args(name_of_the_function, arguments);

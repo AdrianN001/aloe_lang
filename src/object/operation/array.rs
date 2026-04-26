@@ -1,6 +1,10 @@
 use crate::object::{
-    Object, ObjectRef, array::Array, error::panic_type::PanicType, new_objectref,
-    panic_obj::PanicObj, state::StateRef,
+    Object, ObjectRef,
+    array::Array,
+    error::panic_type::PanicType,
+    new_objectref,
+    panic_obj::{PanicObj, RuntimeSignal},
+    state::StateRef,
 };
 
 impl Array {
@@ -102,7 +106,7 @@ impl Array {
         }
     }
 
-    pub fn bool(&self) -> Result<ObjectRef, PanicObj> {
+    pub fn bool(&self) -> Result<ObjectRef, RuntimeSignal> {
         Ok(new_objectref(Object::get_native_boolean_object(
             !self.items.is_empty(),
         )))

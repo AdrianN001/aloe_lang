@@ -8,7 +8,7 @@ use crate::object::{
     iterator::{Iterator, list_based_iterator::ListBasedIterator},
     new_objectref,
     null::Null,
-    panic_obj::PanicObj,
+    panic_obj::{PanicObj, RuntimeSignal},
     stack_environment::EnvRef,
     state::StateRef,
     string_obj::StringObj,
@@ -314,13 +314,14 @@ impl Array {
                 );
                 match mapped_item {
                     Ok(ok_value) => mapped_array_content.push(ok_value.clone()),
-                    Err(error) => {
+                    Err(RuntimeSignal::Panic(error)) => {
                         return Rc::new(RefCell::new(Object::new_error(
                             ErrorType::ErrorFromPanic,
                             error.to_string(),
                             state,
                         )));
                     }
+                    _ => todo!(),
                 }
             }
 
@@ -367,13 +368,14 @@ impl Array {
                             mapped_array_content.push(item.clone())
                         }
                     }
-                    Err(error) => {
+                    Err(RuntimeSignal::Panic(error)) => {
                         return Rc::new(RefCell::new(Object::new_error(
                             ErrorType::ErrorFromPanic,
                             error.to_string(),
                             state,
                         )));
                     }
+                    _ => todo!(),
                 }
             }
 

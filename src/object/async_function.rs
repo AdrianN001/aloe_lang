@@ -1,6 +1,16 @@
+use std::{cell::RefCell, rc::Rc};
+
 use crate::{
     ast::{expression::identifier::Identifier, statement::block_statement::BlockStatement},
-    object::stack_environment::EnvRef,
+    object::{
+        Object, ObjectRef,
+        error::panic_type::PanicType,
+        future::{FutureObj, future_state::FutureState, task::Task},
+        new_objectref,
+        panic_obj::PanicObj,
+        stack_environment::{EnvRef, StackEnvironment},
+        state::StateRef,
+    },
 };
 
 #[derive(PartialEq, Eq, Clone, Debug)]
@@ -35,5 +45,56 @@ impl AsyncFunction {
         buffer.push_str("\n}");
 
         buffer
+    }
+
+    // Async Function calling
+
+    pub fn apply(
+        &self,
+        name_of_the_function: String,
+        arguments: &[ObjectRef],
+        state: StateRef,
+    ) -> Result<ObjectRef, PanicObj> {
+        if arguments.len() != self.parameters.len() {
+            return Err(PanicObj::new(
+                PanicType::WrongArgumentCount,
+                format!(
+                    "expected {} arguments for function '{}()', got: {}",
+                    self.parameters.len(),
+                    name_of_the_function,
+                    arguments.len()
+                ),
+                state.clone(),
+            ));
+        }
+
+        let env = self.extend_environment_with_args(name_of_the_function, arguments);
+
+        Ok(new_objectref(Object::Future(FutureObj {
+            state: FutureState::Pending(Task {
+                statement_index: 0_usize,
+                statements: self.body.statements.clone(),
+                environ: env,
+                state: state.clone(),
+            }),
+        })))
+    }
+
+    fn extend_environment_with_args(
+        &self,
+        name_of_the_function: String,
+        args: &[ObjectRef],
+    ) -> EnvRef {
+        let mut new_env =
+            StackEnvironment::new_enclosed(self.env.clone(), format!("{}()", name_of_the_function));
+
+        self.parameters
+            .iter()
+            .enumerate()
+            .for_each(|(indx, parameter)| {
+                new_env.set_to_lowest_level(&parameter.value, args[indx].clone());
+            });
+
+        Rc::new(RefCell::new(new_env))
     }
 }

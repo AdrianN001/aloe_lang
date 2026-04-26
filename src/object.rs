@@ -7,6 +7,7 @@ pub mod copy;
 pub mod error;
 pub mod float_obj;
 pub mod function;
+pub mod future;
 pub mod hashable;
 pub mod hashmap;
 pub mod integer;
@@ -23,7 +24,6 @@ pub mod string_obj;
 pub mod struct_model;
 pub mod struct_object;
 pub mod truthy;
-pub mod future;
 
 use std::{cell::RefCell, rc::Rc};
 
@@ -41,8 +41,9 @@ use string_obj::StringObj;
 
 use crate::object::{
     async_function::AsyncFunction, break_value::BreakValue, error::error_type::ErrorType,
-    hashable::Hashable, hashmap::HashKey, iterator::Iterator, native_object::NativeObject,
-    state::StateRef, struct_model::StructModel, struct_object::StructObject,
+    future::FutureObj, hashable::Hashable, hashmap::HashKey, iterator::Iterator,
+    native_object::NativeObject, state::StateRef, struct_model::StructModel,
+    struct_object::StructObject,
 };
 
 pub type ObjectRef = Rc<RefCell<Object>>;
@@ -73,6 +74,7 @@ pub enum Object {
 
     Native(NativeObject),
 
+    Future(FutureObj),
     Null(Null),
 }
 
@@ -117,6 +119,7 @@ impl Object {
             Object::Continue => "continue".to_string(),
             Object::Native(native) => native.get_type(),
             Object::AsyncFunc(async_function) => async_function.get_type(),
+            Object::Future(future) => future.get_type(),
         }
     }
 
@@ -140,6 +143,7 @@ impl Object {
             Object::Continue => "continue".to_string(),
             Object::Native(native) => native.inspect(),
             Object::AsyncFunc(async_function) => async_function.inspect(),
+            Object::Future(future) => future.inspect(),
         }
     }
 

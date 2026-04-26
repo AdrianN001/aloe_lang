@@ -34,6 +34,9 @@ impl CallExpression {
 
         let return_value = match &*obj_to_call.borrow() {
             Object::Func(function) => function.apply(function_name, &args, state.clone()),
+            Object::AsyncFunc(async_function) => {
+                async_function.apply(function_name, &args, state.clone())
+            }
             Object::BuiltIn(built_in_function) => {
                 built_in_function.call(&args, environ.clone(), state.clone())
             }

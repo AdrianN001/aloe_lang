@@ -38,7 +38,10 @@ impl Identifier {
             "__path" => Some(BuiltIn::Path),
 
             "__sleep" => Some(BuiltIn::Sleep),
+            "__sleep2" => Some(BuiltIn::Sleep2),
             "__time" => Some(BuiltIn::Time),
+
+            "__spawn" => Some(BuiltIn::Spawn),
             _ => None,
         }
     }

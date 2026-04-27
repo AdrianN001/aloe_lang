@@ -1,5 +1,6 @@
 mod array_expression;
 mod async_function_eval;
+mod await_expr;
 mod block_statement;
 mod call_expr;
 mod float_obj;
@@ -75,7 +76,7 @@ impl Expression {
             Expression::Member(member_expression) => member_expression.evaluate(environ, state),
             Expression::WhileLoop(while_loop) => while_loop.evaluate(environ, state),
 
-            Expression::AwaitExpr(_) => todo!(),
+            Expression::AwaitExpr(await_expr) => await_expr.evaluate(environ, state),
 
             Expression::InvalidExpression => {
                 panic!("unexpected expression type")
@@ -176,6 +177,12 @@ impl Program {
                 _ => {}
             }
         }
+
+        {
+            let mut state_borrow_mut = state.borrow_mut();
+            state_borrow_mut.scheduler.run();
+        }
+
         Ok(result)
     }
 
@@ -270,6 +277,12 @@ impl Program {
                 _ => {}
             }
         }
+
+        {
+            let mut state_borrow_mut = state.borrow_mut();
+            state_borrow_mut.scheduler.run();
+        }
+
         Ok(result)
     }
 }

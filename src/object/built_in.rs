@@ -1,4 +1,5 @@
 mod array_method;
+mod async_await;
 mod console;
 mod error;
 mod io;
@@ -15,6 +16,7 @@ use crate::object::{
             first_builtin_function, last_builtin_function, push_builtin_function,
             rest_builtin_function,
         },
+        async_await::spawn_builtin_function,
         console::{
             console_read_builtin_function, console_write_builtin_function,
             console_writeln_builtin_function,
@@ -24,10 +26,10 @@ use crate::object::{
         iterator::range_builtin_function,
         len::len_builtin_function,
         random::random_builtin_function,
-        time::{sleep, time_builtin_function},
+        time::{awaitable_sleep_builtin_function, sleep, time_builtin_function},
         utils::{inspect_builtin_function, type_builtin_function},
     },
-    panic_obj::{PanicObj, RuntimeSignal},
+    panic_obj::RuntimeSignal,
     stack_environment::EnvRef,
     state::StateRef,
 };
@@ -57,7 +59,10 @@ pub enum BuiltIn {
     Path,
 
     Sleep,
+    Sleep2,
     Time,
+
+    Spawn,
 }
 
 impl BuiltIn {
@@ -99,7 +104,10 @@ impl BuiltIn {
             BuiltIn::Path => path_builtin_function(args, state),
 
             BuiltIn::Sleep => sleep(args, state),
+            BuiltIn::Sleep2 => awaitable_sleep_builtin_function(args, state, environ),
             BuiltIn::Time => time_builtin_function(),
+
+            BuiltIn::Spawn => spawn_builtin_function(args, state),
         }
     }
 }

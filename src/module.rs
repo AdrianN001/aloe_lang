@@ -9,7 +9,7 @@ use crate::{
     module::{module_error::ModuleError, module_loader::ModuleLoader},
     object::{
         Object, new_objectref,
-        panic_obj::{PanicObj, RuntimeSignal},
+        panic_obj::RuntimeSignal,
         stack_environment::{EnvRef, StackEnvironment},
         string_obj::StringObj,
     },

@@ -6,10 +6,7 @@ use crate::{
         statement::{Statement, async_function_statement::AsyncFunctionStatement},
     },
     object::{
-        Object, ObjectRef,
-        async_function::AsyncFunction,
-        new_objectref,
-        panic_obj::{PanicObj, RuntimeSignal},
+        Object, ObjectRef, async_function::AsyncFunction, new_objectref, panic_obj::RuntimeSignal,
         stack_environment::EnvRef,
     },
 };

@@ -5,7 +5,7 @@ use crate::{
     object::{
         Object, ObjectRef,
         error::panic_type::PanicType,
-        future::{FutureObj, future_state::FutureState, task::Task},
+        future::{FutureObj, future_kind::FutureKind, future_state::FutureState, task::Task},
         new_objectref,
         panic_obj::{PanicObj, RuntimeSignal},
         stack_environment::{EnvRef, StackEnvironment},
@@ -68,15 +68,18 @@ impl AsyncFunction {
             )));
         }
 
-        let env = self.extend_environment_with_args(name_of_the_function, arguments);
+        let env = self.extend_environment_with_args(name_of_the_function.clone(), arguments);
 
         Ok(new_objectref(Object::Future(FutureObj {
-            state: FutureState::Pending(Task {
+            state: FutureState::Pending(FutureKind::Value(Task {
                 statement_index: 0_usize,
                 statements: self.body.statements.clone(),
+                name: name_of_the_function,
+                kind: None,
+                last_object: Some(new_objectref(Object::NULL_OBJECT)),
                 environ: env,
                 state: state.clone(),
-            }),
+            })),
         })))
     }
 

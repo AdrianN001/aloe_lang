@@ -3,10 +3,7 @@ use std::{cell::RefCell, rc::Rc};
 use crate::{
     ast::expression::array_literal::ArrayLiteral,
     object::{
-        Object, ObjectRef,
-        array::Array,
-        panic_obj::{PanicObj, RuntimeSignal},
-        stack_environment::EnvRef,
+        Object, ObjectRef, array::Array, panic_obj::RuntimeSignal, stack_environment::EnvRef,
         state::StateRef,
     },
 };

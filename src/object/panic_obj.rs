@@ -2,14 +2,14 @@ use std::fmt;
 
 use crate::object::{
     error::{Error, panic_type::PanicType},
-    future::task::Task,
+    future::task::TaskRef,
     state::StateRef,
 };
 
 #[derive(Debug)]
 pub enum RuntimeSignal {
     Panic(PanicObj),
-    Yield(Task),
+    Yield(TaskRef),
 }
 
 #[derive(PartialEq, Eq, Clone, Debug)]

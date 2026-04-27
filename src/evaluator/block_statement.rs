@@ -55,13 +55,11 @@ impl BlockStatement {
                     )));
                 }
                 Object::Continue => {
-                    return Err(RuntimeSignal::Panic(
-                        (PanicObj::new_simple(
-                            PanicType::UnexpectedKeyword,
-                            "unexpected continue keyword in non-loop context",
-                            state.clone(),
-                        )),
-                    ));
+                    return Err(RuntimeSignal::Panic(PanicObj::new_simple(
+                        PanicType::UnexpectedKeyword,
+                        "unexpected continue keyword in non-loop context",
+                        state.clone(),
+                    )));
                 }
                 Object::ReturnVal(_ret_val) => return Ok(result.clone()),
                 _ => {}

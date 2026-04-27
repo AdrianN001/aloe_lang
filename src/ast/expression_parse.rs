@@ -1,6 +1,7 @@
 use std::collections::BTreeMap;
 
 use crate::ast::expression::async_function_expression::AsyncFunctionExpression;
+use crate::ast::expression::await_expression::AwaitExpression;
 use crate::ast::expression::boolean::Boolean;
 use crate::ast::expression::float_literal::FloatLiteral;
 use crate::ast::expression::for_loop::ForLoopExpression;
@@ -34,6 +35,7 @@ impl Parser {
             TokenType::KwIf => self.parse_if_expression(),
             TokenType::KwFunction => self.parse_function_expression(),
             TokenType::KwAsync => self.parse_async_function_expr(),
+            TokenType::KwAwait => self.parse_await_expr(),
             TokenType::LBracket => self.parse_array_literal(),
             TokenType::LBrace => self.parse_hashmap_literal(),
             TokenType::KwFor => self.parse_for_loop_expression(),
@@ -134,6 +136,18 @@ impl Parser {
             token: self.current_token.clone(),
             value: self.current_token.token_type == TokenType::KwTrue,
         })
+    }
+
+    fn parse_await_expr(&mut self) -> Result<Expression, String> {
+        let current_token = self.current_token.clone();
+
+        self.next_token();
+        let expr = self.parse_expression(OperationPrecedence::Lowest)?;
+
+        Ok(Expression::AwaitExpr(AwaitExpression {
+            token: current_token,
+            expr: Box::new(expr),
+        }))
     }
 
     fn parse_async_function_expr(&mut self) -> Result<Expression, String> {

@@ -1,6 +1,8 @@
 pub mod util;
 
 #[cfg(test)]
+pub mod async_await_test;
+#[cfg(test)]
 pub mod cast_test;
 #[cfg(test)]
 pub mod evaluator_test;

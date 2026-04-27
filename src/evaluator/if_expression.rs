@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use crate::object::panic_obj::{PanicObj, RuntimeSignal};
+use crate::object::panic_obj::RuntimeSignal;
 use crate::object::stack_environment::EnvRef;
 
 use crate::object::state::StateRef;

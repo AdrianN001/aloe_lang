@@ -88,6 +88,7 @@ impl Expression {
             Expression::HashMapLiteral(s) => s.to_string(),
             Expression::Member(s) => s.to_string(),
             Expression::FloatLiteral(s) => format!("{}.{}", s.integer_part, s.float_part),
+            Expression::AwaitExpr(await_expr) => await_expr.to_string(),
             other => other.token_literal().to_string(),
         }
     }

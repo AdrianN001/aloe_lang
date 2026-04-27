@@ -1,7 +1,7 @@
-use crate::object::{ObjectRef, future::task::Task};
+use crate::object::{ObjectRef, future::future_kind::FutureKind};
 
 #[derive(Clone, PartialEq, Eq, Debug)]
 pub enum FutureState {
-    Pending(Task),
+    Pending(FutureKind),
     Ready(ObjectRef),
 }

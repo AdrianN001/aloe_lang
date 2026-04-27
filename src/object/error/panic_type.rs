@@ -43,4 +43,6 @@ pub enum PanicType {
 
     MethodMissingThis,
     ConstructorIsNotAMethod,
+
+    NonAwaitableObjectWasAwaited,
 }

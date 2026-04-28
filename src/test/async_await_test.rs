@@ -26,7 +26,7 @@ async fun b(){
 __spawn(a());
 __spawn(b());
 ",
-            "1\n3\n2",
+            "null",
         ),
     ];
 

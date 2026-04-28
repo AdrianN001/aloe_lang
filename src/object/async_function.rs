@@ -70,17 +70,30 @@ impl AsyncFunction {
 
         let env = self.extend_environment_with_args(name_of_the_function.clone(), arguments);
 
-        Ok(new_objectref(Object::Future(FutureObj {
-            state: FutureState::Pending(FutureKind::Value(Task {
-                statement_index: 0_usize,
-                statements: self.body.statements.clone(),
-                name: name_of_the_function,
-                kind: None,
-                last_object: Some(new_objectref(Object::NULL_OBJECT)),
-                environ: env,
-                state: state.clone(),
-            })),
-        })))
+        let new_future_ref = new_objectref(Object::Future(FutureObj {
+            waiters: vec![],
+            state: FutureState::Invalid,
+        }));
+
+        let new_task_ref = Rc::new(RefCell::new(Task {
+            statement_index: 0_usize,
+            statements: self.body.statements.clone(),
+            name: name_of_the_function,
+            kind: None,
+            last_object: Some(new_objectref(Object::NULL_OBJECT)),
+            environ: env,
+            state: state.clone(),
+            result_future: Some(new_future_ref.clone()),
+            ..Default::default()
+        }));
+
+        {
+            if let Object::Future(future_obj) = &mut *(new_future_ref.borrow_mut()) {
+                future_obj.state = FutureState::Pending(FutureKind::Value(new_task_ref));
+            }
+        }
+
+        Ok(new_future_ref)
     }
 
     fn extend_environment_with_args(

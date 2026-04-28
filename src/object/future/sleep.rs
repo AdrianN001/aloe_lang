@@ -13,6 +13,7 @@ impl FutureObj {
 
         Self {
             state: FutureState::Pending(FutureKind::Sleep(now + duration)),
+            waiters: vec![],
         }
     }
 }

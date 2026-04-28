@@ -5,7 +5,9 @@ use std::{
 };
 
 use crate::object::{
+    Object,
     future::{
+        future_state::FutureState,
         task::{Task, TaskRef},
         task_kind::TaskKind,
     },
@@ -34,7 +36,12 @@ impl Scheduler {
                 if self.sleeping[i].1 <= now {
                     let (task, _) = self.sleeping.remove(i);
 
-                    task.borrow_mut().kind = None;
+                    {
+                        let mut task_borrow = task.borrow_mut();
+                        task_borrow.pending_future = None;
+                        task_borrow.kind = None;
+                        task_borrow.statement_index += 1;
+                    }
 
                     self.queue.push_back(task);
                 } else {
@@ -51,6 +58,26 @@ impl Scheduler {
 
                 match result {
                     Ok(value) => {
+                        let current_task_borrow = task.borrow();
+
+                        if let Some(original_future) = &current_task_borrow.result_future {
+                            let mut future_borrow = original_future.borrow_mut();
+
+                            if let Object::Future(future_raw) = &mut *future_borrow {
+                                future_raw.state = FutureState::Ready(value.clone());
+
+                                future_raw.waiters.iter().for_each(|waiter_task| {
+                                    {
+                                        waiter_task.borrow_mut().pending_future =
+                                            Some(original_future.clone());
+                                    }
+
+                                    self.queue.push_back(waiter_task.clone());
+                                });
+
+                                future_raw.waiters.clear();
+                            }
+                        }
                         println!(
                             "task ist fertig. Wert: {}, blieb:{}",
                             value.borrow().inspect(),
@@ -65,8 +92,8 @@ impl Scheduler {
                                 TaskKind::Sleep(wait_until) => {
                                     self.sleeping.push((task.clone(), *wait_until));
                                 }
-                                _ => {
-                                    self.queue.push_back(task.clone());
+                                TaskKind::Value(new_awaited_taskref) => {
+                                    self.queue.push_back(new_awaited_taskref.clone());
                                 }
                             }
                         } else {
@@ -83,7 +110,6 @@ impl Scheduler {
                     *slot.borrow_mut() = None;
                 });
             } else if !self.sleeping.is_empty() {
-                println!("Aasd");
                 std::thread::sleep(Duration::from_millis(1));
             } else {
                 break;

@@ -1,4 +1,3 @@
-use std::{cell::RefCell, rc::Rc};
 
 use crate::object::{
     Object, ObjectRef,
@@ -28,7 +27,7 @@ pub fn spawn_builtin_function(
     if let Object::Future(future) = &*arg_borrow {
         if let FutureState::Pending(future_kind) = &future.state {
             if let FutureKind::Value(task) = future_kind {
-                state_borrow.add_to_scheduler(Rc::new(RefCell::new(task.clone())));
+                state_borrow.add_to_scheduler(task.clone());
             }
         }
     } else {

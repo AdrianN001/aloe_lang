@@ -22,6 +22,9 @@ pub struct Task {
 
     pub environ: EnvRef,
     pub state: StateRef,
+
+    pub pending_future: Option<ObjectRef>,
+    pub result_future: Option<ObjectRef>,
 }
 impl Task {
     pub fn run(self_as_ref: TaskRef) -> Result<ObjectRef, RuntimeSignal> {
@@ -64,8 +67,6 @@ impl Task {
                 }
 
                 Err(RuntimeSignal::Yield(y)) => {
-                    let mut task = self_as_ref.borrow_mut();
-                    task.statement_index += 1;
                     return Err(RuntimeSignal::Yield(y));
                 }
 

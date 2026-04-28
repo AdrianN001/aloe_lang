@@ -13,7 +13,6 @@ use crate::object::{
 
 impl PathWrapper {
     pub fn apply_attribute(&self, name: &str, state: StateRef) -> Result<ObjectRef, PanicObj> {
-        println!("called: {}", name);
         match name {
             "is_absolute" => Ok(self.is_absolute()),
             "is_relative" => Ok(self.is_relative()),

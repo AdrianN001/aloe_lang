@@ -14,10 +14,20 @@ use crate::{
 
 impl AwaitExpression {
     pub fn evaluate(&self, environ: EnvRef, state: StateRef) -> Result<ObjectRef, RuntimeSignal> {
-        let awaitable_expression = self.expr.evaluate(environ, state.clone())?;
-        let awaitable_expr_borrow = awaitable_expression.borrow();
+        let awaitable_expression = {
+            let current_task_rc = take_current_task().expect("no current task found");
+            let curr_task = current_task_rc.borrow();
 
-        let future_obj = match &*awaitable_expr_borrow {
+            if let Some(pending_future) = &curr_task.pending_future {
+                pending_future.clone()
+            } else {
+                self.expr.evaluate(environ, state.clone())?
+            }
+        };
+
+        let mut awaitable_expr_borrow = awaitable_expression.borrow_mut();
+
+        let future_obj = match &mut *awaitable_expr_borrow {
             Object::Future(future_obj) => future_obj,
             other_type => {
                 return Err(RuntimeSignal::Panic(PanicObj::new(
@@ -29,21 +39,37 @@ impl AwaitExpression {
         };
 
         match &future_obj.state {
-            FutureState::Ready(value) => Ok(value.clone()),
+            FutureState::Ready(value) => {
+                {
+                    take_current_task()
+                        .expect("no current task found")
+                        .borrow_mut()
+                        .pending_future = None;
+                }
+                Ok(value.clone())
+            }
             FutureState::Pending(future_kind) => {
                 let current_task_rc = take_current_task().expect("no current task found");
                 let mut curr_task = current_task_rc.borrow_mut();
 
                 match future_kind {
                     FutureKind::Sleep(wait_until) => {
-                        curr_task.kind = Some(TaskKind::Sleep(*wait_until))
+                        if curr_task.pending_future.is_none() {
+                            curr_task.kind = Some(TaskKind::Sleep(*wait_until));
+                            curr_task.pending_future = Some(awaitable_expression.clone());
+                        }
                     }
-                    _ => {}
+                    FutureKind::Value(task) => {
+                        curr_task.pending_future = Some(awaitable_expression.clone());
+                        future_obj.waiters.push(current_task_rc.clone());
+                        curr_task.kind = Some(TaskKind::Value(task.clone()))
+                    }
                 }
                 Err(RuntimeSignal::Yield(Rc::new(RefCell::new(
                     (*curr_task).clone(),
                 ))))
             }
+            _ => panic!(),
         }
     }
 }

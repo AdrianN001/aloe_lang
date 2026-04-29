@@ -45,4 +45,5 @@ pub enum PanicType {
     ConstructorIsNotAMethod,
 
     NonAwaitableObjectWasAwaited,
+    MultipleAwaitInOneStatement,
 }

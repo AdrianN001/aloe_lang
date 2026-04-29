@@ -6,7 +6,7 @@ fn test_async_await() {
         (
             "
 async fun foo(){ return 42; }
-__spawn((async fn(){let x = await foo(); print(x)
+__spawn((async fn(){let x = await foo(); let y = await foo(); x += y; print(x)
 x;})())
 ",
             "null",

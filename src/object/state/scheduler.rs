@@ -26,7 +26,7 @@ pub struct Scheduler {
 }
 
 impl Scheduler {
-    pub fn run(&mut self) {
+    pub fn run(&mut self) -> Result<(), RuntimeSignal>{
         loop {
             let now = Instant::now();
 
@@ -54,6 +54,12 @@ impl Scheduler {
                     *slot.borrow_mut() = Some(task.clone());
                 });
 
+                {
+                    let task_borrow = task.borrow();
+                    let task_name = task_borrow.name.clone();
+                    let state = task_borrow.state.clone();
+                    state.borrow_mut().push_to_stack(task_name);
+                }
                 let result = Task::run(task.clone());
 
                 match result {
@@ -78,11 +84,6 @@ impl Scheduler {
                                 future_raw.waiters.clear();
                             }
                         }
-                        println!(
-                            "task ist fertig. Wert: {}, blieb:{}",
-                            value.borrow().inspect(),
-                            self.queue.len()
-                        );
                     }
 
                     Err(RuntimeSignal::Yield(t)) => {
@@ -102,8 +103,14 @@ impl Scheduler {
                     }
 
                     Err(RuntimeSignal::Panic(p)) => {
-                        eprintln!("Runtime error: {:?}", p.inspect_message());
+                        return Err(RuntimeSignal::Panic(p));
                     }
+                }
+
+                {
+                    let task_borrow = task.borrow();
+                    let state = task_borrow.state.clone();
+                    state.borrow_mut().pop_from_stack();
                 }
 
                 CURRENT_TASK.with(|slot| {
@@ -112,7 +119,7 @@ impl Scheduler {
             } else if !self.sleeping.is_empty() {
                 std::thread::sleep(Duration::from_millis(1));
             } else {
-                break;
+                break Ok(());
             }
         }
     }

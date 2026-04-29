@@ -1,14 +1,9 @@
 use std::{cell::RefCell, rc::Rc};
 
 use crate::{
-    ast::expression::await_expression::AwaitExpression,
+    ast::expression::{Expression, await_expression::AwaitExpression},
     object::{
-        Object, ObjectRef,
-        error::panic_type::PanicType,
-        future::{future_kind::FutureKind, future_state::FutureState, task_kind::TaskKind},
-        panic_obj::{PanicObj, RuntimeSignal},
-        stack_environment::EnvRef,
-        state::{StateRef, scheduler::take_current_task},
+        Object, ObjectRef, error::panic_type::PanicType, future::{future_kind::FutureKind, future_state::FutureState, task_kind::TaskKind}, new_objectref, panic_obj::{PanicObj, RuntimeSignal}, return_value::ReturnValue, stack_environment::EnvRef, state::{StateRef, scheduler::take_current_task}
     },
 };
 
@@ -29,6 +24,7 @@ impl AwaitExpression {
 
         let future_obj = match &mut *awaitable_expr_borrow {
             Object::Future(future_obj) => future_obj,
+            Object::ReturnVal(_) => return Ok(awaitable_expression.clone()), //progagation
             other_type => {
                 return Err(RuntimeSignal::Panic(PanicObj::new(
                     PanicType::NonAwaitableObjectWasAwaited,
@@ -46,7 +42,7 @@ impl AwaitExpression {
                         .borrow_mut()
                         .pending_future = None;
                 }
-                Ok(value.clone())
+                self.handle_return_value_according_the_expression(value.clone(), state)
             }
             FutureState::Pending(future_kind) => {
                 let current_task_rc = take_current_task().expect("no current task found");
@@ -70,6 +66,29 @@ impl AwaitExpression {
                 ))))
             }
             _ => panic!(),
+        }
+    } 
+
+    fn handle_return_value_according_the_expression(&self, return_value: ObjectRef, state: StateRef) -> Result<ObjectRef, RuntimeSignal>{
+
+        match &*self.expr{
+            Expression::Call(call_expr) => {
+                if let Object::Err(err) = &*return_value.borrow(){
+                    if call_expr.bang_set{
+                        return Err(RuntimeSignal::Panic(PanicObj::from_error(
+                            err,
+                            state.clone(),
+                        )));
+                    }else if call_expr.question_mark_set{
+                        return Ok(new_objectref(Object::ReturnVal(ReturnValue {
+                            value: Box::new(return_value.clone()),
+                        })));
+
+                    }
+                }
+                Ok(return_value)
+            }
+            _ => Ok(return_value)
         }
     }
 }

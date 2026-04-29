@@ -34,7 +34,7 @@ pub fn spawn_builtin_function(
         return Err(RuntimeSignal::Panic(PanicObj::new(
             PanicType::WrongArgumentType,
             format!(
-                "expected <type 'future'> as parameter for __sleep, got: '{}'",
+                "expected <type 'future'> as parameter for __spawn, got: '{}'",
                 arg_borrow.get_type()
             ),
             state.clone(),

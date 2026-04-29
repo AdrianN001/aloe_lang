@@ -178,10 +178,14 @@ impl Program {
             }
         }
 
-        {
+        let mut scheduler = {
             let mut state_borrow_mut = state.borrow_mut();
-            state_borrow_mut.scheduler.run();
-        }
+            std::mem::take(&mut state_borrow_mut.scheduler)
+        };
+
+        scheduler.run()?;
+        
+        state.borrow_mut().scheduler = scheduler;
 
         Ok(result)
     }
@@ -278,10 +282,14 @@ impl Program {
             }
         }
 
-        {
+        let mut scheduler = {
             let mut state_borrow_mut = state.borrow_mut();
-            state_borrow_mut.scheduler.run();
-        }
+            std::mem::take(&mut state_borrow_mut.scheduler)
+        };
+
+        scheduler.run()?;
+
+        state.borrow_mut().scheduler = scheduler;
 
         Ok(result)
     }

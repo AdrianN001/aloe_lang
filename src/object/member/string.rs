@@ -51,6 +51,7 @@ impl StringObj {
 
             "is_empty" => Ok(self.is_empty()),
             "is_ascii" => Ok(self.is_ascii()),
+            "is_digit" => Ok(self.is_digit()),
 
             "starts_with" => Ok(self.starts_with(args, state)),
             "ends_with" => Ok(self.ends_with(args, state)),
@@ -303,6 +304,10 @@ impl StringObj {
 
     fn is_ascii(&self) -> ObjectRef {
         new_objectref(Object::get_native_boolean_object(self.value.is_ascii()))
+    }
+
+    fn is_digit(&self) -> ObjectRef {
+        new_objectref(Object::get_native_boolean_object(self.value.chars().all(|c| c.is_ascii_digit())))
     }
 
     fn is_empty(&self) -> ObjectRef {

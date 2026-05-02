@@ -70,10 +70,7 @@ impl AsyncFunction {
 
         let env = self.extend_environment_with_args(name_of_the_function.clone(), arguments);
 
-        let new_future_ref = new_objectref(Object::Future(FutureObj {
-            waiters: vec![],
-            state: FutureState::Invalid,
-        }));
+        let new_future_ref = new_objectref(Object::Future(FutureObj::new(FutureState::Invalid)));
 
         let new_task_ref = Rc::new(RefCell::new(Task {
             statement_index: 0_usize,

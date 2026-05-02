@@ -10,7 +10,28 @@ pub mod task_kind;
 pub struct FutureObj {
     pub state: FutureState,
 
+    id: u64, // unique identifier for the future, used for tracking and debugging
     pub waiters: Vec<TaskRef>,
+}
+
+impl FutureObj {
+    fn generate_id() -> u64 {
+        use std::sync::atomic::{AtomicU64, Ordering};
+        static FUTURE_ID_COUNTER: AtomicU64 = AtomicU64::new(1);
+        FUTURE_ID_COUNTER.fetch_add(1, Ordering::SeqCst)
+    }
+
+    pub fn get_id(&self) -> u64 {
+        self.id
+    }
+
+    pub fn new(state: FutureState) -> Self {
+        FutureObj {
+            state,
+            id: Self::generate_id(),
+            waiters: Vec::new(),
+        }
+    }
 }
 
 impl FutureObj {
@@ -19,6 +40,6 @@ impl FutureObj {
     }
 
     pub fn inspect(&self) -> String {
-        self.get_type()
+        format!("Future(id={})", self.id)
     }
 }

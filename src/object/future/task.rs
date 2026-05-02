@@ -10,7 +10,7 @@ use crate::{
 
 pub type TaskRef = Rc<RefCell<Task>>;
 
-#[derive(PartialEq, Eq, Clone, Default, Debug)]
+#[derive(Clone, Default, Debug)]
 pub struct Task {
     pub statement_index: usize,
     pub statements: Vec<Statement>,
@@ -46,7 +46,7 @@ impl Task {
                     task.state.clone(),
                 )
             };
-            println!("stmt: {}", stmt.to_string());
+            // println!("stmt: {}", stmt.to_string());
 
             // 2. evaluate ohne borrow
             let result = stmt.evaluate(env, state);
@@ -77,3 +77,13 @@ impl Task {
         }
     }
 }
+
+impl PartialEq for Task {
+    fn eq(&self, other: &Self) -> bool {
+        self.name == other.name
+            && self.statement_index == other.statement_index
+            && self.statements == other.statements
+    }
+}
+
+impl Eq for Task {}

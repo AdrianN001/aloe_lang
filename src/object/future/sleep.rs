@@ -11,9 +11,6 @@ impl FutureObj {
         let duration = Duration::from_millis(sleep_ms as u64);
         let now = Instant::now();
 
-        Self {
-            state: FutureState::Pending(FutureKind::Sleep(now + duration)),
-            waiters: vec![],
-        }
+        Self::new(FutureState::Pending(FutureKind::Sleep(now + duration)))
     }
 }

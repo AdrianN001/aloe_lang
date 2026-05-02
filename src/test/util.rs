@@ -10,7 +10,6 @@ pub fn test_cases_for_input_output(testcases: &[(&str, &str)]) {
         let expected_value = testcase.1.to_string();
 
         println!("{}", &input);
-
         let lexer = Lexer::new(input);
         let parser = Parser::new(lexer);
         let program = parser.into_a_program().unwrap();

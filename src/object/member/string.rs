@@ -307,7 +307,9 @@ impl StringObj {
     }
 
     fn is_digit(&self) -> ObjectRef {
-        new_objectref(Object::get_native_boolean_object(self.value.chars().all(|c| c.is_ascii_digit())))
+        new_objectref(Object::get_native_boolean_object(
+            self.value.chars().all(|c| c.is_ascii_digit()),
+        ))
     }
 
     fn is_empty(&self) -> ObjectRef {

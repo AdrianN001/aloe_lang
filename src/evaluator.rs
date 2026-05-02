@@ -31,7 +31,8 @@ use crate::object::null::Null;
 use crate::object::panic_obj::{PanicObj, RuntimeSignal};
 use crate::object::return_value::ReturnValue;
 use crate::object::stack_environment::{EnvRef, StackEnvironment};
-use crate::object::state::{DEFAULT_INTERPRETER_STATE, StateRef};
+use crate::object::state::scheduler::GLOBAL_SCHEDULER;
+use crate::object::state::{InterpreterState, StateRef};
 use crate::object::string_obj::StringObj;
 use crate::object::{ObjectRef, new_objectref};
 
@@ -140,7 +141,7 @@ impl Program {
         module_loader: &mut ModuleLoader,
     ) -> Result<ObjectRef, RuntimeSignal> {
         let mut result = Rc::new(RefCell::new(Object::Null(Null {})));
-        let state = Rc::new(RefCell::new(DEFAULT_INTERPRETER_STATE));
+        let state = Rc::new(RefCell::new(InterpreterState::default()));
 
         for stmt in self.statements.iter() {
             result = match stmt {
@@ -178,21 +179,18 @@ impl Program {
             }
         }
 
-        let mut scheduler = {
-            let mut state_borrow_mut = state.borrow_mut();
-            std::mem::take(&mut state_borrow_mut.scheduler)
-        };
-
-        scheduler.run()?;
-        
-        state.borrow_mut().scheduler = scheduler;
+        GLOBAL_SCHEDULER.with(|scheduler| {
+            let mut scheduler_borrow = scheduler.borrow_mut();
+            scheduler_borrow.run()?;
+            Ok(())
+        })?;
 
         Ok(result)
     }
 
     pub fn evaluate_as_repl(&self, environ: EnvRef) -> Result<ObjectRef, RuntimeSignal> {
         let mut result = Rc::new(RefCell::new(Object::Null(Null {})));
-        let state = Rc::new(RefCell::new(DEFAULT_INTERPRETER_STATE));
+        let state = Rc::new(RefCell::new(InterpreterState::default()));
 
         for stmt in self.statements.iter() {
             result = match stmt {
@@ -239,7 +237,7 @@ impl Program {
 
     pub fn evaluate_with_default(&self) -> Result<ObjectRef, RuntimeSignal> {
         let mut result = Rc::new(RefCell::new(Object::Null(Null {})));
-        let state = Rc::new(RefCell::new(DEFAULT_INTERPRETER_STATE));
+        let state = Rc::new(RefCell::new(InterpreterState::default()));
         let environ = Rc::new(RefCell::new(StackEnvironment::new()));
 
         for stmt in self.statements.iter() {
@@ -282,14 +280,11 @@ impl Program {
             }
         }
 
-        let mut scheduler = {
-            let mut state_borrow_mut = state.borrow_mut();
-            std::mem::take(&mut state_borrow_mut.scheduler)
-        };
-
-        scheduler.run()?;
-
-        state.borrow_mut().scheduler = scheduler;
+        GLOBAL_SCHEDULER.with(|scheduler| {
+            let mut scheduler_borrow = scheduler.borrow_mut();
+            scheduler_borrow.run()?;
+            Ok(())
+        })?;
 
         Ok(result)
     }

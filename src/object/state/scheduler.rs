@@ -1,32 +1,42 @@
 use std::{
     cell::RefCell,
-    collections::VecDeque,
+    collections::{HashMap, VecDeque},
+    sync::mpsc::{Receiver, Sender},
     time::{Duration, Instant},
 };
 
+pub mod message_output;
+
 use crate::object::{
-    Object,
+    Object, ObjectRef,
     future::{
         future_state::FutureState,
         task::{Task, TaskRef},
         task_kind::TaskKind,
     },
+    new_objectref,
     panic_obj::RuntimeSignal,
+    state::scheduler::message_output::MessageOutput,
+    string_obj::StringObj,
 };
 
 thread_local! {
     pub static CURRENT_TASK: RefCell<Option<TaskRef>> = RefCell::new(None);
+    pub static GLOBAL_SCHEDULER: RefCell<Scheduler> = RefCell::new(Scheduler::default());
+    pub static TOKIO_RUNTIME: RefCell<tokio::runtime::Runtime> = RefCell::new(tokio::runtime::Runtime::new().unwrap());
+    pub static SCHEDULER_CHANNEL: RefCell<(Sender<(u64, MessageOutput)>, Receiver<(u64, MessageOutput)>)> = RefCell::new(std::sync::mpsc::channel());
+    pub static IO_FUTURES: RefCell<HashMap<u64, ObjectRef>> = RefCell::new(HashMap::<u64, ObjectRef>::new());
+
 }
 
-#[derive(PartialEq, Eq, Clone, Default, Debug)]
+#[derive(Debug)]
 pub struct Scheduler {
-    pub queue: VecDeque<TaskRef>,
+    pub main_queue: VecDeque<TaskRef>,
     pub sleeping: Vec<(TaskRef, Instant)>,
-    pub current_task: Option<TaskRef>,
 }
 
 impl Scheduler {
-    pub fn run(&mut self) -> Result<(), RuntimeSignal>{
+    pub fn run(&mut self) -> Result<(), RuntimeSignal> {
         loop {
             let now = Instant::now();
 
@@ -43,13 +53,39 @@ impl Scheduler {
                         task_borrow.statement_index += 1;
                     }
 
-                    self.queue.push_back(task);
+                    self.main_queue.push_back(task);
                 } else {
                     i += 1;
                 }
             }
+            if let Some((future_id, message)) = try_get_message_from_scheduler() {
+                if let Some(future_ref) = remove_io_future(&future_id) {
+                    let mut future_borrow = future_ref.borrow_mut();
 
-            if let Some(task) = self.queue.pop_front() {
+                    if let Object::Future(future_obj) = &mut *future_borrow {
+                        future_obj.state = FutureState::Ready({
+                            match message {
+                                MessageOutput::PlainText(text) => {
+                                    new_objectref(Object::String(StringObj { value: text }))
+                                }
+                                MessageOutput::BinaryData(_bytes) => todo!(),
+                            }
+                        });
+
+                        future_obj.waiters.iter().for_each(|waiter_task| {
+                            {
+                                waiter_task.borrow_mut().pending_future = Some(future_ref.clone());
+                            }
+
+                            self.main_queue.push_back(waiter_task.clone());
+                        });
+
+                        future_obj.waiters.clear();
+                    }
+                }
+            }
+
+            if let Some(task) = self.main_queue.pop_front() {
                 CURRENT_TASK.with(|slot| {
                     *slot.borrow_mut() = Some(task.clone());
                 });
@@ -78,7 +114,7 @@ impl Scheduler {
                                             Some(original_future.clone());
                                     }
 
-                                    self.queue.push_back(waiter_task.clone());
+                                    self.main_queue.push_back(waiter_task.clone());
                                 });
 
                                 future_raw.waiters.clear();
@@ -93,12 +129,13 @@ impl Scheduler {
                                 TaskKind::Sleep(wait_until) => {
                                     self.sleeping.push((task.clone(), *wait_until));
                                 }
-                                TaskKind::Value(new_awaited_taskref) => {
-                                    self.queue.push_back(new_awaited_taskref.clone());
+                                TaskKind::ValueJoin(new_awaited_taskref) => {
+                                    self.main_queue.push_back(new_awaited_taskref.clone());
                                 }
+                                TaskKind::FileIOJoin => {}
                             }
                         } else {
-                            self.queue.push_back(task.clone());
+                            self.main_queue.push_back(task.clone());
                         }
                     }
 
@@ -116,11 +153,21 @@ impl Scheduler {
                 CURRENT_TASK.with(|slot| {
                     *slot.borrow_mut() = None;
                 });
-            } else if !self.sleeping.is_empty() {
+                // I/O-Tasks
+            } else if !self.sleeping.is_empty() && !io_future_empty() {
                 std::thread::sleep(Duration::from_millis(1));
             } else {
                 break Ok(());
             }
+        }
+    }
+}
+
+impl Default for Scheduler {
+    fn default() -> Self {
+        Scheduler {
+            main_queue: VecDeque::new(),
+            sleeping: Vec::new(),
         }
     }
 }
@@ -139,4 +186,28 @@ pub fn clear_current_task() {
     CURRENT_TASK.with(|slot| {
         *slot.borrow_mut() = None;
     });
+}
+
+pub fn add_task_to_scheduler(task: TaskRef) {
+    GLOBAL_SCHEDULER.with(|scheduler| {
+        scheduler.borrow_mut().main_queue.push_back(task);
+    });
+}
+
+pub fn try_get_message_from_scheduler() -> Option<(u64, MessageOutput)> {
+    SCHEDULER_CHANNEL.with(|slot| slot.borrow().1.try_recv().ok())
+}
+
+pub fn add_io_future(future_id: u64, future_ref: ObjectRef) {
+    IO_FUTURES.with(|slot| {
+        slot.borrow_mut().insert(future_id, future_ref);
+    });
+}
+
+pub fn remove_io_future(future_id: &u64) -> Option<ObjectRef> {
+    IO_FUTURES.with(|slot| slot.borrow_mut().remove(future_id))
+}
+
+pub fn io_future_empty() -> bool {
+    IO_FUTURES.with(|slot| slot.borrow().is_empty())
 }

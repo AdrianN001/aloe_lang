@@ -24,8 +24,19 @@ impl InfixExpression {
         environ: EnvRef,
         state: StateRef,
     ) -> Result<ObjectRef, RuntimeSignal> {
-        if matches!(*self.left, Expression::AwaitExpr(_)) || matches!(*self.right, Expression::AwaitExpr(_)){
-            return Err(RuntimeSignal::Panic(PanicObj::new(PanicType::MultipleAwaitInOneStatement, format!("cannot have multiple await expression in one statement:{} {} {}", self.left.to_string(), self.operator, self.right.to_string()), state)));
+        if matches!(*self.left, Expression::AwaitExpr(_))
+            || matches!(*self.right, Expression::AwaitExpr(_))
+        {
+            return Err(RuntimeSignal::Panic(PanicObj::new(
+                PanicType::MultipleAwaitInOneStatement,
+                format!(
+                    "cannot have multiple await expression in one statement:{} {} {}",
+                    self.left.to_string(),
+                    self.operator,
+                    self.right.to_string()
+                ),
+                state,
+            )));
         }
         let left_side = self.left.evaluate(environ.clone(), state.clone())?;
 

@@ -3,11 +3,17 @@ use std::io::{Read, Seek, SeekFrom, Write};
 use crate::object::{
     Object, ObjectRef,
     error::{error_type::ErrorType, panic_type::PanicType},
+    future::{FutureObj, future_kind::FutureKind, future_state::FutureState},
     integer::Integer,
     native_object::file::FileWrapper,
     new_objectref,
     panic_obj::PanicObj,
-    state::StateRef,
+    state::{
+        StateRef,
+        scheduler::{
+            SCHEDULER_CHANNEL, TOKIO_RUNTIME, add_io_future, message_output::MessageOutput,
+        },
+    },
     string_obj::StringObj,
 };
 
@@ -20,6 +26,7 @@ impl FileWrapper {
     ) -> Result<ObjectRef, PanicObj> {
         match name {
             "read" => Ok(self.read(state)),
+            "read_async" => Ok(self.read_async(state)),
             "write" => Ok(self.write(args, state)),
             "seek" => Ok(self.seek(args, state)),
             "close" => Ok(self.close(state)),
@@ -237,5 +244,53 @@ impl FileWrapper {
         let _ = self.native_file.take();
 
         new_objectref(Object::NULL_OBJECT)
+    }
+
+    pub fn read_async(&mut self, state: StateRef) -> ObjectRef {
+        if self.mode != "r" {
+            return new_objectref(Object::new_error(
+                ErrorType::FileMode,
+                "file was not opened with read flag".into(),
+                state,
+            ));
+        }
+        if !self.get_is_open_raw() {
+            return new_objectref(Object::new_error(
+                ErrorType::FileIsClosed,
+                format!("{} is already closed.", self.inspect()),
+                state,
+            ));
+        }
+
+        let future = new_objectref(Object::Future(FutureObj::new(FutureState::Pending(
+            FutureKind::FileIO,
+        ))));
+
+        let future_id = {
+            let future_borrow = future.borrow();
+            if let Object::Future(future_obj) = &*future_borrow {
+                future_obj.get_id()
+            } else {
+                panic!("Expected a Future object");
+            }
+        };
+
+        add_io_future(future_id, future.clone());
+
+        let path = self.path.clone();
+
+        let tx = SCHEDULER_CHANNEL.with(|slot| slot.borrow().0.clone());
+
+        TOKIO_RUNTIME.with(|slot| {
+            let runtime = slot.borrow();
+
+            runtime.spawn(async move {
+                let result = tokio::fs::read_to_string(path).await.unwrap();
+                tx.send((future_id, MessageOutput::PlainText(result)))
+                    .unwrap();
+            });
+        });
+
+        future
     }
 }

@@ -1,30 +1,16 @@
-use std::{cell::RefCell, collections::VecDeque, rc::Rc};
+use std::{cell::RefCell, rc::Rc};
 
-use crate::object::{
-    future::task::TaskRef,
-    state::{call_frame::CallFrame, scheduler::Scheduler},
-};
+use crate::object::state::call_frame::CallFrame;
 
 mod call_frame;
 pub mod scheduler;
 
 pub type StateRef = Rc<RefCell<InterpreterState>>;
 
-pub const DEFAULT_INTERPRETER_STATE: InterpreterState = InterpreterState {
-    stack: Vec::new(),
-    scheduler: Scheduler {
-        queue: VecDeque::new(),
-        current_task: None,
-        sleeping: Vec::new(),
-    },
-};
-
-#[derive(PartialEq, Eq, Clone, Default, Debug)]
+#[derive(Debug)]
 pub struct InterpreterState {
     pub stack: Vec<CallFrame>,
-    pub scheduler: Scheduler,
 }
-
 impl InterpreterState {
     pub fn push_to_stack(&mut self, stack_name: String) {
         self.stack.push(CallFrame { name: stack_name });
@@ -38,10 +24,6 @@ impl InterpreterState {
         self.stack.pop();
     }
 
-    pub fn add_to_scheduler(&mut self, task: TaskRef) {
-        self.scheduler.queue.push_back(task);
-    }
-
     pub fn collect_as_stack_trace(&self) -> Vec<String> {
         self.stack
             .iter()
@@ -49,3 +31,17 @@ impl InterpreterState {
             .collect()
     }
 }
+
+impl Default for InterpreterState {
+    fn default() -> Self {
+        Self { stack: Vec::new() }
+    }
+}
+
+impl PartialEq for InterpreterState {
+    fn eq(&self, _other: &Self) -> bool {
+        false
+    }
+}
+
+impl Eq for InterpreterState {}

@@ -3,7 +3,7 @@ pub mod panic_type;
 
 use crate::object::{error::error_type::ErrorType, state::StateRef};
 
-#[derive(PartialEq, Eq, Clone, Debug)]
+#[derive(Clone, Debug)]
 pub struct Error {
     pub value: String,
     pub state: StateRef,
@@ -36,3 +36,11 @@ impl Error {
         self.value.clone()
     }
 }
+
+impl PartialEq for Error {
+    fn eq(&self, other: &Self) -> bool {
+        self.type_of == other.type_of && self.value == other.value
+    }
+}
+
+impl Eq for Error {}

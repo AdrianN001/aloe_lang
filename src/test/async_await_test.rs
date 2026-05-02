@@ -28,6 +28,15 @@ __spawn(b());
 ",
             "null",
         ),
+        (
+            "async fun main(){
+        let file = __open(\"examples/math.aloe\");
+        let content = await file.read_async()!;
+        print(content);
+    }
+    __spawn(main());",
+            "null",
+        ),
     ];
 
     test_cases_for_input_output(&testcases);

@@ -263,7 +263,7 @@ impl FileWrapper {
         }
 
         let future = new_objectref(Object::Future(FutureObj::new(FutureState::Pending(
-            FutureKind::FileIO,
+            FutureKind::IO,
         ))));
 
         let future_id = {

@@ -38,6 +38,10 @@ pub enum PanicType {
 
     FileOpen,
 
+    SocketBind,
+    SocketAccept,
+    Listener,
+
     PathResolve,
     PathChildResolve,
 

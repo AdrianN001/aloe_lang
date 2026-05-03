@@ -1,0 +1,49 @@
+
+fun convert_raw_message_to_uppercase(raw_message){
+    let output = [];
+
+    for byte <- raw_message{
+        let character = byte.as_utf_char()?;
+
+
+        output.push(if character == " "{
+            character
+        }else{
+            character.to_upper()
+        });
+    }
+
+    output.join("")
+}
+
+
+fun main(){
+
+    let address = "127.0.0.1";
+    let port = 6557;
+
+
+    let listener = __tcp_bind(address, port);
+
+    let client_stream = listener.accept();
+
+    let message_from_client = client_stream.read();  
+
+    while {
+
+        let uppercase_message = convert_raw_message_to_uppercase(message_from_client)?;        
+
+        println("raw message: ", message_from_client, "\t message received converted to uppercase => ", uppercase_message);
+
+        client_stream.write(uppercase_message.as_byte_array());
+        
+
+        if (message_from_client = client_stream.read()).length <= 1{ # only a \n character
+            break;
+        }
+    } 
+
+    println("Server closes"); 
+}
+
+main()!

@@ -1,9 +1,10 @@
 pub mod file;
 pub mod path;
+pub mod network;
 
 use crate::object::{
     ObjectRef,
-    native_object::{file::FileWrapper, path::PathWrapper},
+    native_object::{file::FileWrapper, network::{TCPSocketListenerWrapper, TCPSocketWrapper}, path::PathWrapper},
     panic_obj::PanicObj,
     state::StateRef,
 };
@@ -12,6 +13,9 @@ use crate::object::{
 pub enum NativeObject {
     File(Box<FileWrapper>),
     Path(PathWrapper),
+
+    TCPListener(TCPSocketListenerWrapper),
+    TCPSocket(TCPSocketWrapper),
 }
 
 impl NativeObject {
@@ -19,6 +23,8 @@ impl NativeObject {
         match self {
             NativeObject::File(file) => file.type_name(),
             NativeObject::Path(path) => path.type_name(),
+            NativeObject::TCPListener(listener) => listener.type_name(),
+            NativeObject::TCPSocket(socket) => socket.type_name(),
         }
     }
 
@@ -26,6 +32,8 @@ impl NativeObject {
         match self {
             NativeObject::File(file) => file.inspect(),
             NativeObject::Path(path) => path.inspect(),
+            NativeObject::TCPListener(listener) => listener.inspect(),
+            NativeObject::TCPSocket(socket) => socket.inspect(),
         }
     }
 
@@ -33,6 +41,9 @@ impl NativeObject {
         match self {
             NativeObject::File(file) => file.get_is_open(),
             NativeObject::Path(path) => path.exists(),
+            NativeObject::TCPListener(listener) => listener.to_bool(),
+            NativeObject::TCPSocket(socket) => socket.to_bool(),
+            _ => panic!()
         }
     }
 
@@ -40,6 +51,10 @@ impl NativeObject {
         match self {
             NativeObject::File(file) => file.get_is_open_raw(),
             NativeObject::Path(path) => path.exists_raw(),
+            NativeObject::TCPListener(listener) => listener.to_bool_raw(),
+            NativeObject::TCPSocket(socket) => !socket.is_closed(),
+
+            _ => panic!()
         }
     }
 
@@ -52,6 +67,9 @@ impl NativeObject {
         match self {
             NativeObject::File(file) => file.apply_method(name, args, state),
             NativeObject::Path(path) => path.apply_method(name, args, state),
+            NativeObject::TCPListener(listener) => listener.apply_method(name, args, state),
+            NativeObject::TCPSocket(socket) => socket.apply_method(name, args, state),
+            _ => panic!()
         }
     }
 
@@ -59,6 +77,10 @@ impl NativeObject {
         match self {
             NativeObject::File(file) => file.apply_attribute(name, state),
             NativeObject::Path(path) => path.apply_attribute(name, state),
+            NativeObject::TCPListener(listener) => listener.apply_attribute(name, state),
+            NativeObject::TCPSocket(socket) => socket.apply_attribute(name, state),
+
+            _ => panic!()
         }
     }
 }

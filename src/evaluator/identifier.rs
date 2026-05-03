@@ -36,6 +36,8 @@ impl Identifier {
 
             "__open" => Some(BuiltIn::Open),
             "__path" => Some(BuiltIn::Path),
+            "__tcp_bind" => Some(BuiltIn::TCPBind),
+            "__tcp_connect" => Some(BuiltIn::TCPConnect),
 
             "__sleep" => Some(BuiltIn::Sleep),
             "__sleep2" => Some(BuiltIn::Sleep2),

@@ -26,5 +26,8 @@ pub enum ErrorType {
 
     UTFValueCasting,
 
+    SocketAccept,
+    SocketRead,
+
     CustomError(),
 }

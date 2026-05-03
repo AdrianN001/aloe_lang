@@ -67,7 +67,7 @@ impl AwaitExpression {
                         future_obj.waiters.push(current_task_rc.clone());
                         curr_task.kind = Some(TaskKind::ValueJoin(task.clone()))
                     }
-                    FutureKind::FileIO => {
+                    FutureKind::IO => {
                         curr_task.pending_future = Some(future_to_await.clone());
                         future_obj.waiters.push(current_task_rc.clone());
                         curr_task.kind = Some(TaskKind::FileIOJoin);

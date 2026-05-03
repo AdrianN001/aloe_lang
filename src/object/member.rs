@@ -15,6 +15,7 @@ pub mod int;
 pub mod iterator;
 pub mod path_wrapper;
 pub mod string;
+pub mod network_wrapper;
 
 impl Object {
     pub fn apply_attribute(

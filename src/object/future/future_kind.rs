@@ -6,7 +6,7 @@ use crate::object::future::task::TaskRef;
 pub enum FutureKind {
     Value(TaskRef),
     Sleep(Instant),
-    FileIO,
+    IO,
 }
 
 impl Clone for FutureKind {
@@ -14,7 +14,7 @@ impl Clone for FutureKind {
         match self {
             FutureKind::Value(task_ref) => FutureKind::Value(task_ref.clone()),
             FutureKind::Sleep(instant) => FutureKind::Sleep(*instant),
-            FutureKind::FileIO => FutureKind::FileIO,
+            FutureKind::IO => FutureKind::IO,
         }
     }
 }
@@ -24,7 +24,7 @@ impl PartialEq for FutureKind {
         match (self, other) {
             (FutureKind::Value(task_ref1), FutureKind::Value(task_ref2)) => task_ref1 == task_ref2,
             (FutureKind::Sleep(instant1), FutureKind::Sleep(instant2)) => instant1 == instant2,
-            (FutureKind::FileIO, FutureKind::FileIO) => panic!("Cannot compare FileIO future kind"),
+            (FutureKind::IO, FutureKind::IO) => panic!("Cannot compare FileIO future kind"),
             _ => false,
         }
     }

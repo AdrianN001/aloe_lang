@@ -1,0 +1,30 @@
+
+fun convert_bytes_to_str(bytes){
+    bytes.map(fn(byte){ byte.as_utf_char()! }).join("")
+}
+
+fun main(){
+
+    let address = "127.0.0.1";
+    let port = 6557;
+
+    let server_stream = __tcp_connect(address, port)?;
+
+    let msg = "";
+
+    while msg = __input() {
+        let msg_bytes = msg.as_byte_array();
+        
+        server_stream.write(msg_bytes);
+
+        let response = server_stream.read();
+        println("from the server: ", convert_bytes_to_str(response));
+    } 
+
+    server_stream.close();
+
+
+    println("Client closes"); 
+}
+
+main()!

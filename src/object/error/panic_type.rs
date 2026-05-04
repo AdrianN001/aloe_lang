@@ -40,6 +40,8 @@ pub enum PanicType {
 
     SocketBind,
     SocketAccept,
+    SocketRead,
+    SocketWrite,
     Listener,
 
     PathResolve,

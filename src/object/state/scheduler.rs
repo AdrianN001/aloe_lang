@@ -23,10 +23,12 @@ use crate::object::{
 thread_local! {
     pub static CURRENT_TASK: RefCell<Option<TaskRef>> = RefCell::new(None);
     pub static GLOBAL_SCHEDULER: RefCell<Scheduler> = RefCell::new(Scheduler::default());
+    
     pub static TOKIO_RUNTIME: RefCell<tokio::runtime::Runtime> = RefCell::new(tokio::runtime::Runtime::new().unwrap());
     pub static SCHEDULER_CHANNEL: RefCell<(Sender<(u64, MessageOutput)>, Receiver<(u64, MessageOutput)>)> = RefCell::new(std::sync::mpsc::channel());
     pub static IO_FUTURES: RefCell<HashMap<u64, ObjectRef>> = RefCell::new(HashMap::<u64, ObjectRef>::new());
-
+    
+    pub static TEMP_SCHEDULER_QUEUE: RefCell<VecDeque<TaskRef>> = RefCell::new(VecDeque::new());
 }
 
 #[derive(Debug)]
@@ -39,6 +41,8 @@ impl Scheduler {
     pub fn run(&mut self) -> Result<(), RuntimeSignal> {
         loop {
             let now = Instant::now();
+
+            self.check_if_new_tasks_added();
 
             // Wakeup prüfen
             let mut i = 0;
@@ -63,14 +67,7 @@ impl Scheduler {
                     let mut future_borrow = future_ref.borrow_mut();
 
                     if let Object::Future(future_obj) = &mut *future_borrow {
-                        future_obj.state = FutureState::Ready({
-                            match message {
-                                MessageOutput::PlainText(text) => {
-                                    new_objectref(Object::String(StringObj { value: text }))
-                                }
-                                MessageOutput::BinaryData(_bytes) => todo!(),
-                            }
-                        });
+                        future_obj.state = FutureState::Ready(message.to_objectref()?);
 
                         future_obj.waiters.iter().for_each(|waiter_task| {
                             {
@@ -154,10 +151,19 @@ impl Scheduler {
                     *slot.borrow_mut() = None;
                 });
                 // I/O-Tasks
-            } else if !self.sleeping.is_empty() && !io_future_empty() {
+            } else if !self.sleeping.is_empty() || !io_future_empty() {
                 std::thread::sleep(Duration::from_millis(1));
             } else {
                 break Ok(());
+            }
+        }
+    }
+
+    fn check_if_new_tasks_added(&mut self) {
+        let new_tasks = get_tasks_from_temp_scheduler_queue();
+        if let Some(tasks) = new_tasks {
+            for task in tasks {
+                self.main_queue.push_back(task);
             }
         }
     }
@@ -210,4 +216,21 @@ pub fn remove_io_future(future_id: &u64) -> Option<ObjectRef> {
 
 pub fn io_future_empty() -> bool {
     IO_FUTURES.with(|slot| slot.borrow().is_empty())
+}
+
+pub fn send_task_to_scheduler(task: TaskRef) {
+    TEMP_SCHEDULER_QUEUE.with(|slot| {
+        slot.borrow_mut().push_back(task);
+    });
+}
+
+pub fn get_tasks_from_temp_scheduler_queue() -> Option<Vec<TaskRef>> {
+    TEMP_SCHEDULER_QUEUE.with(|slot| {
+        let mut queue = slot.borrow_mut();
+        if queue.is_empty(){
+            return None
+        }
+        let tasks: Vec<TaskRef> = queue.drain(..).collect();
+        Some(tasks)
+    })
 }

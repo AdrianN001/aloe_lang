@@ -18,9 +18,11 @@ impl WhileLoopExpression {
         if let Some(condition) = &self.condition {
             buffer.push_str(&condition.to_string());
         }
+        buffer.push_str("{\n");
 
         buffer.push_str(&self.block.to_string());
 
+        buffer.push_str("}\n");
         buffer
     }
 }

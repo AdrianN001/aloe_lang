@@ -25,6 +25,8 @@ fun main(){
 
     let listener = __tcp_bind(address, port);
 
+    println("Server runs on", addr, ":", port);
+
     let client_stream = listener.accept();
 
     let message_from_client = client_stream.read();  

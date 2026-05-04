@@ -4,7 +4,7 @@ use crate::object::{
     future::{future_kind::FutureKind, future_state::FutureState},
     new_objectref,
     panic_obj::{PanicObj, RuntimeSignal},
-    state::{StateRef, scheduler::add_task_to_scheduler},
+    state::{StateRef, scheduler::{add_task_to_scheduler, send_task_to_scheduler}},
 };
 
 // __spawn()
@@ -25,7 +25,7 @@ pub fn spawn_builtin_function(
     if let Object::Future(future) = &*arg_borrow {
         if let FutureState::Pending(future_kind) = &future.state {
             if let FutureKind::Value(task) = future_kind {
-                add_task_to_scheduler(task.clone());
+                send_task_to_scheduler(task.clone());
             }
         }
     } else {

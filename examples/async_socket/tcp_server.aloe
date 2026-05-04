@@ -1,0 +1,33 @@
+
+let raw_bytes_to_ascii = fn(raw_bytes){
+    raw_bytes.map(fn(byte){byte.as_utf_char()}).join()
+};
+
+async fun handle_connection(client_stream){
+    println("new connection with: ", client_stream);
+
+    let incomming_msg = [];
+
+    while (incomming_msg = await client_stream.read()).length > 2{
+        println(client_stream, "sent: ", raw_bytes_to_ascii(incomming_msg) );
+    }
+
+    println("client disconnected"); 
+}
+
+async fun main(){
+    let addr = "127.0.0.1";
+    let port = 4560;
+
+    let listener = __atcp_bind(addr, port);
+    println("Server runs on", addr, ":", port);
+
+    while {
+        let connection = await listener.accept();
+
+        __spawn(handle_connection(connection));
+    }
+
+}
+
+__spawn(main())

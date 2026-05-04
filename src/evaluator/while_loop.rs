@@ -53,6 +53,7 @@ impl WhileLoopExpression {
                         state.clone(),
                     )));
                 }
+
                 let result = statement.evaluate(environ.clone(), state.clone())?;
 
                 match &*result.borrow() {

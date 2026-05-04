@@ -1,0 +1,17 @@
+
+async fun main(){
+    let addr = "127.0.0.1";
+    let port = 4560;
+
+    let server_stream = __atcp_connect(addr, port);
+    println("Connected to the server on[", addr, ":", port,"]");
+
+    let inpt = "";
+
+    while (inpt = __input()) {
+        await server_stream.write(inpt.as_byte_array()); 
+    }
+
+}
+
+__spawn(main())

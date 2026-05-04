@@ -38,6 +38,8 @@ impl Identifier {
             "__path" => Some(BuiltIn::Path),
             "__tcp_bind" => Some(BuiltIn::TCPBind),
             "__tcp_connect" => Some(BuiltIn::TCPConnect),
+            "__atcp_bind" => Some(BuiltIn::ATCPBind),
+            "__atcp_connect" => Some(BuiltIn::ATCPConnect),
 
             "__sleep" => Some(BuiltIn::Sleep),
             "__sleep2" => Some(BuiltIn::Sleep2),

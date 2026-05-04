@@ -1,10 +1,12 @@
 
-let fib = fn(n){
+fun fibonacci(n){
   if (n < 2){
     return n;
   }
 
-  return fib(n-2) + fib(n-1);
+  return fibonacci(n-2) + fibonacci(n-1);
 }
 
-print(fib(15));
+for i <- range(20){
+  println(i+1, ". fibonacci number => ", fibonacci(i));
+}

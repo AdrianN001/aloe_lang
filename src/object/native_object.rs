@@ -1,10 +1,11 @@
 pub mod file;
 pub mod path;
 pub mod network;
+pub mod a_network;
 
 use crate::object::{
     ObjectRef,
-    native_object::{file::FileWrapper, network::{TCPSocketListenerWrapper, TCPSocketWrapper}, path::PathWrapper},
+    native_object::{a_network::{ATCPSocketListenerWrapper, ATCPSocketWrapper}, file::FileWrapper, network::{TCPSocketListenerWrapper, TCPSocketWrapper}, path::PathWrapper},
     panic_obj::PanicObj,
     state::StateRef,
 };
@@ -16,6 +17,9 @@ pub enum NativeObject {
 
     TCPListener(TCPSocketListenerWrapper),
     TCPSocket(TCPSocketWrapper),
+
+    ATCPListener(ATCPSocketListenerWrapper),
+    ATCPSocket(ATCPSocketWrapper),
 }
 
 impl NativeObject {
@@ -25,6 +29,8 @@ impl NativeObject {
             NativeObject::Path(path) => path.type_name(),
             NativeObject::TCPListener(listener) => listener.type_name(),
             NativeObject::TCPSocket(socket) => socket.type_name(),
+            NativeObject::ATCPListener(listener) => listener.type_name(),
+            NativeObject::ATCPSocket(socket) => socket.type_name(),
         }
     }
 
@@ -34,6 +40,8 @@ impl NativeObject {
             NativeObject::Path(path) => path.inspect(),
             NativeObject::TCPListener(listener) => listener.inspect(),
             NativeObject::TCPSocket(socket) => socket.inspect(),
+            NativeObject::ATCPListener(listener) => listener.inspect(),
+            NativeObject::ATCPSocket(socket) => socket.inspect(),
         }
     }
 
@@ -43,6 +51,8 @@ impl NativeObject {
             NativeObject::Path(path) => path.exists(),
             NativeObject::TCPListener(listener) => listener.to_bool(),
             NativeObject::TCPSocket(socket) => socket.to_bool(),
+            NativeObject::ATCPListener(listener) => listener.to_bool(),
+            NativeObject::ATCPSocket(socket) => socket.to_bool(),
             _ => panic!()
         }
     }
@@ -53,7 +63,8 @@ impl NativeObject {
             NativeObject::Path(path) => path.exists_raw(),
             NativeObject::TCPListener(listener) => listener.to_bool_raw(),
             NativeObject::TCPSocket(socket) => !socket.is_closed(),
-
+            NativeObject::ATCPListener(listener) => listener.to_bool_raw(),
+            NativeObject::ATCPSocket(socket) => socket.to_bool_raw(),
             _ => panic!()
         }
     }
@@ -69,6 +80,8 @@ impl NativeObject {
             NativeObject::Path(path) => path.apply_method(name, args, state),
             NativeObject::TCPListener(listener) => listener.apply_method(name, args, state),
             NativeObject::TCPSocket(socket) => socket.apply_method(name, args, state),
+            NativeObject::ATCPListener(listener) => listener.apply_method(name, args, state),
+            NativeObject::ATCPSocket(socket) => socket.apply_method(name, args, state),
             _ => panic!()
         }
     }
@@ -79,7 +92,8 @@ impl NativeObject {
             NativeObject::Path(path) => path.apply_attribute(name, state),
             NativeObject::TCPListener(listener) => listener.apply_attribute(name, state),
             NativeObject::TCPSocket(socket) => socket.apply_attribute(name, state),
-
+            NativeObject::ATCPListener(listener) => listener.apply_attribute(name, state),
+            NativeObject::ATCPSocket(socket) => socket.apply_attribute(name, state),
             _ => panic!()
         }
     }

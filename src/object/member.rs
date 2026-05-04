@@ -7,16 +7,16 @@ use crate::object::{
     state::StateRef,
 };
 
+pub mod a_network_wrapper;
 pub mod array;
 pub mod file_wrapper;
 pub mod float;
 pub mod hashmap;
 pub mod int;
 pub mod iterator;
+pub mod network_wrapper;
 pub mod path_wrapper;
 pub mod string;
-pub mod network_wrapper;
-pub mod a_network_wrapper;
 
 impl Object {
     pub fn apply_attribute(

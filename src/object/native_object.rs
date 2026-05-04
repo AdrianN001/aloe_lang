@@ -1,11 +1,16 @@
-pub mod file;
-pub mod path;
-pub mod network;
 pub mod a_network;
+pub mod file;
+pub mod network;
+pub mod path;
 
 use crate::object::{
     ObjectRef,
-    native_object::{a_network::{ATCPSocketListenerWrapper, ATCPSocketWrapper}, file::FileWrapper, network::{TCPSocketListenerWrapper, TCPSocketWrapper}, path::PathWrapper},
+    native_object::{
+        a_network::{ATCPSocketListenerWrapper, ATCPSocketWrapper},
+        file::FileWrapper,
+        network::{TCPSocketListenerWrapper, TCPSocketWrapper},
+        path::PathWrapper,
+    },
     panic_obj::PanicObj,
     state::StateRef,
 };
@@ -53,7 +58,7 @@ impl NativeObject {
             NativeObject::TCPSocket(socket) => socket.to_bool(),
             NativeObject::ATCPListener(listener) => listener.to_bool(),
             NativeObject::ATCPSocket(socket) => socket.to_bool(),
-            _ => panic!()
+            _ => panic!(),
         }
     }
 
@@ -65,7 +70,7 @@ impl NativeObject {
             NativeObject::TCPSocket(socket) => !socket.is_closed(),
             NativeObject::ATCPListener(listener) => listener.to_bool_raw(),
             NativeObject::ATCPSocket(socket) => socket.to_bool_raw(),
-            _ => panic!()
+            _ => panic!(),
         }
     }
 
@@ -82,7 +87,7 @@ impl NativeObject {
             NativeObject::TCPSocket(socket) => socket.apply_method(name, args, state),
             NativeObject::ATCPListener(listener) => listener.apply_method(name, args, state),
             NativeObject::ATCPSocket(socket) => socket.apply_method(name, args, state),
-            _ => panic!()
+            _ => panic!(),
         }
     }
 
@@ -94,7 +99,7 @@ impl NativeObject {
             NativeObject::TCPSocket(socket) => socket.apply_attribute(name, state),
             NativeObject::ATCPListener(listener) => listener.apply_attribute(name, state),
             NativeObject::ATCPSocket(socket) => socket.apply_attribute(name, state),
-            _ => panic!()
+            _ => panic!(),
         }
     }
 }

@@ -1,7 +1,13 @@
 use crate::object::{
     Object, ObjectRef,
     error::panic_type::PanicType,
-    native_object::{NativeObject, a_network::{ATCPSocketListenerWrapper, ATCPSocketWrapper}, file::FileWrapper, network::{TCPSocketListenerWrapper, TCPSocketWrapper}, path::PathWrapper},
+    native_object::{
+        NativeObject,
+        a_network::{ATCPSocketListenerWrapper, ATCPSocketWrapper},
+        file::FileWrapper,
+        network::{TCPSocketListenerWrapper, TCPSocketWrapper},
+        path::PathWrapper,
+    },
     new_objectref,
     panic_obj::{PanicObj, RuntimeSignal},
     state::StateRef,
@@ -152,10 +158,11 @@ pub fn path_builtin_function(
     Ok(new_objectref(Object::Native(NativeObject::Path(wrapper))))
 }
 
-
-pub fn tcp_bind_builtin_function(args: &[ObjectRef], state: StateRef) -> Result<ObjectRef, RuntimeSignal>{
-
-    if args.len() != 2{
+pub fn tcp_bind_builtin_function(
+    args: &[ObjectRef],
+    state: StateRef,
+) -> Result<ObjectRef, RuntimeSignal> {
+    if args.len() != 2 {
         return Err(RuntimeSignal::Panic(PanicObj::new(
             PanicType::WrongArgumentCount,
             format!(
@@ -210,11 +217,16 @@ pub fn tcp_bind_builtin_function(args: &[ObjectRef], state: StateRef) -> Result<
 
     let wrapper = TCPSocketListenerWrapper::new(port_as_u16, addr, state)?;
 
-    Ok(new_objectref(Object::Native(NativeObject::TCPListener(wrapper))))
+    Ok(new_objectref(Object::Native(NativeObject::TCPListener(
+        wrapper,
+    ))))
 }
 
-pub fn tcp_connect_builtin_function(args: &[ObjectRef], state: StateRef) -> Result<ObjectRef, RuntimeSignal>{
-    if args.len() != 2{
+pub fn tcp_connect_builtin_function(
+    args: &[ObjectRef],
+    state: StateRef,
+) -> Result<ObjectRef, RuntimeSignal> {
+    if args.len() != 2 {
         return Err(RuntimeSignal::Panic(PanicObj::new(
             PanicType::WrongArgumentCount,
             format!(
@@ -269,12 +281,16 @@ pub fn tcp_connect_builtin_function(args: &[ObjectRef], state: StateRef) -> Resu
 
     let wrapper = TCPSocketWrapper::new_with_connect(addr, port_as_u16, state)?;
 
-    Ok(new_objectref(Object::Native(NativeObject::TCPSocket(wrapper))))
+    Ok(new_objectref(Object::Native(NativeObject::TCPSocket(
+        wrapper,
+    ))))
 }
 
-
-pub fn async_tcp_bind_builtin_function(args: &[ObjectRef], state: StateRef) -> Result<ObjectRef, RuntimeSignal>{
-    if args.len() != 2{
+pub fn async_tcp_bind_builtin_function(
+    args: &[ObjectRef],
+    state: StateRef,
+) -> Result<ObjectRef, RuntimeSignal> {
+    if args.len() != 2 {
         return Err(RuntimeSignal::Panic(PanicObj::new(
             PanicType::WrongArgumentCount,
             format!(
@@ -329,11 +345,16 @@ pub fn async_tcp_bind_builtin_function(args: &[ObjectRef], state: StateRef) -> R
 
     let wrapper = ATCPSocketListenerWrapper::new(port_as_u16, addr, state)?;
 
-    Ok(new_objectref(Object::Native(NativeObject::ATCPListener(wrapper))))
+    Ok(new_objectref(Object::Native(NativeObject::ATCPListener(
+        wrapper,
+    ))))
 }
 
-pub fn async_tcp_connect_builtin_function(args: &[ObjectRef], state: StateRef) -> Result<ObjectRef, RuntimeSignal>{
-    if args.len() != 2{
+pub fn async_tcp_connect_builtin_function(
+    args: &[ObjectRef],
+    state: StateRef,
+) -> Result<ObjectRef, RuntimeSignal> {
+    if args.len() != 2 {
         return Err(RuntimeSignal::Panic(PanicObj::new(
             PanicType::WrongArgumentCount,
             format!(
@@ -388,5 +409,7 @@ pub fn async_tcp_connect_builtin_function(args: &[ObjectRef], state: StateRef) -
 
     let wrapper = ATCPSocketWrapper::new_with_connect(addr, port_as_u16, state)?;
 
-    Ok(new_objectref(Object::Native(NativeObject::ATCPSocket(wrapper))))
+    Ok(new_objectref(Object::Native(NativeObject::ATCPSocket(
+        wrapper,
+    ))))
 }

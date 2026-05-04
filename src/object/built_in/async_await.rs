@@ -4,7 +4,7 @@ use crate::object::{
     future::{future_kind::FutureKind, future_state::FutureState},
     new_objectref,
     panic_obj::{PanicObj, RuntimeSignal},
-    state::{StateRef, scheduler::{add_task_to_scheduler, send_task_to_scheduler}},
+    state::{StateRef, scheduler::send_task_to_scheduler},
 };
 
 // __spawn()

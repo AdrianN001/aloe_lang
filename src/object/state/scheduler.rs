@@ -14,20 +14,18 @@ use crate::object::{
         task::{Task, TaskRef},
         task_kind::TaskKind,
     },
-    new_objectref,
     panic_obj::RuntimeSignal,
     state::scheduler::message_output::MessageOutput,
-    string_obj::StringObj,
 };
 
 thread_local! {
     pub static CURRENT_TASK: RefCell<Option<TaskRef>> = RefCell::new(None);
     pub static GLOBAL_SCHEDULER: RefCell<Scheduler> = RefCell::new(Scheduler::default());
-    
+
     pub static TOKIO_RUNTIME: RefCell<tokio::runtime::Runtime> = RefCell::new(tokio::runtime::Runtime::new().unwrap());
     pub static SCHEDULER_CHANNEL: RefCell<(Sender<(u64, MessageOutput)>, Receiver<(u64, MessageOutput)>)> = RefCell::new(std::sync::mpsc::channel());
     pub static IO_FUTURES: RefCell<HashMap<u64, ObjectRef>> = RefCell::new(HashMap::<u64, ObjectRef>::new());
-    
+
     pub static TEMP_SCHEDULER_QUEUE: RefCell<VecDeque<TaskRef>> = RefCell::new(VecDeque::new());
 }
 
@@ -227,8 +225,8 @@ pub fn send_task_to_scheduler(task: TaskRef) {
 pub fn get_tasks_from_temp_scheduler_queue() -> Option<Vec<TaskRef>> {
     TEMP_SCHEDULER_QUEUE.with(|slot| {
         let mut queue = slot.borrow_mut();
-        if queue.is_empty(){
-            return None
+        if queue.is_empty() {
+            return None;
         }
         let tasks: Vec<TaskRef> = queue.drain(..).collect();
         Some(tasks)

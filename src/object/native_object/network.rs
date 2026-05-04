@@ -1,9 +1,12 @@
 use std::net::SocketAddr;
 
-use crate::object::{error::panic_type::PanicType, panic_obj::{PanicObj, RuntimeSignal}, state::StateRef};
+use crate::object::{
+    error::panic_type::PanicType,
+    panic_obj::{PanicObj, RuntimeSignal},
+    state::StateRef,
+};
 
-
-#[derive( Debug)]
+#[derive(Debug)]
 pub struct TCPSocketWrapper {
     pub stream: std::net::TcpStream,
     pub addr: SocketAddr,
@@ -18,14 +21,24 @@ pub struct TCPSocketListenerWrapper {
     pub nonblocking: bool,
 }
 
-
-impl TCPSocketListenerWrapper{
+impl TCPSocketListenerWrapper {
     pub fn new(port: u16, addr: String, state: StateRef) -> Result<Self, RuntimeSignal> {
         let listener = match std::net::TcpListener::bind(format!("{}:{}", addr, port)) {
             Ok(listener) => listener,
-            Err(e) => return Err(RuntimeSignal::Panic(PanicObj::new( PanicType::SocketBind, format!("Failed to bind TCP listener: {}", e), state))),
+            Err(e) => {
+                return Err(RuntimeSignal::Panic(PanicObj::new(
+                    PanicType::SocketBind,
+                    format!("Failed to bind TCP listener: {}", e),
+                    state,
+                )));
+            }
         };
-        Ok(Self { listener, port, addr, nonblocking: false })
+        Ok(Self {
+            listener,
+            port,
+            addr,
+            nonblocking: false,
+        })
     }
 
     pub fn type_name(&self) -> String {
@@ -38,13 +51,24 @@ impl TCPSocketListenerWrapper{
 }
 
 impl TCPSocketWrapper {
-
-    pub fn new_with_connect(addr: String, port: u16, state: StateRef) -> Result<Self, RuntimeSignal> {
+    pub fn new_with_connect(
+        addr: String,
+        port: u16,
+        state: StateRef,
+    ) -> Result<Self, RuntimeSignal> {
         let stream = match std::net::TcpStream::connect(format!("{}:{}", addr, port)) {
             Ok(stream) => stream,
-            Err(e) => return Err(RuntimeSignal::Panic(PanicObj::new( PanicType::SocketBind, format!("Failed to connect TCP socket: {}", e), state))),
+            Err(e) => {
+                return Err(RuntimeSignal::Panic(PanicObj::new(
+                    PanicType::SocketBind,
+                    format!("Failed to connect TCP socket: {}", e),
+                    state,
+                )));
+            }
         };
-        let addr = stream.peer_addr().unwrap_or_else(|_| SocketAddr::from(([0, 0, 0, 0], 0)));
+        let addr = stream
+            .peer_addr()
+            .unwrap_or_else(|_| SocketAddr::from(([0, 0, 0, 0], 0)));
         Ok(Self { stream, addr })
     }
 
@@ -85,7 +109,10 @@ impl Clone for TCPSocketWrapper {
 impl Clone for TCPSocketListenerWrapper {
     fn clone(&self) -> Self {
         // Note: Cloning a TcpListener creates a new handle to the same underlying socket
-        let listener = self.listener.try_clone().expect("Failed to clone TCP listener");
+        let listener = self
+            .listener
+            .try_clone()
+            .expect("Failed to clone TCP listener");
         TCPSocketListenerWrapper {
             listener,
             port: self.port,

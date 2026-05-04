@@ -55,7 +55,6 @@ impl AwaitExpression {
                 let current_task_rc = take_current_task().expect("no current task found");
                 let mut curr_task = current_task_rc.borrow_mut();
 
-
                 match future_kind {
                     FutureKind::Sleep(wait_until) => {
                         if curr_task.pending_future.is_none() {

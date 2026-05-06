@@ -2,6 +2,7 @@ use std::{cell::RefCell, rc::Rc};
 
 use crate::{
     ast::expression::{Expression, await_expression::AwaitExpression},
+    frame::expr_frame::EvaluationResult,
     object::{
         Object, ObjectRef,
         error::panic_type::PanicType,
@@ -10,7 +11,10 @@ use crate::{
         panic_obj::{PanicObj, RuntimeSignal},
         return_value::ReturnValue,
         stack_environment::EnvRef,
-        state::{StateRef, scheduler::take_current_task},
+        state::{
+            StateRef,
+            scheduler::{add_task_to_scheduler, send_task_to_scheduler, take_current_task},
+        },
     },
 };
 
@@ -78,6 +82,36 @@ impl AwaitExpression {
                 ))))
             }
             _ => panic!(),
+        }
+    }
+
+    pub fn eval2(&self, environ: EnvRef, state: StateRef) -> Result<ObjectRef, RuntimeSignal> {
+        let future_ref = self.expr.evaluate(environ, state.clone())?;
+
+        let mut future_ref_borrow = future_ref.borrow_mut();
+
+        let future_obj = match &mut *future_ref_borrow {
+            Object::Future(future_obj) => future_obj,
+            Object::ReturnVal(_) => return Ok(future_ref.clone()), //progagation
+            other_type => {
+                return Err(RuntimeSignal::Panic(PanicObj::new(
+                    PanicType::NonAwaitableObjectWasAwaited,
+                    format!("{} is not awaitable.", other_type.get_type()),
+                    state.clone(),
+                )));
+            }
+        };
+
+        match &future_obj.state {
+            FutureState::Ready(finished_object) => Ok(finished_object.clone()),
+            FutureState::Pending(type_of_future) => {
+                match type_of_future {
+                    FutureKind::Value(task) => send_task_to_scheduler(task.clone()),
+                    _ => {}
+                }
+                Ok(future_ref.clone())
+            }
+            _ => unreachable!(),
         }
     }
 

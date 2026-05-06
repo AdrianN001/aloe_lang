@@ -4,6 +4,7 @@ use crate::{repl::start_repl, script::run_script};
 
 pub mod ast;
 pub mod evaluator;
+pub mod frame;
 pub mod lexer;
 pub mod module;
 pub mod object;

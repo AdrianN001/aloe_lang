@@ -130,7 +130,8 @@ impl Scheduler {
                                 TaskKind::FileIOJoin => {}
                             }
                         } else {
-                            self.main_queue.push_back(task.clone());
+                            println!("ASD");
+                            self.main_queue.push_back(t.clone());
                         }
                     }
 

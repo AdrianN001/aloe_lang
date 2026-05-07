@@ -16,7 +16,15 @@ impl IndexExpression {
         let left_expr = self.left.evaluate(environ.clone(), state.clone())?;
         let index = self.right.evaluate(environ.clone(), state.clone())?;
 
-        match (&*left_expr.borrow(), &*index.borrow()) {
+        IndexExpression::eval_raw(left_expr, index, state)
+    }
+
+    fn eval_raw(
+        left: ObjectRef,
+        right: ObjectRef,
+        state: StateRef,
+    ) -> Result<ObjectRef, RuntimeSignal> {
+        match (&*left.borrow(), &*right.borrow()) {
             (_, Object::ReturnVal(ret_val)) => Ok(ret_val.unwrap_to_value().clone()),
             (Object::Array(arr), Object::Int(index)) => {
                 let arr_interior_value = &arr.items;
@@ -72,16 +80,25 @@ impl IndexExpression {
                         .to_string(),
                 }))))
             }
-            (Object::HashMap(map), _) => Ok(map.get([index.clone()].as_ref(), state)),
+            (Object::HashMap(map), _) => Ok(map.get([right.clone()].as_ref(), state)),
             _ => Err(RuntimeSignal::Panic(PanicObj::new(
                 PanicType::OperatorIsNotSupported,
                 format!(
-                    "index operator not supported on: {}",
-                    index.borrow().get_type()
+                    "index operator not supported on: {}[{}]",
+                    left.borrow().get_type(),
+                    right.borrow().get_type(),
                 ),
                 state.clone(),
             ))),
         }
+    }
+
+    pub fn eval_step(
+        left: ObjectRef,
+        right: ObjectRef,
+        state: StateRef,
+    ) -> Result<ObjectRef, RuntimeSignal> {
+        IndexExpression::eval_raw(left, right, state)
     }
 
     pub fn evaluate_value_assign(

@@ -140,37 +140,37 @@ fn test_if_statement_evaluation() {
     let testcases = [
         ("if (5 * 5 + 10 > 34) { 99 } else { 100 }", "99"),
         ("if ((1000 / 2) + 250 * 2 == 1000) { 9999; }", "9999"),
-        ("if (true) { 10 }", "10"),
-        ("if (false) { 10 }", "null"),
+        ("if true { 10 }", "10"),
+        ("if false { 10 }", "null"),
         ("if (1 < 2) { 99 }", "99"),
         ("if (1 > 2) { 99 }", "null"),
-        ("if (true) { 10 } else { 20 }", "10"),
-        ("if (false) { 10 } else { 20 }", "20"),
+        ("if true { 10 } else { 20 }", "10"),
+        ("if false { 10 } else { 20 }", "20"),
         ("if (1 > 2) { 1 } else { 2 }", "2"),
-        ("if (false) { 1 } elif (true) { 2 }", "2"),
-        ("if (false) { 1 } elif (false) { 2 }", "null"),
+        ("if false { 1 } elif true { 2 }", "2"),
+        ("if false { 1 } elif false { 2 }", "null"),
         ("if (1 > 2) { 1 } elif (2 > 1) { 2 }", "2"),
         (
             "
-        if (false) { 1 }
-        elif (false) { 2 }
-        elif (true) { 3 }
+        if false { 1 }
+        elif false { 2 }
+        elif true { 3 }
         else { 4 }
     ",
             "3",
         ),
         (
             "
-        if (false) { 1 }
-        elif (false) { 2 }
-        elif (false) { 3 }
+        if false { 1 }
+        elif false { 2 }
+        elif false { 3 }
         else { 4 }
     ",
             "4",
         ),
-        ("if (false) { 1 } elif (false) { 2 } else { 3 }", "3"),
-        ("if (false) { 1 } elif (true) { 2 } else { 3 }", "2"),
-        ("if (true) { 1 } elif (true) { 2 } else { 3 }", "1"), // first match wins
+        ("if false { 1 } elif false { 2 } else { 3 }", "3"),
+        ("if false { 1 } elif true { 2 } else { 3 }", "2"),
+        ("if true { 1 } elif true { 2 } else { 3 }", "1"), // first match wins
     ];
 
     test_cases_for_input_output(&testcases);
@@ -178,7 +178,7 @@ fn test_if_statement_evaluation() {
 
 #[test]
 fn test_if_statement_null_eval() {
-    let testcases = ["if (false){999}", "if (5 < 3){22}"];
+    let testcases = ["if false{999}", "if (5 < 3){22}"];
 
     testcases.iter().for_each(|testcase| {
         let input = testcase.to_string();
@@ -205,7 +205,7 @@ fn test_return_statement() {
             "unexpected return keyword in non-function context",
         ),
         (
-            "if (true) { return 5; }",
+            "if true { return 5; }",
             "cannot return from a non-function context",
         ),
         (
@@ -218,8 +218,8 @@ for i <- range(10){
         ),
         (
             "
-if (true){
-    if (true){
+if true{
+    if true{
         return 10;
     }
 }
@@ -254,21 +254,15 @@ f();
 ",
             "99",
         ),
-        (
-            "let f = fn(){ if (true){ return 1; } return 2; }; f();",
-            "1",
-        ),
-        (
-            "let f = fn(){ if (false){ return 1; } return 2; }; f();",
-            "2",
-        ),
-        ("let f = fn(){ if (true){ 5; } else { 10; } }; f();", "5"),
-        ("let f = fn(){ if (false){ 5; } else { 10; } }; f();", "10"),
+        ("let f = fn(){ if true{ return 1; } return 2; }; f();", "1"),
+        ("let f = fn(){ if false{ return 1; } return 2; }; f();", "2"),
+        ("let f = fn(){ if true{ 5; } else { 10; } }; f();", "5"),
+        ("let f = fn(){ if false{ 5; } else { 10; } }; f();", "10"),
         (
             "
         let f = fn(){
-            if (true){
-                if (true){
+            if true{
+                if true{
                     return 42;
                 }
             }
@@ -1381,11 +1375,11 @@ fn test_break_and_continue() {
         ("break;", "unexpected break keyword in non-loop context"),
         ("break 5;", "unexpected break keyword in non-loop context"),
         (
-            "if (true){ break; }",
+            "if true{ break; }",
             "unexpected break keyword in non-loop context",
         ),
         (
-            "if (true){ break 10; }",
+            "if true{ break 10; }",
             "unexpected break keyword in non-loop context",
         ),
         (
@@ -1393,7 +1387,7 @@ fn test_break_and_continue() {
             "unexpected continue keyword in non-loop context",
         ),
         (
-            "if (true){ continue; }",
+            "if true{ continue; }",
             "unexpected continue keyword in non-loop context",
         ),
         (
@@ -1550,7 +1544,7 @@ f();
         (
             "
 let f = fn(){
-    if (true){
+    if true{
         len()?;
     }
     10;

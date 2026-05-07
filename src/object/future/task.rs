@@ -188,20 +188,37 @@ impl Task {
 
                 self.build_frame_from_expr(&await_expr.expr);
             }
+            Expression::Array(_) => {
+                let new_frame = ExpressionFrame::new_array_frame(expression.clone()).to_ref();
+
+                self.expr_stack.push(new_frame);
+            }
             Expression::Call(_) => {
                 let new_frame =
                     ExpressionFrame::new_functioncall_frame(expression.clone()).to_ref();
 
                 self.expr_stack.push(new_frame);
             }
+            Expression::Index(_) => {
+                let new_frame = ExpressionFrame::new_index_frame(expression.clone()).to_ref();
+                self.expr_stack.push(new_frame);
+            }
             Expression::IntegerLiteral(_)
             | Expression::Bool(_)
             | Expression::FloatLiteral(_)
             | Expression::String(_)
-            | Expression::Identifier(_) => {
+            | Expression::Identifier(_)
+            | Expression::Function(_)
+            | Expression::AsyncFunction(_) => {
                 let new_frame = ExpressionFrame::new_primitive(expression.clone()).to_ref();
 
                 self.expr_stack.push(new_frame);
+            }
+            Expression::Prefix(prefix_expr) => {
+                let new_frame = ExpressionFrame::new_unary_frame(expression.clone()).to_ref();
+
+                self.expr_stack.push(new_frame);
+                self.build_frame_from_expr(&prefix_expr.right.clone());
             }
             other_type => panic!("{}", other_type.to_string()),
         }

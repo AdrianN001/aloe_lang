@@ -3,8 +3,8 @@ use std::{cell::RefCell, rc::Rc};
 use crate::{
     ast::expression::array_literal::ArrayLiteral,
     object::{
-        Object, ObjectRef, array::Array, panic_obj::RuntimeSignal, stack_environment::EnvRef,
-        state::StateRef,
+        Object, ObjectRef, array::Array, new_objectref, panic_obj::RuntimeSignal,
+        stack_environment::EnvRef, state::StateRef,
     },
 };
 
@@ -23,5 +23,27 @@ impl ArrayLiteral {
         Ok(Rc::new(RefCell::new(Object::Array(Array {
             items: objects,
         }))))
+    }
+
+    pub fn eval_step(objects: &[ObjectRef], _state: StateRef) -> Result<ObjectRef, RuntimeSignal> {
+        let mut mapped_objects = Vec::new();
+
+        for object in objects {
+            let is_propagated_error = {
+                //TODO: kann sein das es eine Fehler zuruckgibt, wenn die Array sich beinhaltet.
+                let obj_borrow = object.borrow();
+                matches!(*obj_borrow, Object::ReturnVal(_))
+            };
+
+            if is_propagated_error {
+                return Ok(object.clone());
+            }
+
+            mapped_objects.push(object.clone());
+        }
+
+        Ok(new_objectref(Object::Array(Array {
+            items: mapped_objects,
+        })))
     }
 }

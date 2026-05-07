@@ -54,17 +54,17 @@ pub enum Expression {
     String(StringExpr),
     Array(ArrayLiteral),
     Index(IndexExpression),
-    HashMapLiteral(HashMapLiteral),
-    ForLoop(ForLoopExpression),
-    WhileLoop(WhileLoopExpression),
-    ValueAssign(ValueAssignExpression),
+    HashMapLiteral(HashMapLiteral), //TODO: schreib eine eval_step();
+    ForLoop(ForLoopExpression),     //TODO: schreib eine eval_step();
+    WhileLoop(WhileLoopExpression), //TODO: schreib eine eval_step();
+    ValueAssign(ValueAssignExpression), //TODO: schreib eine eval_step();
 
-    Member(MemberExpression),
+    Member(MemberExpression), //TODO: schreib eine eval_step();
 
-    If(IfExpression),
+    If(IfExpression), //TODO: schreib eine eval_step();
 
     #[default]
-    InvalidExpression,
+    InvalidExpression, //TODO: schreib eine eval_step();
 }
 
 impl Expression {

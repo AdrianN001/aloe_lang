@@ -8,6 +8,6 @@ pub struct AwaitExpression {
 
 impl AwaitExpression {
     pub fn to_string(&self) -> String {
-        format!("await {}", self.expr.to_string())
+        format!("(await {})", self.expr.to_string())
     }
 }

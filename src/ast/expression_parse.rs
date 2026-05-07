@@ -140,14 +140,15 @@ impl Parser {
 
     fn parse_await_expr(&mut self) -> Result<Expression, String> {
         let current_token = self.current_token.clone();
-
         self.next_token();
-        let expr = self.parse_expression(OperationPrecedence::Lowest)?;
 
-        Ok(Expression::AwaitExpr(AwaitExpression {
+        let expr = self.parse_expression(OperationPrecedence::Lowest)?;
+        let await_expr = AwaitExpression {
             token: current_token,
             expr: Box::new(expr),
-        }))
+        };
+
+        Ok(Expression::AwaitExpr(await_expr))
     }
 
     fn parse_async_function_expr(&mut self) -> Result<Expression, String> {
@@ -284,13 +285,13 @@ impl Parser {
     fn parse_grouped_expression(&mut self) -> Result<Expression, String> {
         self.next_token();
 
-        let expression = self.parse_expression(OperationPrecedence::Lowest);
+        let expression = self.parse_expression(OperationPrecedence::Lowest)?;
         if self.peek_token.token_type != TokenType::RParen {
             return Err("unexpected Token. expected 'RParen'".to_string());
         }
         self.next_token();
 
-        expression
+        Ok(expression)
     }
     fn parse_integer_literal(&self) -> Result<Expression, String> {
         match self.current_token.literal.parse::<i64>() {
@@ -497,22 +498,9 @@ impl Parser {
         while self.peek_token.token_type == TokenType::KwElif {
             self.next_token();
 
-            if self.peek_token.token_type != TokenType::LParen {
-                return Err("unexpected token: Expected 'LParen', bot".to_string());
-            }
-            self.next_token();
-
             self.next_token();
             let alternative_condition =
                 Box::new(self.parse_expression(OperationPrecedence::Lowest)?);
-
-            if self.peek_token.token_type != TokenType::RParen {
-                return Err(format!(
-                    "unexpected token: Expected 'RParen', got: {}",
-                    self.peek_token.token_type
-                ));
-            }
-            self.next_token();
 
             if self.peek_token.token_type != TokenType::LBrace {
                 return Err("unexpected token: Expected 'LBrace'".to_string());

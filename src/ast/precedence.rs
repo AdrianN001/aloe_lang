@@ -66,6 +66,8 @@ pub fn get_precedence_of_operator(token: &Token) -> OperationPrecedence {
         TokenType::Slash => OperationPrecedence::Mul,
         TokenType::Asterisk => OperationPrecedence::Mul,
 
+        TokenType::KwAwait => OperationPrecedence::Prefix,
+
         TokenType::Exponent => OperationPrecedence::Exponent,
 
         TokenType::Dot => OperationPrecedence::Member,

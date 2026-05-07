@@ -13,8 +13,18 @@ __spawn((async fn(){
 ",
             "null",
         ),
-        /*
-                    "
+        (
+            "
+async fun foo(){ return 42; }
+async fun bar(){ return 23; }
+async fun add(x,y,z){ return x; }
+async fun main(){
+        let result = await add(await foo(),await foo(), await bar()); 
+    }
+__spawn(main())",
+            "null",
+        ), /*
+                       "
 async fun a(){
     print(1);
     await __sleep2(10);
@@ -28,18 +38,18 @@ async fun b(){
 __spawn(a());
 __spawn(b());
 ",
-                    "null",
-                ),
-                (
-                    "async fun main(){
+                       "null",
+                   ),
+                   (
+                       "async fun main(){
         let file = __open(\"examples/math.aloe\");
         let content = await file.read_async()!;
         print(content);
     }
     __spawn(main());",
-                    "null",
-                ),
-        */
+                       "null",
+                   ),
+           */
     ];
 
     test_cases_for_input_output(&testcases);

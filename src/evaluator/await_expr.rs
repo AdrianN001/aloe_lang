@@ -2,7 +2,6 @@ use std::{cell::RefCell, rc::Rc};
 
 use crate::{
     ast::expression::{Expression, await_expression::AwaitExpression},
-    frame::expr_frame::EvaluationResult,
     object::{
         Object, ObjectRef,
         error::panic_type::PanicType,
@@ -13,7 +12,7 @@ use crate::{
         stack_environment::EnvRef,
         state::{
             StateRef,
-            scheduler::{add_task_to_scheduler, send_task_to_scheduler, take_current_task},
+            scheduler::{send_task_to_scheduler, take_current_task},
         },
     },
 };
@@ -85,9 +84,7 @@ impl AwaitExpression {
         }
     }
 
-    pub fn eval2(&self, environ: EnvRef, state: StateRef) -> Result<ObjectRef, RuntimeSignal> {
-        let future_ref = self.expr.evaluate(environ, state.clone())?;
-
+    pub fn eval2(future_ref: ObjectRef, state: StateRef) -> Result<ObjectRef, RuntimeSignal> {
         let mut future_ref_borrow = future_ref.borrow_mut();
 
         let future_obj = match &mut *future_ref_borrow {

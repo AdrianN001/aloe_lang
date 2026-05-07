@@ -86,4 +86,64 @@ impl CallExpression {
             .map(|argument| argument.evaluate(environ.clone(), state.clone()))
             .collect()
     }
+
+    pub fn call_with_arguments(
+        callable_object: ObjectRef,
+        args: &[ObjectRef],
+        function_name: String,
+        state: StateRef,
+        environ: EnvRef,
+        questionmark_set: bool,
+        bang_set: bool,
+    ) -> Result<ObjectRef, RuntimeSignal> {
+        // only propagation '?' can it cause. (hopefully)
+        for argument in args {
+            if let Object::ReturnVal(_) = &*argument.borrow() {
+                return Ok(argument.clone());
+            }
+        }
+
+        let return_value = match &*callable_object.borrow() {
+            Object::Func(function) => function.apply(function_name, &args, state.clone()),
+            Object::AsyncFunc(async_function) => {
+                async_function.apply(function_name, &args, state.clone())
+            }
+            Object::BuiltIn(built_in_function) => {
+                built_in_function.call(&args, environ.clone(), state.clone())
+            }
+            Object::StructModel(_) => {
+                StructObject::create_new_object(callable_object.clone(), &args, state.clone())
+            }
+            other_type => Err(RuntimeSignal::Panic(PanicObj::new(
+                PanicType::NonfunctionalObjectCalled,
+                format!(
+                    "'{}' is not callable. It cannot be called.",
+                    other_type.inspect()
+                ),
+                state.clone(),
+            ))),
+        };
+
+        let ok_return_value = return_value?;
+
+        if let Object::Err(error) = &*ok_return_value.borrow() {
+            if questionmark_set && !state.borrow().is_function_context() {
+                return Err(RuntimeSignal::Panic(PanicObj::new(
+                    PanicType::PropagationFromNonfunctionalContext,
+                    "tried to use ? on a function, without function-context".to_string(),
+                    state.clone(),
+                )));
+            }
+
+            if bang_set {
+                return Err(RuntimeSignal::Panic(PanicObj::from_error(error, state)));
+            } else if questionmark_set {
+                return Ok(Rc::new(RefCell::new(Object::ReturnVal(ReturnValue {
+                    value: Box::new(ok_return_value.clone()),
+                }))));
+            }
+        }
+
+        Ok(ok_return_value)
+    }
 }

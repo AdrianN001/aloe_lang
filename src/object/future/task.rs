@@ -106,9 +106,12 @@ impl Task {
             let stmt_opt = {
                 let task = self_ref.borrow();
 
-                //TODO: wenn die coroutine fertig ist, aber nix returnt wurde, soll es den letzten Wert zuruckgeben.
                 if task.statement_index >= task.statements.len() {
-                    return Ok(new_objectref(Object::NULL_OBJECT));
+                    let task = self_ref.borrow();
+                    return Ok(match &task.last_object{
+                        Some(val) => val.clone(),
+                        None => new_objectref(Object::NULL_OBJECT)
+                    });
                 }
 
                 Some(task.statements[task.statement_index].clone())
@@ -173,6 +176,7 @@ impl Task {
                 Ok(Some(value))
             }
             _ => {
+                self.last_object = Some(value.clone());
                 self.statement_index += 1;
                 Ok(None)
             }

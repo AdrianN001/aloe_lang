@@ -234,6 +234,7 @@ impl ExpressionFrame {
                     )))
                 }
             }
+            ExpressionState::HashMap { ready_to_evaluate, state } => todo!()
         }
     }
 }

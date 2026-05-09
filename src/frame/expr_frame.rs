@@ -6,7 +6,8 @@ use crate::{
         Frame,
         state::{
             ExpressionState, array_state::ArrayState, await_state::AwaitState,
-            call_state::CallState, if_state::IfState, index_state::IndexState,
+            call_state::CallState, hashmap_state::HashMapState, if_state::IfState,
+            index_state::IndexState,
         },
     },
     object::{ObjectRef, panic_obj::RuntimeSignal, stack_environment::EnvRef, state::StateRef},
@@ -112,6 +113,21 @@ impl ExpressionFrame {
             },
         }
     }
+
+    pub fn new_hashmap_frame(expr: Expression) -> Self {
+        Self {
+            expr,
+            state: ExpressionState::HashMap {
+                ready_to_evaluate: false,
+                state: HashMapState {
+                    current_element: 0,
+                    keys: Vec::new(),
+                    values: Vec::new(),
+                },
+            },
+        }
+    }
+
     pub fn build_frame_from_expr(expression: &Expression, environ: EnvRef) -> EvaluationResult {
         let new_frame = match expression {
             Expression::AwaitExpr(_) => {

@@ -1,13 +1,14 @@
 use crate::{
     frame::state::{
-        array_state::ArrayState, await_state::AwaitState, call_state::CallState, if_state::IfState,
-        index_state::IndexState,
+        array_state::ArrayState, await_state::AwaitState, call_state::CallState,
+        hashmap_state::HashMapState, if_state::IfState, index_state::IndexState,
     },
     object::ObjectRef,
 };
 pub mod array_state;
 pub mod await_state;
 pub mod call_state;
+pub mod hashmap_state;
 pub mod if_state;
 pub mod index_state;
 
@@ -38,6 +39,11 @@ pub enum ExpressionState {
     If {
         value: Option<ObjectRef>,
         state: IfState,
+    },
+
+    HashMap {
+        ready_to_evaluate: bool,
+        state: HashMapState,
     },
 
     Primitive,

@@ -61,7 +61,7 @@ pub enum Expression {
 
     Member(MemberExpression), //TODO: schreib eine eval_step();
 
-    If(IfExpression), //TODO: schreib eine eval_step();
+    If(IfExpression),
 
     #[default]
     InvalidExpression, //TODO: schreib eine eval_step();

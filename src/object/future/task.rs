@@ -1,16 +1,11 @@
 use std::{cell::RefCell, rc::Rc};
 
 use crate::{
-    ast::{expression::Expression, statement::Statement},
-    frame::expr_frame::{EvaluationResult, ExprFrameRef, ExpressionFrame},
+    ast::statement::Statement,
+    frame::{Frame, block_frame::BlockFrame, expr_frame::EvaluationResult},
     object::{
-        Object, ObjectRef,
-        error::panic_type::PanicType,
-        future::task_kind::TaskKind,
-        new_objectref,
-        panic_obj::{PanicObj, RuntimeSignal},
-        stack_environment::EnvRef,
-        state::StateRef,
+        Object, ObjectRef, future::task_kind::TaskKind, new_objectref, panic_obj::RuntimeSignal,
+        stack_environment::EnvRef, state::StateRef,
     },
 };
 
@@ -29,203 +24,100 @@ pub struct Task {
     pub environ: EnvRef,
     pub state: StateRef,
 
-    pub pending_future: Option<ObjectRef>,
     pub result_future: Option<ObjectRef>,
 
-    pub expr_stack: Vec<ExprFrameRef>,
+    pub frames: Vec<Frame>,
 }
 impl Task {
-    pub fn run(self_ref: TaskRef) -> Result<ObjectRef, RuntimeSignal> {
+    pub fn new(
+        statements: &[Statement],
+        name: String,
+        environ: EnvRef,
+        state: StateRef,
+        result_future: ObjectRef,
+    ) -> Self {
+        let mut new_task = Self {
+            statements: statements.to_vec(),
+            statement_index: 0,
+            name,
+            last_object: None,
+            kind: None,
+            environ,
+            state,
+            result_future: Some(result_future),
+            frames: vec![],
+        };
+
+        new_task.init();
+
+        new_task
+    }
+
+    pub fn run2(self_ref: TaskRef) -> Result<ObjectRef, RuntimeSignal> {
+        let (environ, interpreter_state) = {
+            let task = self_ref.borrow();
+
+            (task.environ.clone(), task.state.clone())
+        };
+
         loop {
-            let frame_opt = {
-                let task = self_ref.borrow();
-                task.expr_stack.last().cloned()
-            };
-
-            if let Some(frame_ref) = frame_opt {
-                let result = {
-                    let mut frame = frame_ref.borrow_mut();
-                    let task = self_ref.borrow();
-
-                    frame.eval_step(task.environ.clone(), task.state.clone())?
-                };
-
-                match result {
-                    EvaluationResult::Pending => {
-                        return Err(RuntimeSignal::Yield(self_ref.clone()));
-                    }
-
-                    EvaluationResult::Push(expression) => {
-                        let mut task = self_ref.borrow_mut();
-                        task.build_frame_from_expr(&expression);
-
-                        continue;
-                    }
-
-                    EvaluationResult::Done(obj) => {
-                        {
-                            let mut task = self_ref.borrow_mut();
-                            task.expr_stack.pop();
-                        }
-
-                        let parent_opt = {
-                            let task = self_ref.borrow();
-                            task.expr_stack.last().cloned()
-                        };
-
-                        if let Some(parent_ref) = parent_opt {
-                            let mut parent_raw = parent_ref.borrow_mut();
-
-                            let interpreter_state = {
-                                let task = self_ref.borrow();
-                                task.state.clone()
-                            };
-
-                            parent_raw.resume_with(obj, interpreter_state)?;
-
-                            continue;
-                        }
-
-                        // ka parent frame mehr -> Statement soweit
-
-                        let mut task = self_ref.borrow_mut();
-
-                        let ret_value_opt = task.handle_statement_after_ready_value(obj)?;
-
-                        if let Some(ret_value) = ret_value_opt {
-                            return Ok(ret_value);
-                        }
-
-                        continue;
-                    }
-                }
-            }
-
-            // 2. neues Statement starten
-
-            let stmt_opt = {
+            let current_frame = {
                 let task = self_ref.borrow();
 
-                if task.statement_index >= task.statements.len() {
-                    let task = self_ref.borrow();
-                    return Ok(match &task.last_object{
-                        Some(val) => val.clone(),
-                        None => new_objectref(Object::NULL_OBJECT)
-                    });
+                match task.frames.last() {
+                    Some(frame) => frame.clone(),
+                    None => return Ok(new_objectref(Object::NULL_OBJECT)),
                 }
-
-                Some(task.statements[task.statement_index].clone())
             };
 
-            let state = {
-                let task = self_ref.borrow();
-                task.state.clone()
-            };
+            let eval_result =
+                { current_frame.eval_step(environ.clone(), interpreter_state.clone())? };
 
-            match stmt_opt.unwrap() {
-                Statement::Let(let_stmt) => {
-                    let mut task = self_ref.borrow_mut();
-                    task.build_frame_from_expr(&let_stmt.value);
+            match eval_result {
+                //TODO:CRAZY
+                EvaluationResult::Push(child_frame) => {
+                    self_ref.borrow_mut().frames.push(child_frame);
                 }
-                Statement::Return(return_stmt) => {
-                    if let Some(return_value) = return_stmt.value {
-                        let mut task = self_ref.borrow_mut();
-                        task.build_frame_from_expr(&return_value);
+                EvaluationResult::Pending => {
+                    return Err(RuntimeSignal::Yield(self_ref.clone()));
+                }
+                EvaluationResult::Return(return_value) => return Ok(return_value),
+                EvaluationResult::Done(value) => {
+                    {
+                        self_ref.borrow_mut().frames.pop();
+                    }
+
+                    let parent_frame_opt = {
+                        let task = self_ref.borrow();
+
+                        task.frames.last().cloned()
+                    };
+
+                    if let Some(parent_frame) = parent_frame_opt {
+                        let return_val_opt =
+                            parent_frame.resume_with(value, interpreter_state.clone())?;
+
+                        if let Some(return_val) = return_val_opt {
+                            return Ok(return_val.clone());
+                        }
                     } else {
-                        return Ok(new_objectref(Object::NULL_OBJECT));
+                        return Ok(value);
                     }
                 }
-                Statement::Expression(expr_statement) => {
-                    let mut task = self_ref.borrow_mut();
-                    task.build_frame_from_expr(&expr_statement.expression);
-                }
-
-                Statement::Break(_) => {
-                    return Err(RuntimeSignal::Panic(PanicObj::new_simple(
-                        PanicType::UnexpectedKeyword,
-                        "unexpected break keyword in non-loop context",
-                        state,
-                    )));
-                }
-
-                Statement::Continue(_) => {
-                    return Err(RuntimeSignal::Panic(PanicObj::new_simple(
-                        PanicType::UnexpectedKeyword,
-                        "unexpected continue keyword in non-loop context",
-                        state,
-                    )));
-                }
-                _ => todo!(),
             }
         }
     }
 
-    fn handle_statement_after_ready_value(
-        &mut self,
-        value: ObjectRef,
-    ) -> Result<Option<ObjectRef>, RuntimeSignal> {
-        let current_statement = &self.statements[self.statement_index];
-        match current_statement {
-            Statement::Let(let_stmt) => {
-                self.environ.borrow_mut().set(&let_stmt.name.value, value);
-                self.statement_index += 1;
-                Ok(None)
-            }
-            Statement::Return(_) => {
-                self.statement_index += 1;
-                Ok(Some(value))
-            }
-            _ => {
-                self.last_object = Some(value.clone());
-                self.statement_index += 1;
-                Ok(None)
-            }
-        }
-    }
+    fn init(&mut self) {
+        let main_block = BlockFrame {
+            statements: self.statements.clone(),
+            index: 0,
+            last_value: None,
+            environ: self.environ.clone(),
+            last_object: None,
+        };
 
-    fn build_frame_from_expr(&mut self, expression: &Expression) {
-        match expression {
-            Expression::AwaitExpr(await_expr) => {
-                let new_frame = ExpressionFrame::new_await_frame(expression.clone()).to_ref();
-
-                self.expr_stack.push(new_frame);
-
-                self.build_frame_from_expr(&await_expr.expr);
-            }
-            Expression::Array(_) => {
-                let new_frame = ExpressionFrame::new_array_frame(expression.clone()).to_ref();
-
-                self.expr_stack.push(new_frame);
-            }
-            Expression::Call(_) => {
-                let new_frame =
-                    ExpressionFrame::new_functioncall_frame(expression.clone()).to_ref();
-
-                self.expr_stack.push(new_frame);
-            }
-            Expression::Index(_) => {
-                let new_frame = ExpressionFrame::new_index_frame(expression.clone()).to_ref();
-                self.expr_stack.push(new_frame);
-            }
-            Expression::IntegerLiteral(_)
-            | Expression::Bool(_)
-            | Expression::FloatLiteral(_)
-            | Expression::String(_)
-            | Expression::Identifier(_)
-            | Expression::Function(_)
-            | Expression::AsyncFunction(_) => {
-                let new_frame = ExpressionFrame::new_primitive(expression.clone()).to_ref();
-
-                self.expr_stack.push(new_frame);
-            }
-            Expression::Prefix(prefix_expr) => {
-                let new_frame = ExpressionFrame::new_unary_frame(expression.clone()).to_ref();
-
-                self.expr_stack.push(new_frame);
-                self.build_frame_from_expr(&prefix_expr.right.clone());
-            }
-            other_type => panic!("{}", other_type.to_string()),
-        }
+        self.frames.push(Frame::BlockFrame(main_block.to_ref()))
     }
 }
 

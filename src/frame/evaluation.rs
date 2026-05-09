@@ -1,13 +1,18 @@
 use crate::{
     ast::expression::{
-        Expression, array_literal::ArrayLiteral, call_expression::CallExpression,
+        Expression, array_literal::ArrayLiteral, boolean::Boolean, call_expression::CallExpression,
         index_expression::IndexExpression,
     },
     frame::{
+        Frame,
+        block_frame::BlockFrame,
         expr_frame::{EvaluationResult, ExpressionFrame},
         state::ExpressionState,
     },
-    object::{panic_obj::RuntimeSignal, stack_environment::EnvRef, state::StateRef},
+    object::{
+        Object, new_objectref, panic_obj::RuntimeSignal, stack_environment::EnvRef, state::StateRef,
+    },
+    token::{Token, token_type::TokenType},
 };
 
 impl ExpressionFrame {
@@ -33,8 +38,9 @@ impl ExpressionFrame {
 
                 if !*ready_to_evaluate && state.parameters_required_by_func != 0 {
                     state.current_argument += 1;
-                    return Ok(EvaluationResult::Push(
-                        call_expr.arguments[state.current_argument - 1].clone(),
+                    return Ok(ExpressionFrame::build_frame_from_expr(
+                        &call_expr.arguments[state.current_argument - 1],
+                        environ,
                     ));
                 }
                 let (callable_object, questionmark_set, bang_set) = {
@@ -82,8 +88,9 @@ impl ExpressionFrame {
 
                 if !*ready_to_evaluate && number_of_elements != 0 {
                     state.curr_element += 1;
-                    return Ok(EvaluationResult::Push(
-                        arr_expr.elements[state.curr_element - 1].clone(),
+                    return Ok(ExpressionFrame::build_frame_from_expr(
+                        &arr_expr.elements[state.curr_element - 1],
+                        environ.clone(),
                     ));
                 }
                 let elements = &state.elements;
@@ -93,7 +100,23 @@ impl ExpressionFrame {
                 )?))
             }
 
-            ExpressionState::Unary { value } => {
+            ExpressionState::Unary {
+                value,
+                ready_to_evaluate,
+            } => {
+                let unary_expr = {
+                    match &self.expr {
+                        Expression::Prefix(prefix_expr) => prefix_expr,
+                        _ => unreachable!(),
+                    }
+                };
+
+                if !*ready_to_evaluate {
+                    return Ok(ExpressionFrame::build_frame_from_expr(
+                        &unary_expr.right,
+                        environ.clone(),
+                    ));
+                }
                 let prefix_operator = {
                     let expr = &self.expr;
                     match expr {
@@ -126,9 +149,15 @@ impl ExpressionFrame {
 
                 if !*ready_to_evaluate {
                     if state.indexable.is_none() {
-                        return Ok(EvaluationResult::Push(*index_expr.left.clone()));
+                        return Ok(ExpressionFrame::build_frame_from_expr(
+                            &*index_expr.left,
+                            environ,
+                        ));
                     } else {
-                        return Ok(EvaluationResult::Push(*index_expr.right.clone()));
+                        return Ok(ExpressionFrame::build_frame_from_expr(
+                            &*index_expr.right,
+                            environ,
+                        ));
                     }
                 }
 
@@ -139,6 +168,71 @@ impl ExpressionFrame {
                     right.clone(),
                     interpreter_state.clone(),
                 )?))
+            }
+            ExpressionState::If { value, state } => {
+                let if_expr = {
+                    match &self.expr {
+                        Expression::If(if_expr) => if_expr,
+                        _ => unreachable!(),
+                    }
+                };
+
+                if let Some(value_from_block) = value {
+                    return Ok(EvaluationResult::Done(value_from_block.clone()));
+                }
+
+                if !state.path_found {
+                    let current_condition_object = match &state.current_path {
+                        0 => if_expr.condition.clone(),
+                        alternative_path_index
+                            if !if_expr.alternatives.is_empty()
+                                && *alternative_path_index - 1 < if_expr.alternatives.len() =>
+                        {
+                            if_expr.alternatives[*alternative_path_index - 1].0.clone()
+                        }
+                        _ => {
+                            if if_expr.else_block.is_none() {
+                                return Ok(EvaluationResult::Done(new_objectref(
+                                    Object::NULL_OBJECT,
+                                )));
+                            } else {
+                                // handle else block als last elif (true) block
+                                return Ok(ExpressionFrame::build_frame_from_expr(
+                                    &Expression::Bool(Boolean {
+                                        value: true,
+                                        token: Token::simple(TokenType::KwTrue, "true"),
+                                    }),
+                                    environ,
+                                ));
+                            }
+                        }
+                    };
+                    Ok(ExpressionFrame::build_frame_from_expr(
+                        &current_condition_object,
+                        environ,
+                    ))
+                } else {
+                    let current_path = match &state.current_path {
+                        0 => if_expr.consequence.clone(),
+                        alternative_path_index
+                            if !if_expr.alternatives.is_empty()
+                                && *alternative_path_index - 1 < if_expr.alternatives.len() =>
+                        {
+                            if_expr.alternatives[*alternative_path_index - 1].1.clone()
+                        }
+                        _ => {
+                            if let Some(else_block) = &if_expr.else_block {
+                                else_block.clone()
+                            } else {
+                                unreachable!()
+                            }
+                        }
+                    };
+
+                    Ok(EvaluationResult::Push(Frame::BlockFrame(
+                        BlockFrame::new(&current_path.statements, environ).to_ref(),
+                    )))
+                }
             }
         }
     }

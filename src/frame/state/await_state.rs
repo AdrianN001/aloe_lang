@@ -1,6 +1,6 @@
 use crate::{
     ast::expression::Expression,
-    frame::expr_frame::EvaluationResult,
+    frame::expr_frame::{EvaluationResult, ExpressionFrame},
     object::{
         Object, ObjectRef, future::future_state::FutureState, panic_obj::RuntimeSignal,
         stack_environment::EnvRef, state::StateRef,
@@ -30,7 +30,13 @@ impl AwaitState {
         };
 
         match self {
-            AwaitState::Start => unreachable!(),
+            AwaitState::Start => {
+                *self = AwaitState::Waiting;
+                Ok(ExpressionFrame::build_frame_from_expr(
+                    &_await_expr.expr,
+                    _environ,
+                ))
+            }
             AwaitState::Waiting => {
                 let future = future_saved_in_frame.as_ref().unwrap();
 
@@ -39,10 +45,12 @@ impl AwaitState {
                 let future_raw = {
                     match &*future_borrow {
                         Object::Future(future_raw) => future_raw,
-                        other_type => panic!("{}", other_type.get_type()),
+                        _ => {
+                            // already awaited or doesnt need to be awaited at all
+                            return Ok(EvaluationResult::Done(future.clone()));
+                        }
                     }
                 };
-
                 match &future_raw.state {
                     FutureState::Ready(value) => Ok(EvaluationResult::Done(value.clone())),
                     FutureState::Pending(_) => Ok(EvaluationResult::Pending),

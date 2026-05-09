@@ -50,7 +50,6 @@ impl Scheduler {
 
                     {
                         let mut task_borrow = task.borrow_mut();
-                        task_borrow.pending_future = None;
                         task_borrow.kind = None;
                         task_borrow.statement_index += 1;
                     }
@@ -68,10 +67,6 @@ impl Scheduler {
                         future_obj.state = FutureState::Ready(message.to_objectref()?);
 
                         future_obj.waiters.iter().for_each(|waiter_task| {
-                            {
-                                waiter_task.borrow_mut().pending_future = Some(future_ref.clone());
-                            }
-
                             self.main_queue.push_back(waiter_task.clone());
                         });
 
@@ -91,7 +86,7 @@ impl Scheduler {
                     let state = task_borrow.state.clone();
                     state.borrow_mut().push_to_stack(task_name);
                 }
-                let result = Task::run(task.clone());
+                let result = Task::run2(task.clone());
 
                 match result {
                     Ok(value) => {
@@ -104,11 +99,6 @@ impl Scheduler {
                                 future_raw.state = FutureState::Ready(value.clone());
 
                                 future_raw.waiters.iter().for_each(|waiter_task| {
-                                    {
-                                        waiter_task.borrow_mut().pending_future =
-                                            Some(original_future.clone());
-                                    }
-
                                     self.main_queue.push_back(waiter_task.clone());
                                 });
 
@@ -131,7 +121,7 @@ impl Scheduler {
                                 TaskKind::FileIOJoin => {}
                             }
                         } else {
-                            self.main_queue.push_back(t.clone());
+                            //self.main_queue.push_back(t.clone());
                         }
                     }
 
@@ -146,9 +136,7 @@ impl Scheduler {
                     state.borrow_mut().pop_from_stack();
                 }
 
-                CURRENT_TASK.with(|slot| {
-                    *slot.borrow_mut() = None;
-                });
+                clear_current_task();
                 // I/O-Tasks
             } else if !self.sleeping.is_empty() || !io_future_empty() {
                 std::thread::sleep(Duration::from_millis(1));

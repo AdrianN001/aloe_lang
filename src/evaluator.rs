@@ -77,7 +77,7 @@ impl Expression {
             Expression::Member(member_expression) => member_expression.evaluate(environ, state),
             Expression::WhileLoop(while_loop) => while_loop.evaluate(environ, state),
 
-            Expression::AwaitExpr(await_expr) => await_expr.evaluate(environ, state),
+            Expression::AwaitExpr(_) => unreachable!(),
 
             Expression::InvalidExpression => {
                 panic!("unexpected expression type")

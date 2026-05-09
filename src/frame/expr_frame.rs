@@ -2,11 +2,14 @@ use std::{cell::RefCell, rc::Rc};
 
 use crate::{
     ast::expression::{Expression, await_expression::AwaitExpression},
-    frame::state::{
-        ExpressionState, array_state::ArrayState, await_state::AwaitState, call_state::CallState,
-        index_state::IndexState,
+    frame::{
+        Frame,
+        state::{
+            ExpressionState, array_state::ArrayState, await_state::AwaitState,
+            call_state::CallState, if_state::IfState, index_state::IndexState,
+        },
     },
-    object::{ObjectRef, panic_obj::RuntimeSignal, state::StateRef},
+    object::{ObjectRef, panic_obj::RuntimeSignal, stack_environment::EnvRef, state::StateRef},
 };
 
 pub type ExprFrameRef = Rc<RefCell<ExpressionFrame>>;
@@ -93,10 +96,50 @@ impl ExpressionFrame {
     pub fn new_unary_frame(expr: Expression) -> Self {
         Self {
             expr,
-            state: ExpressionState::Unary { value: None },
+            state: ExpressionState::Unary {
+                value: None,
+                ready_to_evaluate: false,
+            },
         }
     }
 
+    pub fn new_if_frame(expr: Expression, environ: EnvRef) -> Self {
+        Self {
+            expr,
+            state: ExpressionState::If {
+                value: None,
+                state: IfState::new(environ),
+            },
+        }
+    }
+    pub fn build_frame_from_expr(expression: &Expression, environ: EnvRef) -> EvaluationResult {
+        let new_frame = match expression {
+            Expression::AwaitExpr(_) => {
+                ExpressionFrame::new_await_frame(expression.clone()).to_ref()
+            }
+            Expression::Array(_) => ExpressionFrame::new_array_frame(expression.clone()).to_ref(),
+            Expression::Call(_) => {
+                ExpressionFrame::new_functioncall_frame(expression.clone()).to_ref()
+            }
+            Expression::Index(_) => ExpressionFrame::new_index_frame(expression.clone()).to_ref(),
+            Expression::IntegerLiteral(_)
+            | Expression::Bool(_)
+            | Expression::FloatLiteral(_)
+            | Expression::String(_)
+            | Expression::Identifier(_)
+            | Expression::Function(_)
+            | Expression::AsyncFunction(_) => {
+                ExpressionFrame::new_primitive(expression.clone()).to_ref()
+            }
+            Expression::Prefix(_) => ExpressionFrame::new_unary_frame(expression.clone()).to_ref(),
+            Expression::If(_) => {
+                ExpressionFrame::new_if_frame(expression.clone(), environ.clone()).to_ref()
+            }
+            other_type => panic!("error: {}", other_type.to_string()),
+        };
+
+        EvaluationResult::Push(Frame::ExpressionFrame(new_frame))
+    }
     pub fn to_ref(self) -> ExprFrameRef {
         Rc::new(RefCell::new(self))
     }
@@ -123,13 +166,17 @@ impl ExpressionFrame {
                 Ok(())
             }
             ExpressionState::Await { future, state } => {
-                AwaitExpression::eval2(object.clone(), interpreter_state)?;
-                *future = Some(object.clone());
+                let awaited_value = AwaitExpression::eval2(object.clone(), interpreter_state)?;
+                *future = Some(awaited_value.clone());
                 *state = AwaitState::Waiting;
                 Ok(())
             }
-            ExpressionState::Unary { value } => {
+            ExpressionState::Unary {
+                value,
+                ready_to_evaluate,
+            } => {
                 *value = Some(object.clone());
+                *ready_to_evaluate = true;
                 Ok(())
             }
             ExpressionState::Array {
@@ -157,14 +204,33 @@ impl ExpressionFrame {
                 }
                 Ok(())
             }
+            ExpressionState::If { value, state } => {
+                if !state.path_found {
+                    let is_object_truthy = {
+                        let object_borrow = object.borrow();
+                        object_borrow.is_truthy()
+                    };
+
+                    if is_object_truthy {
+                        state.path_found = true;
+                    } else {
+                        state.current_path += 1;
+                    }
+                } else {
+                    *value = Some(object.clone())
+                }
+                Ok(())
+            }
             _ => Ok(()),
         }
     }
 }
 
+#[derive(Debug)]
 pub enum EvaluationResult {
     Done(ObjectRef),
     Pending,
+    Return(ObjectRef),
 
-    Push(Expression),
+    Push(Frame),
 }

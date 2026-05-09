@@ -7,8 +7,8 @@ fn test_async_await() {
             "
 async fun foo(){ return 42; }
 __spawn((async fn(){
-    let x = await foo(); 
-    let y = await foo(); 
+    let y = await foo();
+    println(y);
 })())
 ",
             "null",
@@ -60,6 +60,29 @@ async fun main(){
         println((await get_list())[(await get_list())[0]])
         println((await get_list())[3])
 
+}
+__spawn(main())",
+            "null",
+        ),
+        (
+            "
+
+async fun get_list(){ return [1,2,3,4]; } 
+async fun main(){
+        if false{
+            println(23);
+        }
+
+        let x = if false{
+            println(23);
+        }elif false{
+            println(32);
+            12
+        }else{
+            println(\"else block\");
+        }
+
+        println(x);
 }
 __spawn(main())",
             "null",

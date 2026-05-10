@@ -51,4 +51,51 @@ impl HashMapLiteral {
 
         Ok(Rc::new(RefCell::new(Object::HashMap(HashMap { pairs }))))
     }
+
+    pub fn evaluate_with_evaluated_vals(
+        keys: &[ObjectRef],
+        values: &[ObjectRef],
+        state: StateRef,
+    ) -> Result<ObjectRef, RuntimeSignal> {
+        let mut pairs = BTreeMap::new();
+
+        if keys.len() != values.len() {
+            panic!();
+        }
+
+        for index in 0..keys.len() {
+            let key = &keys[index];
+
+            if let Object::ReturnVal(_) = &*key.borrow() {
+                return Ok(key.clone());
+            }
+
+            let value = &values[index];
+
+            if let Object::ReturnVal(_) = &*value.borrow() {
+                return Ok(value.clone());
+            }
+
+            let hashed_key = match key.borrow().hash() {
+                Ok(ok_value) => ok_value,
+                Err(err_feedback) => {
+                    return Err(RuntimeSignal::Panic(PanicObj::new(
+                        PanicType::ObjectNotHashable,
+                        err_feedback,
+                        state.clone(),
+                    )));
+                }
+            };
+
+            pairs.insert(
+                hashed_key,
+                HashPair {
+                    key: key.clone(),
+                    value: value.clone(),
+                },
+            );
+        }
+
+        Ok(Rc::new(RefCell::new(Object::HashMap(HashMap { pairs }))))
+    }
 }

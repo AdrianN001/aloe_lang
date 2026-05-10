@@ -1,7 +1,7 @@
 use crate::{
     ast::expression::{
         Expression, array_literal::ArrayLiteral, boolean::Boolean, call_expression::CallExpression,
-        index_expression::IndexExpression,
+        hash_map_literal::HashMapLiteral, index_expression::IndexExpression,
     },
     frame::{
         Frame,
@@ -234,7 +234,46 @@ impl ExpressionFrame {
                     )))
                 }
             }
-            ExpressionState::HashMap { ready_to_evaluate, state } => todo!()
+            ExpressionState::HashMap {
+                ready_to_evaluate,
+                state,
+            } => {
+                let hashmap_expr = {
+                    match &self.expr {
+                        Expression::HashMapLiteral(hashmap_literal) => hashmap_literal,
+                        _ => unreachable!(),
+                    }
+                };
+                if *ready_to_evaluate || hashmap_expr.pairs.is_empty() {
+                    return Ok(EvaluationResult::Done(
+                        HashMapLiteral::evaluate_with_evaluated_vals(
+                            &state.keys,
+                            &state.values,
+                            interpreter_state,
+                        )?,
+                    ));
+                }
+
+                println!("reading: {}", state.current_element);
+                //TODO: optimalization
+                let current_item = state.current_element;
+                let current_expression = if current_item % 2 == 0 {
+                    // key
+                    let current_key = current_item / 2;
+                    let expression = hashmap_expr.pairs.iter().nth(current_key).unwrap().0;
+                    expression
+                } else {
+                    // value
+                    let current_value = (current_item - 1) / 2;
+                    let expression = hashmap_expr.pairs.iter().nth(current_value).unwrap().1;
+                    expression
+                };
+
+                Ok(ExpressionFrame::build_frame_from_expr(
+                    current_expression,
+                    environ,
+                ))
+            }
         }
     }
 }

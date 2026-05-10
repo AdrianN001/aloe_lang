@@ -86,6 +86,22 @@ async fun main(){
 }
 __spawn(main())",
             "null",
+        ),
+        (
+            "
+async fun get_number() { return 23; }
+async fun get_string() { return \"test\"; }
+async fun main(){
+        let map = {};
+        let map2 = {\"key\": \"value\", \"key2\": \"value2\"};
+        let map3 = {(await get_number()) : (await get_string())};
+        let map4 = {\"map\": map, \"map2\": map2, \"map3\": map3};
+        println(map2);
+        println(map3);
+        println(map4);
+}
+__spawn(main())",
+            "null",
         ), /*
                        "
 async fun a(){

@@ -151,6 +151,9 @@ impl ExpressionFrame {
             Expression::If(_) => {
                 ExpressionFrame::new_if_frame(expression.clone(), environ.clone()).to_ref()
             }
+            Expression::HashMapLiteral(_) => {
+                ExpressionFrame::new_hashmap_frame(expression.clone()).to_ref()
+            }
             other_type => panic!("error: {}", other_type.to_string()),
         };
 
@@ -235,6 +238,33 @@ impl ExpressionFrame {
                 } else {
                     *value = Some(object.clone())
                 }
+                Ok(())
+            }
+            ExpressionState::HashMap {
+                ready_to_evaluate,
+                state,
+            } => {
+                let hashmap_expr = {
+                    match &self.expr {
+                        Expression::HashMapLiteral(hashmap) => hashmap,
+                        _ => unreachable!(),
+                    }
+                };
+
+                println!("incrementing: {}", state.current_element);
+
+                if state.current_element % 2 == 0 {
+                    state.keys.push(object.clone());
+                } else {
+                    state.values.push(object.clone());
+                }
+
+                if state.values.len() >= hashmap_expr.pairs.len() {
+                    *ready_to_evaluate = true;
+                } else {
+                    state.current_element += 1;
+                }
+
                 Ok(())
             }
             _ => Ok(()),

@@ -8,6 +8,7 @@ pub type EnvRef = Rc<RefCell<StackEnvironment>>;
 pub struct StackEnvironment {
     pub map: HashMap<String, ObjectRef>,
     pub outer: Option<EnvRef>,
+    is_loop_context: bool,
     stack_layer_name: String,
 }
 
@@ -16,16 +17,27 @@ impl StackEnvironment {
         StackEnvironment {
             map: HashMap::new(),
             outer: None,
+            is_loop_context: false,
             stack_layer_name: "<global>".into(),
         }
     }
 
     pub fn new_enclosed(outer: EnvRef, stack_layer_name: String) -> Self {
+        let is_loop_context = { outer.borrow().is_loop_context };
         StackEnvironment {
             map: HashMap::new(),
             outer: Some(outer.clone()),
+            is_loop_context,
             stack_layer_name,
         }
+    }
+
+    pub fn set_loop_context(&mut self, is_loop_context: bool) {
+        self.is_loop_context = is_loop_context;
+    }
+
+    pub fn is_loop_context(&self) -> bool {
+        self.is_loop_context
     }
 
     pub fn try_to_assign(&mut self, identifier: &str, value: ObjectRef) -> bool {
@@ -61,5 +73,9 @@ impl StackEnvironment {
                 None
             }
         }
+    }
+
+    pub fn to_ref(self) -> EnvRef {
+        Rc::new(RefCell::new(self))
     }
 }

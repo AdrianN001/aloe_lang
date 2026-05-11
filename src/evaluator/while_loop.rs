@@ -17,14 +17,20 @@ use crate::{
 
 impl WhileLoopExpression {
     pub fn evaluate(&self, environ: EnvRef, state: StateRef) -> Result<ObjectRef, RuntimeSignal> {
-        let new_environ = Rc::new(RefCell::new(StackEnvironment::new_enclosed(
+        let new_environ = StackEnvironment::new_enclosed(
             environ,
             if let Some(condition) = &self.condition {
                 format!("while {} {{...}}", condition.to_string())
             } else {
                 "while {...}".to_string()
             },
-        )));
+        )
+        .to_ref();
+
+        {
+            let mut env_borrow = new_environ.borrow_mut();
+            env_borrow.set_loop_context(true);
+        }
 
         match &self.condition {
             Some(_) => self.evaluate_loop_with_condition(new_environ, state),

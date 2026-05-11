@@ -28,6 +28,23 @@ impl BlockStatement {
                         )));
                     }
                 }
+                Object::BreakVal(_) | Object::Continue => {
+                    if environ.borrow().is_loop_context() {
+                        return Ok(result.clone());
+                    } else {
+                        let keyword = if matches!(*borrowed_result, Object::BreakVal(_)) {
+                            "break"
+                        } else {
+                            "continue"
+                        };
+
+                        return Err(RuntimeSignal::Panic(PanicObj::new_simple(
+                            PanicType::UnexpectedKeyword,
+                            &format!("unexpected {} keyword in non-loop context", keyword),
+                            state.clone(),
+                        )));
+                    }
+                }
                 _ => {}
             }
         }

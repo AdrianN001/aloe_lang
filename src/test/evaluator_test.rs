@@ -2444,6 +2444,100 @@ fn test_while_loop_eval() {
             "continue;",
             "unexpected continue keyword in non-loop context",
         ),
+        ("let i = 0; while true { break; i = 999; } i;", "0"),
+        ("let i = 0; while true { break 5; i = 999; }", "5"),
+        (
+            "
+    let i = 0;
+    let sum = 0;
+    while i < 5 {
+        i = i + 1;
+        continue;
+        sum = sum + 100;
+    }
+    sum;
+    ",
+            "0",
+        ),
+        (
+            "
+    let i = 0;
+    let sum = 0;
+    while i < 5 {
+        i = i + 1;
+        if (i == 2) {
+            continue;
+        }
+        sum = sum + i;
+    }
+    sum;
+    ",
+            "13",
+        ),
+        ("break 5;", "unexpected break keyword in non-loop context"),
+        (
+            "if (true) { break 10; }",
+            "unexpected break keyword in non-loop context",
+        ),
+        (
+            "
+    if (true) {
+        continue;
+    }
+    ",
+            "unexpected continue keyword in non-loop context",
+        ),
+        (
+            "
+    let f = fn() {
+        break 5;
+    };
+    f();
+    ",
+            "unexpected break keyword in non-loop context",
+        ),
+        (
+            "
+    let f = fn() {
+        continue;
+    };
+    f();
+    ",
+            "unexpected continue keyword in non-loop context",
+        ),
+        (
+            "
+    let i = 0;
+    let sum = 0;
+    while i < 3 {
+        i = i + 1;
+        let j = 0;
+        while j < 3 {
+            j = j + 1;
+            continue;
+            sum = sum + 100;
+        }
+        sum = sum + 1;
+    }
+    sum;
+    ",
+            "3",
+        ),
+        (
+            "
+    let i = 0;
+    while true {
+        if (true) {
+            if (true) {
+                break 42;
+            }
+            i = 999;
+        }
+        i = i + 1;
+    }
+    ",
+            "42",
+        ),
     ];
 
     test_cases_for_input_output(&testcases);

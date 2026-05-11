@@ -31,6 +31,11 @@ impl ForLoopExpression {
             },
         )));
 
+        {
+            let mut env_borrow = new_environment.borrow_mut();
+            env_borrow.set_loop_context(true);
+        }
+
         if let Some(variable) = &self.variable
             && let Some(iteratable) = &self.iterator
         {

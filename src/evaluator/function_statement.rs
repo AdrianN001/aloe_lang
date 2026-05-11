@@ -2,7 +2,12 @@ use std::{cell::RefCell, rc::Rc};
 
 use crate::{
     ast::statement::function_statement::FunctionStatement,
-    object::{Object, ObjectRef, function::Function, new_objectref, stack_environment::EnvRef},
+    object::{
+        Object, ObjectRef,
+        function::Function,
+        new_objectref,
+        stack_environment::{EnvRef, StackEnvironment},
+    },
 };
 
 impl FunctionStatement {
@@ -11,7 +16,20 @@ impl FunctionStatement {
             Rc::new(RefCell::new(Object::Func(Function {
                 parameters: self.parameters.clone(),
                 body: self.block.clone(),
-                env: environ.clone(),
+                env: {
+                    let new_environemnt = StackEnvironment::new_enclosed(
+                        environ.clone(),
+                        format!("function {}(...) {{...}}", self.name),
+                    )
+                    .to_ref();
+
+                    {
+                        let mut env_borrow = new_environemnt.borrow_mut();
+                        env_borrow.set_loop_context(false);
+                    };
+
+                    new_environemnt
+                },
             })))
         });
         Rc::new(RefCell::new(Object::NULL_OBJECT))
@@ -21,7 +39,19 @@ impl FunctionStatement {
         new_objectref(Object::Func(Function {
             parameters: self.parameters.clone(),
             body: self.block.clone(),
-            env: environ.clone(),
+            env: {
+                let new_environemnt = StackEnvironment::new_enclosed(
+                    environ.clone(),
+                    format!("function {}(...) {{...}}", self.name),
+                )
+                .to_ref();
+
+                {
+                    let mut env_borrow = new_environemnt.borrow_mut();
+                    env_borrow.set_loop_context(false);
+                }
+                new_environemnt
+            },
         }))
     }
 }

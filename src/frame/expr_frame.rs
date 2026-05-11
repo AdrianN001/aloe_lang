@@ -10,7 +10,9 @@ use crate::{
             index_state::IndexState, infix_state::InfixState, while_state::WhileState,
         },
     },
-    object::{Object, ObjectRef, panic_obj::RuntimeSignal, stack_environment::EnvRef, state::StateRef},
+    object::{
+        Object, ObjectRef, panic_obj::RuntimeSignal, stack_environment::EnvRef, state::StateRef,
+    },
 };
 
 pub type ExprFrameRef = Rc<RefCell<ExpressionFrame>>;
@@ -311,7 +313,7 @@ impl ExpressionFrame {
                     state.conditional_value = Some(object.clone());
                     state.is_head_ready = true;
                 } else {
-                    let is_break_value ={
+                    let is_break_value = {
                         let object_borrow = object.borrow();
                         matches!(*object_borrow, Object::BreakVal(_))
                     };

@@ -2,6 +2,7 @@ use crate::{
     frame::state::{
         array_state::ArrayState, await_state::AwaitState, call_state::CallState,
         hashmap_state::HashMapState, if_state::IfState, index_state::IndexState,
+        infix_state::InfixState,
     },
     object::ObjectRef,
 };
@@ -11,6 +12,7 @@ pub mod call_state;
 pub mod hashmap_state;
 pub mod if_state;
 pub mod index_state;
+pub mod infix_state;
 
 #[derive(Debug)]
 pub enum ExpressionState {
@@ -44,6 +46,10 @@ pub enum ExpressionState {
     HashMap {
         ready_to_evaluate: bool,
         state: HashMapState,
+    },
+    Infix {
+        ready_to_evaluate: bool,
+        state: InfixState,
     },
 
     Primitive,

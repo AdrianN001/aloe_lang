@@ -2,6 +2,7 @@ use crate::{
     ast::expression::{
         Expression, array_literal::ArrayLiteral, boolean::Boolean, call_expression::CallExpression,
         hash_map_literal::HashMapLiteral, index_expression::IndexExpression,
+        infix::InfixExpression,
     },
     frame::{
         Frame,
@@ -254,7 +255,6 @@ impl ExpressionFrame {
                     ));
                 }
 
-                println!("reading: {}", state.current_element);
                 //TODO: optimalization
                 let current_item = state.current_element;
                 let current_expression = if current_item % 2 == 0 {
@@ -273,6 +273,42 @@ impl ExpressionFrame {
                     current_expression,
                     environ,
                 ))
+            }
+
+            ExpressionState::Infix {
+                ready_to_evaluate,
+                state,
+            } => {
+                let infix_expr = {
+                    match &self.expr {
+                        Expression::Infix(infix) => infix,
+                        _ => unreachable!(),
+                    }
+                };
+                if !*ready_to_evaluate {
+                    if state.left.is_none() {
+                        return Ok(ExpressionFrame::build_frame_from_expr(
+                            &infix_expr.left,
+                            environ.clone(),
+                        ));
+                    } else if state.right.is_none() {
+                        return Ok(ExpressionFrame::build_frame_from_expr(
+                            &infix_expr.right,
+                            environ.clone(),
+                        ));
+                    }
+                    unreachable!();
+                } else {
+                    let left = state.left.as_ref().unwrap().clone();
+                    let right = state.right.as_ref().unwrap().clone();
+                    let operator = infix_expr.operator.clone();
+                    Ok(EvaluationResult::Done(InfixExpression::evaluate_step(
+                        left,
+                        right,
+                        operator,
+                        interpreter_state.clone(),
+                    )?))
+                }
             }
         }
     }

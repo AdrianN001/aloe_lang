@@ -102,6 +102,19 @@ async fun main(){
 }
 __spawn(main())",
             "null",
+        ),
+        (
+            "
+async fun get_number() { return 1; }
+async fun get_other_number() { return 3; }
+async fun main(){
+        let x = (await get_number()) + (await get_number());
+        let y = (await get_number()) * (await get_other_number());
+        let z = (await get_other_number()) - (await get_number()) / (await get_number());
+        println(x, y, z, x*(await get_other_number()) );
+}
+__spawn(main())",
+            "null",
         ), /*
                        "
 async fun a(){

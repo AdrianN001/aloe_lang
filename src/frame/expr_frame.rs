@@ -7,7 +7,7 @@ use crate::{
         state::{
             ExpressionState, array_state::ArrayState, await_state::AwaitState,
             call_state::CallState, hashmap_state::HashMapState, if_state::IfState,
-            index_state::IndexState,
+            index_state::IndexState, infix_state::InfixState,
         },
     },
     object::{ObjectRef, panic_obj::RuntimeSignal, stack_environment::EnvRef, state::StateRef},
@@ -76,6 +76,19 @@ impl ExpressionFrame {
                     elements: vec![],
                     curr_element: 0,
                     number_of_elements: elements_n,
+                },
+            },
+        }
+    }
+
+    pub fn new_infix_frame(expr: Expression) -> Self {
+        Self {
+            expr,
+            state: ExpressionState::Infix {
+                ready_to_evaluate: false,
+                state: InfixState {
+                    left: None,
+                    right: None,
                 },
             },
         }
@@ -154,6 +167,7 @@ impl ExpressionFrame {
             Expression::HashMapLiteral(_) => {
                 ExpressionFrame::new_hashmap_frame(expression.clone()).to_ref()
             }
+            Expression::Infix(_) => ExpressionFrame::new_infix_frame(expression.clone()).to_ref(),
             other_type => panic!("error: {}", other_type.to_string()),
         };
 
@@ -251,8 +265,6 @@ impl ExpressionFrame {
                     }
                 };
 
-                println!("incrementing: {}", state.current_element);
-
                 if state.current_element % 2 == 0 {
                     state.keys.push(object.clone());
                 } else {
@@ -267,7 +279,20 @@ impl ExpressionFrame {
 
                 Ok(())
             }
-            _ => Ok(()),
+            ExpressionState::Infix {
+                ready_to_evaluate,
+                state,
+            } => {
+                if state.left.is_none() {
+                    state.left = Some(object.clone());
+                } else if state.right.is_none() {
+                    state.right = Some(object.clone());
+                    *ready_to_evaluate = true;
+                }
+                Ok(())
+            }
+
+            ExpressionState::Primitive => Ok(()),
         }
     }
 }

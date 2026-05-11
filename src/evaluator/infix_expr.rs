@@ -24,20 +24,6 @@ impl InfixExpression {
         environ: EnvRef,
         state: StateRef,
     ) -> Result<ObjectRef, RuntimeSignal> {
-        if matches!(*self.left, Expression::AwaitExpr(_))
-            || matches!(*self.right, Expression::AwaitExpr(_))
-        {
-            return Err(RuntimeSignal::Panic(PanicObj::new(
-                PanicType::MultipleAwaitInOneStatement,
-                format!(
-                    "cannot have multiple await expression in one statement:{} {} {}",
-                    self.left.to_string(),
-                    self.operator,
-                    self.right.to_string()
-                ),
-                state,
-            )));
-        }
         let left_side = self.left.evaluate(environ.clone(), state.clone())?;
 
         if self.operator == "??" {
@@ -414,5 +400,85 @@ impl InfixExpression {
         };
 
         Ok((left_bool, right_bool))
+    }
+
+    pub fn evaluate_step(
+        left: ObjectRef,
+        right: ObjectRef,
+        operator: String,
+        state: StateRef,
+    ) -> Result<ObjectRef, RuntimeSignal> {
+        //TODO: optimize this by not evaluating the right side if not necessary (in case of && and || for example)
+        let left_side_truthy = left.borrow().is_truthy();
+        if operator == "??" && !left_side_truthy {
+            return Ok(right.clone());
+        }
+
+        let result = match operator.as_str() {
+            "+" | "-" | "*" | "/" | "**" | "%" | "==" | "!=" | "<" | ">" | "<<" | ">>" | "&"
+            | "|" | "^" | "<=" | ">=" => match &*left.borrow() {
+                Object::Int(integer) => {
+                    Self::integer_infix_operation_dispatch(integer, &operator, right, state)
+                }
+                Object::FloatObj(float) => {
+                    Self::float_infix_operation_dispatch(float, &operator, right, state)
+                }
+                Object::String(string) => {
+                    Self::string_infix_operation_dispatch(string, &operator, right, state)
+                }
+                Object::Array(array) => {
+                    Self::array_infix_operation_dispatch(array, &operator, right, state)
+                }
+                Object::HashMap(hashmap) => {
+                    Self::hashmap_infix_operation_dispatch(hashmap, &operator, right, state)
+                }
+                Object::Native(native) => {
+                    Self::native_type_infix_operation_dispatch(native, &operator, right, state)
+                }
+                Object::Bool(bool) => {
+                    Self::boolean_infix_operation_dispatch(bool, &operator, right, state)
+                }
+                _ => Err(PanicObj::new(
+                    PanicType::OperatorIsNotSupported,
+                    format!(
+                        "unexpected operand types: {} {} {}",
+                        left.borrow().get_type(),
+                        operator,
+                        right.borrow().get_type()
+                    ),
+                    state.clone(),
+                )),
+            },
+            "&&" | "||" => {
+                let (left_bool_side, right_bool_side) =
+                    Self::convert_operands_to_bool(left, right, state.clone())?;
+
+                if let Object::Bool(bool_operand) = &*left_bool_side.borrow() {
+                    Self::boolean_infix_operation_dispatch(
+                        bool_operand,
+                        &operator,
+                        right_bool_side,
+                        state,
+                    )
+                } else {
+                    panic!()
+                }
+            }
+            other_operator => Err(PanicObj::new(
+                PanicType::OperatorIsNotSupported,
+                format!(
+                    "unexpected operand types: {} {} {}",
+                    left.borrow().get_type(),
+                    other_operator,
+                    right.borrow().get_type()
+                ),
+                state.clone(),
+            )),
+        };
+
+        match result {
+            Ok(ok_value) => Ok(ok_value),
+            Err(panic_value) => Err(RuntimeSignal::Panic(panic_value)),
+        }
     }
 }

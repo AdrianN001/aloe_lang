@@ -7,10 +7,10 @@ use crate::{
         state::{
             ExpressionState, array_state::ArrayState, await_state::AwaitState,
             call_state::CallState, hashmap_state::HashMapState, if_state::IfState,
-            index_state::IndexState, infix_state::InfixState,
+            index_state::IndexState, infix_state::InfixState, while_state::WhileState,
         },
     },
-    object::{ObjectRef, panic_obj::RuntimeSignal, stack_environment::EnvRef, state::StateRef},
+    object::{Object, ObjectRef, panic_obj::RuntimeSignal, stack_environment::EnvRef, state::StateRef},
 };
 
 pub type ExprFrameRef = Rc<RefCell<ExpressionFrame>>;
@@ -136,6 +136,20 @@ impl ExpressionFrame {
                     current_element: 0,
                     keys: Vec::new(),
                     values: Vec::new(),
+                },
+            },
+        }
+    }
+
+    pub fn new_while_frame(expr: Expression) -> Self {
+        Self {
+            expr,
+            state: ExpressionState::While {
+                value: None,
+                state: WhileState {
+                    is_infinite: false,
+                    conditional_value: None,
+                    is_head_ready: false,
                 },
             },
         }
@@ -288,6 +302,22 @@ impl ExpressionFrame {
                 } else if state.right.is_none() {
                     state.right = Some(object.clone());
                     *ready_to_evaluate = true;
+                }
+                Ok(())
+            }
+
+            ExpressionState::While { value, state } => {
+                if !state.is_head_ready {
+                    state.conditional_value = Some(object.clone());
+                    state.is_head_ready = true;
+                } else {
+                    let is_break_value ={
+                        let object_borrow = object.borrow();
+                        matches!(*object_borrow, Object::BreakVal(_))
+                    };
+                    if is_break_value {
+                        *value = Some(object.clone());
+                    }
                 }
                 Ok(())
             }

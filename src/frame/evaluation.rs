@@ -310,6 +310,44 @@ impl ExpressionFrame {
                     )?))
                 }
             }
+            ExpressionState::While { value, state } => {
+                let while_expr = {
+                    match &self.expr {
+                        Expression::WhileLoop(while_loop) => while_loop,
+                        _ => unreachable!(),
+                    }
+                };
+
+                if let Some(value_from_block) = value {
+                    return Ok(EvaluationResult::Done(value_from_block.clone()));
+                }
+
+                if !state.is_head_ready && !state.is_infinite {
+                    if let Some(conditional_expression) = &while_expr.condition {
+                        return Ok(ExpressionFrame::build_frame_from_expr(
+                            &conditional_expression.clone(),
+                            environ.clone(),
+                        ));
+                    } else {
+                        state.is_infinite = true;
+                        state.is_head_ready = true;
+                    }
+                } else if state.is_infinite
+                    || state
+                        .conditional_value
+                        .as_ref()
+                        .unwrap()
+                        .borrow()
+                        .is_truthy()
+                {
+                    state.is_head_ready = false;
+                    return Ok(EvaluationResult::Push(Frame::BlockFrame(
+                        BlockFrame::new(&while_expr.block.statements, environ.clone()).to_ref(),
+                    )));
+                }
+
+                return Ok(EvaluationResult::Done(new_objectref(Object::NULL_OBJECT)));
+            }
         }
     }
 }

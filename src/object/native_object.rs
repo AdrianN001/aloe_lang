@@ -58,7 +58,6 @@ impl NativeObject {
             NativeObject::TCPSocket(socket) => socket.to_bool(),
             NativeObject::ATCPListener(listener) => listener.to_bool(),
             NativeObject::ATCPSocket(socket) => socket.to_bool(),
-            _ => panic!(),
         }
     }
 
@@ -70,7 +69,6 @@ impl NativeObject {
             NativeObject::TCPSocket(socket) => !socket.is_closed(),
             NativeObject::ATCPListener(listener) => listener.to_bool_raw(),
             NativeObject::ATCPSocket(socket) => socket.to_bool_raw(),
-            _ => panic!(),
         }
     }
 
@@ -87,7 +85,6 @@ impl NativeObject {
             NativeObject::TCPSocket(socket) => socket.apply_method(name, args, state),
             NativeObject::ATCPListener(listener) => listener.apply_method(name, args, state),
             NativeObject::ATCPSocket(socket) => socket.apply_method(name, args, state),
-            _ => panic!(),
         }
     }
 
@@ -99,7 +96,6 @@ impl NativeObject {
             NativeObject::TCPSocket(socket) => socket.apply_attribute(name, state),
             NativeObject::ATCPListener(listener) => listener.apply_attribute(name, state),
             NativeObject::ATCPSocket(socket) => socket.apply_attribute(name, state),
-            _ => panic!(),
         }
     }
 }

@@ -17,6 +17,7 @@ use crate::{
 
 pub type ModuleRef = Rc<RefCell<Module>>;
 
+#[allow(dead_code)]
 #[derive(Default)]
 pub struct Module {
     name: String,

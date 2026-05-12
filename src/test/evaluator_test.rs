@@ -1,7 +1,7 @@
 use crate::{
-    ast::{Parser, program},
+    ast::Parser,
     lexer::Lexer,
-    object::{Object, integer::Integer, panic_obj::RuntimeSignal},
+    object::{Object, panic_obj::RuntimeSignal},
     test::util::test_cases_for_input_output,
 };
 

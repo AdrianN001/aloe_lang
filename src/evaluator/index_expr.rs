@@ -8,7 +8,7 @@ use crate::object::state::StateRef;
 use crate::object::string_obj::StringObj;
 use crate::{
     ast::expression::index_expression::IndexExpression,
-    object::{Object, ObjectRef, hashable::Hashable},
+    object::{Object, ObjectRef},
 };
 
 impl IndexExpression {

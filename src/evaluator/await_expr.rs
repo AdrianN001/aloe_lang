@@ -15,8 +15,19 @@ use crate::{
 };
 
 impl AwaitExpression {
-    pub fn eval2(future_ref: ObjectRef, state: StateRef) -> Result<ObjectRef, RuntimeSignal> {
+    pub fn eval2(
+        expr: &Expression,
+        future_ref: ObjectRef,
+        state: StateRef,
+    ) -> Result<ObjectRef, RuntimeSignal> {
         let mut future_ref_borrow = future_ref.borrow_mut();
+
+        let await_expr = {
+            match &expr {
+                Expression::AwaitExpr(await_expr) => await_expr,
+                _ => unreachable!(),
+            }
+        };
 
         let future_obj = match &mut *future_ref_borrow {
             Object::Future(future_obj) => future_obj,
@@ -33,7 +44,8 @@ impl AwaitExpression {
         let current_task_rc = take_current_task().expect("no current task found");
 
         match &future_obj.state {
-            FutureState::Ready(finished_object) => Ok(finished_object.clone()),
+            FutureState::Ready(finished_object) => await_expr
+                .handle_return_value_according_the_expression(finished_object.clone(), state),
             FutureState::Pending(type_of_future) => {
                 match type_of_future {
                     FutureKind::Value(task) => {
@@ -50,7 +62,7 @@ impl AwaitExpression {
         }
     }
 
-    fn handle_return_value_according_the_expression(
+    pub fn handle_return_value_according_the_expression(
         &self,
         return_value: ObjectRef,
         state: StateRef,

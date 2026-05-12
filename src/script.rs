@@ -1,13 +1,9 @@
-use std::{cell::RefCell, fs, rc::Rc};
+use std::{cell::RefCell, rc::Rc};
 
 use crate::{
     module::{Module, module_error::ModuleError, module_loader::ModuleLoader},
     object::panic_obj::RuntimeSignal,
 };
-
-fn read_source_file(file_path: &str) -> String {
-    fs::read_to_string(file_path).unwrap()
-}
 
 pub fn run_script(file_path: &str) -> Result<(), ModuleError> {
     let main_module = match Module::new(file_path.to_string()) {

@@ -1,5 +1,5 @@
 use crate::{
-    ast::expression::Expression,
+    ast::expression::{Expression, await_expression::AwaitExpression},
     frame::expr_frame::{EvaluationResult, ExpressionFrame},
     object::{
         Object, ObjectRef, future::future_state::FutureState, panic_obj::RuntimeSignal,
@@ -20,7 +20,7 @@ impl AwaitState {
         expression: &Expression,
         future_saved_in_frame: &mut Option<ObjectRef>,
         _environ: EnvRef,
-        _state: StateRef,
+        state: StateRef,
     ) -> Result<EvaluationResult, RuntimeSignal> {
         let _await_expr = {
             match expression {
@@ -52,7 +52,14 @@ impl AwaitState {
                     }
                 };
                 match &future_raw.state {
-                    FutureState::Ready(value) => Ok(EvaluationResult::Done(value.clone())),
+                    FutureState::Ready(value) => {
+                        let value = AwaitExpression::handle_return_value_according_the_expression(
+                            _await_expr,
+                            value.clone(),
+                            state,
+                        )?;
+                        Ok(EvaluationResult::Done(value))
+                    }
                     FutureState::Pending(_) => Ok(EvaluationResult::Pending),
                     _ => panic!(),
                 }

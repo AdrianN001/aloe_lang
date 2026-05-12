@@ -1,6 +1,6 @@
 use crate::object::ObjectRef;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct ArrayState {
     pub elements: Vec<ObjectRef>,
 

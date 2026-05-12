@@ -1,5 +1,7 @@
 use crate::test::util::test_cases_for_input_output;
 
+//TODO: add more test cases, especially with nested async calls and loops
+//TODO: ein weg finden, async functionen zu testen
 #[test]
 fn test_async_await() {
     let testcases = [
@@ -112,6 +114,31 @@ async fun main(){
         let y = (await get_number()) * (await get_other_number());
         let z = (await get_other_number()) - (await get_number()) / (await get_number());
         println(x, y, z, x*(await get_other_number()) );
+}
+__spawn(main())",
+            "null",
+        ),
+        (
+            "
+async fun get_value() { return 1; }
+async fun get_other_value() { return 3; } 
+async fun get_condition(x) { return x < 3; }
+async fun main(){
+        let i = 0;
+        let x = while await get_condition(i){
+            let x = await get_value();
+            let y = await get_other_value();
+
+            println(x,y);
+
+            let x = if true {
+                println(\"print in if\"); 
+                break x;
+                println(\"this should not be printed\");
+            };
+        };
+
+        println(x);
 }
 __spawn(main())",
             "null",

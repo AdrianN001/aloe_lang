@@ -27,7 +27,7 @@ impl Frame {
             Frame::ExpressionFrame(expr_frame) => expr_frame
                 .borrow_mut()
                 .eval_step(environ, interpreter_state),
-            Frame::BlockFrame(block_frame) => Ok(block_frame.borrow_mut().eval_step()),
+            Frame::BlockFrame(block_frame) => block_frame.borrow_mut().eval_step(interpreter_state),
         }
     }
 

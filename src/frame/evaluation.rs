@@ -230,8 +230,11 @@ impl ExpressionFrame {
                         }
                     };
 
-                    Ok(EvaluationResult::Push(Frame::BlockFrame(
-                        BlockFrame::new(&current_path.statements, environ).to_ref(),
+                    Ok(EvaluationResult::Push((
+                        Frame::BlockFrame(
+                            BlockFrame::new(&current_path.statements, environ.clone()).to_ref(),
+                        ),
+                        environ.clone(),
                     )))
                 }
             }
@@ -324,25 +327,34 @@ impl ExpressionFrame {
 
                 if !state.is_head_ready && !state.is_infinite {
                     if let Some(conditional_expression) = &while_expr.condition {
+                        state.is_infinite = false;
                         return Ok(ExpressionFrame::build_frame_from_expr(
                             &conditional_expression.clone(),
                             environ.clone(),
                         ));
                     } else {
                         state.is_infinite = true;
-                        state.is_head_ready = true;
                     }
-                } else if state.is_infinite
-                    || state
-                        .conditional_value
-                        .as_ref()
-                        .unwrap()
-                        .borrow()
-                        .is_truthy()
+
+                    state.is_head_ready = true;
+                } else if state.is_head_ready
+                    && (state.is_infinite
+                        || state
+                            .conditional_value
+                            .as_ref()
+                            .unwrap()
+                            .borrow()
+                            .is_truthy())
                 {
-                    state.is_head_ready = false;
-                    return Ok(EvaluationResult::Push(Frame::BlockFrame(
-                        BlockFrame::new(&while_expr.block.statements, environ.clone()).to_ref(),
+                    let loop_block =
+                        BlockFrame::new(&while_expr.block.statements, environ.clone()).to_ref();
+                    {
+                        let mut loop_block_borrow = loop_block.borrow_mut();
+                        loop_block_borrow.set_loop_context(true);
+                    }
+                    return Ok(EvaluationResult::Push((
+                        Frame::BlockFrame(loop_block),
+                        environ.clone(),
                     )));
                 }
 

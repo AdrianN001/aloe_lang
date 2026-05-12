@@ -2,7 +2,12 @@ use std::{cell::RefCell, rc::Rc};
 
 use crate::{
     ast::statement::Statement,
-    frame::{Frame, block_frame::BlockFrame, expr_frame::EvaluationResult},
+    frame::{
+        Frame,
+        block_frame::BlockFrame,
+        expr_frame::EvaluationResult,
+        state::ExpressionState,
+    },
     object::{
         Object, ObjectRef, future::task_kind::TaskKind, new_objectref, panic_obj::RuntimeSignal,
         stack_environment::EnvRef, state::StateRef,
@@ -26,7 +31,7 @@ pub struct Task {
 
     pub result_future: Option<ObjectRef>,
 
-    pub frames: Vec<Frame>,
+    pub frames: Vec<(Frame, EnvRef)>,
 }
 impl Task {
     pub fn new(
@@ -54,14 +59,14 @@ impl Task {
     }
 
     pub fn run2(self_ref: TaskRef) -> Result<ObjectRef, RuntimeSignal> {
-        let (environ, interpreter_state) = {
+        let (_environ, interpreter_state) = {
             let task = self_ref.borrow();
 
             (task.environ.clone(), task.state.clone())
         };
 
         loop {
-            let current_frame = {
+            let (current_frame, corresponding_environment) = {
                 let task = self_ref.borrow();
 
                 match task.frames.last() {
@@ -70,11 +75,12 @@ impl Task {
                 }
             };
 
-            let eval_result =
-                { current_frame.eval_step(environ.clone(), interpreter_state.clone())? };
+            let eval_result = {
+                current_frame
+                    .eval_step(corresponding_environment.clone(), interpreter_state.clone())?
+            };
 
             match eval_result {
-                //TODO:CRAZY
                 EvaluationResult::Push(child_frame) => {
                     self_ref.borrow_mut().frames.push(child_frame);
                 }
@@ -93,7 +99,7 @@ impl Task {
                         task.frames.last().cloned()
                     };
 
-                    if let Some(parent_frame) = parent_frame_opt {
+                    if let Some((parent_frame, _env)) = parent_frame_opt {
                         let return_val_opt =
                             parent_frame.resume_with(value, interpreter_state.clone())?;
 
@@ -104,20 +110,101 @@ impl Task {
                         return Ok(value);
                     }
                 }
+                EvaluationResult::Break(value) => {
+                    {
+                        self_ref.borrow_mut().frames.pop();
+                    }
+
+                    // suche nach dem erste loop frame und resume mit break value
+
+                    loop {
+                        let parent_frame_opt = {
+                            let task = self_ref.borrow();
+
+                            task.frames.last().cloned()
+                        };
+
+                        if let Some((parent_frame, _env)) = parent_frame_opt {
+                            match &parent_frame {
+                                Frame::BlockFrame(_) => {
+                                    self_ref.borrow_mut().frames.pop();
+                                    continue;
+                                }
+                                Frame::ExpressionFrame(expr_frame) => {
+                                    let expr_frame_state = {
+                                        let expr_frame_raw = expr_frame.borrow();
+                                        expr_frame_raw.state.clone()
+                                    };
+
+                                    match expr_frame_state {
+                                        ExpressionState::While { .. } => {
+                                            parent_frame
+                                                .resume_with(value, interpreter_state.clone())?;
+                                            break;
+                                        }
+                                        _ => {
+                                            self_ref.borrow_mut().frames.pop();
+                                            continue;
+                                        }
+                                    }
+                                }
+                            };
+                        }
+                    }
+                }
+                EvaluationResult::Continue => {
+                    {
+                        self_ref.borrow_mut().frames.pop();
+                    }
+
+                    // suche nach dem erste loop frame und resume mit break value
+
+                    loop {
+                        let parent_frame_opt = {
+                            let task = self_ref.borrow();
+
+                            task.frames.last().cloned()
+                        };
+
+                        if let Some((parent_frame, _env)) = parent_frame_opt {
+                            match &parent_frame {
+                                Frame::BlockFrame(_) => {
+                                    self_ref.borrow_mut().frames.pop();
+                                    continue;
+                                }
+                                Frame::ExpressionFrame(expr_frame) => {
+                                    let expr_frame_state = {
+                                        let expr_frame_raw = expr_frame.borrow();
+                                        expr_frame_raw.state.clone()
+                                    };
+
+                                    match expr_frame_state {
+                                        ExpressionState::While { .. } => {
+                                            parent_frame.resume_with(
+                                                new_objectref(Object::NULL_OBJECT),
+                                                interpreter_state.clone(),
+                                            )?;
+                                            break;
+                                        }
+                                        _ => {
+                                            self_ref.borrow_mut().frames.pop();
+                                            continue;
+                                        }
+                                    }
+                                }
+                            };
+                        }
+                    }
+                }
             }
         }
     }
 
     fn init(&mut self) {
-        let main_block = BlockFrame {
-            statements: self.statements.clone(),
-            index: 0,
-            last_value: None,
-            environ: self.environ.clone(),
-            last_object: None,
-        };
+        let main_block = BlockFrame::new(&self.statements, self.environ.clone());
 
-        self.frames.push(Frame::BlockFrame(main_block.to_ref()))
+        self.frames
+            .push((Frame::BlockFrame(main_block.to_ref()), self.environ.clone()));
     }
 }
 

@@ -15,7 +15,7 @@ pub mod index_state;
 pub mod infix_state;
 pub mod while_state;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum ExpressionState {
     Await {
         future: Option<ObjectRef>,

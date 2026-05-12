@@ -2,7 +2,7 @@ use std::{cell::RefCell, rc::Rc};
 
 use crate::object::stack_environment::{EnvRef, StackEnvironment};
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct IfState {
     // environment
     pub environ: EnvRef,

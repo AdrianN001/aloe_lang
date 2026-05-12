@@ -184,10 +184,13 @@ impl ExpressionFrame {
                 ExpressionFrame::new_hashmap_frame(expression.clone()).to_ref()
             }
             Expression::Infix(_) => ExpressionFrame::new_infix_frame(expression.clone()).to_ref(),
+            Expression::WhileLoop(_) => {
+                ExpressionFrame::new_while_frame(expression.clone()).to_ref()
+            }
             other_type => panic!("error: {}", other_type.to_string()),
         };
 
-        EvaluationResult::Push(Frame::ExpressionFrame(new_frame))
+        EvaluationResult::Push((Frame::ExpressionFrame(new_frame), environ))
     }
     pub fn to_ref(self) -> ExprFrameRef {
         Rc::new(RefCell::new(self))
@@ -318,8 +321,12 @@ impl ExpressionFrame {
                         matches!(*object_borrow, Object::BreakVal(_))
                     };
                     if is_break_value {
-                        *value = Some(object.clone());
+                        if let Object::BreakVal(break_val) = &*object.borrow() {
+                            *value = Some(*break_val.value.clone());
+                        }
                     }
+                    state.conditional_value = None;
+                    state.is_head_ready = false;
                 }
                 Ok(())
             }
@@ -335,5 +342,8 @@ pub enum EvaluationResult {
     Pending,
     Return(ObjectRef),
 
-    Push(Frame),
+    Continue,
+    Break(ObjectRef),
+
+    Push((Frame, EnvRef)),
 }

@@ -1,6 +1,6 @@
 use crate::object::ObjectRef;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct IndexState {
     pub indexable: Option<ObjectRef>,
     pub index: Option<ObjectRef>,

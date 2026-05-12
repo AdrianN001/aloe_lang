@@ -78,4 +78,22 @@ impl StackEnvironment {
     pub fn to_ref(self) -> EnvRef {
         Rc::new(RefCell::new(self))
     }
+
+    pub fn to_string(&self) -> String {
+        let mut result = format!(
+            "StackEnvironment {{ layer: {}, map: {{",
+            self.stack_layer_name
+        );
+        for (key, value) in &self.map {
+            result.push_str(&format!("{}: {}, ", key, value.borrow().inspect()));
+        }
+        result.push_str("}}");
+        if let Some(outer) = &self.outer {
+            result.push_str(&format!(", outer: {}", outer.borrow().to_string()));
+        } else {
+            result.push_str(", outer: None");
+        }
+        result.push_str(" }");
+        result
+    }
 }

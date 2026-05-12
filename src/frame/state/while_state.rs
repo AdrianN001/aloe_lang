@@ -1,6 +1,6 @@
 use crate::object::ObjectRef;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct WhileState {
     pub is_infinite: bool,
     pub conditional_value: Option<ObjectRef>,

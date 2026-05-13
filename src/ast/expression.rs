@@ -55,8 +55,8 @@ pub enum Expression {
     Array(ArrayLiteral),
     Index(IndexExpression),
     HashMapLiteral(HashMapLiteral),
-    ForLoop(ForLoopExpression),         //TODO: schreib eine eval_step();
-    WhileLoop(WhileLoopExpression),     //TODO: schreib eine eval_step();
+    ForLoop(ForLoopExpression),         
+    WhileLoop(WhileLoopExpression),     
     ValueAssign(ValueAssignExpression), //TODO: schreib eine eval_step();
 
     Member(MemberExpression), //TODO: schreib eine eval_step();

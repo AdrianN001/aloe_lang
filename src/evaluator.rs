@@ -77,7 +77,11 @@ impl Expression {
             Expression::Member(member_expression) => member_expression.evaluate(environ, state),
             Expression::WhileLoop(while_loop) => while_loop.evaluate(environ, state),
 
-            Expression::AwaitExpr(_) => unreachable!(),
+            Expression::AwaitExpr(_) => Err(RuntimeSignal::Panic(PanicObj::new_simple(
+                PanicType::AwaitedInNonAsyncContext,
+                "await expression is not allowed in non-async context",
+                state,
+            ))),
 
             Expression::InvalidExpression => {
                 panic!("unexpected expression type")

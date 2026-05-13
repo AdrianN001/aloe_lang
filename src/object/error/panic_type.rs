@@ -52,4 +52,6 @@ pub enum PanicType {
 
     NonAwaitableObjectWasAwaited,
     MultipleAwaitInOneStatement,
+
+    AwaitedInNonAsyncContext,
 }

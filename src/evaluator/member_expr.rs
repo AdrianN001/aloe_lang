@@ -2,9 +2,11 @@ use std::{cell::RefCell, rc::Rc};
 
 use crate::{
     ast::expression::{Expression, call_expression::CallExpression, member::MemberExpression},
+    frame::expr_frame::{EvaluationResult, ExpressionFrame},
     object::{
         Object, ObjectRef,
         error::panic_type::PanicType,
+        new_objectref,
         panic_obj::{PanicObj, RuntimeSignal},
         return_value::ReturnValue,
         stack_environment::EnvRef,
@@ -79,6 +81,93 @@ impl MemberExpression {
                 format!(
                     "'{}.{}' is illegal.",
                     left_obj.borrow().inspect(),
+                    other_expr_type.to_string()
+                ),
+                state.clone(),
+            ))),
+        }
+    }
+
+    pub fn eval_step(
+        left_side: ObjectRef,
+        right_expression: &Expression,
+        environ: EnvRef,
+        state: StateRef,
+        awaited_arguments: &[ObjectRef],
+    ) -> Result<EvaluationResult, RuntimeSignal> {
+        if let Object::ReturnVal(ret_val) = &*left_side.borrow() {
+            return Ok(EvaluationResult::Done(ret_val.unwrap_to_value().clone()));
+        }
+
+        match right_expression {
+            Expression::Identifier(identifier) => {
+                let name_of_attribute = &identifier.value;
+                let obj = left_side.borrow();
+                let result = obj.apply_attribute(name_of_attribute, environ, state)?;
+                Ok(EvaluationResult::Done(result))
+            }
+            Expression::Call(call_expr) => {
+                let name_of_method =
+                    Self::get_call_expressions_identifier(call_expr, state.clone())?;
+
+                if call_expr.arguments.len() != awaited_arguments.len() {
+                    return Ok(ExpressionFrame::build_frame_from_expr(
+                        &call_expr.arguments[awaited_arguments.len()],
+                        environ.clone(),
+                    ));
+                }
+                let args = awaited_arguments;
+
+                if MemberExpression::check_early_for_struct_method_call(left_side.clone()) {
+                    let result = StructObject::apply_method(
+                        &name_of_method,
+                        left_side.clone(),
+                        args,
+                        environ,
+                        state,
+                        call_expr.bang_set,
+                        call_expr.question_mark_set,
+                    );
+
+                    return Ok(EvaluationResult::Done(result?));
+                }
+
+                let mut obj = left_side.borrow_mut();
+
+                let return_value =
+                    obj.apply_method(&name_of_method, args, environ.clone(), state.clone())?;
+
+                let return_value_cloned = return_value.clone();
+
+                if let Object::Err(err) = &*return_value_cloned.borrow() {
+                    if call_expr.question_mark_set && !state.borrow().is_function_context() {
+                        return Err(RuntimeSignal::Panic(PanicObj::new_simple(
+                            PanicType::PropagationFromNonfunctionalContext,
+                            "tried to use ? on a function, without function-context",
+                            state.clone(),
+                        )));
+                    }
+                    if call_expr.bang_set {
+                        return Err(RuntimeSignal::Panic(PanicObj::from_error(
+                            err,
+                            state.clone(),
+                        )));
+                    } else if call_expr.question_mark_set {
+                        return Ok(EvaluationResult::Done(new_objectref(Object::ReturnVal(
+                            ReturnValue {
+                                value: Box::new(return_value.clone()),
+                            },
+                        ))));
+                    }
+                }
+
+                Ok(EvaluationResult::Done(return_value))
+            }
+            other_expr_type => Err(RuntimeSignal::Panic(PanicObj::new(
+                PanicType::IllegalExpression,
+                format!(
+                    "'{}.{}' is illegal.",
+                    left_side.borrow().inspect(),
                     other_expr_type.to_string()
                 ),
                 state.clone(),

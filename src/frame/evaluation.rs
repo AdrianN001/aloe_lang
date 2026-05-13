@@ -2,7 +2,7 @@ use crate::{
     ast::expression::{
         Expression, array_literal::ArrayLiteral, boolean::Boolean, call_expression::CallExpression,
         hash_map_literal::HashMapLiteral, index_expression::IndexExpression,
-        infix::InfixExpression,
+        infix::InfixExpression, member::MemberExpression,
     },
     frame::{
         Frame,
@@ -467,6 +467,35 @@ impl ExpressionFrame {
                     Frame::BlockFrame(block),
                     environ.clone(),
                 )));
+            }
+            ExpressionState::Member { value, state } => {
+                if let Some(value_from_member_expr) = value {
+                    return Ok(EvaluationResult::Done(value_from_member_expr.clone()));
+                }
+
+                let member_expr = {
+                    match &self.expr {
+                        Expression::Member(member_expr) => member_expr,
+                        _ => unreachable!(),
+                    }
+                };
+
+                let left_side = if let Some(left) = &state.left_side {
+                    left.clone()
+                } else {
+                    return Ok(ExpressionFrame::build_frame_from_expr(
+                        &member_expr.left,
+                        environ.clone(),
+                    ));
+                };
+
+                MemberExpression::eval_step(
+                    left_side,
+                    &member_expr.right,
+                    environ,
+                    interpreter_state,
+                    &state.call_buffer,
+                )
             }
         }
     }

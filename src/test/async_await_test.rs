@@ -178,6 +178,26 @@ __spawn(main())",
     }
 __spawn(main())",
             "null",
+        ),
+        (
+            "
+    async fun function_that_returns_a_str(){ \"hello, world\"; }
+    async fun main(){
+        let length = (await function_that_returns_a_str()).length;
+        println(length);
+
+        let starts_with_hello = (await function_that_returns_a_str()).starts_with(\"hello\");
+        println(starts_with_hello);
+
+        let primitive_arr_len = [].length;
+        println(primitive_arr_len);
+
+        let map = {};
+        map.set(await function_that_returns_a_str(), await function_that_returns_a_str());
+        println(map);
+    }
+__spawn(main())",
+            "null",
         ), /*
                        "
 async fun a(){

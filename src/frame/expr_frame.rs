@@ -8,7 +8,7 @@ use crate::{
             ExpressionState, array_state::ArrayState, await_state::AwaitState,
             call_state::CallState, for_state::ForState, hashmap_state::HashMapState,
             if_state::IfState, index_state::IndexState, infix_state::InfixState,
-            while_state::WhileState,
+            member_state::MemberState, while_state::WhileState,
         },
     },
     object::{
@@ -173,6 +173,19 @@ impl ExpressionFrame {
         }
     }
 
+    pub fn new_member_frame(expr: Expression) -> Self {
+        Self {
+            expr,
+            state: ExpressionState::Member {
+                value: None,
+                state: MemberState {
+                    left_side: None,
+                    call_buffer: vec![],
+                },
+            },
+        }
+    }
+
     pub fn build_frame_from_expr(expression: &Expression, environ: EnvRef) -> EvaluationResult {
         let new_frame = match expression {
             Expression::AwaitExpr(_) => {
@@ -204,6 +217,7 @@ impl ExpressionFrame {
                 ExpressionFrame::new_while_frame(expression.clone()).to_ref()
             }
             Expression::ForLoop(_) => ExpressionFrame::new_for_frame(expression.clone()).to_ref(),
+            Expression::Member(_) => ExpressionFrame::new_member_frame(expression.clone()).to_ref(),
             other_type => panic!("error: {}", other_type.to_string()),
         };
 
@@ -360,6 +374,32 @@ impl ExpressionFrame {
                         if let Object::BreakVal(break_val) = &*object.borrow() {
                             *value = Some(*break_val.value.clone());
                         }
+                    }
+                }
+
+                Ok(())
+            }
+            ExpressionState::Member { value, state } => {
+                if state.left_side.is_none() {
+                    state.left_side = Some(object.clone());
+                    return Ok(());
+                }
+
+                let member_expr = {
+                    match &self.expr {
+                        Expression::Member(member_expr) => member_expr,
+                        _ => unreachable!(),
+                    }
+                };
+
+                if let Expression::Call(call_expr) = &*member_expr.right {
+                    let expected_arg_n = call_expr.arguments.len();
+
+                    if expected_arg_n != state.call_buffer.len() {
+                        state.call_buffer.push(object.clone());
+                        return Ok(());
+                    } else {
+                        *value = Some(object.clone());
                     }
                 }
 

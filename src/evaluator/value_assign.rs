@@ -19,7 +19,7 @@ impl ValueAssignExpression {
                 if !environ_borrow.try_to_assign(&identifier.value, right.clone()) {
                     return Err(RuntimeSignal::Panic(PanicObj::new(
                         PanicType::VariableIsNotDeclared,
-                        format!("variable '{}' is not initialized.", &identifier.value),
+                        format!("variable '{}' was not declared.", &identifier.value),
                         state.clone(),
                     )));
                 }

@@ -6,8 +6,9 @@ use crate::{
         Frame,
         state::{
             ExpressionState, array_state::ArrayState, await_state::AwaitState,
-            call_state::CallState, hashmap_state::HashMapState, if_state::IfState,
-            index_state::IndexState, infix_state::InfixState, while_state::WhileState,
+            call_state::CallState, for_state::ForState, hashmap_state::HashMapState,
+            if_state::IfState, index_state::IndexState, infix_state::InfixState,
+            while_state::WhileState,
         },
     },
     object::{
@@ -157,6 +158,21 @@ impl ExpressionFrame {
         }
     }
 
+    pub fn new_for_frame(expr: Expression) -> Self {
+        Self {
+            expr,
+            state: ExpressionState::For {
+                value: None,
+                state: ForState {
+                    is_infinite: false,
+                    provided_object: None,
+                    iterator: None,
+                    iteration_variable_name: None,
+                },
+            },
+        }
+    }
+
     pub fn build_frame_from_expr(expression: &Expression, environ: EnvRef) -> EvaluationResult {
         let new_frame = match expression {
             Expression::AwaitExpr(_) => {
@@ -187,6 +203,7 @@ impl ExpressionFrame {
             Expression::WhileLoop(_) => {
                 ExpressionFrame::new_while_frame(expression.clone()).to_ref()
             }
+            Expression::ForLoop(_) => ExpressionFrame::new_for_frame(expression.clone()).to_ref(),
             other_type => panic!("error: {}", other_type.to_string()),
         };
 
@@ -218,7 +235,8 @@ impl ExpressionFrame {
                 Ok(())
             }
             ExpressionState::Await { future, state } => {
-                let awaited_value = AwaitExpression::eval2(object.clone(), interpreter_state)?;
+                let awaited_value =
+                    AwaitExpression::eval2(&self.expr, object.clone(), interpreter_state)?;
                 *future = Some(awaited_value.clone());
                 *state = AwaitState::Waiting;
                 Ok(())
@@ -328,6 +346,23 @@ impl ExpressionFrame {
                     state.conditional_value = None;
                     state.is_head_ready = false;
                 }
+                Ok(())
+            }
+            ExpressionState::For { value, state } => {
+                if state.provided_object.is_none() && !state.is_infinite {
+                    state.provided_object = Some(object.clone());
+                } else if state.is_infinite || state.provided_object.is_some() {
+                    let is_break_value = {
+                        let object_borrow = object.borrow();
+                        matches!(*object_borrow, Object::BreakVal(_))
+                    };
+                    if is_break_value {
+                        if let Object::BreakVal(break_val) = &*object.borrow() {
+                            *value = Some(*break_val.value.clone());
+                        }
+                    }
+                }
+
                 Ok(())
             }
 

@@ -11,7 +11,12 @@ use crate::{
         state::ExpressionState,
     },
     object::{
-        Object, new_objectref, panic_obj::RuntimeSignal, stack_environment::EnvRef, state::StateRef,
+        Object,
+        error::panic_type::PanicType,
+        new_objectref,
+        panic_obj::{PanicObj, RuntimeSignal},
+        stack_environment::EnvRef,
+        state::StateRef,
     },
     token::{Token, token_type::TokenType},
 };
@@ -359,6 +364,109 @@ impl ExpressionFrame {
                 }
 
                 return Ok(EvaluationResult::Done(new_objectref(Object::NULL_OBJECT)));
+            }
+            ExpressionState::For { value, state } => {
+                let for_expr = {
+                    match &self.expr {
+                        Expression::ForLoop(for_loop) => for_loop,
+                        _ => unreachable!(),
+                    }
+                };
+
+                if let Some(value_from_break) = value {
+                    return Ok(EvaluationResult::Done(value_from_break.clone()));
+                }
+
+                if let Some(for_loop_iterator_expr) = &for_expr.iterator
+                    && state.provided_object.is_none()
+                {
+                    state.iteration_variable_name = {
+                        match &**for_expr.variable.as_ref().unwrap() {
+                            Expression::Identifier(identifier) => Some(identifier.value.clone()),
+                            other_expression_type => {
+                                return Err(RuntimeSignal::Panic(PanicObj::new_simple(
+                                    PanicType::MissingIdentifier,
+                                    format!(
+                                        "expected identifier for 'for loop', got {}",
+                                        other_expression_type.to_string()
+                                    )
+                                    .as_ref(),
+                                    interpreter_state.clone(),
+                                )));
+                            }
+                        }
+                    };
+                    return Ok(ExpressionFrame::build_frame_from_expr(
+                        for_loop_iterator_expr,
+                        environ,
+                    ));
+                } else if for_expr.iterator.is_none() {
+                    state.is_infinite = true;
+                }
+
+                if state.is_infinite {
+                    let loop_block =
+                        BlockFrame::new(&for_expr.block.statements, environ.clone()).to_ref();
+                    {
+                        let mut loop_block_borrow = loop_block.borrow_mut();
+                        loop_block_borrow.set_loop_context(true);
+                    }
+                    return Ok(EvaluationResult::Push((
+                        Frame::BlockFrame(loop_block),
+                        environ.clone(),
+                    )));
+                }
+
+                if state.provided_object.is_some() && state.iterator.is_none() {
+                    let provided_object = state
+                        .provided_object
+                        .as_ref()
+                        .expect("provided object as expression was already evaluated");
+
+                    state.iterator = match &*provided_object.borrow() {
+                        Object::Iterator(iterator) => Some(iterator.clone()),
+                        Object::Array(arr) => Some(arr.build_iterator()),
+                        Object::String(str) => Some(str.build_char_iterator()),
+                        Object::HashMap(hashmap) => Some(hashmap.build_iterator()),
+                        Object::ReturnVal(_) => {
+                            return Ok(EvaluationResult::Done(provided_object.clone()));
+                        } // propagated
+                        _ => {
+                            return Err(RuntimeSignal::Panic(PanicObj::new_simple(
+                                PanicType::ObjectNotIterable,
+                                "value provided to for loop is not an iterator",
+                                interpreter_state.clone(),
+                            )));
+                        }
+                    };
+                }
+
+                let iterator = state.iterator.as_mut().expect("iterator exists");
+
+                let iteration_value = match iterator._next() {
+                    Some(val) => val,
+                    None => return Ok(EvaluationResult::Done(new_objectref(Object::NULL_OBJECT))),
+                };
+
+                let for_loop_body = &for_expr.block.statements;
+                let block = BlockFrame::new(&for_loop_body, environ.clone()).to_ref();
+
+                {
+                    let mut block_borrow = block.borrow_mut();
+                    block_borrow.set_loop_context(true);
+                    block_borrow.add_new_variable(
+                        state
+                            .iteration_variable_name
+                            .as_ref()
+                            .expect("iteration variable already initialized"),
+                        iteration_value,
+                    );
+                }
+
+                return Ok(EvaluationResult::Push((
+                    Frame::BlockFrame(block),
+                    environ.clone(),
+                )));
             }
         }
     }

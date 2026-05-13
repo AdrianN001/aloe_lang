@@ -1,0 +1,11 @@
+async fun greet(name){
+    println("Hello", name, "!"); 
+}
+
+async fun main(){
+    print("Type your name here >> ", "");
+    let name = __input();
+    await greet(name);
+}
+
+__spawn(main())

@@ -142,6 +142,42 @@ async fun main(){
 }
 __spawn(main())",
             "null",
+        ),
+        (
+            "
+
+    async fun double(x){ x+x; }
+    async fun get_iterator(){
+        let x = 0;
+        let y = await double(2);
+        let z = 3;
+        return [x,y,z, 1000];
+    }
+    async fun main(){
+        let value = for i <- await get_iterator(){
+            println(i);
+            let x = if i > 10{
+                break i;
+            }
+        }
+        println(value);
+    }
+__spawn(main())",
+            "null",
+        ),
+        (
+            "
+
+    async fun function_that_returns_error(){
+        return __err(\"custom error text \");
+    }
+    async fun main(){
+        let value = await function_that_returns_error()?;
+        println(value);
+        println(\"dont print this \");
+    }
+__spawn(main())",
+            "null",
         ), /*
                        "
 async fun a(){

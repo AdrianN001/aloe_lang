@@ -2,12 +2,7 @@ use std::{cell::RefCell, rc::Rc};
 
 use crate::{
     ast::statement::Statement,
-    frame::{
-        Frame,
-        block_frame::BlockFrame,
-        expr_frame::EvaluationResult,
-        state::ExpressionState,
-    },
+    frame::{Frame, block_frame::BlockFrame, expr_frame::EvaluationResult, state::ExpressionState},
     object::{
         Object, ObjectRef, future::task_kind::TaskKind, new_objectref, panic_obj::RuntimeSignal,
         stack_environment::EnvRef, state::StateRef,
@@ -93,6 +88,10 @@ impl Task {
                         self_ref.borrow_mut().frames.pop();
                     }
 
+                    if let Object::ReturnVal(return_val) = &*value.borrow() {
+                        return Ok(*return_val.value.clone());
+                    }
+
                     let parent_frame_opt = {
                         let task = self_ref.borrow();
 
@@ -137,7 +136,8 @@ impl Task {
                                     };
 
                                     match expr_frame_state {
-                                        ExpressionState::While { .. } => {
+                                        ExpressionState::While { .. }
+                                        | ExpressionState::For { .. } => {
                                             parent_frame
                                                 .resume_with(value, interpreter_state.clone())?;
                                             break;
@@ -179,7 +179,8 @@ impl Task {
                                     };
 
                                     match expr_frame_state {
-                                        ExpressionState::While { .. } => {
+                                        ExpressionState::While { .. }
+                                        | ExpressionState::For { .. } => {
                                             parent_frame.resume_with(
                                                 new_objectref(Object::NULL_OBJECT),
                                                 interpreter_state.clone(),

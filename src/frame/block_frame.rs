@@ -52,6 +52,12 @@ impl BlockFrame {
         self.environ.borrow_mut().set_loop_context(is_loop_context);
     }
 
+    pub fn add_new_variable(&mut self, variable_name: &str, variable_value: ObjectRef) {
+        self.environ
+            .borrow_mut()
+            .set_to_lowest_level(variable_name, variable_value);
+    }
+
     pub fn eval_step(&mut self, state: StateRef) -> Result<EvaluationResult, RuntimeSignal> {
         if self.index >= self.statements.len() {
             return Ok(EvaluationResult::Done(match &self.last_object {

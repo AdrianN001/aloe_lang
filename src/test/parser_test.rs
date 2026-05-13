@@ -1,15 +1,12 @@
+use crate::ast::Parser;
 use crate::ast::expression::Expression;
 use crate::ast::expression::boolean::Boolean;
 use crate::ast::expression::integer_literal::IntegerLiteral;
 use crate::ast::expression::string_expr::StringExpr;
-use crate::ast::statement::let_statement::LetStatement;
-use crate::ast::statement::{Statement, import_statement};
-use crate::ast::{Parser, program};
+use crate::ast::statement::Statement;
 use crate::lexer::Lexer;
-use crate::object::Object;
-use crate::object::integer::Integer;
+use crate::token::Token;
 use crate::token::token_type::TokenType;
-use crate::token::{self, Token};
 
 #[test]
 fn test_basic_let_statement_parse() {

@@ -24,7 +24,7 @@ pub fn sleep(args: &[ObjectRef], state: StateRef) -> Result<ObjectRef, RuntimeSi
 
     match &*arg_borrow {
         Object::Int(integer) => {
-            std::thread::sleep_ms(integer.value as u32);
+            std::thread::sleep(std::time::Duration::from_millis(integer.value as u64));
         }
         other_type => {
             return Err(RuntimeSignal::Panic(PanicObj::new(

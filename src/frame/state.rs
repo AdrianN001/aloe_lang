@@ -1,14 +1,15 @@
 use crate::{
     frame::state::{
         array_state::ArrayState, await_state::AwaitState, call_state::CallState,
-        hashmap_state::HashMapState, if_state::IfState, index_state::IndexState,
-        infix_state::InfixState, while_state::WhileState,
+        for_state::ForState, hashmap_state::HashMapState, if_state::IfState,
+        index_state::IndexState, infix_state::InfixState, while_state::WhileState,
     },
     object::ObjectRef,
 };
 pub mod array_state;
 pub mod await_state;
 pub mod call_state;
+pub mod for_state;
 pub mod hashmap_state;
 pub mod if_state;
 pub mod index_state;
@@ -57,6 +58,11 @@ pub enum ExpressionState {
     While {
         value: Option<ObjectRef>,
         state: WhileState,
+    },
+
+    For {
+        value: Option<ObjectRef>,
+        state: ForState,
     },
 
     Primitive,

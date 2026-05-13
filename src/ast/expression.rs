@@ -59,7 +59,7 @@ pub enum Expression {
     WhileLoop(WhileLoopExpression),
     ValueAssign(ValueAssignExpression), //TODO: schreib eine eval_step();
 
-    Member(MemberExpression), 
+    Member(MemberExpression),
 
     If(IfExpression),
 

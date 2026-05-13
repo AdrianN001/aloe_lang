@@ -8,7 +8,8 @@ use crate::{
             ExpressionState, array_state::ArrayState, await_state::AwaitState,
             call_state::CallState, for_state::ForState, hashmap_state::HashMapState,
             if_state::IfState, index_state::IndexState, infix_state::InfixState,
-            member_state::MemberState, while_state::WhileState,
+            member_state::MemberState, value_assign_state::ValueAssignState,
+            while_state::WhileState,
         },
     },
     object::{
@@ -186,6 +187,18 @@ impl ExpressionFrame {
         }
     }
 
+    pub fn new_value_assign_frame(expr: Expression) -> Self {
+        Self {
+            expr,
+            state: ExpressionState::ValueAssign {
+                state: ValueAssignState {
+                    left_value: None,
+                    right_value: None,
+                },
+            },
+        }
+    }
+
     pub fn build_frame_from_expr(expression: &Expression, environ: EnvRef) -> EvaluationResult {
         let new_frame = match expression {
             Expression::AwaitExpr(_) => {
@@ -218,7 +231,10 @@ impl ExpressionFrame {
             }
             Expression::ForLoop(_) => ExpressionFrame::new_for_frame(expression.clone()).to_ref(),
             Expression::Member(_) => ExpressionFrame::new_member_frame(expression.clone()).to_ref(),
-            other_type => panic!("error: {}", other_type.to_string()),
+            Expression::ValueAssign(_) => {
+                ExpressionFrame::new_value_assign_frame(expression.clone()).to_ref()
+            }
+            Expression::InvalidExpression => unreachable!(),
         };
 
         EvaluationResult::Push((Frame::ExpressionFrame(new_frame), environ))
@@ -401,6 +417,15 @@ impl ExpressionFrame {
                     } else {
                         *value = Some(object.clone());
                     }
+                }
+
+                Ok(())
+            }
+            ExpressionState::ValueAssign { state } => {
+                if state.right_value.is_none() {
+                    state.right_value = Some(object.clone());
+                } else if state.left_value.is_none() {
+                    state.left_value = Some(object.clone());
                 }
 
                 Ok(())

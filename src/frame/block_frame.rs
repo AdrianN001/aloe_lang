@@ -141,7 +141,16 @@ impl BlockFrame {
                 Ok(EvaluationResult::Continue)
             }
 
-            _ => todo!(),
+            other_statement => {
+                return Err(RuntimeSignal::Panic(PanicObj::new(
+                    PanicType::IllegalExpression,
+                    format!(
+                        "'{}' inside of an async function is illegal",
+                        other_statement.to_string()
+                    ),
+                    state,
+                )));
+            }
         }
     }
 

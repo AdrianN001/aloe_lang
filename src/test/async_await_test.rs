@@ -198,6 +198,30 @@ __spawn(main())",
     }
 __spawn(main())",
             "null",
+        ),
+        (
+            "
+    struct Person{ name; }
+
+    async fun main(){
+        let i = 1;
+
+        for _ <- range(5){
+            i += (i*3);
+        }
+        println(i);
+
+        let nums = range(10).collect();
+        nums[3] = \"not a number\"
+        println(nums);
+
+        let james = Person(\"james\");
+        james.name = \"not james\";
+        println(james);
+
+    }
+__spawn(main())",
+            "null",
         ), /*
                        "
 async fun a(){

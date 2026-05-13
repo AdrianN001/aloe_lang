@@ -3,6 +3,7 @@ use crate::{
         Expression, array_literal::ArrayLiteral, boolean::Boolean, call_expression::CallExpression,
         hash_map_literal::HashMapLiteral, index_expression::IndexExpression,
         infix::InfixExpression, member::MemberExpression,
+        value_assign_expression::ValueAssignExpression,
     },
     frame::{
         Frame,
@@ -495,6 +496,31 @@ impl ExpressionFrame {
                     environ,
                     interpreter_state,
                     &state.call_buffer,
+                )
+            }
+            ExpressionState::ValueAssign { state } => {
+                let value_assign_expr = {
+                    match &self.expr {
+                        Expression::ValueAssign(value_assign) => value_assign,
+                        _ => unreachable!(),
+                    }
+                };
+
+                if state.right_value.is_none() {
+                    return Ok(ExpressionFrame::build_frame_from_expr(
+                        &value_assign_expr.right,
+                        environ,
+                    ));
+                }
+
+                let right_value = state.right_value.as_ref().expect("already initialized");
+
+                ValueAssignExpression::eval_step(
+                    &value_assign_expr.left,
+                    right_value.clone(),
+                    environ,
+                    interpreter_state,
+                    state,
                 )
             }
         }

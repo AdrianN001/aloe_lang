@@ -222,11 +222,12 @@ __spawn(main())",
     }
 __spawn(main())",
             "null",
-        ), /*
-                       "
+        ),
+        (
+            "
 async fun a(){
     print(1);
-    await __sleep2(10);
+    await __sleep2(2000);
     print(2);
 }
 
@@ -237,18 +238,8 @@ async fun b(){
 __spawn(a());
 __spawn(b());
 ",
-                       "null",
-                   ),
-                   (
-                       "async fun main(){
-        let file = __open(\"examples/math.aloe\");
-        let content = await file.read_async()!;
-        print(content);
-    }
-    __spawn(main());",
-                       "null",
-                   ),
-           */
+            "null",
+        ),
     ];
 
     test_cases_for_input_output(&testcases);

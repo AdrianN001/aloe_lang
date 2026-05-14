@@ -51,7 +51,6 @@ impl Scheduler {
                     {
                         let mut task_borrow = task.borrow_mut();
                         task_borrow.kind = None;
-                        task_borrow.statement_index += 1;
                     }
 
                     self.main_queue.push_back(task);
@@ -107,22 +106,9 @@ impl Scheduler {
                         }
                     }
 
-                    Err(RuntimeSignal::Yield(t)) => {
-                        let new_task_borrow = t.borrow();
-                        if let Some(kind) = &new_task_borrow.kind {
-                            match kind {
-                                //TODO: sleep doesnt work
-                                TaskKind::Sleep(wait_until) => {
-                                    self.sleeping.push((task.clone(), *wait_until));
-                                }
-                                TaskKind::ValueJoin(new_awaited_taskref) => {
-                                    self.main_queue.push_back(new_awaited_taskref.clone());
-                                }
-                                TaskKind::FileIOJoin => {}
-                            }
-                        } else {
-                            //self.main_queue.push_back(t.clone());
-                        }
+                    Err(RuntimeSignal::Yield(_)) => {
+                        //NOTE: nothing to do, task is already in the right queue (scheduler or sleeper scheduler)
+                        // the await expression will take care of putting the task in the right queue when it yields
                     }
 
                     Err(RuntimeSignal::Panic(p)) => {
@@ -150,7 +136,11 @@ impl Scheduler {
         let new_tasks = get_tasks_from_temp_scheduler_queue();
         if let Some(tasks) = new_tasks {
             for task in tasks {
-                self.main_queue.push_back(task);
+                if let Some(TaskKind::Sleep(wakeup_time)) = &task.borrow().kind {
+                    self.sleeping.push((task.clone(), *wakeup_time));
+                } else {
+                    self.main_queue.push_back(task.clone());
+                }
             }
         }
     }
@@ -208,6 +198,14 @@ pub fn io_future_empty() -> bool {
 pub fn send_task_to_scheduler(task: TaskRef) {
     TEMP_SCHEDULER_QUEUE.with(|slot| {
         slot.borrow_mut().push_back(task);
+    });
+}
+
+pub fn send_task_to_sleeper_scheduler(task: TaskRef, wakeup_time: Instant) {
+    TEMP_SCHEDULER_QUEUE.with(|slot| {
+        let mut task_borrow = task.borrow_mut();
+        task_borrow.kind = Some(TaskKind::Sleep(wakeup_time));
+        slot.borrow_mut().push_back(task.clone());
     });
 }
 

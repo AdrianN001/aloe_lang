@@ -374,8 +374,12 @@ impl ExpressionFrame {
                         }
                     }
                     state.conditional_value = None;
-                    state.is_head_ready = false;
+
+                    if !state.is_infinite {
+                        state.is_head_ready = false;
+                    }
                 }
+
                 Ok(())
             }
             ExpressionState::For { value, state } => {

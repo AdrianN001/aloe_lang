@@ -57,14 +57,14 @@ pub enum Expression {
     HashMapLiteral(HashMapLiteral),
     ForLoop(ForLoopExpression),
     WhileLoop(WhileLoopExpression),
-    ValueAssign(ValueAssignExpression), //TODO: schreib eine eval_step();
+    ValueAssign(ValueAssignExpression),
 
     Member(MemberExpression),
 
     If(IfExpression),
 
     #[default]
-    InvalidExpression, //TODO: schreib eine eval_step();
+    InvalidExpression,
 }
 
 impl Expression {

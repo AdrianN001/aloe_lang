@@ -8,3 +8,13 @@ pub enum FutureState {
     #[default]
     Invalid,
 }
+
+impl FutureState {
+    pub fn to_string(&self) -> String {
+        match self {
+            FutureState::Pending(kind) => format!("Pending({})", kind.to_string()),
+            FutureState::Ready(_) => "Ready".to_string(),
+            FutureState::Invalid => "Invalid".to_string(),
+        }
+    }
+}

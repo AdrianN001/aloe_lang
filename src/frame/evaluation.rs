@@ -327,22 +327,22 @@ impl ExpressionFrame {
                     }
                 };
 
+                if while_expr.condition.is_none() {
+                    state.is_infinite = true;
+                    state.is_head_ready = true;
+                }
+
                 if let Some(value_from_block) = value {
                     return Ok(EvaluationResult::Done(value_from_block.clone()));
                 }
 
                 if !state.is_head_ready && !state.is_infinite {
                     if let Some(conditional_expression) = &while_expr.condition {
-                        state.is_infinite = false;
                         return Ok(ExpressionFrame::build_frame_from_expr(
                             &conditional_expression.clone(),
                             environ.clone(),
                         ));
-                    } else {
-                        state.is_infinite = true;
                     }
-
-                    state.is_head_ready = true;
                 } else if state.is_head_ready
                     && (state.is_infinite
                         || state

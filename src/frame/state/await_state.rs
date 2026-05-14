@@ -1,9 +1,15 @@
+use std::time::Instant;
+
 use crate::{
     ast::expression::{Expression, await_expression::AwaitExpression},
     frame::expr_frame::{EvaluationResult, ExpressionFrame},
     object::{
-        Object, ObjectRef, future::future_state::FutureState, panic_obj::RuntimeSignal,
-        stack_environment::EnvRef, state::StateRef,
+        Object, ObjectRef,
+        future::{future_kind::FutureKind, future_state::FutureState},
+        new_objectref,
+        panic_obj::RuntimeSignal,
+        stack_environment::EnvRef,
+        state::StateRef,
     },
 };
 
@@ -60,11 +66,22 @@ impl AwaitState {
                         )?;
                         Ok(EvaluationResult::Done(value))
                     }
-                    FutureState::Pending(_) => Ok(EvaluationResult::Pending),
+                    FutureState::Pending(kind) => match kind {
+                        FutureKind::Sleep(sleep_till) => {
+                            // we can just return null, since the future will be ready when the sleep is over, and it doesnt carry any value
+                            let now = Instant::now();
+                            if sleep_till <= &now {
+                                Ok(EvaluationResult::Done(new_objectref(Object::NULL_OBJECT)))
+                            } else {
+                                Ok(EvaluationResult::Pending)
+                            }
+                        }
+                        _ => Ok(EvaluationResult::Pending),
+                    },
                     _ => panic!(),
                 }
             }
-            _ => unreachable!(),
+            AwaitState::Done => unreachable!(),
         }
     }
 }

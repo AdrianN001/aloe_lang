@@ -28,6 +28,7 @@ impl MessageOutput {
                 Ok(connection_stream.to_objecref())
             }
 
+            //TODO: we should also include the stack trace in the panic message
             _ => todo!(),
         }
     }

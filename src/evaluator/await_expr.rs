@@ -9,7 +9,9 @@ use crate::{
         return_value::ReturnValue,
         state::{
             StateRef,
-            scheduler::{send_task_to_scheduler, take_current_task},
+            scheduler::{
+                send_task_to_scheduler, send_task_to_sleeper_scheduler, take_current_task,
+            },
         },
     },
 };
@@ -53,8 +55,12 @@ impl AwaitExpression {
 
                         send_task_to_scheduler(task.clone())
                     }
-
-                    _ => {}
+                    FutureKind::IO => {
+                        future_obj.waiters.push(current_task_rc.clone());
+                    }
+                    FutureKind::Sleep(instant) => {
+                        send_task_to_sleeper_scheduler(current_task_rc.clone(), *instant);
+                    }
                 }
                 Ok(future_ref.clone())
             }

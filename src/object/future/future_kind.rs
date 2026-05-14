@@ -9,6 +9,16 @@ pub enum FutureKind {
     IO,
 }
 
+impl FutureKind {
+    pub fn to_string(&self) -> String {
+        match self {
+            FutureKind::Value(task_ref) => format!("Value({})", task_ref.borrow().name),
+            FutureKind::Sleep(instant) => format!("Sleep({:?})", instant),
+            FutureKind::IO => "IO".to_string(),
+        }
+    }
+}
+
 impl Clone for FutureKind {
     fn clone(&self) -> Self {
         match self {

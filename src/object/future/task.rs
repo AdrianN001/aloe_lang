@@ -13,7 +13,6 @@ pub type TaskRef = Rc<RefCell<Task>>;
 
 #[derive(Clone, Default, Debug)]
 pub struct Task {
-    pub statement_index: usize,
     pub statements: Vec<Statement>,
 
     pub name: String,
@@ -38,7 +37,6 @@ impl Task {
     ) -> Self {
         let mut new_task = Self {
             statements: statements.to_vec(),
-            statement_index: 0,
             name,
             last_object: None,
             kind: None,
@@ -211,9 +209,7 @@ impl Task {
 
 impl PartialEq for Task {
     fn eq(&self, other: &Self) -> bool {
-        self.name == other.name
-            && self.statement_index == other.statement_index
-            && self.statements == other.statements
+        self.name == other.name && self.statements == other.statements
     }
 }
 

@@ -12,26 +12,27 @@ use crate::{
 
 impl FunctionStatement {
     pub fn evaluate(&self, environ: EnvRef) -> ObjectRef {
-        environ.borrow_mut().set_to_lowest_level(&self.name, {
-            Rc::new(RefCell::new(Object::Func(Function {
-                parameters: self.parameters.clone(),
-                body: self.block.clone(),
-                env: {
-                    let new_environemnt = StackEnvironment::new_enclosed(
-                        environ.clone(),
-                        format!("function {}(...) {{...}}", self.name),
-                    )
-                    .to_ref();
+        let function_object = new_objectref(Object::Func(Function {
+            parameters: self.parameters.clone(),
+            body: self.block.clone(),
+            env: {
+                let new_environemnt = StackEnvironment::new_enclosed(
+                    environ.clone(),
+                    format!("function {}(...) {{...}}", self.name),
+                )
+                .to_ref();
 
-                    {
-                        let mut env_borrow = new_environemnt.borrow_mut();
-                        env_borrow.set_loop_context(false);
-                    };
+                {
+                    let mut env_borrow = new_environemnt.borrow_mut();
+                    env_borrow.set_loop_context(false);
+                };
 
-                    new_environemnt
-                },
-            })))
-        });
+                new_environemnt
+            },
+        }));
+        environ
+            .borrow_mut()
+            .set(&self.name, function_object.clone());
         Rc::new(RefCell::new(Object::NULL_OBJECT))
     }
 

@@ -1,0 +1,27 @@
+struct Plant{
+    name;
+    thirst;
+}
+
+let garden = [
+    Plant("Aloe",       0.0),
+    Plant("Cactus",     0.3),
+    Plant("Fern",       0.8),
+    Plant("Lavender",   0.4)
+];
+
+fun water(plant){
+    Plant(plant.name, 0.0)
+}
+
+let thirsty = garden.filter(fn(plant){
+    plant.thirst >= 0.4
+});
+
+let watered = thirsty.map(fn(plant){
+    water(plant)
+});
+
+for p <- watered {
+    println("💧 watered", p.name);
+}

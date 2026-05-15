@@ -27,7 +27,7 @@ pub fn console_write_builtin_function(args: &[ObjectRef], _environ: EnvRef) -> O
 pub fn console_writeln_builtin_function(args: &[ObjectRef]) -> ObjectRef {
     args.iter().for_each(|arg| {
         let borrow = arg.borrow();
-        print!("{} ", borrow.inspect());
+        print!("{}", borrow.inspect());
     });
     println!();
 

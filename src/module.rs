@@ -8,7 +8,13 @@ use crate::{
     lexer::Lexer,
     module::{module_error::ModuleError, module_loader::ModuleLoader},
     object::{
-        Object, error::panic_type::PanicType, new_objectref, panic_obj::{PanicObj, RuntimeSignal}, stack_environment::{EnvRef, StackEnvironment}, state::InterpreterState, string_obj::StringObj
+        Object,
+        error::panic_type::PanicType,
+        new_objectref,
+        panic_obj::{PanicObj, RuntimeSignal},
+        stack_environment::{EnvRef, StackEnvironment},
+        state::InterpreterState,
+        string_obj::StringObj,
     },
 };
 
@@ -71,22 +77,22 @@ impl Module {
 
     pub fn execute(&mut self, module_loader: &mut ModuleLoader) -> Result<(), RuntimeSignal> {
         let source_file_content = Self::read_source_file(&self.abs_path.display().to_string());
-        
+
         let lexer = Lexer::new(source_file_content);
         let parser = Parser::new(lexer);
-        let program = match parser.into_a_program(){
+        let program = match parser.into_a_program() {
             Ok(program) => program,
-            Err(err) => return Err(RuntimeSignal::Panic(PanicObj::new(
-                PanicType::WrongSyntax,
-                format!("Syntax error in module '{}': {}", self.name, err),
-                Rc::new(RefCell::new(InterpreterState::default()),
-            )))),
+            Err(err) => {
+                return Err(RuntimeSignal::Panic(PanicObj::new(
+                    PanicType::WrongSyntax,
+                    format!("Syntax error in module '{}': {}", self.name, err),
+                    Rc::new(RefCell::new(InterpreterState::default())),
+                )));
+            }
         };
-
 
         let mut raw_environment = StackEnvironment::new();
         self.load_dunder_into_env(&mut raw_environment, module_loader);
-
 
         let environment = Rc::new(RefCell::new(raw_environment));
 

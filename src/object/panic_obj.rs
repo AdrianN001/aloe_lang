@@ -39,7 +39,7 @@ impl PanicObj {
         }
     }
 
-    pub fn set_tip(mut self, tip: &str) -> Self{
+    pub fn set_tip(mut self, tip: &str) -> Self {
         self.tip = Some(tip.into());
         self.clone()
     }
@@ -49,7 +49,7 @@ impl PanicObj {
             panic_type: PanicType::Propagation,
             value: error.value.to_string(),
             state: state.clone(),
-            tip: None
+            tip: None,
         }
     }
 

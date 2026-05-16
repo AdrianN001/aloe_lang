@@ -63,7 +63,6 @@ impl Parser {
                     program.statements.push(parsed_statement);
                 }
                 Err(error_feedback) => {
-                    println!("error: {}", error_feedback);
                     return Err(error_feedback);
                 }
             }

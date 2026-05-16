@@ -27,6 +27,7 @@ impl InterpreterState {
     pub fn collect_as_stack_trace(&self) -> Vec<String> {
         self.stack
             .iter()
+            .rev()
             .map(|call_frame| call_frame.name.clone())
             .collect()
     }

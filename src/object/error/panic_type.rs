@@ -54,4 +54,6 @@ pub enum PanicType {
     MultipleAwaitInOneStatement,
 
     AwaitedInNonAsyncContext,
+
+    WrongSyntax,
 }

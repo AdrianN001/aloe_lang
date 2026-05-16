@@ -30,7 +30,13 @@ pub fn start_repl() {
         let lexer = Lexer::new(input);
 
         let parser = Parser::new(lexer);
-        let program = parser.into_a_program().unwrap();
+        let program = match parser.into_a_program() {
+            Ok(program) => program,
+            Err(err) => {
+                eprintln!("Syntax error: {}", err);
+                break;
+            }
+        };
 
         match program.evaluate_as_repl(environ.clone()) {
             Ok(last_object) => println!("{}", last_object.borrow().inspect()),

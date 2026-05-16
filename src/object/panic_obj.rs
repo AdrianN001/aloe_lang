@@ -17,6 +17,8 @@ pub struct PanicObj {
     pub value: String,
     pub state: StateRef,
     pub panic_type: PanicType,
+
+    tip: Option<String>,
 }
 
 impl PanicObj {
@@ -25,6 +27,7 @@ impl PanicObj {
             value,
             panic_type: type_of,
             state: state.clone(),
+            tip: None,
         }
     }
     pub fn new_simple(type_of: PanicType, value: &str, state: StateRef) -> Self {
@@ -32,13 +35,21 @@ impl PanicObj {
             panic_type: type_of,
             value: value.into(),
             state: state.clone(),
+            tip: None,
         }
     }
+
+    pub fn set_tip(mut self, tip: &str) -> Self{
+        self.tip = Some(tip.into());
+        self.clone()
+    }
+
     pub fn from_error(error: &Error, state: StateRef) -> Self {
         Self {
             panic_type: PanicType::Propagation,
             value: error.value.to_string(),
             state: state.clone(),
+            tip: None
         }
     }
 

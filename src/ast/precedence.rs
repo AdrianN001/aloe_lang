@@ -1,7 +1,7 @@
 use crate::token::Token;
 use crate::token::token_type::TokenType;
 
-#[derive(Eq, PartialEq, PartialOrd, Ord)]
+#[derive(Eq, PartialEq, PartialOrd, Ord, Debug)]
 pub enum OperationPrecedence {
     Lowest,
 

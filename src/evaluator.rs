@@ -14,6 +14,7 @@ mod index_expr;
 mod infix_expr;
 mod member_expr;
 mod prefix_expr;
+mod string_literal;
 mod struct_statement;
 mod value_assign;
 mod while_loop;
@@ -33,7 +34,6 @@ use crate::object::return_value::ReturnValue;
 use crate::object::stack_environment::{EnvRef, StackEnvironment};
 use crate::object::state::scheduler::GLOBAL_SCHEDULER;
 use crate::object::state::{InterpreterState, StateRef};
-use crate::object::string_obj::StringObj;
 use crate::object::{ObjectRef, new_objectref};
 
 use super::object::Object;
@@ -62,9 +62,7 @@ impl Expression {
             Expression::ValueAssign(value_assign) => value_assign.evaluate(environ, state),
             Expression::HashMapLiteral(hashmap) => hashmap.evaluate(environ, state),
             Expression::Index(indx_expr) => indx_expr.evaluate(environ, state),
-            Expression::String(str_exr) => Ok(new_objectref(Object::String(StringObj {
-                value: str_exr.value.clone(),
-            }))),
+            Expression::String(str_exr) => str_exr.evaluate(environ, state),
             Expression::Function(func_expr) => Ok(new_objectref(Object::Func(
                 Function::from_function_expression(func_expr, environ.clone()),
             ))),

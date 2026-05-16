@@ -227,7 +227,7 @@ __spawn(main())",
             "
 async fun a(){
     print(1);
-    await __sleep2(2000);
+    await __sleep2(500);
     print(2);
 }
 

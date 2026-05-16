@@ -477,6 +477,36 @@ fn test_basic_string_evaluation() {
 }
 
 #[test]
+fn test_formatted_string_evaluation() {
+    let testcases = [
+        (r#"let name = "Max"; "hello ${name}!";"#, "hello Max!"),
+        (r#"let a = 3; "sum: ${a + 5}";"#, "sum: 8"),
+        (r#""bools: ${true} ${false}";"#, "bools: true false"),
+        (r#"let x = 10; "value = ${x * 2}";"#, "value = 20"),
+        (
+            r#"let s = "abc"; "prefix-${s}-suffix";"#,
+            "prefix-abc-suffix",
+        ),
+        (r#"let arr = [1, 2, 3]; "second=${arr[1]}";"#, "second=2"),
+        (r#""length=${"abc".length}";"#, "length=3"),
+        (r#"let x = 2; "calc=${(x + 1) * 3}";"#, "calc=9"),
+        (r#""empty=${""}";"#, "empty="),
+        (
+            r#"let name = "Max"; "greeting: ${"Hello, " + name}";"#,
+            "greeting: Hello, Max",
+        ),
+        (r#"let s = "abc"; "rev=${s.reversed()}";"#, "rev=cba"),
+        (r#"let f = 3.14; "pi=${f}";"#, "pi=3.14"),
+        (r#""is_even=${(4 % 2) == 0}";"#, "is_even=true"),
+        (r#"let x = 5; "calc=${x * (x + 1)}";"#, "calc=30"),
+        (r#"let name = "A\nB"; "nl=${name}";"#, "nl=A\nB"),
+        (r#"let s = "{"; "brace=${s}";"#, "brace={"),
+    ];
+
+    test_cases_for_input_output(&testcases);
+}
+
+#[test]
 fn eval_string_concat() {
     let testcases = [
         (r#" "hello"+"world";  "#, "helloworld"),

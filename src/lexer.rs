@@ -78,6 +78,41 @@ impl Lexer {
 
     fn read_number(&mut self) -> String {
         let start_pos = self.position;
+
+        if self.character == '0' {
+            if let Some(next_char) = self.peek() {
+                let radix = match next_char {
+                    'x' | 'X' => 16,
+                    'b' | 'B' => 2,
+                    'o' | 'O' => 8,
+                    _ => 10,
+                };
+
+                if radix != 10 {
+                    self.read_char(); // consume prefix indicator
+                    self.read_char(); // move to first digit after prefix
+
+                    let mut seen_digit = false;
+                    while self.character == '_' || self.is_valid_digit_for(radix, self.character) {
+                        if self.character != '_' {
+                            seen_digit = true;
+                        }
+                        self.read_char();
+                    }
+
+                    if !seen_digit {
+                        // Invalid prefix literal, keep the prefix intact and let parser handle the error.
+                        self.step_back();
+                    }
+
+                    return self.input[start_pos..self.position]
+                        .iter()
+                        .copied()
+                        .collect();
+                }
+            }
+        }
+
         let mut last_was_underscore = false;
 
         while self.character.is_ascii_digit() || self.character == '_' {
@@ -110,6 +145,30 @@ impl Lexer {
             .filter(|c| **c != '_')
             .copied()
             .collect()
+    }
+
+    fn is_valid_digit_for(&self, radix: usize, character: char) -> bool {
+        match radix {
+            2 => character == '0' || character == '1',
+            8 => character.is_ascii_digit() && character < '8',
+            16 => character.is_ascii_hexdigit(),
+            _ => false,
+        }
+    }
+
+    fn step_back(&mut self) {
+        if self.read_pos == 0 {
+            return;
+        }
+
+        self.read_pos -= 1;
+        self.position = self.read_pos;
+
+        self.character = if self.position >= self.input.len() {
+            '\0'
+        } else {
+            self.input[self.position]
+        };
     }
 
     fn read_string(&mut self) -> String {

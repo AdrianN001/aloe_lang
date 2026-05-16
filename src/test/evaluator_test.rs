@@ -28,6 +28,34 @@ fn test_eval_integer_object() {
 }
 
 #[test]
+fn test_eval_integer_literal_bases() {
+    let testcases = [
+        ("0x10;", 16),
+        ("0b1011;", 11),
+        ("0o77;", 63),
+        ("0xDEADBEEF;", 0xDEADBEEF),
+        ("0b1010_1010;", 170),
+        ("0o7_7;", 63),
+    ];
+
+    testcases.iter().for_each(|testcase| {
+        let input = testcase.0.into();
+        let expected_value = testcase.1;
+
+        let lexer = Lexer::new(input);
+        let parser = Parser::new(lexer);
+
+        let program = parser.into_a_program().unwrap();
+        assert_eq!(program.statements.len(), 1);
+
+        match &*program.evaluate_with_default().unwrap().borrow() {
+            Object::Int(int) => assert_eq!(int.value, expected_value),
+            _ => panic!(),
+        }
+    })
+}
+
+#[test]
 fn test_eval_bool_object() {
     let testcases = [("true;", true), ("false;", false)];
 

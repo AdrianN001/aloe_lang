@@ -294,7 +294,24 @@ impl Parser {
         Ok(expression)
     }
     fn parse_integer_literal(&self) -> Result<Expression, String> {
-        match self.current_token.literal.parse::<i64>() {
+        let literal = self.current_token.literal.replace('_', "");
+        let parse_result = if let Some(rest) = literal.strip_prefix("0x") {
+            i64::from_str_radix(rest, 16)
+        } else if let Some(rest) = literal.strip_prefix("0X") {
+            i64::from_str_radix(rest, 16)
+        } else if let Some(rest) = literal.strip_prefix("0b") {
+            i64::from_str_radix(rest, 2)
+        } else if let Some(rest) = literal.strip_prefix("0B") {
+            i64::from_str_radix(rest, 2)
+        } else if let Some(rest) = literal.strip_prefix("0o") {
+            i64::from_str_radix(rest, 8)
+        } else if let Some(rest) = literal.strip_prefix("0O") {
+            i64::from_str_radix(rest, 8)
+        } else {
+            literal.parse::<i64>()
+        };
+
+        match parse_result {
             Ok(integer_value) => Ok(Expression::IntegerLiteral(IntegerLiteral {
                 token: self.current_token.clone(),
                 value: integer_value,

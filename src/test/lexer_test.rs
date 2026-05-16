@@ -164,6 +164,28 @@ false ?? true
 }
 
 #[test]
+fn test_integer_literal_bases_in_lexer() {
+    let input = "0xdeadbeef 0b1011 0o77 0xDEADBEEF 0b1010_1010 0o7_7";
+    let mut lexer = Lexer::new(input.to_string());
+
+    let expected_tokens = [
+        Token::simple(TokenType::Integer, "0xdeadbeef"),
+        Token::simple(TokenType::Integer, "0b1011"),
+        Token::simple(TokenType::Integer, "0o77"),
+        Token::simple(TokenType::Integer, "0xDEADBEEF"),
+        Token::simple(TokenType::Integer, "0b1010_1010"),
+        Token::simple(TokenType::Integer, "0o7_7"),
+        Token::simple(TokenType::Eof, ""),
+    ];
+
+    expected_tokens.iter().for_each(|expected_token| {
+        let lexer_token = &lexer.next_token();
+
+        assert_eq!(expected_token, lexer_token);
+    });
+}
+
+#[test]
 fn test_basic_lexer_with_eq_and_neq() {
     let input = "let five = 5;
 let ten = 10;

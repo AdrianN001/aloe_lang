@@ -177,6 +177,37 @@ fn test_basic_integer_parsing() {
 }
 
 #[test]
+fn test_prefixed_integer_parsing() {
+    let testcases = [
+        ("0x10;", 16),
+        ("0b1011;", 11),
+        ("0o77;", 63),
+        ("0xDEADBEEF;", 0xDEADBEEF),
+        ("0b1010_1010;", 170),
+        ("0o7_7;", 63),
+    ];
+
+    testcases.iter().for_each(|testcase| {
+        let lexer = Lexer::new(testcase.0.to_string());
+        let parser = Parser::new(lexer);
+
+        let program = parser.into_a_program().unwrap();
+
+        assert_eq!(program.statements.len(), 1);
+
+        if let Statement::Expression(expression) = &program.statements[0] {
+            if let Expression::IntegerLiteral(integer_literal) = &expression.expression {
+                assert_eq!(integer_literal.value, testcase.1);
+            } else {
+                panic!("expected integer literal");
+            }
+        } else {
+            panic!("unmöglich!");
+        }
+    });
+}
+
+#[test]
 fn test_prefix_operator_parsing() {
     let testcases = [("!5;", "!", 5), ("-15;", "-", 15)];
 

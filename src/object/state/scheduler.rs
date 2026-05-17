@@ -75,9 +75,7 @@ impl Scheduler {
             }
 
             if let Some(task) = self.main_queue.pop_front() {
-                CURRENT_TASK.with(|slot| {
-                    *slot.borrow_mut() = Some(task.clone());
-                });
+                set_current_task(task.clone());
 
                 {
                     let task_borrow = task.borrow();

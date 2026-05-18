@@ -13,6 +13,7 @@ pub mod hashmap;
 pub mod integer;
 pub mod iterator;
 pub mod member;
+pub mod module;
 pub mod native_object;
 pub mod null;
 pub mod operation;
@@ -42,7 +43,7 @@ use string_obj::StringObj;
 use crate::object::{
     async_function::AsyncFunction, break_value::BreakValue, error::error_type::ErrorType,
     future::FutureObj, hashable::Hashable, hashmap::HashKey, iterator::Iterator,
-    native_object::NativeObject, state::StateRef, struct_model::StructModel,
+    module::ModuleObject, native_object::NativeObject, state::StateRef, struct_model::StructModel,
     struct_object::StructObject,
 };
 
@@ -73,6 +74,7 @@ pub enum Object {
     StructObject(Box<StructObject>),
     Native(Box<NativeObject>),
     Future(Box<FutureObj>),
+    Module(Box<ModuleObject>),
 }
 
 impl Object {
@@ -117,6 +119,7 @@ impl Object {
             Object::Native(native) => native.get_type(),
             Object::AsyncFunc(async_function) => async_function.get_type(),
             Object::Future(future) => future.get_type(),
+            Object::Module(module) => module.get_type(),
         }
     }
 
@@ -141,6 +144,7 @@ impl Object {
             Object::Native(native) => native.inspect(),
             Object::AsyncFunc(async_function) => async_function.inspect(),
             Object::Future(future) => future.inspect(),
+            Object::Module(module) => module.inspect(),
         }
     }
 

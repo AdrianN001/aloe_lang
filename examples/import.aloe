@@ -1,4 +1,4 @@
-import {names, squares} from "examples/list_methods.aloe";
+import {names, squares} from "./list_methods.aloe";
 
 
 print(names);

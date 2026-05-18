@@ -203,9 +203,8 @@ impl Parser {
             self.next_token();
 
             custom_name = Some(self.current_token.literal.clone());
-            self.next_token();
 
-            if self.current_token.token_type == TokenType::Semicolon {
+            if self.peek_token.token_type == TokenType::Semicolon {
                 self.next_token();
             }
         } else if self.peek_token.token_type == TokenType::Semicolon {

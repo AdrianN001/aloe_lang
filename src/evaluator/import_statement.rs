@@ -4,6 +4,7 @@ use crate::{
     object::{
         Object, ObjectRef,
         error::panic_type::PanicType,
+        module::ModuleObject,
         new_objectref,
         panic_obj::{PanicObj, RuntimeSignal},
         stack_environment::EnvRef,
@@ -33,12 +34,48 @@ impl ImportStatement {
             }
         };
 
-        Self::load_exports_from_module(
-            resolved_module,
-            &imported_identifiers,
-            _environ.clone(),
-            _state.clone(),
-        )?;
+        match &self.custom_name {
+            Some(custom_name) => {
+                let (export_module_name, export_module_environ) = {
+                    let resolved_module_borrow = resolved_module.borrow();
+                    (
+                        resolved_module_borrow.as_abs_path(),
+                        match resolved_module_borrow.environ.clone() {
+                            Some(env) => env,
+                            None => {
+                                return Err(RuntimeSignal::Panic(PanicObj::new_simple(
+                                    PanicType::ModuleCouldNotBeExecuted,
+                                    "module could not be executed",
+                                    _state,
+                                )));
+                            }
+                        },
+                    )
+                };
+
+                let new_module = ModuleObject::new(
+                    &imported_identifiers,
+                    &export_module_name,
+                    export_module_environ,
+                    _state,
+                )?;
+
+                let new_module_ref = new_objectref(Object::Module(Box::new(new_module)));
+
+                {
+                    let mut own_environ_borrow = _environ.borrow_mut();
+                    own_environ_borrow.set(custom_name, new_module_ref);
+                }
+            }
+            None => {
+                Self::load_exports_from_module(
+                    resolved_module,
+                    &imported_identifiers,
+                    _environ.clone(),
+                    _state.clone(),
+                )?;
+            }
+        }
 
         Ok(new_objectref(Object::NULL_OBJECT))
     }

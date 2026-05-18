@@ -5,6 +5,7 @@ mod error;
 mod io;
 mod iterator;
 mod len;
+mod math;
 mod memory;
 mod random;
 mod time;

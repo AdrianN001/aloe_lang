@@ -12,7 +12,7 @@ use crate::{
 
 impl FunctionStatement {
     pub fn evaluate(&self, environ: EnvRef) -> ObjectRef {
-        let function_object = new_objectref(Object::Func(Function {
+        let function_object = new_objectref(Object::Func(Box::new(Function {
             parameters: self.parameters.clone(),
             body: self.block.clone(),
             env: {
@@ -29,7 +29,7 @@ impl FunctionStatement {
 
                 new_environemnt
             },
-        }));
+        })));
         environ
             .borrow_mut()
             .set(&self.name, function_object.clone());
@@ -37,7 +37,7 @@ impl FunctionStatement {
     }
 
     pub fn evauluate_without_registering(&self, environ: EnvRef) -> ObjectRef {
-        new_objectref(Object::Func(Function {
+        new_objectref(Object::Func(Box::new(Function {
             parameters: self.parameters.clone(),
             body: self.block.clone(),
             env: {
@@ -53,6 +53,6 @@ impl FunctionStatement {
                 }
                 new_environemnt
             },
-        }))
+        })))
     }
 }

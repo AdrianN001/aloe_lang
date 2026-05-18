@@ -425,7 +425,7 @@ impl ExpressionFrame {
                         .expect("provided object as expression was already evaluated");
 
                     state.iterator = match &*provided_object.borrow() {
-                        Object::Iterator(iterator) => Some(iterator.clone()),
+                        Object::Iterator(iterator) => Some(*iterator.clone()),
                         Object::Array(arr) => Some(arr.build_iterator()),
                         Object::String(str) => Some(str.build_char_iterator()),
                         Object::HashMap(hashmap) => Some(hashmap.build_iterator()),

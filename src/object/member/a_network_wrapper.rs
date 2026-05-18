@@ -51,8 +51,8 @@ impl ATCPSocketListenerWrapper {
     // methods
 
     pub fn accept(&self, _state: StateRef) -> Result<ObjectRef, PanicObj> {
-        let future = new_objectref(Object::Future(FutureObj::new(FutureState::Pending(
-            FutureKind::IO,
+        let future = new_objectref(Object::Future(Box::new(FutureObj::new(
+            FutureState::Pending(FutureKind::IO),
         ))));
 
         let future_id = {
@@ -115,9 +115,9 @@ impl ATCPSocketListenerWrapper {
     }
 
     pub fn get_addr(&self) -> ObjectRef {
-        new_objectref(Object::String(StringObj {
+        new_objectref(Object::String(Box::new(StringObj {
             value: self.addr.clone(),
-        }))
+        })))
     }
 }
 
@@ -156,8 +156,8 @@ impl ATCPSocketWrapper {
     // methods
 
     pub fn read(&mut self, _state: StateRef) -> Result<ObjectRef, PanicObj> {
-        let future = new_objectref(Object::Future(FutureObj::new(FutureState::Pending(
-            FutureKind::IO,
+        let future = new_objectref(Object::Future(Box::new(FutureObj::new(
+            FutureState::Pending(FutureKind::IO),
         ))));
 
         let future_id = {
@@ -233,8 +233,8 @@ impl ATCPSocketWrapper {
             }
         };
 
-        let future = new_objectref(Object::Future(FutureObj::new(FutureState::Pending(
-            FutureKind::IO,
+        let future = new_objectref(Object::Future(Box::new(FutureObj::new(
+            FutureState::Pending(FutureKind::IO),
         ))));
 
         let future_id = {
@@ -286,9 +286,9 @@ impl ATCPSocketWrapper {
     }
 
     pub fn get_addr(&self) -> ObjectRef {
-        new_objectref(Object::String(StringObj {
+        new_objectref(Object::String(Box::new(StringObj {
             value: self.addr.to_string(),
-        }))
+        })))
     }
 
     pub fn to_bool(&self) -> ObjectRef {

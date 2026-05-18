@@ -108,19 +108,19 @@ impl Module {
         environment: &mut StackEnvironment,
         module_loader: &ModuleLoader,
     ) {
-        let name = new_objectref(Object::String(StringObj {
+        let name = new_objectref(Object::String(Box::new(StringObj {
             value: self.rel_path.display().to_string(),
-        }));
+        })));
         environment.set("__name__", name);
 
-        let module_path = new_objectref(Object::String(StringObj {
+        let module_path = new_objectref(Object::String(Box::new(StringObj {
             value: self.abs_path.display().to_string(),
-        }));
+        })));
         environment.set("__module__", module_path);
 
-        let root_file = new_objectref(Object::String(StringObj {
+        let root_file = new_objectref(Object::String(Box::new(StringObj {
             value: module_loader.root_file.display().to_string(),
-        }));
+        })));
         environment.set("__main__", root_file);
     }
 

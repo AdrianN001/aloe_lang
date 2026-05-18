@@ -43,7 +43,9 @@ impl Object {
             Object::Null(_) => Rc::new(RefCell::new(Object::NULL_OBJECT)),
 
             Object::Array(arr) => {
-                let new_array = Rc::new(RefCell::new(Object::Array(Array { items: vec![] })));
+                let new_array = Rc::new(RefCell::new(Object::Array(Box::new(Array {
+                    items: vec![],
+                }))));
 
                 visited.insert(ptr, new_array.clone());
 
@@ -55,15 +57,15 @@ impl Object {
 
                 {
                     let mut arr = new_array.borrow_mut();
-                    *arr = Object::Array(Array { items });
+                    *arr = Object::Array(Box::new(Array { items }));
                 }
                 return new_array;
             }
 
             Object::HashMap(map) => {
-                let new_map = Rc::new(RefCell::new(Object::HashMap(HashMap {
+                let new_map = Rc::new(RefCell::new(Object::HashMap(Box::new(HashMap {
                     pairs: BTreeMap::new(),
-                })));
+                }))));
 
                 visited.insert(ptr, new_map.clone());
 
@@ -81,7 +83,7 @@ impl Object {
 
                 {
                     let mut map = new_map.borrow_mut();
-                    *map = Object::HashMap(HashMap { pairs: new_pairs });
+                    *map = Object::HashMap(Box::new(HashMap { pairs: new_pairs }));
                 }
                 return new_map;
             }

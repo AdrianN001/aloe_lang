@@ -156,7 +156,7 @@ impl ATCPSocketWrapper {
         }
     }
     pub fn to_objecref(self) -> ObjectRef {
-        new_objectref(Object::Native(NativeObject::ATCPSocket(self)))
+        new_objectref(Object::Native(Box::new(NativeObject::ATCPSocket(self))))
     }
 
     pub fn type_name(&self) -> String {

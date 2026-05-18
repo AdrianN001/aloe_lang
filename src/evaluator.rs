@@ -63,9 +63,9 @@ impl Expression {
             Expression::HashMapLiteral(hashmap) => hashmap.evaluate(environ, state),
             Expression::Index(indx_expr) => indx_expr.evaluate(environ, state),
             Expression::String(str_exr) => str_exr.evaluate(environ, state),
-            Expression::Function(func_expr) => Ok(new_objectref(Object::Func(
+            Expression::Function(func_expr) => Ok(new_objectref(Object::Func(Box::new(
                 Function::from_function_expression(func_expr, environ.clone()),
-            ))),
+            )))),
             Expression::AsyncFunction(async_func_expr) => async_func_expr.evaluate(environ),
             Expression::ForLoop(for_loop) => for_loop.evaluate(environ, state),
             Expression::Call(call_expr) => call_expr.evaluate(environ, state),

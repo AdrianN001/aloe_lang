@@ -70,7 +70,7 @@ impl ForLoopExpression {
         let provided_object = iterable.evaluate(environ.clone(), state.clone())?;
 
         let mut iterator = match &*provided_object.borrow() {
-            Object::Iterator(iterator) => iterator.clone(),
+            Object::Iterator(iterator) => *iterator.clone(),
             Object::Array(arr) => arr.build_iterator(),
             Object::String(str) => str.build_char_iterator(),
             Object::HashMap(hashmap) => hashmap.build_iterator(),

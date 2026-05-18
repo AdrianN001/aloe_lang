@@ -16,14 +16,16 @@ impl StringExpr {
     pub fn evaluate(&self, environ: EnvRef, state: StateRef) -> Result<ObjectRef, RuntimeSignal> {
         let raw_str = &self.value;
         if raw_str.is_empty() {
-            return Ok(new_objectref(Object::String(StringObj {
+            return Ok(new_objectref(Object::String(Box::new(StringObj {
                 value: String::new(),
-            })));
+            }))));
         }
 
         let result = Self::process_formatted_string(raw_str, environ.clone(), state.clone())?;
 
-        Ok(new_objectref(Object::String(StringObj { value: result })))
+        Ok(new_objectref(Object::String(Box::new(StringObj {
+            value: result,
+        }))))
     }
 
     fn process_formatted_string(

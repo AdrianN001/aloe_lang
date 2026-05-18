@@ -62,7 +62,7 @@ impl StructStatement {
             methods: Rc::new(RefCell::new(methods)),
         };
 
-        let model = new_objectref(Object::StructModel(model));
+        let model = new_objectref(Object::StructModel(Box::new(model)));
         {
             let mut environ_borrow = environ.borrow_mut();
 

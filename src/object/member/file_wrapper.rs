@@ -63,9 +63,9 @@ impl FileWrapper {
     // attributes
 
     pub fn get_path(&self) -> ObjectRef {
-        new_objectref(Object::String(StringObj {
+        new_objectref(Object::String(Box::new(StringObj {
             value: self.path.clone(),
-        }))
+        })))
     }
 
     pub fn get_is_open(&self) -> ObjectRef {
@@ -77,9 +77,9 @@ impl FileWrapper {
     }
 
     pub fn get_mode(&self) -> ObjectRef {
-        new_objectref(Object::String(StringObj {
+        new_objectref(Object::String(Box::new(StringObj {
             value: self.mode.clone(),
-        }))
+        })))
     }
 
     pub fn get_size(&self) -> ObjectRef {
@@ -120,7 +120,7 @@ impl FileWrapper {
             ));
         }
 
-        new_objectref(Object::String(StringObj { value: buffer }))
+        new_objectref(Object::String(Box::new(StringObj { value: buffer })))
     }
 
     pub fn write(&mut self, args: &[ObjectRef], state: StateRef) -> ObjectRef {
@@ -262,8 +262,8 @@ impl FileWrapper {
             ));
         }
 
-        let future = new_objectref(Object::Future(FutureObj::new(FutureState::Pending(
-            FutureKind::IO,
+        let future = new_objectref(Object::Future(Box::new(FutureObj::new(
+            FutureState::Pending(FutureKind::IO),
         ))));
 
         let future_id = {

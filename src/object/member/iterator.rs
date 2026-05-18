@@ -66,6 +66,6 @@ impl Iterator {
             arr.push(val);
         }
 
-        Rc::new(RefCell::new(Object::Array(Array { items: arr })))
+        Rc::new(RefCell::new(Object::Array(Box::new(Array { items: arr }))))
     }
 }

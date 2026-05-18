@@ -72,13 +72,13 @@ impl IndexExpression {
                     )));
                 }
 
-                Ok(Rc::new(RefCell::new(Object::String(StringObj {
+                Ok(Rc::new(RefCell::new(Object::String(Box::new(StringObj {
                     value: arr_interior_value
                         .chars()
                         .nth(index_interior_value as usize)
                         .unwrap()
                         .to_string(),
-                }))))
+                })))))
             }
             (Object::HashMap(map), _) => Ok(map.get([right.clone()].as_ref(), state)),
             _ => Err(RuntimeSignal::Panic(PanicObj::new(

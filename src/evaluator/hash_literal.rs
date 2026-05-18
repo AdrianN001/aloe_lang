@@ -49,7 +49,9 @@ impl HashMapLiteral {
             );
         }
 
-        Ok(Rc::new(RefCell::new(Object::HashMap(HashMap { pairs }))))
+        Ok(Rc::new(RefCell::new(Object::HashMap(Box::new(HashMap {
+            pairs,
+        })))))
     }
 
     pub fn evaluate_with_evaluated_vals(
@@ -96,6 +98,8 @@ impl HashMapLiteral {
             );
         }
 
-        Ok(Rc::new(RefCell::new(Object::HashMap(HashMap { pairs }))))
+        Ok(Rc::new(RefCell::new(Object::HashMap(Box::new(HashMap {
+            pairs,
+        })))))
     }
 }

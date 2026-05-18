@@ -75,18 +75,18 @@ impl StringObj {
     // Methods
 
     fn reversed(&self) -> ObjectRef {
-        Rc::new(RefCell::new(Object::String(StringObj {
+        Rc::new(RefCell::new(Object::String(Box::new(StringObj {
             value: self.value.chars().rev().collect(),
-        })))
+        }))))
     }
 
     fn chars(&self) -> ObjectRef {
-        Rc::new(RefCell::new(Object::Array(Array {
+        new_objectref(Object::Array(Box::new(Array {
             items: self
                 .value
                 .chars()
                 .map(|character| {
-                    Rc::new(RefCell::new(Object::String(StringObj {
+                    new_objectref(Object::String(Box::new(StringObj {
                         value: character.to_string(),
                     })))
                 })
@@ -100,9 +100,9 @@ impl StringObj {
                 .value
                 .chars()
                 .map(|char| {
-                    Rc::new(RefCell::new(Object::String(StringObj {
+                    Rc::new(RefCell::new(Object::String(Box::new(StringObj {
                         value: char.to_string(),
-                    })))
+                    }))))
                 })
                 .collect(),
             index: 0,
@@ -190,21 +190,21 @@ impl StringObj {
         }
 
         if start_index < 0 || start_index >= self.value.len() as i64 {
-            return Rc::new(RefCell::new(Object::String(StringObj {
+            return Rc::new(RefCell::new(Object::String(Box::new(StringObj {
                 value: String::new(),
-            })));
+            }))));
         }
         if end_index >= self.value.len() as i64 {
             end_index = self.value.len() as i64;
         }
 
-        Rc::new(RefCell::new(Object::String(StringObj {
+        Rc::new(RefCell::new(Object::String(Box::new(StringObj {
             value: if start_index < end_index {
                 self.value[start_index as usize..end_index as usize].to_string()
             } else {
                 String::new()
             },
-        })))
+        }))))
     }
 
     fn as_float(&self, state: StateRef) -> ObjectRef {
@@ -243,9 +243,9 @@ impl StringObj {
             })
             .collect();
 
-        new_objectref(Object::Array(Array {
+        new_objectref(Object::Array(Box::new(Array {
             items: new_raw_array,
-        }))
+        })))
     }
 
     fn split(&self, args: &[ObjectRef], state: StateRef) -> ObjectRef {
@@ -271,12 +271,12 @@ impl StringObj {
             return self.chars();
         }
 
-        Rc::new(RefCell::new(Object::Array(Array {
+        new_objectref(Object::Array(Box::new(Array {
             items: self
                 .value
                 .split(&split_value)
                 .map(|sub_str: &str| {
-                    Rc::new(RefCell::new(Object::String(StringObj {
+                    new_objectref(Object::String(Box::new(StringObj {
                         value: sub_str.to_string(),
                     })))
                 })
@@ -285,21 +285,21 @@ impl StringObj {
     }
 
     fn deep_copy(&self) -> ObjectRef {
-        Rc::new(RefCell::new(Object::String(StringObj {
+        Rc::new(RefCell::new(Object::String(Box::new(StringObj {
             value: self.value.clone(),
-        })))
+        }))))
     }
 
     fn to_lower(&self) -> ObjectRef {
-        new_objectref(Object::String(StringObj {
+        new_objectref(Object::String(Box::new(StringObj {
             value: self.value.to_lowercase(),
-        }))
+        })))
     }
 
     fn to_upper(&self) -> ObjectRef {
-        new_objectref(Object::String(StringObj {
+        new_objectref(Object::String(Box::new(StringObj {
             value: self.value.to_uppercase(),
-        }))
+        })))
     }
 
     fn is_ascii(&self) -> ObjectRef {

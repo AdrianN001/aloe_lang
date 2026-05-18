@@ -76,10 +76,10 @@ impl StructObject {
 
         if !args.is_empty() && constructor_function.is_none() {
             new_object.run_default_constructor(args, &attribute_list, state)?;
-            return Ok(new_objectref(Object::StructObject(new_object)));
+            return Ok(new_objectref(Object::StructObject(Box::new(new_object))));
         }
 
-        let reference_to_new_object = new_objectref(Object::StructObject(new_object));
+        let reference_to_new_object = new_objectref(Object::StructObject(Box::new(new_object)));
 
         if let Some(constructor) = constructor_function {
             StructObject::run_custom_constructor(

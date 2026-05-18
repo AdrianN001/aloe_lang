@@ -1,5 +1,3 @@
-use std::{cell::RefCell, rc::Rc};
-
 use crate::{
     ast::expression::array_literal::ArrayLiteral,
     object::{
@@ -20,7 +18,7 @@ impl ArrayLiteral {
             objects.push(obj);
         }
 
-        Ok(Rc::new(RefCell::new(Object::Array(Array {
+        Ok(new_objectref(Object::Array(Box::new(Array {
             items: objects,
         }))))
     }
@@ -42,8 +40,8 @@ impl ArrayLiteral {
             mapped_objects.push(object.clone());
         }
 
-        Ok(new_objectref(Object::Array(Array {
+        Ok(new_objectref(Object::Array(Box::new(Array {
             items: mapped_objects,
-        })))
+        }))))
     }
 }

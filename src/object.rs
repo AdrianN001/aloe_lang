@@ -50,32 +50,29 @@ pub type ObjectRef = Rc<RefCell<Object>>;
 
 #[derive(PartialEq, Eq, Clone, Debug)]
 pub enum Object {
+    // stack types
     Int(Integer),
     FloatObj(FloatObj),
     Bool(Boolean),
-    String(StringObj),
 
+    Null(Null),
     BuiltIn(BuiltIn),
-    Iterator(Iterator),
-
-    Func(Function),
-    AsyncFunc(AsyncFunction),
     ReturnVal(ReturnValue),
     BreakVal(BreakValue),
     Continue,
 
-    Err(Error),
-
-    Array(Array),
-    HashMap(HashMap),
-
-    StructModel(StructModel),
-    StructObject(StructObject),
-
-    Native(NativeObject),
-
-    Future(FutureObj),
-    Null(Null),
+    // heap types
+    String(Box<StringObj>),
+    Iterator(Box<Iterator>),
+    Func(Box<Function>),
+    AsyncFunc(Box<AsyncFunction>),
+    Err(Box<Error>),
+    Array(Box<Array>),
+    HashMap(Box<HashMap>),
+    StructModel(Box<StructModel>),
+    StructObject(Box<StructObject>),
+    Native(Box<NativeObject>),
+    Future(Box<FutureObj>),
 }
 
 impl Object {
@@ -92,11 +89,11 @@ impl Object {
     }
 
     pub fn new_error(type_of: ErrorType, error_value: String, state: StateRef) -> Self {
-        Object::Err(Error {
+        Object::Err(Box::new(Error {
             type_of,
             value: error_value,
             state: state.clone(),
-        })
+        }))
     }
 
     pub fn get_type(&self) -> String {

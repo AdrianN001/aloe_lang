@@ -120,7 +120,9 @@ impl PathWrapper {
             repr_str,
         };
 
-        Ok(new_objectref(Object::Native(NativeObject::Path(wrapper))))
+        Ok(new_objectref(Object::Native(Box::new(NativeObject::Path(
+            wrapper,
+        )))))
     }
 
     pub fn parent(&self, state: StateRef) -> Result<ObjectRef, PanicObj> {
@@ -143,7 +145,9 @@ impl PathWrapper {
                         return Err(PanicObj::new(PanicType::PathResolve, err_feedback, state));
                     }
                 };
-                Ok(new_objectref(Object::Native(NativeObject::Path(wrapper))))
+                Ok(new_objectref(Object::Native(Box::new(NativeObject::Path(
+                    wrapper,
+                )))))
             }
             None => {
                 let wrapper = match PathWrapper::new("") {
@@ -153,7 +157,9 @@ impl PathWrapper {
                     }
                 };
 
-                Ok(new_objectref(Object::Native(NativeObject::Path(wrapper))))
+                Ok(new_objectref(Object::Native(Box::new(NativeObject::Path(
+                    wrapper,
+                )))))
             }
         }
     }
@@ -187,22 +193,22 @@ impl PathWrapper {
             let path = ok_child.path();
             let repr_str = ok_child.path().display().to_string();
 
-            children_objects.push(new_objectref(Object::Native(NativeObject::Path(
+            children_objects.push(new_objectref(Object::Native(Box::new(NativeObject::Path(
                 PathWrapper {
                     native_object: path,
                     repr_str,
                 },
-            ))));
+            )))));
         }
 
-        Ok(new_objectref(Object::Array(Array {
+        Ok(new_objectref(Object::Array(Box::new(Array {
             items: children_objects,
-        })))
+        }))))
     }
 
     pub fn as_str(&self) -> Result<ObjectRef, PanicObj> {
-        Ok(new_objectref(Object::String(StringObj {
+        Ok(new_objectref(Object::String(Box::new(StringObj {
             value: self.repr_str.clone(),
-        })))
+        }))))
     }
 }

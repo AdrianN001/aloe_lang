@@ -66,9 +66,9 @@ impl Integer {
     // Methods
 
     pub fn as_str(&self) -> ObjectRef {
-        Rc::new(RefCell::new(Object::String(StringObj {
+        Rc::new(RefCell::new(Object::String(Box::new(StringObj {
             value: self.value.to_string(),
-        })))
+        }))))
     }
 
     pub fn as_float(&self) -> ObjectRef {
@@ -102,7 +102,7 @@ impl Integer {
 
         let str = String::from(mapped_char);
 
-        new_objectref(Object::String(StringObj { value: str }))
+        new_objectref(Object::String(Box::new(StringObj { value: str })))
     }
 
     pub fn deep_clone(&self) -> ObjectRef {

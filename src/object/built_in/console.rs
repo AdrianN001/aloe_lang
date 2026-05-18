@@ -62,13 +62,13 @@ pub fn console_read_builtin_function() -> ObjectRef {
     // \n
     buffer.pop();
 
-    new_objectref(Object::String(StringObj { value: buffer }))
+    new_objectref(Object::String(Box::new(StringObj { value: buffer })))
 }
 
 // __input_async()
 pub fn console_read_async_builtin_function() -> ObjectRef {
-    let future = new_objectref(Object::Future(FutureObj::new(FutureState::Pending(
-        FutureKind::IO,
+    let future = new_objectref(Object::Future(Box::new(FutureObj::new(
+        FutureState::Pending(FutureKind::IO),
     ))));
 
     let future_id = {

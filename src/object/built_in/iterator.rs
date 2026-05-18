@@ -18,9 +18,9 @@ pub fn range_builtin_function(
         1 => {
             if let Object::Int(end) = &*args[0].borrow() {
                 if end.value >= 0 {
-                    return Ok(new_objectref(Object::Iterator(
+                    return Ok(new_objectref(Object::Iterator(Box::new(
                         Iterator::RangeBasedIterator(RangeBasedIterator::new(end.value)),
-                    )));
+                    ))));
                 }
 
                 return Ok(Rc::new(RefCell::new(Object::new_error(
@@ -62,17 +62,17 @@ pub fn range_builtin_function(
             };
 
             if start > end {
-                return Ok(new_objectref(Object::Iterator(
+                return Ok(new_objectref(Object::Iterator(Box::new(
                     Iterator::RangeBasedIterator(RangeBasedIterator::new_with_explicit_step(
                         start, end, -1,
                     )),
-                )));
+                ))));
             }
-            Ok(new_objectref(Object::Iterator(
+            Ok(new_objectref(Object::Iterator(Box::new(
                 Iterator::RangeBasedIterator(RangeBasedIterator::new_with_explicit_start(
                     start, end,
                 )),
-            )))
+            ))))
         }
 
         // range(start, end, step)
@@ -110,11 +110,11 @@ pub fn range_builtin_function(
                 }
             };
 
-            Ok(new_objectref(Object::Iterator(
+            Ok(new_objectref(Object::Iterator(Box::new(
                 Iterator::RangeBasedIterator(RangeBasedIterator::new_with_explicit_step(
                     start, end, step,
                 )),
-            )))
+            ))))
         }
 
         _ => Err(RuntimeSignal::Panic(PanicObj::new(

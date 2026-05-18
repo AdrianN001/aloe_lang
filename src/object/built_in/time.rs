@@ -70,8 +70,8 @@ pub fn awaitable_sleep_builtin_function(
         }
     };
 
-    Ok(new_objectref(Object::Future(FutureObj::new_sleep(
-        arg_raw, environ, state,
+    Ok(new_objectref(Object::Future(Box::new(
+        FutureObj::new_sleep(arg_raw, environ, state),
     ))))
 }
 

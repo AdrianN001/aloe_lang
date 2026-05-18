@@ -20,9 +20,9 @@ pub fn type_builtin_function(
         )));
     }
 
-    Ok(Rc::new(RefCell::new(Object::String(StringObj {
+    Ok(Rc::new(RefCell::new(Object::String(Box::new(StringObj {
         value: (*args[0].borrow().get_type()).into(),
-    }))))
+    })))))
 }
 
 pub fn inspect_builtin_function(
@@ -37,7 +37,7 @@ pub fn inspect_builtin_function(
         )));
     }
 
-    Ok(Rc::new(RefCell::new(Object::String(StringObj {
+    Ok(Rc::new(RefCell::new(Object::String(Box::new(StringObj {
         value: (*args[0].borrow().inspect()).into(),
-    }))))
+    })))))
 }

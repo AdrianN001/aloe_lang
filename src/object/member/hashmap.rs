@@ -67,13 +67,13 @@ impl HashMap {
     }
 
     pub fn get_keys(&self) -> ObjectRef {
-        Rc::new(RefCell::new(Object::Array(Array {
+        new_objectref(Object::Array(Box::new(Array {
             items: self.pairs.values().map(|value| value.key.clone()).collect(),
         })))
     }
 
     pub fn get_values(&self) -> ObjectRef {
-        Rc::new(RefCell::new(Object::Array(Array {
+        new_objectref(Object::Array(Box::new(Array {
             items: self
                 .pairs
                 .values()
@@ -83,7 +83,7 @@ impl HashMap {
     }
 
     pub fn items(&self) -> ObjectRef {
-        new_objectref(Object::Array(Array {
+        new_objectref(Object::Array(Box::new(Array {
             items: self
                 .pairs
                 .values()
@@ -91,12 +91,12 @@ impl HashMap {
                     let key = value.key.clone();
                     let value = value.value.clone();
 
-                    new_objectref(Object::Array(Array {
+                    new_objectref(Object::Array(Box::new(Array {
                         items: vec![key, value],
-                    }))
+                    })))
                 })
                 .collect(),
-        }))
+        })))
     }
 
     // Methods
@@ -187,11 +187,13 @@ impl HashMap {
             );
         }
 
-        Rc::new(RefCell::new(Object::HashMap(HashMap { pairs: new_pairs })))
+        Rc::new(RefCell::new(Object::HashMap(Box::new(HashMap {
+            pairs: new_pairs,
+        }))))
     }
 
     pub fn as_iter(&self) -> ObjectRef {
-        new_objectref(Object::Iterator(self.build_iterator()))
+        new_objectref(Object::Iterator(Box::new(self.build_iterator())))
     }
 
     pub fn build_iterator(&self) -> Iterator {
@@ -203,9 +205,9 @@ impl HashMap {
                     let key = value.key.clone();
                     let value = value.value.clone();
 
-                    new_objectref(Object::Array(Array {
+                    new_objectref(Object::Array(Box::new(Array {
                         items: vec![key, value],
-                    }))
+                    })))
                 })
                 .collect(),
             index: 0,

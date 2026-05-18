@@ -18,7 +18,9 @@ impl Array {
                     new_arr.push(other_element.clone());
                 }
 
-                Ok(new_objectref(Object::Array(Array { items: new_arr })))
+                Ok(new_objectref(Object::Array(Box::new(Array {
+                    items: new_arr,
+                }))))
             }
             _ => {
                 let mut new_arr: Vec<ObjectRef> =
@@ -26,7 +28,9 @@ impl Array {
 
                 new_arr.push(right.clone());
 
-                Ok(new_objectref(Object::Array(Array { items: new_arr })))
+                Ok(new_objectref(Object::Array(Box::new(Array {
+                    items: new_arr,
+                }))))
             }
         }
     }

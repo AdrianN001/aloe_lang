@@ -10,9 +10,9 @@ use crate::object::{
 impl StringObj {
     pub fn add(&self, right: ObjectRef, _state: StateRef) -> Result<ObjectRef, PanicObj> {
         match &*right.borrow() {
-            Object::String(str_obj) => Ok(new_objectref(Object::String(StringObj {
+            Object::String(str_obj) => Ok(new_objectref(Object::String(Box::new(StringObj {
                 value: self.value.clone() + &str_obj.value,
-            }))),
+            })))),
             other_type => Err(PanicObj::new(
                 PanicType::OperatorIsNotSupported,
                 format!(

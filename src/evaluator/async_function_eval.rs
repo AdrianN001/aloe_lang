@@ -17,11 +17,11 @@ impl AsyncFunctionStatement {
             Statement::Function(function_stmt) => {
                 let name = &function_stmt.name;
 
-                let obj = new_objectref(Object::AsyncFunc(AsyncFunction {
+                let obj = new_objectref(Object::AsyncFunc(Box::new(AsyncFunction {
                     parameters: function_stmt.parameters.clone(),
                     body: function_stmt.block.clone(),
                     env: environ.clone(),
-                }));
+                })));
 
                 environ.borrow_mut().set(name, obj);
 
@@ -35,11 +35,13 @@ impl AsyncFunctionStatement {
 impl AsyncFunctionExpression {
     pub fn evaluate(&self, environ: EnvRef) -> Result<ObjectRef, RuntimeSignal> {
         match &*self.function {
-            Expression::Function(function) => Ok(new_objectref(Object::AsyncFunc(AsyncFunction {
-                parameters: function.parameters.clone(),
-                body: function.block.clone(),
-                env: environ.clone(),
-            }))),
+            Expression::Function(function) => {
+                Ok(new_objectref(Object::AsyncFunc(Box::new(AsyncFunction {
+                    parameters: function.parameters.clone(),
+                    body: function.block.clone(),
+                    env: environ.clone(),
+                }))))
+            }
             _ => panic!(),
         }
     }

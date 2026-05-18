@@ -76,19 +76,19 @@ impl Array {
     // Methods
 
     fn reversed(&mut self) -> ObjectRef {
-        Rc::new(RefCell::new(Object::Array(Array {
+        Rc::new(RefCell::new(Object::Array(Box::new(Array {
             items: self.items.iter().rev().map(|item| item.clone()).collect(),
-        })))
+        }))))
     }
 
     fn deep_copy(&self) -> ObjectRef {
-        Rc::new(RefCell::new(Object::Array(Array {
+        Rc::new(RefCell::new(Object::Array(Box::new(Array {
             items: self
                 .items
                 .iter()
                 .map(|item| Object::deep_copy(item.clone()))
                 .collect(),
-        })))
+        }))))
     }
 
     fn push(&mut self, args: &[ObjectRef]) -> ObjectRef {
@@ -236,19 +236,21 @@ impl Array {
         }
 
         if start_index < 0 || start_index >= self.items.len() as i64 {
-            return Rc::new(RefCell::new(Object::Array(Array { items: Vec::new() })));
+            return Rc::new(RefCell::new(Object::Array(Box::new(Array {
+                items: Vec::new(),
+            }))));
         }
         if end_index >= self.items.len() as i64 {
             end_index = self.items.len() as i64;
         }
 
-        Rc::new(RefCell::new(Object::Array(Array {
+        Rc::new(RefCell::new(Object::Array(Box::new(Array {
             items: if start_index < end_index {
                 self.items[start_index as usize..end_index as usize].to_vec()
             } else {
                 Vec::new()
             },
-        })))
+        }))))
     }
 
     fn extend(&mut self, args: &[ObjectRef]) -> ObjectRef {
@@ -325,9 +327,9 @@ impl Array {
                 }
             }
 
-            return Rc::new(RefCell::new(Object::Array(Array {
+            return Rc::new(RefCell::new(Object::Array(Box::new(Array {
                 items: mapped_array_content,
-            })));
+            }))));
         }
 
         Rc::new(RefCell::new(Object::new_error(
@@ -379,7 +381,7 @@ impl Array {
                 }
             }
 
-            return Rc::new(RefCell::new(Object::Array(Array {
+            return new_objectref(Object::Array(Box::new(Array {
                 items: mapped_array_content,
             })));
         }
@@ -392,7 +394,9 @@ impl Array {
     }
 
     fn as_iter(&self) -> ObjectRef {
-        Rc::new(RefCell::new(Object::Iterator(self.build_iterator())))
+        Rc::new(RefCell::new(Object::Iterator(Box::new(
+            self.build_iterator(),
+        ))))
     }
 
     pub fn build_iterator(&self) -> Iterator {
@@ -444,8 +448,8 @@ impl Array {
             }
         }
 
-        Rc::new(RefCell::new(Object::String(StringObj {
+        Rc::new(RefCell::new(Object::String(Box::new(StringObj {
             value: strings.join(&join_str_value),
-        })))
+        }))))
     }
 }

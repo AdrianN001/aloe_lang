@@ -17,9 +17,11 @@ pub enum MessageOutput {
 impl MessageOutput {
     pub fn to_objectref(self) -> Result<ObjectRef, RuntimeSignal> {
         match self {
-            MessageOutput::PlainText(text) => Ok(new_objectref(Object::String(StringObj {
-                value: text.clone(),
-            }))),
+            MessageOutput::PlainText(text) => {
+                Ok(new_objectref(Object::String(Box::new(StringObj {
+                    value: text.clone(),
+                }))))
+            }
             MessageOutput::BinaryData(binary_data) => {
                 Ok(Self::convert_bytearr_to_objectref(&binary_data))
             }
@@ -43,6 +45,6 @@ impl MessageOutput {
             })
             .collect();
 
-        new_objectref(Object::Array(Array { items: arr }))
+        new_objectref(Object::Array(Box::new(Array { items: arr })))
     }
 }

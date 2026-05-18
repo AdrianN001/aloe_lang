@@ -15,7 +15,7 @@ let types = [
     EmptyStruct,
     EmptyStruct(),
 
-    #native_object,
+    __open("examples/size.aloe"),
     (async fn(x){x})(0)
 ];
 

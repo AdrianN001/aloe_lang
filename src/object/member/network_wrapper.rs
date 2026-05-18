@@ -54,8 +54,8 @@ impl TCPSocketListenerWrapper {
         match self.listener.accept() {
             Ok((stream, addr)) => {
                 let wrapper = TCPSocketWrapper { stream, addr };
-                Ok(new_objectref(Object::Native(NativeObject::TCPSocket(
-                    wrapper,
+                Ok(new_objectref(Object::Native(Box::new(
+                    NativeObject::TCPSocket(wrapper),
                 ))))
             }
             Err(e) => Ok(new_objectref(Object::new_error(
@@ -120,9 +120,9 @@ impl TCPSocketListenerWrapper {
     }
 
     pub fn get_addr(&self) -> ObjectRef {
-        new_objectref(Object::String(StringObj {
+        new_objectref(Object::String(Box::new(StringObj {
             value: self.addr.clone(),
-        }))
+        })))
     }
 
     pub fn get_is_nonblocking(&self) -> ObjectRef {
@@ -175,7 +175,9 @@ impl TCPSocketWrapper {
                         }))
                     })
                     .collect();
-                Ok(new_objectref(Object::Array(Array { items: data })))
+                Ok(new_objectref(Object::Array(Box::new(Array {
+                    items: data,
+                }))))
             }
             Err(e) => Ok(new_objectref(Object::new_error(
                 ErrorType::SocketRead,

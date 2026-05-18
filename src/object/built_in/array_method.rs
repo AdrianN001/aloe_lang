@@ -4,6 +4,7 @@ use crate::object::{
     Object, ObjectRef,
     array::Array,
     error::panic_type::PanicType,
+    new_objectref,
     panic_obj::{PanicObj, RuntimeSignal},
     state::StateRef,
     string_obj::StringObj,
@@ -29,9 +30,9 @@ pub fn rest_builtin_function(
                 ""
             };
 
-            Ok(Rc::new(RefCell::new(Object::String(StringObj {
+            Ok(Rc::new(RefCell::new(Object::String(Box::new(StringObj {
                 value: new_string_value.into(),
-            }))))
+            })))))
         }
         Object::Array(arr) => {
             let new_array_value = if arr.items.len() > 1 {
@@ -40,7 +41,7 @@ pub fn rest_builtin_function(
                 &[]
             };
 
-            Ok(Rc::new(RefCell::new(Object::Array(Array {
+            Ok(new_objectref(Object::Array(Box::new(Array {
                 items: new_array_value.into(),
             }))))
         }
@@ -71,9 +72,9 @@ pub fn first_builtin_function(
     match &*args[0].borrow() {
         Object::String(str) => {
             if !str.value.is_empty() {
-                Ok(Rc::new(RefCell::new(Object::String(StringObj {
+                Ok(Rc::new(RefCell::new(Object::String(Box::new(StringObj {
                     value: str.value.chars().next().unwrap().to_string(),
-                }))))
+                })))))
             } else {
                 Ok(Rc::new(RefCell::new(Object::NULL_OBJECT)))
             }
@@ -112,9 +113,9 @@ pub fn last_builtin_function(
     match &*args[0].borrow() {
         Object::String(str) => {
             if !str.value.is_empty() {
-                Ok(Rc::new(RefCell::new(Object::String(StringObj {
+                Ok(Rc::new(RefCell::new(Object::String(Box::new(StringObj {
                     value: str.value.chars().next_back().unwrap().to_string(),
-                }))))
+                })))))
             } else {
                 Ok(Rc::new(RefCell::new(Object::NULL_OBJECT)))
             }
@@ -164,9 +165,9 @@ pub fn push_builtin_function(
     match &*args[0].borrow() {
         Object::String(str) => {
             if let Object::String(second_parameter_str) = &*args[1].borrow() {
-                return Ok(Rc::new(RefCell::new(Object::String(StringObj {
+                return Ok(Rc::new(RefCell::new(Object::String(Box::new(StringObj {
                     value: str.value.clone() + &second_parameter_str.value,
-                }))));
+                })))));
             }
             Err(RuntimeSignal::Panic(PanicObj::new(
                 PanicType::WrongArgumentType,
@@ -176,11 +177,11 @@ pub fn push_builtin_function(
         }
         Object::Array(arr) => {
             if let Object::Array(second_parameter_array) = &*args[1].borrow() {
-                return Ok(Rc::new(RefCell::new(Object::Array(Array {
+                return Ok(new_objectref(Object::Array(Box::new(Array {
                     items: [&arr.items[..], &second_parameter_array.items[..]].concat(),
                 }))));
             }
-            Ok(Rc::new(RefCell::new(Object::Array(Array {
+            Ok(new_objectref(Object::Array(Box::new(Array {
                 items: {
                     let mut new_array = arr.items.clone();
                     new_array.push(args[1].clone());

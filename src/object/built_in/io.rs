@@ -49,8 +49,8 @@ pub fn open_builtin_function(
                 }
             };
 
-            Ok(new_objectref(Object::Native(NativeObject::File(Box::new(
-                wrapper,
+            Ok(new_objectref(Object::Native(Box::new(NativeObject::File(
+                Box::new(wrapper),
             )))))
         }
 
@@ -98,8 +98,8 @@ pub fn open_builtin_function(
                 }
             };
 
-            Ok(new_objectref(Object::Native(NativeObject::File(Box::new(
-                wrapper,
+            Ok(new_objectref(Object::Native(Box::new(NativeObject::File(
+                Box::new(wrapper),
             )))))
         }
         other_n_of_args => Err(RuntimeSignal::Panic(PanicObj::new(
@@ -155,7 +155,9 @@ pub fn path_builtin_function(
         }
     };
 
-    Ok(new_objectref(Object::Native(NativeObject::Path(wrapper))))
+    Ok(new_objectref(Object::Native(Box::new(NativeObject::Path(
+        wrapper,
+    )))))
 }
 
 pub fn tcp_bind_builtin_function(
@@ -217,8 +219,8 @@ pub fn tcp_bind_builtin_function(
 
     let wrapper = TCPSocketListenerWrapper::new(port_as_u16, addr, state)?;
 
-    Ok(new_objectref(Object::Native(NativeObject::TCPListener(
-        wrapper,
+    Ok(new_objectref(Object::Native(Box::new(
+        NativeObject::TCPListener(wrapper),
     ))))
 }
 
@@ -281,8 +283,8 @@ pub fn tcp_connect_builtin_function(
 
     let wrapper = TCPSocketWrapper::new_with_connect(addr, port_as_u16, state)?;
 
-    Ok(new_objectref(Object::Native(NativeObject::TCPSocket(
-        wrapper,
+    Ok(new_objectref(Object::Native(Box::new(
+        NativeObject::TCPSocket(wrapper),
     ))))
 }
 
@@ -345,8 +347,8 @@ pub fn async_tcp_bind_builtin_function(
 
     let wrapper = ATCPSocketListenerWrapper::new(port_as_u16, addr, state)?;
 
-    Ok(new_objectref(Object::Native(NativeObject::ATCPListener(
-        wrapper,
+    Ok(new_objectref(Object::Native(Box::new(
+        NativeObject::ATCPListener(wrapper),
     ))))
 }
 
@@ -410,7 +412,7 @@ pub fn async_tcp_connect_builtin_function(
 
     let wrapper = ATCPSocketWrapper::new_with_connect(addr, port_as_u16, state)?;
 
-    Ok(new_objectref(Object::Native(NativeObject::ATCPSocket(
-        wrapper,
+    Ok(new_objectref(Object::Native(Box::new(
+        NativeObject::ATCPSocket(wrapper),
     ))))
 }

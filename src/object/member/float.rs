@@ -38,9 +38,9 @@ impl FloatObj {
     // Methods
 
     pub fn as_str(&self) -> ObjectRef {
-        Rc::new(RefCell::new(Object::String(StringObj {
+        Rc::new(RefCell::new(Object::String(Box::new(StringObj {
             value: self.val.to_string(),
-        })))
+        }))))
     }
 
     pub fn as_int(&self) -> ObjectRef {

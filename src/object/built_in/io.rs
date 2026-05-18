@@ -350,6 +350,7 @@ pub fn async_tcp_bind_builtin_function(
     ))))
 }
 
+// __atcp_connect(address, port)
 pub fn async_tcp_connect_builtin_function(
     args: &[ObjectRef],
     state: StateRef,

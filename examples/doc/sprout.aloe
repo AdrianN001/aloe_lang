@@ -1,0 +1,4 @@
+let name = "Aloe"
+let age = 1         # days since planting
+
+println("🌱 ${name} is ${age} day(s) old")

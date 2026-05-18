@@ -1,4 +1,5 @@
 use crate::object::future::{future_state::FutureState, task::TaskRef};
+use std::sync::atomic::{AtomicU64, Ordering};
 
 pub mod future_kind;
 pub mod future_state;
@@ -16,7 +17,6 @@ pub struct FutureObj {
 
 impl FutureObj {
     fn generate_id() -> u64 {
-        use std::sync::atomic::{AtomicU64, Ordering};
         static FUTURE_ID_COUNTER: AtomicU64 = AtomicU64::new(1);
         FUTURE_ID_COUNTER.fetch_add(1, Ordering::SeqCst)
     }

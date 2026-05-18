@@ -1,0 +1,14 @@
+
+fun grow(plant, days){
+    return {
+        "name":   plant["name"], 
+        "age":    plant["age"] + days,
+        "leaves": plant["leaves"] + 2 * days
+    }
+}
+
+let sprout = { "name": "Aloe", "age": 1, "leaves": 2 };
+let older  = grow(sprout, 5);
+
+
+println("${older["name"]} → ${older["age"]}d, ${older["leaves"]} leaves")

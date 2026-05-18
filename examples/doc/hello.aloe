@@ -1,0 +1,5 @@
+let names = ["Ada", "Linus", "Grace"]
+
+for n <- names {
+  print("Welcome to Aloe, ${n}! 🌿")
+}

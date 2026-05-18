@@ -1,9 +1,4 @@
-use std::sync::Arc;
-
-use tokio::{
-    io::{AsyncReadExt, AsyncWriteExt},
-    sync::Mutex,
-};
+use tokio::io::{AsyncReadExt, AsyncWriteExt};
 
 use crate::object::{
     Object, ObjectRef,
@@ -81,10 +76,7 @@ impl ATCPSocketListenerWrapper {
             runtime.spawn(async move {
                 match listener.accept().await {
                     Ok((stream, addr)) => {
-                        let socket_wrapper = ATCPSocketWrapper {
-                            stream: Arc::new(Mutex::new(stream)),
-                            addr,
-                        };
+                        let socket_wrapper = ATCPSocketWrapper::new_with_stream(stream, addr);
                         let _ = tx.send((
                             future_id,
                             MessageOutput::EstablishedConnectionFromAsyncAccept(socket_wrapper),
@@ -179,7 +171,7 @@ impl ATCPSocketWrapper {
 
         add_io_future(future_id, future.clone());
 
-        let stream = self.stream.clone();
+        let reader = self.reader.clone();
 
         let tx = SCHEDULER_CHANNEL.with(|slot| slot.borrow().0.clone());
 
@@ -188,8 +180,8 @@ impl ATCPSocketWrapper {
 
             runtime.spawn(async move {
                 let mut buf = vec![0u8; 1024];
-                let mut stream_lock = stream.lock().await;
-                match stream_lock.read(&mut buf).await {
+                let mut reader_lock = reader.lock().await;
+                match (*reader_lock).read(&mut buf).await {
                     Ok(bytes_read) => {
                         buf.truncate(bytes_read);
                         let _ = tx.send((future_id, MessageOutput::BinaryData(buf.to_vec())));
@@ -256,7 +248,7 @@ impl ATCPSocketWrapper {
 
         add_io_future(future_id, future.clone());
 
-        let stream = self.stream.clone();
+        let writer = self.writer.clone();
 
         let tx = SCHEDULER_CHANNEL.with(|slot| slot.borrow().0.clone());
 
@@ -264,8 +256,8 @@ impl ATCPSocketWrapper {
             let runtime = slot.borrow();
 
             runtime.spawn(async move {
-                let mut stream_lock = stream.lock().await;
-                match stream_lock.write_all(&data).await {
+                let mut writer_lock = writer.lock().await;
+                match (*writer_lock).write_all(&data).await {
                     Ok(_) => {
                         let _ = tx.send((future_id, MessageOutput::Integer(data.len() as i64)));
                     }

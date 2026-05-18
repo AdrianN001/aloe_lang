@@ -1,0 +1,17 @@
+
+struct Plant{
+    name;
+    height;
+    thirsty;
+}
+
+let garden = [
+    Plant("Aloe",     0.4,    false),
+    Plant("Cactus",   0.6,    true),
+    Plant("Fern",     0.8,    true),
+    Plant("Lavender", 0.4,    false)
+];
+
+for thirsty_plant <- garden.filter(fn(n){ n.thirsty }){
+    println("${thirsty_plant.name} is thirsty 💧💧");
+}

@@ -1,0 +1,21 @@
+
+async fun fetch_file_and_get_content(file_path){
+    
+    println("Fetching: ${file_path}");
+    let file = __open(file_path);
+
+    println("Reading content");
+    let content = await file.read_async();
+
+    return content;
+}
+
+async fun main(){
+    let file_path = "examples/doc/async.aloe";
+
+    let content = await fetch_file_and_get_content(file_path);
+
+    println(content);
+}
+
+__spawn(main())

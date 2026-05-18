@@ -282,6 +282,7 @@ impl Program {
             }
         }
 
+        //TODO: check if scheduler panics and return the panic instead of panicking here
         GLOBAL_SCHEDULER.with(|scheduler| {
             let mut scheduler_borrow = scheduler.borrow_mut();
             scheduler_borrow.run()?;

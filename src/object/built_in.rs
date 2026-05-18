@@ -18,8 +18,8 @@ use crate::object::{
         },
         async_await::spawn_builtin_function,
         console::{
-            console_read_builtin_function, console_write_builtin_function,
-            console_writeln_builtin_function,
+            console_read_async_builtin_function, console_read_builtin_function,
+            console_write_builtin_function, console_writeln_builtin_function,
         },
         error::error_builtin_function,
         io::{
@@ -50,6 +50,7 @@ pub enum BuiltIn {
     Print,
     Println,
     Read,
+    ARead,
 
     Type,
     Inspect,
@@ -99,6 +100,7 @@ impl BuiltIn {
             BuiltIn::Print => Ok(console_write_builtin_function(args, environ)),
             BuiltIn::Println => Ok(console_writeln_builtin_function(args)),
             BuiltIn::Read => Ok(console_read_builtin_function()),
+            BuiltIn::ARead => Ok(console_read_async_builtin_function()),
 
             BuiltIn::Type => type_builtin_function(args, state),
             BuiltIn::Inspect => inspect_builtin_function(args, state),

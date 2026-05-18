@@ -37,6 +37,7 @@ pub enum PanicType {
     Propagation,
 
     FileOpen,
+    IO,
 
     SocketBind,
     SocketAccept,

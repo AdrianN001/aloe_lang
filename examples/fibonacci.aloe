@@ -8,5 +8,5 @@ fun fibonacci(n){
 }
 
 for i <- range(20){
-  println(i+1, ". fibonacci number => ", fibonacci(i));
+  println("${i+1}. fibonacci number -> ${fibonacci(i)}");
 }

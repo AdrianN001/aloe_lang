@@ -13,7 +13,8 @@ use crate::object::{
 
 #[derive(Debug)]
 pub struct ATCPSocketWrapper {
-    pub stream: Arc<Mutex<tokio::net::TcpStream>>,
+    pub reader: Arc<Mutex<tokio::net::tcp::OwnedReadHalf>>,
+    pub writer: Arc<Mutex<tokio::net::tcp::OwnedWriteHalf>>,
     pub addr: SocketAddr,
 }
 
@@ -136,12 +137,24 @@ impl ATCPSocketWrapper {
             })
         })?;
 
+        let (reader, writer) = tokio_stream.into_split();
+
         Ok(Self {
-            stream: Arc::new(Mutex::new(tokio_stream)),
             addr: peer_addr,
+            reader: Arc::new(Mutex::new(reader)),
+            writer: Arc::new(Mutex::new(writer)),
         })
     }
 
+    pub fn new_with_stream(stream: tokio::net::TcpStream, addr: SocketAddr) -> Self {
+        let (reader, writer) = stream.into_split();
+
+        Self {
+            addr,
+            reader: Arc::new(Mutex::new(reader)),
+            writer: Arc::new(Mutex::new(writer)),
+        }
+    }
     pub fn to_objecref(self) -> ObjectRef {
         new_objectref(Object::Native(NativeObject::ATCPSocket(self)))
     }
@@ -151,7 +164,10 @@ impl ATCPSocketWrapper {
     }
 
     pub fn inspect(&self) -> String {
-        format!("[ATCPSocketWrapper for stream {:?}]", self.stream)
+        format!(
+            "[ATCPSocketWrapper for reader {:?}, writer {:?}]",
+            self.reader, self.writer
+        )
     }
 }
 

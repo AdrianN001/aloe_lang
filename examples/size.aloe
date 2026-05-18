@@ -1,0 +1,24 @@
+struct EmptyStruct {}
+
+let types = [
+    1,
+    1.0,
+    false,
+    "hello, world",
+    type,
+    range(0, 100),
+    fn(x){x},
+    async fn(x){x},
+    __err(""),
+    ["hello, world"],
+    {"hello": "world"},
+    EmptyStruct,
+    EmptyStruct(),
+
+    #native_object,
+    (async fn(x){x})(0)
+];
+
+for variable <- types{
+    println("size of ${type(variable)} -> ${__sizeof(variable)} bytes");
+}

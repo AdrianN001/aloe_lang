@@ -47,6 +47,10 @@ impl Identifier {
             "__time" => Some(BuiltIn::Time),
 
             "__spawn" => Some(BuiltIn::Spawn),
+
+            "id" => Some(BuiltIn::Id),
+            "__ref_n" => Some(BuiltIn::RefNumber),
+            "__sizeof" => Some(BuiltIn::Size),
             _ => None,
         }
     }

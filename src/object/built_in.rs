@@ -5,6 +5,7 @@ mod error;
 mod io;
 mod iterator;
 mod len;
+mod memory;
 mod random;
 mod time;
 mod utils;
@@ -29,6 +30,9 @@ use crate::object::{
         },
         iterator::range_builtin_function,
         len::len_builtin_function,
+        memory::{
+            id_builtin_function, number_of_references_builtin_function, size_of_builtin_function,
+        },
         random::random_builtin_function,
         time::{awaitable_sleep_builtin_function, sleep, time_builtin_function},
         utils::{inspect_builtin_function, type_builtin_function},
@@ -72,6 +76,10 @@ pub enum BuiltIn {
     Time,
 
     Spawn,
+
+    Id,
+    RefNumber,
+    Size,
 }
 
 impl BuiltIn {
@@ -122,6 +130,10 @@ impl BuiltIn {
             BuiltIn::Time => time_builtin_function(),
 
             BuiltIn::Spawn => spawn_builtin_function(args, state),
+
+            BuiltIn::Id => id_builtin_function(args, state),
+            BuiltIn::RefNumber => number_of_references_builtin_function(args, state),
+            BuiltIn::Size => size_of_builtin_function(args, state),
         }
     }
 }

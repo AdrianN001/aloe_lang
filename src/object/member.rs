@@ -14,10 +14,10 @@ pub mod float;
 pub mod hashmap;
 pub mod int;
 pub mod iterator;
+pub mod module;
 pub mod network_wrapper;
 pub mod path_wrapper;
 pub mod string;
-pub mod module;
 
 impl Object {
     pub fn apply_attribute(
@@ -65,7 +65,6 @@ impl Object {
         environ: EnvRef,
         state: StateRef,
     ) -> Result<ObjectRef, RuntimeSignal> {
-
         if let Object::Module(module) = self {
             return module.search_function(name, args, environ, state);
         }

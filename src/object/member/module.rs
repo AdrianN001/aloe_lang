@@ -1,8 +1,14 @@
-use crate::object::{Object, ObjectRef, error::panic_type::PanicType, module::ModuleObject, panic_obj::{PanicObj, RuntimeSignal}, stack_environment::EnvRef, state::StateRef, struct_object::StructObject};
+use crate::object::{
+    Object, ObjectRef,
+    error::panic_type::PanicType,
+    module::ModuleObject,
+    panic_obj::{PanicObj, RuntimeSignal},
+    stack_environment::EnvRef,
+    state::StateRef,
+    struct_object::StructObject,
+};
 
-
-
-impl ModuleObject{
+impl ModuleObject {
     pub fn search_variable(&self, name: &str, state: StateRef) -> Result<ObjectRef, RuntimeSignal> {
         let variable = match self.table.get(name) {
             Some(obj) => obj.clone(),
@@ -17,7 +23,13 @@ impl ModuleObject{
         Ok(variable)
     }
 
-    pub fn search_function(&self, name: &str, args: &[ObjectRef], environ: EnvRef, state: StateRef) -> Result<ObjectRef, RuntimeSignal> {
+    pub fn search_function(
+        &self,
+        name: &str,
+        args: &[ObjectRef],
+        environ: EnvRef,
+        state: StateRef,
+    ) -> Result<ObjectRef, RuntimeSignal> {
         let function = match self.table.get(name) {
             Some(obj) => obj.clone(),
             None => {
@@ -28,7 +40,6 @@ impl ModuleObject{
                 )));
             }
         };
-
 
         let return_value = match &*function.borrow() {
             Object::Func(function) => function.apply(name.to_string(), &args, state.clone()),

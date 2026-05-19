@@ -17,6 +17,7 @@ pub mod iterator;
 pub mod network_wrapper;
 pub mod path_wrapper;
 pub mod string;
+pub mod module;
 
 impl Object {
     pub fn apply_attribute(
@@ -27,6 +28,10 @@ impl Object {
     ) -> Result<ObjectRef, RuntimeSignal> {
         if let Some(result) = self.check_early_attributes(name) {
             return Ok(result);
+        }
+
+        if let Object::Module(module) = self {
+            return module.search_variable(name, state);
         }
 
         let result = match self {
@@ -60,6 +65,11 @@ impl Object {
         environ: EnvRef,
         state: StateRef,
     ) -> Result<ObjectRef, RuntimeSignal> {
+
+        if let Object::Module(module) = self {
+            return module.search_function(name, args, environ, state);
+        }
+
         let result = match self {
             Object::String(str) => str.apply_method(name, args, environ, state),
             Object::Array(arr) => arr.apply_method(name, args, environ, state),

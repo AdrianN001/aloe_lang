@@ -10,7 +10,7 @@ use crate::object::{
 
 #[derive(PartialEq, Eq, Clone, Debug)]
 pub struct ModuleObject {
-    table: HashMap<String, ObjectRef>,
+    pub table: HashMap<String, ObjectRef>,
     origin: String,
 }
 

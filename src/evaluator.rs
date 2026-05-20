@@ -32,9 +32,9 @@ use crate::object::null::Null;
 use crate::object::panic_obj::{PanicObj, RuntimeSignal};
 use crate::object::return_value::ReturnValue;
 use crate::object::stack_environment::{EnvRef, StackEnvironment};
-use crate::object::state::scheduler::GLOBAL_SCHEDULER;
 use crate::object::state::{InterpreterState, StateRef};
 use crate::object::{ObjectRef, new_objectref};
+use crate::scheduler::GLOBAL_SCHEDULER;
 
 use super::object::Object;
 

@@ -7,13 +7,8 @@ use crate::{
         new_objectref,
         panic_obj::{PanicObj, RuntimeSignal},
         return_value::ReturnValue,
-        state::{
-            StateRef,
-            scheduler::{
-                send_task_to_scheduler, send_task_to_sleeper_scheduler, take_current_task,
-            },
-        },
-    },
+        state::StateRef,
+    }, scheduler::{send_task_to_scheduler, send_task_to_sleeper_scheduler, take_current_task},
 };
 
 impl AwaitExpression {

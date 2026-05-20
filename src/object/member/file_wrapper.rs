@@ -1,6 +1,6 @@
 use std::io::{Read, Seek, SeekFrom, Write};
 
-use crate::object::{
+use crate::{object::{
     Object, ObjectRef,
     error::{error_type::ErrorType, panic_type::PanicType},
     future::{FutureObj, future_kind::FutureKind, future_state::FutureState},
@@ -8,14 +8,9 @@ use crate::object::{
     native_object::file::FileWrapper,
     new_objectref,
     panic_obj::PanicObj,
-    state::{
-        StateRef,
-        scheduler::{
-            SCHEDULER_CHANNEL, TOKIO_RUNTIME, add_io_future, message_output::MessageOutput,
-        },
-    },
+    state::StateRef,
     string_obj::StringObj,
-};
+}, scheduler::{SCHEDULER_CHANNEL, TOKIO_RUNTIME, add_io_future, message_output::MessageOutput}};
 
 impl FileWrapper {
     pub fn apply_method(

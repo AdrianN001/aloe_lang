@@ -3,7 +3,7 @@ use std::{cell::RefCell, rc::Rc};
 use crate::object::state::call_frame::CallFrame;
 
 mod call_frame;
-pub mod scheduler;
+
 
 pub type StateRef = Rc<RefCell<InterpreterState>>;
 

@@ -7,7 +7,7 @@ use std::{
 
 pub mod message_output;
 
-use crate::object::{
+use crate::{object::{
     Object, ObjectRef,
     future::{
         future_state::FutureState,
@@ -15,8 +15,7 @@ use crate::object::{
         task_kind::TaskKind,
     },
     panic_obj::RuntimeSignal,
-    state::scheduler::message_output::MessageOutput,
-};
+}, scheduler::message_output::MessageOutput};
 
 thread_local! {
     pub static CURRENT_TASK: RefCell<Option<TaskRef>> = RefCell::new(None);

@@ -4,5 +4,5 @@ use crate::token::Token;
 pub struct FloatLiteral {
     pub token: Token,
     pub integer_part: i32,
-    pub float_part: u32,
+    pub float_part: u64,
 }

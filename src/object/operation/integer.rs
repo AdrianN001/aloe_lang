@@ -133,9 +133,17 @@ impl Integer {
 
     pub fn power(&self, right: ObjectRef, _state: StateRef) -> Result<ObjectRef, PanicObj> {
         match &*right.borrow() {
-            Object::Int(right_integer) => Ok(new_objectref(Object::Int(Integer {
-                value: self.value.pow(right_integer.value as u32),
-            }))),
+            Object::Int(right_integer) => {
+                if right_integer.value < 0 {
+                    Ok(new_objectref(Object::FloatObj(FloatObj {
+                        val: (self.value as f64).powf(right_integer.value as f64),
+                    })))
+                } else {
+                    Ok(new_objectref(Object::Int(Integer {
+                        value: self.value.pow(right_integer.value as u32),
+                    })))
+                }
+            }
             Object::FloatObj(right_float) => Ok(new_objectref(Object::FloatObj(FloatObj {
                 val: (self.value as f64).powf(right_float.val),
             }))),

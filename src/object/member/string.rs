@@ -40,6 +40,10 @@ impl StringObj {
             "as_int" => Ok(self.as_int(state)),
 
             "as_byte_array" => Ok(self.as_byte_array()),
+            "strip" => Ok(self.strip(args, state)),
+            "lstrip" => Ok(self.lstrip(args, state)),
+            "rstrip" => Ok(self.rstrip(args, state)),
+            "replace" => Ok(self.replace(args, state)),
 
             "contains" => Ok(self.contains(args, state)),
             "slice" => Ok(self.slice(args, state)),
@@ -147,7 +151,7 @@ impl StringObj {
             return Rc::new(RefCell::new(Object::new_error(
                 ErrorType::WrongArgumentCount,
                 format!(
-                    "expected {} arguments for array.slice(), got: {}",
+                    "expected {} arguments for string.slice(), got: {}",
                     2,
                     args.len()
                 ),
@@ -181,29 +185,37 @@ impl StringObj {
             }
         };
 
+        // Work with character indices to be UTF-8 safe
+        let chars: Vec<char> = self.value.chars().collect();
+        let len = chars.len() as i64;
+
         if start_index.is_negative() {
-            start_index += self.value.len() as i64;
+            start_index += len;
         }
-
         if end_index.is_negative() {
-            end_index += self.value.len() as i64;
+            end_index += len;
         }
 
-        if start_index < 0 || start_index >= self.value.len() as i64 {
+        if start_index < 0 {
+            start_index = 0;
+        }
+        if end_index > len {
+            end_index = len;
+        }
+
+        if start_index >= len || start_index >= end_index {
             return Rc::new(RefCell::new(Object::String(Box::new(StringObj {
                 value: String::new(),
             }))));
         }
-        if end_index >= self.value.len() as i64 {
-            end_index = self.value.len() as i64;
-        }
+
+        let start_us = start_index as usize;
+        let end_us = end_index as usize;
+
+        let result: String = chars[start_us..end_us].iter().collect();
 
         Rc::new(RefCell::new(Object::String(Box::new(StringObj {
-            value: if start_index < end_index {
-                self.value[start_index as usize..end_index as usize].to_string()
-            } else {
-                String::new()
-            },
+            value: result,
         }))))
     }
 
@@ -246,6 +258,197 @@ impl StringObj {
         new_objectref(Object::Array(Box::new(Array {
             items: new_raw_array,
         })))
+    }
+
+    fn strip(&self, args: &[ObjectRef], state: StateRef) -> ObjectRef {
+        if args.is_empty() {
+            return new_objectref(Object::String(Box::new(StringObj {
+                value: self.value.trim().to_string(),
+            })));
+        }
+
+        if args.len() != 1 {
+            return Rc::new(RefCell::new(Object::new_error(
+                ErrorType::WrongArgumentCount,
+                format!(
+                    "expected 0 or 1 arguments for string.strip(), got: {}",
+                    args.len()
+                ),
+                state,
+            )));
+        }
+
+        let arg_borrow = args[0].borrow();
+        let pattern = match &*arg_borrow {
+            Object::String(s) => s.value.clone(),
+            other => {
+                return new_objectref(Object::new_error(
+                    ErrorType::WrongArgumentType,
+                    format!(
+                        "expected string as argument for string.strip(), got: {}",
+                        other.get_type()
+                    ),
+                    state,
+                ));
+            }
+        };
+
+        let to_trim: Vec<char> = pattern.chars().collect();
+        let result = self
+            .value
+            .trim_matches(|c| to_trim.contains(&c))
+            .to_string();
+
+        new_objectref(Object::String(Box::new(StringObj { value: result })))
+    }
+
+    fn lstrip(&self, args: &[ObjectRef], state: StateRef) -> ObjectRef {
+        if args.is_empty() {
+            return new_objectref(Object::String(Box::new(StringObj {
+                value: self.value.trim_start().to_string(),
+            })));
+        }
+        if args.len() != 1 {
+            return Rc::new(RefCell::new(Object::new_error(
+                ErrorType::WrongArgumentCount,
+                format!(
+                    "expected 0 or 1 arguments for string.lstrip(), got: {}",
+                    args.len()
+                ),
+                state,
+            )));
+        }
+        let arg_borrow = args[0].borrow();
+        let pattern = match &*arg_borrow {
+            Object::String(s) => s.value.clone(),
+            other => {
+                return new_objectref(Object::new_error(
+                    ErrorType::WrongArgumentType,
+                    format!(
+                        "expected string as argument for string.lstrip(), got: {}",
+                        other.get_type()
+                    ),
+                    state,
+                ));
+            }
+        };
+        let to_trim: Vec<char> = pattern.chars().collect();
+        let result = self
+            .value
+            .trim_start_matches(|c| to_trim.contains(&c))
+            .to_string();
+        new_objectref(Object::String(Box::new(StringObj { value: result })))
+    }
+
+    fn rstrip(&self, args: &[ObjectRef], state: StateRef) -> ObjectRef {
+        if args.is_empty() {
+            return new_objectref(Object::String(Box::new(StringObj {
+                value: self.value.trim_end().to_string(),
+            })));
+        }
+        if args.len() != 1 {
+            return Rc::new(RefCell::new(Object::new_error(
+                ErrorType::WrongArgumentCount,
+                format!(
+                    "expected 0 or 1 arguments for string.rstrip(), got: {}",
+                    args.len()
+                ),
+                state,
+            )));
+        }
+        let arg_borrow = args[0].borrow();
+        let pattern = match &*arg_borrow {
+            Object::String(s) => s.value.clone(),
+            other => {
+                return new_objectref(Object::new_error(
+                    ErrorType::WrongArgumentType,
+                    format!(
+                        "expected string as argument for string.rstrip(), got: {}",
+                        other.get_type()
+                    ),
+                    state,
+                ));
+            }
+        };
+        let to_trim: Vec<char> = pattern.chars().collect();
+        let result = self
+            .value
+            .trim_end_matches(|c| to_trim.contains(&c))
+            .to_string();
+        new_objectref(Object::String(Box::new(StringObj { value: result })))
+    }
+
+    fn replace(&self, args: &[ObjectRef], state: StateRef) -> ObjectRef {
+        if args.len() < 2 || args.len() > 3 {
+            return Rc::new(RefCell::new(Object::new_error(
+                ErrorType::WrongArgumentCount,
+                format!(
+                    "expected 2 or 3 arguments for string.replace(), got: {}",
+                    args.len()
+                ),
+                state,
+            )));
+        }
+
+        let old = match &*args[0].borrow() {
+            Object::String(s) => s.value.clone(),
+            other => {
+                return new_objectref(Object::new_error(
+                    ErrorType::WrongArgumentType,
+                    format!(
+                        "expected string as first argument for string.replace(), got: {}",
+                        other.get_type()
+                    ),
+                    state,
+                ));
+            }
+        };
+
+        let new = match &*args[1].borrow() {
+            Object::String(s) => s.value.clone(),
+            other => {
+                return new_objectref(Object::new_error(
+                    ErrorType::WrongArgumentType,
+                    format!(
+                        "expected string as second argument for string.replace(), got: {}",
+                        other.get_type()
+                    ),
+                    state,
+                ));
+            }
+        };
+
+        if args.len() == 2 {
+            return new_objectref(Object::String(Box::new(StringObj {
+                value: self.value.replace(&old, &new),
+            })));
+        }
+
+        // args.len() == 3 -> count
+        let count = match &*args[2].borrow() {
+            Object::Int(i) => i.value,
+            other => {
+                return new_objectref(Object::new_error(
+                    ErrorType::WrongArgumentType,
+                    format!(
+                        "expected int as third argument for string.replace(), got: {}",
+                        other.get_type()
+                    ),
+                    state,
+                ));
+            }
+        };
+
+        if count <= 0 {
+            return new_objectref(Object::String(Box::new(StringObj {
+                value: self.value.replace(&old, &new),
+            })));
+        }
+
+        // replace up to count occurrences
+        let parts: Vec<&str> = self.value.splitn((count + 1) as usize, &old).collect();
+        let result = parts.join(&new);
+        new_objectref(Object::String(Box::new(StringObj { value: result })))
     }
 
     fn split(&self, args: &[ObjectRef], state: StateRef) -> ObjectRef {

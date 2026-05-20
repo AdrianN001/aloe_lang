@@ -7,6 +7,8 @@ pub mod cast_test;
 #[cfg(test)]
 pub mod evaluator_test;
 #[cfg(test)]
+pub mod hashmap_test;
+#[cfg(test)]
 pub mod lexer_test;
 #[cfg(test)]
 pub mod memory_test;
@@ -16,3 +18,5 @@ pub mod native_test;
 pub mod operator_test;
 #[cfg(test)]
 pub mod parser_test;
+#[cfg(test)]
+pub mod string_test;

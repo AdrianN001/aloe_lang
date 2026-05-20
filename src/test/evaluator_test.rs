@@ -657,6 +657,40 @@ fn eval_len_for_arrays() {
 }
 
 #[test]
+fn eval_math_builtins() {
+    let testcases = [
+        ("ceil(2.3)", "3"),
+        ("floor(-2.3)", "-3"),
+        ("trunc(2.9)", "2"),
+        ("fabs(-3)", "3"),
+        ("sqrt(9)", "3"),
+        ("exp(1)", "2.718281828459045"),
+        ("log(1)", "0"),
+        ("log(8, 2)", "3"),
+        ("log10(100)", "2"),
+        ("pow(2, 3)", "8"),
+        ("hypot(3, 4)", "5"),
+        ("degrees(3.141592653589793)", "180"),
+        ("radians(180)", "3.141592653589793"),
+        ("sin(1.5707963267948966)", "1"),
+        ("cos(3.141592653589793)", "-1"),
+        ("atan2(0, -1)", "3.141592653589793"),
+        ("gcd(12, 18)", "6"),
+        ("lcm(4, 6)", "12"),
+        ("factorial(5)", "120"),
+        ("modf(2.5)", "[0.5, 2]"),
+        ("frexp(8)", "[0.5, 4]"),
+        ("ldexp(0.5, 4)", "8"),
+        ("10 ** -3", "0.001"),
+        ("2 ** -10", "0.0009765625"),
+        ("(-3) ** -2", "0.1111111111111111"),
+        ("(-2) ** -3", "-0.125"),
+    ];
+
+    test_cases_for_input_output(&testcases);
+}
+
+#[test]
 fn eval_rest_builtin() {
     let testcases = [
         (r#" rest([1,2,3]) "#, "[2, 3]"),
@@ -1551,7 +1585,10 @@ b.length;
 #[test]
 fn test_questionmak_operator() {
     let testcases = [
-        ("{}.get();", "expected 1 argument for hashmap.get(), got: 0"),
+        (
+            "{}.get();",
+            "expected 1 or 2 arguments for hashmap.get(), got: 0",
+        ),
         (
             "{}.remove();",
             "expected 1 argument for hashmap.remove(), got: 0",
@@ -1561,7 +1598,7 @@ fn test_questionmak_operator() {
 let x = {}.get();
 x;
 ",
-            "expected 1 argument for hashmap.get(), got: 0",
+            "expected 1 or 2 arguments for hashmap.get(), got: 0",
         ),
         (
             "
@@ -1571,7 +1608,7 @@ let f = fn(){
 };
 f();
 ",
-            "expected 1 argument for hashmap.get(), got: 0",
+            "expected 1 or 2 arguments for hashmap.get(), got: 0",
         ),
         (
             "
@@ -1597,7 +1634,7 @@ let f = fn(){
 
 f();
 ",
-            "expected 1 argument for hashmap.get(), got: 0",
+            "expected 1 or 2 arguments for hashmap.get(), got: 0",
         ),
         (
             "
@@ -1625,7 +1662,7 @@ let f = fn(){
 };
 f();
 ",
-            "expected 1 argument for hashmap.get(), got: 0",
+            "expected 1 or 2 arguments for hashmap.get(), got: 0",
         ),
         (
             "
@@ -1644,7 +1681,7 @@ let g = fn(){
 
 g();
 ",
-            "expected 1 argument for hashmap.get(), got: 0",
+            "expected 1 or 2 arguments for hashmap.get(), got: 0",
         ),
         (
             "
@@ -1665,7 +1702,7 @@ let f = fn(){
 };
 f();
 ",
-            "expected 1 argument for hashmap.get(), got: 0",
+            "expected 1 or 2 arguments for hashmap.get(), got: 0",
         ),
         (
             "
@@ -1684,7 +1721,7 @@ let f = fn(){
 };
 f();
 ",
-            "expected 1 argument for hashmap.get(), got: 0",
+            "expected 1 or 2 arguments for hashmap.get(), got: 0",
         ),
         (
             "
@@ -1703,7 +1740,7 @@ let g = fn(){
 
 g();
 ",
-            "expected 1 argument for hashmap.get(), got: 0",
+            "expected 1 or 2 arguments for hashmap.get(), got: 0",
         ),
         (
             "
@@ -1728,7 +1765,7 @@ let f = fn(){
 };
 f();
 ",
-            "expected 1 argument for hashmap.get(), got: 0",
+            "expected 1 or 2 arguments for hashmap.get(), got: 0",
         ),
         (
             "
@@ -1738,7 +1775,7 @@ let f = fn(){
 };
 f();
 ",
-            "expected 1 argument for hashmap.get(), got: 0",
+            "expected 1 or 2 arguments for hashmap.get(), got: 0",
         ),
         (
             "
@@ -1753,7 +1790,7 @@ fn(){
 let m = {\"a\": 3};
 m.get()?.as_str();
                 }()",
-            "expected 1 argument for hashmap.get(), got: 0",
+            "expected 1 or 2 arguments for hashmap.get(), got: 0",
         ),
         (
             "
@@ -1769,7 +1806,7 @@ let f = fn(){
 };
 f();
 ",
-            "expected 1 argument for hashmap.get(), got: 0",
+            "expected 1 or 2 arguments for hashmap.get(), got: 0",
         ),
         (
             "
@@ -1791,7 +1828,7 @@ let f = fn(){
 };
 f();
 ",
-            "expected 1 argument for hashmap.get(), got: 0",
+            "expected 1 or 2 arguments for hashmap.get(), got: 0",
         ),
         (
             "
@@ -1803,7 +1840,7 @@ let f = fn(){
 };
 f();
 ",
-            "expected 1 argument for hashmap.get(), got: 0",
+            "expected 1 or 2 arguments for hashmap.get(), got: 0",
         ),
         (
             "
@@ -1817,7 +1854,7 @@ let f = fn(){
 };
 f();
 ",
-            "expected 1 argument for hashmap.get(), got: 0",
+            "expected 1 or 2 arguments for hashmap.get(), got: 0",
         ),
         (
             "
@@ -1828,7 +1865,7 @@ let f = fn(){
 };
 f();
 ",
-            "expected 1 argument for hashmap.get(), got: 0",
+            "expected 1 or 2 arguments for hashmap.get(), got: 0",
         ),
         (
             "

@@ -249,7 +249,7 @@ impl Parser {
             return Ok(Expression::FloatLiteral(FloatLiteral {
                 token,
                 integer_part: int_part.value as i32,
-                float_part: float_part.value as u32,
+                float_part: float_part.value as u64,
             }));
         }
 

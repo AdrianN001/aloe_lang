@@ -4,7 +4,6 @@ use crate::object::state::call_frame::CallFrame;
 
 mod call_frame;
 
-
 pub type StateRef = Rc<RefCell<InterpreterState>>;
 
 #[derive(Debug)]

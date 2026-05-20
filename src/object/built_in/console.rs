@@ -6,14 +6,17 @@ use std::{
 
 use tokio::io::{self, AsyncBufReadExt};
 
-use crate::{object::{
-    Object, ObjectRef,
-    error::panic_type::PanicType,
-    future::{FutureObj, future_kind::FutureKind, future_state::FutureState},
-    new_objectref,
-    stack_environment::EnvRef,
-    string_obj::StringObj,
-}, scheduler::{SCHEDULER_CHANNEL, TOKIO_RUNTIME, add_io_future, message_output::MessageOutput}};
+use crate::{
+    object::{
+        Object, ObjectRef,
+        error::panic_type::PanicType,
+        future::{FutureObj, future_kind::FutureKind, future_state::FutureState},
+        new_objectref,
+        stack_environment::EnvRef,
+        string_obj::StringObj,
+    },
+    scheduler::{SCHEDULER_CHANNEL, TOKIO_RUNTIME, add_io_future, message_output::MessageOutput},
+};
 
 // print(object, ends)
 pub fn console_write_builtin_function(args: &[ObjectRef], _environ: EnvRef) -> ObjectRef {

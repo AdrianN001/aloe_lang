@@ -1,11 +1,14 @@
-use crate::{object::{
-    Object, ObjectRef,
-    error::panic_type::PanicType,
-    future::{future_kind::FutureKind, future_state::FutureState},
-    new_objectref,
-    panic_obj::{PanicObj, RuntimeSignal},
-    state::StateRef,
-}, scheduler::send_task_to_scheduler};
+use crate::{
+    object::{
+        Object, ObjectRef,
+        error::panic_type::PanicType,
+        future::{future_kind::FutureKind, future_state::FutureState},
+        new_objectref,
+        panic_obj::{PanicObj, RuntimeSignal},
+        state::StateRef,
+    },
+    scheduler::send_task_to_scheduler,
+};
 
 // __spawn()
 pub fn spawn_builtin_function(

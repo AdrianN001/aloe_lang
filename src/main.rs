@@ -9,9 +9,9 @@ pub mod lexer;
 pub mod module;
 pub mod object;
 pub mod repl;
+pub mod scheduler;
 pub mod script;
 pub mod token;
-pub mod scheduler;
 
 fn main() {
     let args: Vec<String> = env::args().collect();

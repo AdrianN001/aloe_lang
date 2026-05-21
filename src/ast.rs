@@ -9,6 +9,8 @@ use crate::ast::statement::function_statement::FunctionStatement;
 use crate::ast::statement::import_statement::ImportStatement;
 use crate::ast::statement::let_statement::LetStatement;
 use crate::ast::statement::struct_statement::StructStatement;
+use crate::ast::syntax_error_report::SyntaxErrorReport;
+use crate::ast::syntax_error_report::syntax_error::SyntaxError;
 use crate::{
     ast::{
         program::Program,
@@ -26,10 +28,12 @@ pub mod expression_parse;
 pub mod precedence;
 pub mod program;
 pub mod statement;
+pub mod syntax_error_report;
 
 pub struct Parser {
     lexer: Lexer,
 
+    report: SyntaxErrorReport,
     current_token: Token,
     peek_token: Token,
 }
@@ -38,6 +42,7 @@ impl Parser {
     pub fn new(lexer: Lexer) -> Self {
         let mut new_parser = Self {
             lexer,
+            report: SyntaxErrorReport::new(),
             current_token: Token::simple(TokenType::Illegal, "\0"),
             peek_token: Token::simple(TokenType::Illegal, "\0"),
         };
@@ -50,11 +55,13 @@ impl Parser {
     }
 
     fn next_token(&mut self) {
+        self.report.push_token(&self.peek_token);
+
         self.current_token = self.peek_token.clone();
         self.peek_token = self.lexer.next_token();
     }
 
-    pub fn into_a_program(mut self) -> Result<Program, String> {
+    pub fn into_a_program(mut self) -> Result<Program, SyntaxErrorReport> {
         let mut program = Program::new();
 
         while self.current_token.token_type != TokenType::Eof {
@@ -63,7 +70,7 @@ impl Parser {
                     program.statements.push(parsed_statement);
                 }
                 Err(error_feedback) => {
-                    return Err(error_feedback);
+                    return Err(self.handle_syntax_error(error_feedback));
                 }
             }
 
@@ -73,7 +80,16 @@ impl Parser {
         Ok(program)
     }
 
-    fn parse_statement(&mut self) -> Result<Statement, String> {
+    pub fn handle_syntax_error(&mut self, error_feedback: SyntaxError) -> SyntaxErrorReport {
+        self.report.set_error(error_feedback);
+
+        self.report.clone()
+    }
+
+    fn parse_statement(&mut self) -> Result<Statement, SyntaxError> {
+        self.report.clear();
+        self.report.push_token(&self.current_token);
+
         match self.current_token.token_type {
             TokenType::KwLet => self.parse_let(),
             TokenType::KwReturn => self.parse_return(),
@@ -87,7 +103,7 @@ impl Parser {
         }
     }
 
-    fn parse_let(&mut self) -> Result<Statement, String> {
+    fn parse_let(&mut self) -> Result<Statement, SyntaxError> {
         let mut statement = LetStatement {
             token: self.current_token.clone(),
             ..Default::default()
@@ -95,9 +111,9 @@ impl Parser {
 
         // if "let" is not followed by var name
         if self.peek_token.token_type != TokenType::Identifier {
-            return Err(self.create_unexpected_error_feedback(
-                &TokenType::Identifier,
-                &(self.peek_token.token_type),
+            return Err(SyntaxError::UnexpectedToken(
+                TokenType::Identifier,
+                self.peek_token.token_type.clone(),
             ));
         } else {
             self.next_token();
@@ -109,9 +125,9 @@ impl Parser {
         };
 
         if self.peek_token.token_type != TokenType::Assign {
-            return Err(self.create_unexpected_error_feedback(
-                &TokenType::Assign,
-                &self.peek_token.token_type,
+            return Err(SyntaxError::UnexpectedToken(
+                TokenType::Identifier,
+                self.peek_token.token_type.clone(),
             ));
         } else {
             self.next_token();
@@ -127,7 +143,7 @@ impl Parser {
         Ok(Statement::Let(statement))
     }
 
-    fn parse_continue(&mut self) -> Result<Statement, String> {
+    fn parse_continue(&mut self) -> Result<Statement, SyntaxError> {
         Ok(Statement::Continue(ContinueStatement {
             token: {
                 let token = self.current_token.clone();
@@ -137,16 +153,16 @@ impl Parser {
         }))
     }
 
-    fn parse_function_statement(&mut self) -> Result<Statement, String> {
+    fn parse_function_statement(&mut self) -> Result<Statement, SyntaxError> {
         let mut function = FunctionStatement {
             token: self.current_token.clone(),
             ..Default::default()
         };
 
         if self.peek_token.token_type != TokenType::Identifier {
-            return Err(format!(
-                "expected identifier, got: '{}'",
-                self.peek_token.token_type
+            return Err(SyntaxError::UnexpectedToken(
+                TokenType::Identifier,
+                self.peek_token.token_type.clone(),
             ));
         }
         self.next_token();
@@ -154,14 +170,20 @@ impl Parser {
         function.name = self.current_token.literal.clone();
 
         if self.peek_token.token_type != TokenType::LParen {
-            return Err("unexpected token. Expected 'LParen'".into());
+            return Err(SyntaxError::UnexpectedToken(
+                TokenType::LParen,
+                self.peek_token.token_type.clone(),
+            ));
         }
         self.next_token();
 
         function.parameters = self.parse_function_parameters()?;
 
         if self.peek_token.token_type != TokenType::LBrace {
-            return Err("unexpected token. Expected 'LBrace'".into());
+            return Err(SyntaxError::UnexpectedToken(
+                TokenType::LBrace,
+                self.peek_token.token_type.clone(),
+            ));
         }
         self.next_token();
 
@@ -170,23 +192,32 @@ impl Parser {
         Ok(Statement::Function(function))
     }
 
-    fn parse_import(&mut self) -> Result<Statement, String> {
+    fn parse_import(&mut self) -> Result<Statement, SyntaxError> {
         let token = self.current_token.clone();
 
         if self.peek_token.token_type != TokenType::LBrace {
-            return Err("unexpected token. Expected 'LBrace'".into());
+            return Err(SyntaxError::UnexpectedKeyword(
+                TokenType::LBrace,
+                self.peek_token.token_type.clone(),
+            ));
         }
         self.next_token();
 
         let identifiers = self.parse_expression_list(TokenType::RBrace)?;
 
         if self.peek_token.token_type != TokenType::KwFrom {
-            return Err("unexpected token. Expected 'KwFrom'".into());
+            return Err(SyntaxError::UnexpectedKeyword(
+                TokenType::KwFrom,
+                self.peek_token.token_type.clone(),
+            ));
         }
         self.next_token();
 
         if self.peek_token.token_type != TokenType::String {
-            return Err("unexpected token. Expected String".into());
+            return Err(SyntaxError::UnexpectedToken(
+                TokenType::String,
+                self.peek_token.token_type.clone(),
+            ));
         }
         self.next_token();
 
@@ -198,7 +229,10 @@ impl Parser {
             self.next_token();
 
             if self.peek_token.token_type != TokenType::Identifier {
-                return Err("unexpected token. Expected Identifier".into());
+                return Err(SyntaxError::UnexpectedToken(
+                    TokenType::Identifier,
+                    self.peek_token.token_type.clone(),
+                ));
             }
             self.next_token();
 
@@ -219,7 +253,7 @@ impl Parser {
         }))
     }
 
-    fn parse_return(&mut self) -> Result<Statement, String> {
+    fn parse_return(&mut self) -> Result<Statement, SyntaxError> {
         let statement = ReturnStatement {
             token: self.current_token.clone(),
             value: {
@@ -239,7 +273,7 @@ impl Parser {
         Ok(Statement::Return(statement))
     }
 
-    fn parse_value_assign(&mut self, left: &Expression) -> Result<Expression, String> {
+    fn parse_value_assign(&mut self, left: &Expression) -> Result<Expression, SyntaxError> {
         let expr = ValueAssignExpression {
             token: self.current_token.clone(),
             left: {
@@ -248,16 +282,20 @@ impl Parser {
                         Box::new(left.clone())
                     }
                     other_expression_type => {
-                        return Err(format!(
-                            "expected 'LValue', got: {}",
-                            other_expression_type.to_string()
+                        return Err(SyntaxError::UnexpectedExpression(
+                            vec![
+                                "Index Expression".into(),
+                                "Identifier".into(),
+                                "Member Expression".into(),
+                            ],
+                            other_expression_type.clone(),
                         ));
                     }
                 }
             },
             right: {
                 if self.peek_token.token_type == TokenType::Semicolon {
-                    return Err("expected expression, got semicolon.".into());
+                    return Err(SyntaxError::UnexpectedSemicolon);
                 }
                 self.next_token();
                 let right_expr = self.parse_expression(OperationPrecedence::Lowest)?;
@@ -272,7 +310,7 @@ impl Parser {
         Ok(Expression::ValueAssign(expr))
     }
 
-    fn parse_break(&mut self) -> Result<Statement, String> {
+    fn parse_break(&mut self) -> Result<Statement, SyntaxError> {
         let mut statement = BreakStatement {
             token: self.current_token.clone(),
             expression: None,
@@ -294,28 +332,40 @@ impl Parser {
         Ok(Statement::Break(statement))
     }
 
-    fn parse_struct_statement(&mut self) -> Result<Statement, String> {
+    fn parse_struct_statement(&mut self) -> Result<Statement, SyntaxError> {
         let token = self.current_token.clone();
 
         if self.peek_token.token_type != TokenType::Identifier {
-            return Err(format!(
-                "expected Identifier, got: '{}'",
-                self.peek_token.token_type
+            return Err(SyntaxError::UnexpectedToken(
+                TokenType::Identifier,
+                self.peek_token.token_type.clone(),
             ));
         }
         self.next_token();
 
         let name = self.parse_expression(OperationPrecedence::Lowest)?;
 
+        let name_of_the_struct_raw = {
+            match &name {
+                Expression::Identifier(identifier) => identifier.value.clone(),
+                other_expr => {
+                    return Err(SyntaxError::UnexpectedExpression(
+                        vec!["Identifer"],
+                        other_expr.clone(),
+                    ));
+                }
+            }
+        };
+
         if self.peek_token.token_type != TokenType::LBrace {
-            return Err(format!(
-                "expected LBrace, got: '{}'",
-                self.peek_token.token_type
+            return Err(SyntaxError::UnexpectedToken(
+                TokenType::Identifier,
+                self.peek_token.token_type.clone(),
             ));
         }
         self.next_token();
 
-        let (attributes, methods) = self.parse_struct_body()?;
+        let (attributes, methods) = self.parse_struct_body(&name_of_the_struct_raw)?;
 
         if self.peek_token.token_type == TokenType::Semicolon {
             self.next_token();
@@ -329,7 +379,10 @@ impl Parser {
         }))
     }
 
-    fn parse_struct_body(&mut self) -> Result<(Vec<Expression>, Vec<Statement>), String> {
+    fn parse_struct_body(
+        &mut self,
+        struct_name: &str,
+    ) -> Result<(Vec<Expression>, Vec<Statement>), SyntaxError> {
         let mut attributes = Vec::new();
         let mut methods = Vec::new();
 
@@ -345,9 +398,10 @@ impl Parser {
                     let attribute = self.parse_identifier();
 
                     if self.peek_token.token_type != TokenType::Semicolon {
-                        return Err(format!(
-                            "illegal token found in struct body. expected: Semicolon, got: '{:?}'",
-                            self.peek_token
+                        return Err(SyntaxError::UnexpectedTokenInStruct(
+                            vec![TokenType::Semicolon],
+                            self.peek_token.token_type.clone(),
+                            struct_name.to_string(),
                         ));
                     }
                     self.next_token();
@@ -359,9 +413,10 @@ impl Parser {
                     methods.push(method);
                 }
                 _ => {
-                    return Err(format!(
-                        "illegal token found in struct body. expected: Identifier or KwFun, got: '{:?}'",
-                        self.current_token
+                    return Err(SyntaxError::UnexpectedTokenInStruct(
+                        vec![TokenType::Identifier, TokenType::KwFunction],
+                        self.current_token.token_type.clone(),
+                        struct_name.to_string(),
                     ));
                 }
             }
@@ -371,7 +426,7 @@ impl Parser {
         Ok((attributes, methods))
     }
 
-    fn parse_async_function_statement(&mut self) -> Result<Statement, String> {
+    fn parse_async_function_statement(&mut self) -> Result<Statement, SyntaxError> {
         let token = self.current_token.clone();
 
         match &self.peek_token.token_type {
@@ -386,14 +441,14 @@ impl Parser {
                 }))
             }
 
-            other_token => Err(format!(
-                "expected 'fn' or 'fun' after 'async', got: '{}",
-                other_token
+            other_token => Err(SyntaxError::UnexpectedTokenAfterAsync(
+                vec![TokenType::KwFunction, TokenType::KwFunctionStatement],
+                other_token.clone(),
             )),
         }
     }
 
-    fn parse_expression_statement(&mut self) -> Result<Statement, String> {
+    fn parse_expression_statement(&mut self) -> Result<Statement, SyntaxError> {
         let statement = ExpressionStatement {
             token: self.current_token.clone(),
             expression: self.parse_expression(OperationPrecedence::Lowest)?,

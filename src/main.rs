@@ -19,7 +19,12 @@ fn main() {
     if args.len() < 2 {
         start_repl();
     } else {
-        run_script(&args[1]).unwrap();
+        match run_script(&args[1]) {
+            Err(error) => {
+                eprintln!("{}", error);
+            }
+            Ok(_) => {}
+        };
     }
 }
 

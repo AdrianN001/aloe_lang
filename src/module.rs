@@ -85,7 +85,7 @@ impl Module {
             Err(err) => {
                 return Err(RuntimeSignal::Panic(PanicObj::new(
                     PanicType::WrongSyntax,
-                    format!("Syntax error in module '{}': {}", self.name, err),
+                    format!("Syntax error in module '{}': \n{}", self.name, err),
                     Rc::new(RefCell::new(InterpreterState::default())),
                 )));
             }

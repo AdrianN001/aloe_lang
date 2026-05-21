@@ -9,6 +9,7 @@ use crate::ast::expression::identifier::Identifier;
 use crate::ast::expression::member::MemberExpression;
 use crate::ast::expression::value_assign_expression::ValueAssignExpression;
 use crate::ast::expression::while_loop::WhileLoopExpression;
+use crate::ast::syntax_error_report::syntax_error::SyntaxError;
 use crate::token::Token;
 use crate::{
     ast::{
@@ -27,7 +28,10 @@ use crate::{
 };
 
 impl Parser {
-    pub fn parse_expression(&mut self, prec: OperationPrecedence) -> Result<Expression, String> {
+    pub fn parse_expression(
+        &mut self,
+        prec: OperationPrecedence,
+    ) -> Result<Expression, SyntaxError> {
         let mut left_expression = match self.current_token.token_type {
             TokenType::Identifier => Ok(self.parse_identifier()),
             TokenType::Integer => self.parse_integer_literal(),
@@ -47,9 +51,8 @@ impl Parser {
 
             TokenType::KwTrue | TokenType::KwFalse => Ok(self.parse_boolean()),
             _ => {
-                return Err(format!(
-                    "no prefix function for {} found",
-                    &self.current_token.token_type
+                return Err(SyntaxError::TokenCanNotBeParsedCorrectly(
+                    self.current_token.token_type.clone(),
                 ));
             }
         }?;
@@ -138,7 +141,7 @@ impl Parser {
         })
     }
 
-    fn parse_await_expr(&mut self) -> Result<Expression, String> {
+    fn parse_await_expr(&mut self) -> Result<Expression, SyntaxError> {
         let current_token = self.current_token.clone();
         self.next_token();
 
@@ -151,13 +154,13 @@ impl Parser {
         Ok(Expression::AwaitExpr(await_expr))
     }
 
-    fn parse_async_function_expr(&mut self) -> Result<Expression, String> {
+    fn parse_async_function_expr(&mut self) -> Result<Expression, SyntaxError> {
         self.next_token();
 
         if self.current_token.token_type != TokenType::KwFunction {
-            return Err(format!(
-                "expected 'fn' or 'fun' after 'async', got: '{}",
-                self.current_token.token_type
+            return Err(SyntaxError::UnexpectedTokenAfterAsync(
+                vec![TokenType::KwFunction, TokenType::KwFunctionStatement],
+                self.current_token.token_type.clone(),
             ));
         }
 
@@ -169,7 +172,7 @@ impl Parser {
         Ok(async_fn_expr)
     }
 
-    fn parse_for_loop_expression(&mut self) -> Result<Expression, String> {
+    fn parse_for_loop_expression(&mut self) -> Result<Expression, SyntaxError> {
         let token = self.current_token.clone();
 
         if self.peek_token.token_type != TokenType::Identifier {
@@ -185,14 +188,20 @@ impl Parser {
                     block,
                 }));
             }
-            return Err("for: expected to be the next token an identifier or opening block".into());
+            return Err(SyntaxError::UnexpectedTokenInForLoopHead(
+                vec!["Identifier", "Opening Block"],
+                self.peek_token.token_type.clone(),
+            ));
         }
         self.next_token(); // curr at 'identifier'
 
         let identifier = self.parse_expression(OperationPrecedence::Lowest)?;
 
         if self.peek_token.token_type != TokenType::IteratorAssign {
-            return Err("for: expected to be the next an iterator assign".into());
+            return Err(SyntaxError::UnexpectedToken(
+                TokenType::IteratorAssign,
+                self.peek_token.token_type.clone(),
+            ));
         }
         self.next_token(); // curr at <-
 
@@ -210,7 +219,7 @@ impl Parser {
         }))
     }
 
-    fn parse_while_loop_expression(&mut self) -> Result<Expression, String> {
+    fn parse_while_loop_expression(&mut self) -> Result<Expression, SyntaxError> {
         let token = self.current_token.clone();
 
         self.next_token();
@@ -238,7 +247,7 @@ impl Parser {
         }))
     }
 
-    fn parse_dot_expression(&mut self, left: &Expression) -> Result<Expression, String> {
+    fn parse_dot_expression(&mut self, left: &Expression) -> Result<Expression, SyntaxError> {
         let token = self.current_token.clone();
         self.next_token();
         let right_expr = self.parse_expression(OperationPrecedence::Member)?;
@@ -267,12 +276,13 @@ impl Parser {
                 Expression::Identifier(call_identifier) => {
                     member_expr.member_name = call_identifier.value.clone()
                 }
-                _ => return Err("invalid member. call without identifier".to_string()),
+                other_expr => {
+                    return Err(SyntaxError::MethodCallWithoutIdentifier(other_expr.clone()));
+                }
             },
-            _ => {
-                return Err(format!(
-                    "invalid member. not a method, not an attribute. it is: {}",
-                    &right_expr.to_string()
+            other_expr => {
+                return Err(SyntaxError::MemberExpressionWithoutAttributeOrMethodCall(
+                    other_expr.clone(),
                 ));
             }
         }
@@ -282,18 +292,21 @@ impl Parser {
         Ok(Expression::Member(member_expr))
     }
 
-    fn parse_grouped_expression(&mut self) -> Result<Expression, String> {
+    fn parse_grouped_expression(&mut self) -> Result<Expression, SyntaxError> {
         self.next_token();
 
         let expression = self.parse_expression(OperationPrecedence::Lowest)?;
         if self.peek_token.token_type != TokenType::RParen {
-            return Err("unexpected Token. expected 'RParen'".to_string());
+            return Err(SyntaxError::UnexpectedToken(
+                TokenType::RParen,
+                self.peek_token.token_type.clone(),
+            ));
         }
         self.next_token();
 
         Ok(expression)
     }
-    fn parse_integer_literal(&self) -> Result<Expression, String> {
+    fn parse_integer_literal(&self) -> Result<Expression, SyntaxError> {
         let literal = self.current_token.literal.replace('_', "");
         let parse_result = if let Some(rest) = literal.strip_prefix("0x") {
             i64::from_str_radix(rest, 16)
@@ -316,14 +329,13 @@ impl Parser {
                 token: self.current_token.clone(),
                 value: integer_value,
             })),
-            Err(_) => Err(format!(
-                "could convert int literal \"{}\" to int",
-                &self.current_token.literal
+            Err(_) => Err(SyntaxError::IntegerCanNotBeParsed(
+                self.current_token.literal.clone(),
             )),
         }
     }
 
-    fn parse_array_literal(&mut self) -> Result<Expression, String> {
+    fn parse_array_literal(&mut self) -> Result<Expression, SyntaxError> {
         match self.parse_expression_list(TokenType::RBracket) {
             Ok(expressions) => Ok(Expression::Array(ArrayLiteral {
                 token: self.current_token.clone(),
@@ -333,7 +345,7 @@ impl Parser {
         }
     }
 
-    fn parse_index_operator(&mut self, left: &Expression) -> Result<Expression, String> {
+    fn parse_index_operator(&mut self, left: &Expression) -> Result<Expression, SyntaxError> {
         let mut index_expr = IndexExpression {
             token: self.current_token.clone(),
             left: Box::new(left.clone()),
@@ -344,7 +356,10 @@ impl Parser {
         index_expr.right = Box::new(self.parse_expression(OperationPrecedence::Lowest)?);
 
         if self.peek_token.token_type != TokenType::RBracket {
-            return Err("unexpected token: RBracket".into());
+            return Err(SyntaxError::UnexpectedToken(
+                TokenType::RBrace,
+                self.peek_token.token_type.clone(),
+            ));
         }
         self.next_token();
 
@@ -358,7 +373,7 @@ impl Parser {
         })
     }
 
-    fn parse_prefix_expression(&mut self) -> Result<Expression, String> {
+    fn parse_prefix_expression(&mut self) -> Result<Expression, SyntaxError> {
         let mut expression = PrefixExpression {
             token: self.current_token.clone(),
             operator: self.current_token.literal.clone(),
@@ -383,15 +398,19 @@ impl Parser {
         &mut self,
         left: &Expression,
         operator: &TokenType,
-    ) -> Result<Expression, String> {
+    ) -> Result<Expression, SyntaxError> {
         let left_side = match left {
             Expression::Index(_) | Expression::Identifier(_) | Expression::Member(_) => {
                 Box::new(left.clone())
             }
             other_expression_type => {
-                return Err(format!(
-                    "expected 'LValue', got: {}",
-                    other_expression_type.to_string()
+                return Err(SyntaxError::UnexpectedExpression(
+                    vec![
+                        "Index Expression".into(),
+                        "Identifier".into(),
+                        "Member Expression".into(),
+                    ],
+                    other_expression_type.clone(),
                 ));
             }
         };
@@ -436,7 +455,7 @@ impl Parser {
         Ok(Expression::ValueAssign(value_assign_expression))
     }
 
-    fn parse_infix_expression(&mut self, left: &Expression) -> Result<Expression, String> {
+    fn parse_infix_expression(&mut self, left: &Expression) -> Result<Expression, SyntaxError> {
         let infix_expression = InfixExpression {
             token: self.current_token.clone(),
             operator: self.current_token.literal.clone(),
@@ -454,7 +473,7 @@ impl Parser {
         Ok(Expression::Infix(infix_expression))
     }
 
-    fn parse_hashmap_literal(&mut self) -> Result<Expression, String> {
+    fn parse_hashmap_literal(&mut self) -> Result<Expression, SyntaxError> {
         let mut hash_expression = HashMapLiteral {
             token: self.current_token.clone(),
             pairs: BTreeMap::new(),
@@ -466,7 +485,10 @@ impl Parser {
             let key = self.parse_expression(OperationPrecedence::Lowest)?;
 
             if self.peek_token.token_type != TokenType::Colon {
-                return Err("unexpected character, expected: ':'".into());
+                return Err(SyntaxError::UnexpectedToken(
+                    TokenType::Colon,
+                    self.peek_token.token_type.clone(),
+                ));
             }
             self.next_token();
 
@@ -477,21 +499,27 @@ impl Parser {
 
             if self.peek_token.token_type != TokenType::RBrace {
                 if self.peek_token.token_type != TokenType::Comma {
-                    return Err("unexpected character: expected: '}' or ','".into());
+                    return Err(SyntaxError::UnexpectedTokenWithMultipleChoice(
+                        vec![TokenType::RBrace, TokenType::Comma],
+                        self.peek_token.token_type.clone(),
+                    ));
                 }
                 self.next_token();
             }
         }
 
         if self.peek_token.token_type != TokenType::RBrace {
-            return Err("unexpected character: expected '}'".into());
+            return Err(SyntaxError::UnexpectedToken(
+                TokenType::RBrace,
+                self.peek_token.token_type.clone(),
+            ));
         }
         self.next_token();
 
         Ok(Expression::HashMapLiteral(hash_expression))
     }
 
-    fn parse_if_expression(&mut self) -> Result<Expression, String> {
+    fn parse_if_expression(&mut self) -> Result<Expression, SyntaxError> {
         let mut expr = IfExpression {
             token: self.current_token.clone(),
             ..Default::default()
@@ -504,7 +532,10 @@ impl Parser {
         };
 
         if self.peek_token.token_type != TokenType::LBrace {
-            return Err("unexpected token: Expected 'LBrace'".to_string());
+            return Err(SyntaxError::UnexpectedToken(
+                TokenType::LBrace,
+                self.peek_token.token_type.clone(),
+            ));
         }
         self.next_token();
 
@@ -520,7 +551,10 @@ impl Parser {
                 Box::new(self.parse_expression(OperationPrecedence::Lowest)?);
 
             if self.peek_token.token_type != TokenType::LBrace {
-                return Err("unexpected token: Expected 'LBrace'".to_string());
+                return Err(SyntaxError::UnexpectedToken(
+                    TokenType::LBrace,
+                    self.peek_token.token_type.clone(),
+                ));
             }
             self.next_token();
 
@@ -534,7 +568,10 @@ impl Parser {
         if self.peek_token.token_type == TokenType::KwElse {
             self.next_token();
             if self.peek_token.token_type != TokenType::LBrace {
-                return Err("unexpected token: Expected 'LBrace'".to_string());
+                return Err(SyntaxError::UnexpectedToken(
+                    TokenType::LBrace,
+                    self.peek_token.token_type.clone(),
+                ));
             }
             self.next_token();
 
@@ -547,7 +584,7 @@ impl Parser {
         Ok(Expression::If(expr))
     }
 
-    pub fn parse_block_statement(&mut self) -> Result<BlockStatement, String> {
+    pub fn parse_block_statement(&mut self) -> Result<BlockStatement, SyntaxError> {
         let mut block = BlockStatement {
             token: self.current_token.clone(),
             statements: Vec::new(),
@@ -570,21 +607,27 @@ impl Parser {
         Ok(block)
     }
 
-    fn parse_function_expression(&mut self) -> Result<Expression, String> {
+    fn parse_function_expression(&mut self) -> Result<Expression, SyntaxError> {
         let mut function_expr = FunctionExpression {
             token: self.current_token.clone(),
             ..Default::default()
         };
 
         if self.peek_token.token_type != TokenType::LParen {
-            return Err("unexpected token. Expected 'LParen'".into());
+            return Err(SyntaxError::UnexpectedToken(
+                TokenType::LParen,
+                self.peek_token.token_type.clone(),
+            ));
         }
         self.next_token();
 
         function_expr.parameters = self.parse_function_parameters()?;
 
         if self.peek_token.token_type != TokenType::LBrace {
-            return Err("unexpected token. Expected 'LBrace'".into());
+            return Err(SyntaxError::UnexpectedToken(
+                TokenType::LBrace,
+                self.peek_token.token_type.clone(),
+            ));
         }
         self.next_token();
 
@@ -593,7 +636,7 @@ impl Parser {
         Ok(Expression::Function(function_expr))
     }
 
-    pub fn parse_function_parameters(&mut self) -> Result<Vec<Identifier>, String> {
+    pub fn parse_function_parameters(&mut self) -> Result<Vec<Identifier>, SyntaxError> {
         let mut parameters = Vec::new();
 
         if self.peek_token.token_type == TokenType::RParen {
@@ -623,14 +666,17 @@ impl Parser {
         }
 
         if self.peek_token.token_type != TokenType::RParen {
-            return Err("unexpected token. Got: 'RBrace'".into());
+            return Err(SyntaxError::UnexpectedToken(
+                TokenType::RParen,
+                self.peek_token.token_type.clone(),
+            ));
         }
         self.next_token();
 
         Ok(parameters)
     }
 
-    fn parse_call_expression(&mut self, function: &Expression) -> Result<Expression, String> {
+    fn parse_call_expression(&mut self, function: &Expression) -> Result<Expression, SyntaxError> {
         let mut expr = CallExpression {
             token: self.current_token.clone(),
             function: Box::new(function.clone()),
@@ -653,7 +699,7 @@ impl Parser {
     pub fn parse_expression_list(
         &mut self,
         end_token: TokenType,
-    ) -> Result<Vec<Expression>, String> {
+    ) -> Result<Vec<Expression>, SyntaxError> {
         let mut args = Vec::new();
 
         if self.peek_token.token_type == end_token {
@@ -677,9 +723,9 @@ impl Parser {
         }
 
         if self.peek_token.token_type != end_token {
-            return Err(format!(
-                "unexpected token. expected: {}, got: {}",
-                end_token, self.peek_token.token_type
+            return Err(SyntaxError::UnexpectedToken(
+                end_token,
+                self.peek_token.token_type.clone(),
             ));
         }
         self.next_token();

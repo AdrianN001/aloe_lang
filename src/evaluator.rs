@@ -131,7 +131,11 @@ impl Statement {
             Statement::Function(func_stmt) => Ok(func_stmt.evaluate(environ.clone())),
             Statement::Struct(struct_stmt) => struct_stmt.evaluate(environ, state),
             Statement::AsyncFunction(async_func_stmt) => async_func_stmt.evaluate(environ),
-            Statement::Import(_) => panic!("already catched"),
+            Statement::Import(_) => Err(RuntimeSignal::Panic(PanicObj::new_simple(
+                PanicType::WrongSyntax,
+                "import is only allowed in the top of the file.",
+                state.clone(),
+            ))),
         }
     }
 }

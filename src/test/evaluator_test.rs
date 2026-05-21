@@ -2657,3 +2657,26 @@ fn test_compound_assignment() {
 
     test_cases_for_input_output(&testcases);
 }
+
+#[test]
+fn test_method_call_without_parenthesis() {
+    let testcases = [
+        ("let nums = range(100).collect; nums.clear; nums", "[]"),
+        (
+            "let nums = range(3).collect; let inversed = nums.reversed; inversed",
+            "[2, 1, 0]",
+        ),
+        ("let float = 3.14; let int = float.as_int; int", "3"),
+        (
+            "let iterator = range(10_000_000); iterator.next; iterator.next",
+            "1",
+        ),
+        ("range(2).collect", "[0, 1]"),
+        (
+            "let nums = range(10).collect; nums.slice",
+            "expected 2 arguments for array.slice(), got: 0",
+        ),
+    ];
+
+    test_cases_for_input_output(&testcases);
+}

@@ -38,6 +38,7 @@ impl StringObj {
             "chars" => Ok(self.chars()),
             "as_float" => Ok(self.as_float(state)),
             "as_int" => Ok(self.as_int(state)),
+            "as_str" => Ok(self.as_str()),
 
             "as_byte_array" => Ok(self.as_byte_array()),
             "strip" => Ok(self.strip(args, state)),
@@ -241,6 +242,12 @@ impl StringObj {
                 state,
             ))),
         }
+    }
+
+    fn as_str(&self) -> ObjectRef {
+        new_objectref(Object::String(Box::new(StringObj {
+            value: self.value.clone(),
+        })))
     }
 
     fn as_byte_array(&self) -> ObjectRef {

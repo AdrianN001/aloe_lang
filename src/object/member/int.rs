@@ -36,6 +36,7 @@ impl Integer {
         match name {
             "as_str" => Ok(self.as_str()),
             "as_float" => Ok(self.as_float()),
+            "as_int" => Ok(self.as_int()),
             "as_utf_char" => Ok(self.as_utf_char(state)),
             "clone" => Ok(self.deep_clone()),
 
@@ -75,6 +76,10 @@ impl Integer {
         Rc::new(RefCell::new(Object::FloatObj(FloatObj {
             val: self.value as f64,
         })))
+    }
+
+    pub fn as_int(&self) -> ObjectRef {
+        new_objectref(Object::Int(Integer { value: self.value }))
     }
 
     pub fn as_utf_char(&self, state: StateRef) -> ObjectRef {

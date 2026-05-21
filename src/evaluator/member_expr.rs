@@ -73,8 +73,27 @@ impl MemberExpression {
             Expression::Identifier(identifier_expr) => {
                 let name_of_attribute = &identifier_expr.value;
 
-                let obj = left_obj.borrow();
-                obj.apply_attribute(name_of_attribute, environ, state)
+                let attribute_result = {
+                    let obj = left_obj.borrow();
+                    obj.apply_attribute(name_of_attribute, environ.clone(), state.clone())
+                };
+
+                if attribute_result.is_ok() {
+                    return attribute_result;
+                }
+
+                let fallback_method_call_result =
+                    MemberExpression::try_method_call_instead_attribute(
+                        left_obj,
+                        name_of_attribute,
+                        environ,
+                        state,
+                    );
+
+                match fallback_method_call_result {
+                    Ok(valid_method_call_result) => Ok(valid_method_call_result),
+                    Err(_) => attribute_result,
+                }
             }
             other_expr_type => Err(RuntimeSignal::Panic(PanicObj::new(
                 PanicType::IllegalExpression,
@@ -102,9 +121,34 @@ impl MemberExpression {
         match right_expression {
             Expression::Identifier(identifier) => {
                 let name_of_attribute = &identifier.value;
-                let obj = left_side.borrow();
-                let result = obj.apply_attribute(name_of_attribute, environ, state)?;
-                Ok(EvaluationResult::Done(result))
+
+                let attribute_result = {
+                    let obj = left_side.borrow();
+                    obj.apply_attribute(name_of_attribute, environ.clone(), state.clone())
+                };
+
+                if attribute_result.is_ok() {
+                    return Ok(EvaluationResult::Done(attribute_result?));
+                }
+
+                let fallback_method_call_result =
+                    MemberExpression::try_method_call_instead_attribute(
+                        left_side,
+                        name_of_attribute,
+                        environ,
+                        state,
+                    );
+
+                match fallback_method_call_result {
+                    Ok(valid_method_call_result) => {
+                        Ok(EvaluationResult::Done(valid_method_call_result))
+                    }
+                    Err(_) => {
+                        // god level rust developer
+                        attribute_result?;
+                        unreachable!()
+                    }
+                }
             }
             Expression::Call(call_expr) => {
                 let name_of_method =
@@ -173,6 +217,31 @@ impl MemberExpression {
                 state.clone(),
             ))),
         }
+    }
+
+    pub fn try_method_call_instead_attribute(
+        left_obj: ObjectRef,
+        name_of_method: &str,
+        environ: EnvRef,
+        state: StateRef,
+    ) -> Result<ObjectRef, RuntimeSignal> {
+        let empty_args_list = Vec::with_capacity(0);
+
+        if MemberExpression::check_early_for_struct_method_call(left_obj.clone()) {
+            return StructObject::apply_method(
+                &name_of_method,
+                left_obj,
+                &empty_args_list,
+                environ,
+                state,
+                false,
+                false,
+            );
+        }
+
+        let mut left_obj_borrow = left_obj.borrow_mut();
+
+        left_obj_borrow.apply_method(name_of_method, &empty_args_list, environ, state)
     }
 
     fn check_early_for_struct_method_call(left_obj: ObjectRef) -> bool {

@@ -2,7 +2,8 @@ use std::{cell::RefCell, rc::Rc};
 
 use crate::object::{
     Object, ObjectRef, error::panic_type::PanicType, float_obj::FloatObj, integer::Integer,
-    panic_obj::PanicObj, stack_environment::EnvRef, state::StateRef, string_obj::StringObj,
+    new_objectref, panic_obj::PanicObj, stack_environment::EnvRef, state::StateRef,
+    string_obj::StringObj,
 };
 
 impl FloatObj {
@@ -25,6 +26,7 @@ impl FloatObj {
         match name {
             "as_str" => Ok(self.as_str()),
             "as_int" => Ok(self.as_int()),
+            "as_float" => Ok(self.as_float()),
             "clone" => Ok(self.deep_copy()),
 
             _ => Err(PanicObj::new(
@@ -47,6 +49,10 @@ impl FloatObj {
         Rc::new(RefCell::new(Object::Int(Integer {
             value: self.val as i64,
         })))
+    }
+
+    pub fn as_float(&self) -> ObjectRef {
+        new_objectref(Object::FloatObj(FloatObj { val: self.val }))
     }
 
     pub fn deep_copy(&self) -> ObjectRef {

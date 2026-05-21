@@ -80,7 +80,10 @@ impl IndexExpression {
                         .to_string(),
                 })))))
             }
-            (Object::HashMap(map), _) => Ok(map.get([right.clone()].as_ref(), state)),
+            (Object::HashMap(map), _) => match map.get([right.clone()].as_ref(), state) {
+                Ok(value) => Ok(value),
+                Err(panic_obj) => return Err(RuntimeSignal::Panic(panic_obj)),
+            },
             _ => Err(RuntimeSignal::Panic(PanicObj::new(
                 PanicType::OperatorIsNotSupported,
                 format!(

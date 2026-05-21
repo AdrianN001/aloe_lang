@@ -82,7 +82,7 @@ impl MemberExpression {
                     return attribute_result;
                 }
 
-                let fallback_method_call_result =
+                let (method_found, fallback_method_call_result) =
                     MemberExpression::try_method_call_instead_attribute(
                         left_obj,
                         name_of_attribute,
@@ -90,9 +90,10 @@ impl MemberExpression {
                         state,
                     );
 
-                match fallback_method_call_result {
-                    Ok(valid_method_call_result) => Ok(valid_method_call_result),
-                    Err(_) => attribute_result,
+                if method_found {
+                    fallback_method_call_result
+                } else {
+                    attribute_result
                 }
             }
             other_expr_type => Err(RuntimeSignal::Panic(PanicObj::new(
@@ -131,7 +132,7 @@ impl MemberExpression {
                     return Ok(EvaluationResult::Done(attribute_result?));
                 }
 
-                let fallback_method_call_result =
+                let (method_found, fallback_method_call_result) =
                     MemberExpression::try_method_call_instead_attribute(
                         left_side,
                         name_of_attribute,
@@ -139,15 +140,10 @@ impl MemberExpression {
                         state,
                     );
 
-                match fallback_method_call_result {
-                    Ok(valid_method_call_result) => {
-                        Ok(EvaluationResult::Done(valid_method_call_result))
-                    }
-                    Err(_) => {
-                        // god level rust developer
-                        attribute_result?;
-                        unreachable!()
-                    }
+                if method_found {
+                    Ok(EvaluationResult::Done(fallback_method_call_result?))
+                } else {
+                    Ok(EvaluationResult::Done(attribute_result?))
                 }
             }
             Expression::Call(call_expr) => {
@@ -224,11 +220,11 @@ impl MemberExpression {
         name_of_method: &str,
         environ: EnvRef,
         state: StateRef,
-    ) -> Result<ObjectRef, RuntimeSignal> {
+    ) -> (bool, Result<ObjectRef, RuntimeSignal>) {
         let empty_args_list = Vec::with_capacity(0);
 
         if MemberExpression::check_early_for_struct_method_call(left_obj.clone()) {
-            return StructObject::apply_method(
+            let result = StructObject::apply_method(
                 &name_of_method,
                 left_obj,
                 &empty_args_list,
@@ -237,11 +233,39 @@ impl MemberExpression {
                 false,
                 false,
             );
+
+            let method_found = match &result {
+                Err(RuntimeSignal::Panic(panic_obj)) => {
+                    if panic_obj.panic_type == PanicType::UnknownMethod {
+                        false
+                    } else {
+                        true
+                    }
+                }
+                Err(RuntimeSignal::Yield(_)) => false,
+                Ok(_) => true,
+            };
+
+            return (method_found, result);
         }
 
         let mut left_obj_borrow = left_obj.borrow_mut();
 
-        left_obj_borrow.apply_method(name_of_method, &empty_args_list, environ, state)
+        let result = left_obj_borrow.apply_method(name_of_method, &empty_args_list, environ, state);
+
+        let method_found = match &result {
+            Err(RuntimeSignal::Panic(panic_obj)) => {
+                if panic_obj.panic_type == PanicType::UnknownMethod {
+                    false
+                } else {
+                    true
+                }
+            }
+            Err(RuntimeSignal::Yield(_)) => false,
+            Ok(_) => true,
+        };
+
+        (method_found, result)
     }
 
     fn check_early_for_struct_method_call(left_obj: ObjectRef) -> bool {

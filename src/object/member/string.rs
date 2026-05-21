@@ -41,14 +41,14 @@ impl StringObj {
             "as_str" => Ok(self.as_str()),
 
             "as_byte_array" => Ok(self.as_byte_array()),
-            "strip" => Ok(self.strip(args, state)),
-            "lstrip" => Ok(self.lstrip(args, state)),
-            "rstrip" => Ok(self.rstrip(args, state)),
-            "replace" => Ok(self.replace(args, state)),
+            "strip" => self.strip(args, state),
+            "lstrip" => self.lstrip(args, state),
+            "rstrip" => self.rstrip(args, state),
+            "replace" => self.replace(args, state),
 
-            "contains" => Ok(self.contains(args, state)),
-            "slice" => Ok(self.slice(args, state)),
-            "split" => Ok(self.split(args, state)),
+            "contains" => self.contains(args, state),
+            "slice" => self.slice(args, state),
+            "split" => self.split(args, state),
             "clone" => Ok(self.deep_copy()),
 
             "to_lower" => Ok(self.to_lower()),
@@ -58,8 +58,8 @@ impl StringObj {
             "is_ascii" => Ok(self.is_ascii()),
             "is_digit" => Ok(self.is_digit()),
 
-            "starts_with" => Ok(self.starts_with(args, state)),
-            "ends_with" => Ok(self.ends_with(args, state)),
+            "starts_with" => self.starts_with(args, state),
+            "ends_with" => self.ends_with(args, state),
 
             _ => Err(PanicObj::new(
                 PanicType::UnknownMethod,
@@ -114,25 +114,25 @@ impl StringObj {
         })
     }
 
-    fn contains(&mut self, args: &[ObjectRef], state: StateRef) -> ObjectRef {
+    fn contains(&mut self, args: &[ObjectRef], state: StateRef) -> Result<ObjectRef, PanicObj> {
         if args.len() != 1 {
-            return Rc::new(RefCell::new(Object::new_error(
-                ErrorType::WrongArgumentCount,
+            return Err(PanicObj::new(
+                PanicType::WrongArgumentCount,
                 format!(
                     "expected {} arguments for string.contains(), got: {}",
                     1,
                     args.len()
                 ),
                 state,
-            )));
+            ));
         }
 
         let arg_borrow = args[0].borrow();
         let substr = match &*arg_borrow {
             Object::String(str) => &str.value,
             other_type => {
-                return new_objectref(Object::new_error(
-                    ErrorType::WrongArgumentType,
+                return Err(PanicObj::new(
+                    PanicType::WrongArgumentType,
                     format!(
                         "expected as argument for string.contains() string, got: '{}'",
                         other_type.inspect()
@@ -142,47 +142,47 @@ impl StringObj {
             }
         };
 
-        new_objectref(Object::get_native_boolean_object(
+        Ok(new_objectref(Object::get_native_boolean_object(
             self.value.contains(substr),
-        ))
+        )))
     }
 
-    fn slice(&self, args: &[ObjectRef], state: StateRef) -> ObjectRef {
+    fn slice(&self, args: &[ObjectRef], state: StateRef) -> Result<ObjectRef, PanicObj> {
         if args.len() != 2 {
-            return Rc::new(RefCell::new(Object::new_error(
-                ErrorType::WrongArgumentCount,
+            return Err(PanicObj::new(
+                PanicType::WrongArgumentCount,
                 format!(
                     "expected {} arguments for string.slice(), got: {}",
                     2,
                     args.len()
                 ),
                 state,
-            )));
+            ));
         }
         let mut start_index = match &*args[0].borrow() {
             Object::Int(integer) => integer.value,
             other_type => {
-                return Rc::new(RefCell::new(Object::new_error(
-                    ErrorType::WrongArgumentType,
+                return Err(PanicObj::new(
+                    PanicType::WrongArgumentType,
                     format!(
                         "expected the first argument to be int, got: {}",
                         other_type.get_type()
                     ),
                     state,
-                )));
+                ));
             }
         };
         let mut end_index = match &*args[1].borrow() {
             Object::Int(integer) => integer.value,
             other_type => {
-                return Rc::new(RefCell::new(Object::new_error(
-                    ErrorType::WrongArgumentType,
+                return Err(PanicObj::new(
+                    PanicType::WrongArgumentType,
                     format!(
                         "expected the second argument to be int, got: {}",
                         other_type.get_type()
                     ),
                     state,
-                )));
+                ));
             }
         };
 
@@ -205,9 +205,9 @@ impl StringObj {
         }
 
         if start_index >= len || start_index >= end_index {
-            return Rc::new(RefCell::new(Object::String(Box::new(StringObj {
+            return Ok(Rc::new(RefCell::new(Object::String(Box::new(StringObj {
                 value: String::new(),
-            }))));
+            })))));
         }
 
         let start_us = start_index as usize;
@@ -215,9 +215,9 @@ impl StringObj {
 
         let result: String = chars[start_us..end_us].iter().collect();
 
-        Rc::new(RefCell::new(Object::String(Box::new(StringObj {
+        Ok(Rc::new(RefCell::new(Object::String(Box::new(StringObj {
             value: result,
-        }))))
+        })))))
     }
 
     fn as_float(&self, state: StateRef) -> ObjectRef {
@@ -267,30 +267,30 @@ impl StringObj {
         })))
     }
 
-    fn strip(&self, args: &[ObjectRef], state: StateRef) -> ObjectRef {
+    fn strip(&self, args: &[ObjectRef], state: StateRef) -> Result<ObjectRef, PanicObj> {
         if args.is_empty() {
-            return new_objectref(Object::String(Box::new(StringObj {
+            return Ok(new_objectref(Object::String(Box::new(StringObj {
                 value: self.value.trim().to_string(),
-            })));
+            }))));
         }
 
         if args.len() != 1 {
-            return Rc::new(RefCell::new(Object::new_error(
-                ErrorType::WrongArgumentCount,
+            return Err(PanicObj::new(
+                PanicType::WrongArgumentCount,
                 format!(
                     "expected 0 or 1 arguments for string.strip(), got: {}",
                     args.len()
                 ),
                 state,
-            )));
+            ));
         }
 
         let arg_borrow = args[0].borrow();
         let pattern = match &*arg_borrow {
             Object::String(s) => s.value.clone(),
             other => {
-                return new_objectref(Object::new_error(
-                    ErrorType::WrongArgumentType,
+                return Err(PanicObj::new(
+                    PanicType::WrongArgumentType,
                     format!(
                         "expected string as argument for string.strip(), got: {}",
                         other.get_type()
@@ -306,31 +306,33 @@ impl StringObj {
             .trim_matches(|c| to_trim.contains(&c))
             .to_string();
 
-        new_objectref(Object::String(Box::new(StringObj { value: result })))
+        Ok(new_objectref(Object::String(Box::new(StringObj {
+            value: result,
+        }))))
     }
 
-    fn lstrip(&self, args: &[ObjectRef], state: StateRef) -> ObjectRef {
+    fn lstrip(&self, args: &[ObjectRef], state: StateRef) -> Result<ObjectRef, PanicObj> {
         if args.is_empty() {
-            return new_objectref(Object::String(Box::new(StringObj {
+            return Ok(new_objectref(Object::String(Box::new(StringObj {
                 value: self.value.trim_start().to_string(),
-            })));
+            }))));
         }
         if args.len() != 1 {
-            return Rc::new(RefCell::new(Object::new_error(
-                ErrorType::WrongArgumentCount,
+            return Err(PanicObj::new(
+                PanicType::WrongArgumentCount,
                 format!(
                     "expected 0 or 1 arguments for string.lstrip(), got: {}",
                     args.len()
                 ),
                 state,
-            )));
+            ));
         }
         let arg_borrow = args[0].borrow();
         let pattern = match &*arg_borrow {
             Object::String(s) => s.value.clone(),
             other => {
-                return new_objectref(Object::new_error(
-                    ErrorType::WrongArgumentType,
+                return Err(PanicObj::new(
+                    PanicType::WrongArgumentType,
                     format!(
                         "expected string as argument for string.lstrip(), got: {}",
                         other.get_type()
@@ -344,31 +346,33 @@ impl StringObj {
             .value
             .trim_start_matches(|c| to_trim.contains(&c))
             .to_string();
-        new_objectref(Object::String(Box::new(StringObj { value: result })))
+        Ok(new_objectref(Object::String(Box::new(StringObj {
+            value: result,
+        }))))
     }
 
-    fn rstrip(&self, args: &[ObjectRef], state: StateRef) -> ObjectRef {
+    fn rstrip(&self, args: &[ObjectRef], state: StateRef) -> Result<ObjectRef, PanicObj> {
         if args.is_empty() {
-            return new_objectref(Object::String(Box::new(StringObj {
+            return Ok(new_objectref(Object::String(Box::new(StringObj {
                 value: self.value.trim_end().to_string(),
-            })));
+            }))));
         }
         if args.len() != 1 {
-            return Rc::new(RefCell::new(Object::new_error(
-                ErrorType::WrongArgumentCount,
+            return Err(PanicObj::new(
+                PanicType::WrongArgumentCount,
                 format!(
                     "expected 0 or 1 arguments for string.rstrip(), got: {}",
                     args.len()
                 ),
                 state,
-            )));
+            ));
         }
         let arg_borrow = args[0].borrow();
         let pattern = match &*arg_borrow {
             Object::String(s) => s.value.clone(),
             other => {
-                return new_objectref(Object::new_error(
-                    ErrorType::WrongArgumentType,
+                return Err(PanicObj::new(
+                    PanicType::WrongArgumentType,
                     format!(
                         "expected string as argument for string.rstrip(), got: {}",
                         other.get_type()
@@ -382,26 +386,28 @@ impl StringObj {
             .value
             .trim_end_matches(|c| to_trim.contains(&c))
             .to_string();
-        new_objectref(Object::String(Box::new(StringObj { value: result })))
+        Ok(new_objectref(Object::String(Box::new(StringObj {
+            value: result,
+        }))))
     }
 
-    fn replace(&self, args: &[ObjectRef], state: StateRef) -> ObjectRef {
+    fn replace(&self, args: &[ObjectRef], state: StateRef) -> Result<ObjectRef, PanicObj> {
         if args.len() < 2 || args.len() > 3 {
-            return Rc::new(RefCell::new(Object::new_error(
-                ErrorType::WrongArgumentCount,
+            return Err(PanicObj::new(
+                PanicType::WrongArgumentCount,
                 format!(
                     "expected 2 or 3 arguments for string.replace(), got: {}",
                     args.len()
                 ),
                 state,
-            )));
+            ));
         }
 
         let old = match &*args[0].borrow() {
             Object::String(s) => s.value.clone(),
             other => {
-                return new_objectref(Object::new_error(
-                    ErrorType::WrongArgumentType,
+                return Err(PanicObj::new(
+                    PanicType::WrongArgumentType,
                     format!(
                         "expected string as first argument for string.replace(), got: {}",
                         other.get_type()
@@ -414,8 +420,8 @@ impl StringObj {
         let new = match &*args[1].borrow() {
             Object::String(s) => s.value.clone(),
             other => {
-                return new_objectref(Object::new_error(
-                    ErrorType::WrongArgumentType,
+                return Err(PanicObj::new(
+                    PanicType::WrongArgumentType,
                     format!(
                         "expected string as second argument for string.replace(), got: {}",
                         other.get_type()
@@ -426,17 +432,17 @@ impl StringObj {
         };
 
         if args.len() == 2 {
-            return new_objectref(Object::String(Box::new(StringObj {
+            return Ok(new_objectref(Object::String(Box::new(StringObj {
                 value: self.value.replace(&old, &new),
-            })));
+            }))));
         }
 
         // args.len() == 3 -> count
         let count = match &*args[2].borrow() {
             Object::Int(i) => i.value,
             other => {
-                return new_objectref(Object::new_error(
-                    ErrorType::WrongArgumentType,
+                return Err(PanicObj::new(
+                    PanicType::WrongArgumentType,
                     format!(
                         "expected int as third argument for string.replace(), got: {}",
                         other.get_type()
@@ -447,41 +453,43 @@ impl StringObj {
         };
 
         if count <= 0 {
-            return new_objectref(Object::String(Box::new(StringObj {
+            return Ok(new_objectref(Object::String(Box::new(StringObj {
                 value: self.value.replace(&old, &new),
-            })));
+            }))));
         }
 
         // replace up to count occurrences
         let parts: Vec<&str> = self.value.splitn((count + 1) as usize, &old).collect();
         let result = parts.join(&new);
-        new_objectref(Object::String(Box::new(StringObj { value: result })))
+        Ok(new_objectref(Object::String(Box::new(StringObj {
+            value: result,
+        }))))
     }
 
-    fn split(&self, args: &[ObjectRef], state: StateRef) -> ObjectRef {
+    fn split(&self, args: &[ObjectRef], state: StateRef) -> Result<ObjectRef, PanicObj> {
         let split_value = if args.is_empty() {
-            return self.chars();
+            return Ok(self.chars());
         } else {
             match &*args[0].borrow() {
                 Object::String(str) => str.value.clone(),
                 other_type => {
-                    return Rc::new(RefCell::new(Object::new_error(
-                        ErrorType::WrongArgumentType,
+                    return Err(PanicObj::new(
+                        PanicType::WrongArgumentType,
                         format!(
                             "expected to be the first paramter a 'str', got: {}",
                             other_type.get_type()
                         ),
                         state,
-                    )));
+                    ));
                 }
             }
         };
 
         if split_value.is_empty() {
-            return self.chars();
+            return Ok(self.chars());
         }
 
-        new_objectref(Object::Array(Box::new(Array {
+        Ok(new_objectref(Object::Array(Box::new(Array {
             items: self
                 .value
                 .split(&split_value)
@@ -491,7 +499,7 @@ impl StringObj {
                     })))
                 })
                 .collect(),
-        })))
+        }))))
     }
 
     fn deep_copy(&self) -> ObjectRef {
@@ -526,25 +534,25 @@ impl StringObj {
         new_objectref(Object::get_native_boolean_object(self.value.is_empty()))
     }
 
-    fn starts_with(&self, args: &[ObjectRef], state: StateRef) -> ObjectRef {
+    fn starts_with(&self, args: &[ObjectRef], state: StateRef) -> Result<ObjectRef, PanicObj> {
         if args.len() != 1 {
-            return Rc::new(RefCell::new(Object::new_error(
-                ErrorType::WrongArgumentCount,
+            return Err(PanicObj::new(
+                PanicType::WrongArgumentCount,
                 format!(
                     "expected {} argument for array.starts_with(), got: {}",
                     1,
                     args.len()
                 ),
                 state,
-            )));
+            ));
         }
 
         let arg_borrow = args[0].borrow();
         let substr = match &*arg_borrow {
             Object::String(str) => &str.value,
             other_type => {
-                return new_objectref(Object::new_error(
-                    ErrorType::WrongArgumentType,
+                return Err(PanicObj::new(
+                    PanicType::WrongArgumentType,
                     format!(
                         "expected as argument for string.starts_with() string, got: '{}'",
                         other_type.inspect()
@@ -554,30 +562,30 @@ impl StringObj {
             }
         };
 
-        new_objectref(Object::get_native_boolean_object(
+        Ok(new_objectref(Object::get_native_boolean_object(
             self.value.starts_with(substr),
-        ))
+        )))
     }
 
-    fn ends_with(&self, args: &[ObjectRef], state: StateRef) -> ObjectRef {
+    fn ends_with(&self, args: &[ObjectRef], state: StateRef) -> Result<ObjectRef, PanicObj> {
         if args.len() != 1 {
-            return Rc::new(RefCell::new(Object::new_error(
-                ErrorType::WrongArgumentCount,
+            return Err(PanicObj::new(
+                PanicType::WrongArgumentCount,
                 format!(
                     "expected {} argument for array.ends_with(), got: {}",
                     1,
                     args.len()
                 ),
                 state,
-            )));
+            ));
         }
 
         let arg_borrow = args[0].borrow();
         let substr = match &*arg_borrow {
             Object::String(str) => &str.value,
             other_type => {
-                return new_objectref(Object::new_error(
-                    ErrorType::WrongArgumentType,
+                return Err(PanicObj::new(
+                    PanicType::WrongArgumentType,
                     format!(
                         "expected as argument for string.ends_with() string, got: '{}'",
                         other_type.inspect()
@@ -587,8 +595,8 @@ impl StringObj {
             }
         };
 
-        new_objectref(Object::get_native_boolean_object(
+        Ok(new_objectref(Object::get_native_boolean_object(
             self.value.ends_with(substr),
-        ))
+        )))
     }
 }

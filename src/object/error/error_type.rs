@@ -2,6 +2,7 @@
 pub enum ErrorType {
     IndexOutOfBound,
     IllegalCast,
+    FileOpening,
 
     FileIsClosed,
 
@@ -12,9 +13,6 @@ pub enum ErrorType {
     RangeInput,
 
     ObjectIsNotHashable,
-
-    WrongArgumentType,
-    WrongArgumentCount,
 
     ItemNotFound,
 

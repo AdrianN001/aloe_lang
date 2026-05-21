@@ -1,6 +1,6 @@
 use crate::object::{
     Object, ObjectRef,
-    error::panic_type::PanicType,
+    error::{error_type::ErrorType, panic_type::PanicType},
     native_object::{
         NativeObject,
         a_network::{ATCPSocketListenerWrapper, ATCPSocketWrapper},
@@ -41,10 +41,10 @@ pub fn open_builtin_function(
             let wrapper = match FileWrapper::new(file_name_raw, mode) {
                 Ok(wrapper) => wrapper,
                 Err(err_feedback) => {
-                    return Err(RuntimeSignal::Panic(PanicObj::new(
-                        PanicType::FileOpen,
+                    return Ok(new_objectref(Object::new_error(
+                        ErrorType::FileOpening,
                         err_feedback,
-                        state,
+                        state.clone(),
                     )));
                 }
             };
@@ -90,10 +90,10 @@ pub fn open_builtin_function(
             let wrapper = match FileWrapper::new(file_name_raw, &mode_raw) {
                 Ok(wrapper) => wrapper,
                 Err(err_feedback) => {
-                    return Err(RuntimeSignal::Panic(PanicObj::new(
-                        PanicType::FileOpen,
+                    return Ok(new_objectref(Object::new_error(
+                        ErrorType::FileOpening,
                         err_feedback,
-                        state,
+                        state.clone(),
                     )));
                 }
             };

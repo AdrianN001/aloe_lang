@@ -26,11 +26,21 @@ impl InfixExpression {
     ) -> Result<ObjectRef, RuntimeSignal> {
         let left_side = self.left.evaluate(environ.clone(), state.clone())?;
 
+        if matches!(*left_side.borrow(), Object::ReturnVal(_)) {
+            // propagation
+            return Ok(left_side.clone());
+        }
+
         if self.operator == "??" {
             return Self::evaluate_coalescing(left_side, &self.right, environ, state);
         }
 
         let right_side = self.right.evaluate(environ.clone(), state.clone())?;
+
+        if matches!(*right_side.borrow(), Object::ReturnVal(_)) {
+            // propagation
+            return Ok(right_side.clone());
+        }
 
         let result = match self.operator.as_str() {
             "+" | "-" | "*" | "/" | "**" | "%" | "==" | "!=" | "<" | ">" | "<<" | ">>" | "&"

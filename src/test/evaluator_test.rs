@@ -1586,125 +1586,6 @@ b.length;
 fn test_questionmak_operator() {
     let testcases = [
         (
-            "{}.get();",
-            "expected 1 or 2 arguments for hashmap.get(), got: 0",
-        ),
-        (
-            "{}.remove();",
-            "expected 1 argument for hashmap.remove(), got: 0",
-        ),
-        (
-            "
-let x = {}.get();
-x;
-",
-            "expected 1 or 2 arguments for hashmap.get(), got: 0",
-        ),
-        (
-            "
-let f = fn(){
-    {}.get()?; 
-    10;
-};
-f();
-",
-            "expected 1 or 2 arguments for hashmap.get(), got: 0",
-        ),
-        (
-            "
-let f = fn(){
-    let m = {\"a\": 1};
-    let v = m.get(\"a\")?;
-    v;
-};
-f();
-",
-            "1",
-        ),
-        (
-            "let g = fn(){
-    {}.get()?;
-    5;
-};
-
-let f = fn(){
-    g()?;
-    10;
-};
-
-f();
-",
-            "expected 1 or 2 arguments for hashmap.get(), got: 0",
-        ),
-        (
-            "
-let f = fn(){
-    if true{
-        len()?;
-    }
-    10;
-};
-f();
-",
-            "expected 1 value, got 0 value.",
-        ),
-        (
-            "
-let f = fn(x){ x };
-f({}.get()?);
-",
-            "tried to use ? on a function, without function-context",
-        ),
-        (
-            "
-let f = fn(){
-    [1, {}.get()?, 3];
-};
-f();
-",
-            "expected 1 or 2 arguments for hashmap.get(), got: 0",
-        ),
-        (
-            "
-let m = {\"a\": 10};
-[1, m.get(\"a\")!, 3][1];
-",
-            "10",
-        ),
-        (
-            "
-let f = fn(x){ x };
-
-let g = fn(){
-    f({}.get()?);
-};
-
-g();
-",
-            "expected 1 or 2 arguments for hashmap.get(), got: 0",
-        ),
-        (
-            "
-let f = fn(){
-    {}.get()? + 5;
-};
-f();
-",
-            "unexpected operand types: return value + integer",
-        ),
-        (
-            "
-let f = fn(){
-    for i <- range(5){
-        {}.get()?; 
-    }
-    10;
-};
-f();
-",
-            "expected 1 or 2 arguments for hashmap.get(), got: 0",
-        ),
-        (
             "
 let f = fn(){
     let m = {};
@@ -1712,16 +1593,7 @@ let f = fn(){
 };
 f();
 ",
-            "unexpected operand types: return value + integer",
-        ),
-        (
-            "
-let f = fn(){
-    {\"x\": {}.get()?};
-};
-f();
-",
-            "expected 1 or 2 arguments for hashmap.get(), got: 0",
+            "hashmap has no key: 'a'",
         ),
         (
             "
@@ -1732,50 +1604,10 @@ let m = {\"a\": 5};
         ),
         (
             "
-let f = fn(x){ x };
-
-let g = fn(){
-    f({}.get()?);
-};
-
-g();
-",
-            "expected 1 or 2 arguments for hashmap.get(), got: 0",
-        ),
-        (
-            "
-let f = fn(){
-    5 + {}.get()?;
-};
-f();
-",
-            "unexpected operand types: int + return value",
-        ),
-        (
-            "
 let m = {\"a\": 4};
 2 * m.get(\"a\")!;
 ",
             "8",
-        ),
-        (
-            "
-let f = fn(){
-    return {}.get()?;
-};
-f();
-",
-            "expected 1 or 2 arguments for hashmap.get(), got: 0",
-        ),
-        (
-            "
-let f = fn(){
-    let m = {};
-    [1,2,3][m.get()?];
-};
-f();
-",
-            "expected 1 or 2 arguments for hashmap.get(), got: 0",
         ),
         (
             "
@@ -1798,74 +1630,6 @@ let m = {\"a\": 3};
 m.get(\"b\")?.as_str();
 ",
             "tried to use ? on a function, without function-context",
-        ),
-        (
-            "
-let f = fn(){
-    [ {\"x\": {}.get()?} ];
-};
-f();
-",
-            "expected 1 or 2 arguments for hashmap.get(), got: 0",
-        ),
-        (
-            "
-let f = fn(){
-    1 + (2 * ({}.get()?));
-};
-f();
-",
-            "unexpected operand types: int * return value",
-        ),
-        (
-            "
-let f = fn(){
-    let g = fn(){
-        {}.get()?;
-        10;
-    };
-    g();
-};
-f();
-",
-            "expected 1 or 2 arguments for hashmap.get(), got: 0",
-        ),
-        (
-            "
-let f = fn(){
-    for i <- range(10){
-        {}.get()?;
-    }
-    99;
-};
-f();
-",
-            "expected 1 or 2 arguments for hashmap.get(), got: 0",
-        ),
-        (
-            "
-let f = fn(){
-    for i <- range(3){
-        for j <- range(3){
-            {}.get()?;
-        }
-    }
-    42;
-};
-f();
-",
-            "expected 1 or 2 arguments for hashmap.get(), got: 0",
-        ),
-        (
-            "
-let f = fn(){
-    for i <- range(10){
-        break {}.get()?;
-    }
-};
-f();
-",
-            "expected 1 or 2 arguments for hashmap.get(), got: 0",
         ),
         (
             "

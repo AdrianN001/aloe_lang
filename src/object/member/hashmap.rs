@@ -41,14 +41,14 @@ impl HashMap {
         state: StateRef,
     ) -> Result<ObjectRef, PanicObj> {
         match name {
-            "set" => Ok(self.set(args, state)),
-            "get" => Ok(self.get(args, state)),
-            "pop" => Ok(self.pop(args, state)),
-            "setdefault" => Ok(self.setdefault(args, state)),
-            "update" => Ok(self.update(args, state)),
-            "remove" => Ok(self.remove(args, state)),
+            "set" => self.set(args, state),
+            "get" => self.get(args, state),
+            "pop" => self.pop(args, state),
+            "setdefault" => self.setdefault(args, state),
+            "update" => self.update(args, state),
+            "remove" => self.remove(args, state),
             "clear" => Ok(self.clear()),
-            "has_key" => Ok(self.has_key(args, state)),
+            "has_key" => self.has_key(args, state),
             "as_iter" => Ok(self.as_iter()),
 
             "clone" => Ok(self.deep_copy()),
@@ -104,26 +104,26 @@ impl HashMap {
 
     // Methods
 
-    pub fn set(&mut self, args: &[ObjectRef], state: StateRef) -> ObjectRef {
+    pub fn set(&mut self, args: &[ObjectRef], state: StateRef) -> Result<ObjectRef, PanicObj> {
         if args.len() != 2 {
-            return Rc::new(RefCell::new(Object::new_error(
-                ErrorType::WrongArgumentCount,
+            return Err(PanicObj::new(
+                PanicType::WrongArgumentCount,
                 format!(
                     "expected 2 arguments for hashmap.set(), got: {}",
                     args.len()
                 ),
                 state,
-            )));
+            ));
         }
 
         let hashed_key = match args[0].borrow().hash() {
             Ok(val) => val,
             Err(err_feedback) => {
-                return Rc::new(RefCell::new(Object::new_error(
+                return Ok(Rc::new(RefCell::new(Object::new_error(
                     ErrorType::ErrorFromPanic,
                     err_feedback,
                     state,
-                )));
+                ))));
             }
         };
 
@@ -135,19 +135,19 @@ impl HashMap {
             },
         );
 
-        args[1].clone()
+        Ok(args[1].clone())
     }
 
-    pub fn get(&self, args: &[ObjectRef], state: StateRef) -> ObjectRef {
+    pub fn get(&self, args: &[ObjectRef], state: StateRef) -> Result<ObjectRef, PanicObj> {
         if args.len() != 1 && args.len() != 2 {
-            return Rc::new(RefCell::new(Object::new_error(
-                ErrorType::WrongArgumentCount,
+            return Err(PanicObj::new(
+                PanicType::WrongArgumentCount,
                 format!(
                     "expected 1 or 2 arguments for hashmap.get(), got: {}",
                     args.len()
                 ),
                 state,
-            )));
+            ));
         }
 
         let arg_borrow = args[0].borrow();
@@ -155,27 +155,27 @@ impl HashMap {
         let hashed_key = match arg_borrow.hash() {
             Ok(val) => val,
             Err(err_feedback) => {
-                return Rc::new(RefCell::new(Object::new_error(
+                return Ok(Rc::new(RefCell::new(Object::new_error(
                     ErrorType::ErrorFromPanic,
                     err_feedback,
                     state,
-                )));
+                ))));
             }
         };
 
         if let Some(value) = self.pairs.get(&hashed_key) {
-            return value.value.clone();
+            return Ok(value.value.clone());
         }
 
         if args.len() == 2 {
-            return args[1].clone();
+            return Ok(args[1].clone());
         }
 
-        new_objectref(Object::new_error(
+        Ok(new_objectref(Object::new_error(
             ErrorType::ItemNotFound,
             format!("hashmap has no key: '{}'", &*arg_borrow.inspect()),
             state,
-        ))
+        )))
     }
 
     pub fn clear(&mut self) -> ObjectRef {
@@ -224,125 +224,129 @@ impl HashMap {
         })
     }
 
-    pub fn has_key(&self, args: &[ObjectRef], state: StateRef) -> ObjectRef {
+    pub fn has_key(&self, args: &[ObjectRef], state: StateRef) -> Result<ObjectRef, PanicObj> {
         if args.len() != 1 {
-            return Rc::new(RefCell::new(Object::new_error(
-                ErrorType::WrongArgumentCount,
+            return Err(PanicObj::new(
+                PanicType::WrongArgumentCount,
                 format!(
                     "expected 1 argument for hashmap.has_key(), got: {}",
                     args.len()
                 ),
                 state,
-            )));
+            ));
         }
 
         let hashed_key = match args[0].borrow().hash() {
             Ok(val) => val,
             Err(err_feedback) => {
-                return Rc::new(RefCell::new(Object::new_error(
+                return Ok(Rc::new(RefCell::new(Object::new_error(
                     ErrorType::ErrorFromPanic,
                     err_feedback,
                     state,
-                )));
+                ))));
             }
         };
 
-        Rc::new(RefCell::new(Object::get_native_boolean_object(
+        Ok(Rc::new(RefCell::new(Object::get_native_boolean_object(
             self.pairs.contains_key(&hashed_key),
-        )))
+        ))))
     }
 
-    pub fn remove(&mut self, args: &[ObjectRef], state: StateRef) -> ObjectRef {
+    pub fn remove(&mut self, args: &[ObjectRef], state: StateRef) -> Result<ObjectRef, PanicObj> {
         if args.len() != 1 {
-            return Rc::new(RefCell::new(Object::new_error(
-                ErrorType::WrongArgumentCount,
+            return Err(PanicObj::new(
+                PanicType::WrongArgumentCount,
                 format!(
                     "expected 1 argument for hashmap.remove(), got: {}",
                     args.len()
                 ),
                 state,
-            )));
+            ));
         }
 
         let hashed_key = match args[0].borrow().hash() {
             Ok(val) => val,
             Err(err_feedback) => {
-                return Rc::new(RefCell::new(Object::new_error(
+                return Ok(Rc::new(RefCell::new(Object::new_error(
                     ErrorType::ErrorFromPanic,
                     err_feedback,
                     state,
-                )));
+                ))));
             }
         };
 
-        Rc::new(RefCell::new(Object::get_native_boolean_object(
+        Ok(Rc::new(RefCell::new(Object::get_native_boolean_object(
             self.pairs.remove(&hashed_key).is_some(),
-        )))
+        ))))
     }
 
-    pub fn pop(&mut self, args: &[ObjectRef], state: StateRef) -> ObjectRef {
+    pub fn pop(&mut self, args: &[ObjectRef], state: StateRef) -> Result<ObjectRef, PanicObj> {
         if args.len() != 1 && args.len() != 2 {
-            return Rc::new(RefCell::new(Object::new_error(
-                ErrorType::WrongArgumentCount,
+            return Err(PanicObj::new(
+                PanicType::WrongArgumentCount,
                 format!(
                     "expected 1 or 2 arguments for hashmap.pop(), got: {}",
                     args.len()
                 ),
                 state,
-            )));
+            ));
         }
 
         let hashed_key = match args[0].borrow().hash() {
             Ok(val) => val,
             Err(err_feedback) => {
-                return Rc::new(RefCell::new(Object::new_error(
+                return Ok(Rc::new(RefCell::new(Object::new_error(
                     ErrorType::ErrorFromPanic,
                     err_feedback,
                     state,
-                )));
+                ))));
             }
         };
 
         if let Some(pair) = self.pairs.remove(&hashed_key) {
-            return pair.value.clone();
+            return Ok(pair.value.clone());
         }
 
         if args.len() == 2 {
-            return args[1].clone();
+            return Ok(args[1].clone());
         }
 
-        new_objectref(Object::new_error(
+        Ok(new_objectref(Object::new_error(
             ErrorType::ItemNotFound,
             format!("hashmap has no key: '{}'", &*args[0].borrow().inspect()),
             state,
-        ))
+        )))
     }
 
-    pub fn setdefault(&mut self, args: &[ObjectRef], state: StateRef) -> ObjectRef {
+    pub fn setdefault(
+        &mut self,
+        args: &[ObjectRef],
+        state: StateRef,
+    ) -> Result<ObjectRef, PanicObj> {
         if args.len() != 1 && args.len() != 2 {
-            return Rc::new(RefCell::new(Object::new_error(
-                ErrorType::WrongArgumentCount,
+            return Err(PanicObj::new(
+                PanicType::WrongArgumentCount,
                 format!(
                     "expected 1 or 2 arguments for hashmap.setdefault(), got: {}",
                     args.len()
                 ),
                 state,
-            )));
+            ));
         }
 
         let hashed_key = match args[0].borrow().hash() {
             Ok(val) => val,
             Err(err_feedback) => {
-                return Rc::new(RefCell::new(Object::new_error(
+                return Ok(Rc::new(RefCell::new(Object::new_error(
                     ErrorType::ErrorFromPanic,
                     err_feedback,
                     state,
-                )));
+                ))));
             }
         };
 
         if let Some(pair) = self.pairs.get(&hashed_key) {
-            return pair.value.clone();
+            return Ok(pair.value.clone());
         }
 
         let default_val = if args.len() == 2 {
@@ -359,19 +363,19 @@ impl HashMap {
             },
         );
 
-        default_val
+        Ok(default_val)
     }
 
-    pub fn update(&mut self, args: &[ObjectRef], state: StateRef) -> ObjectRef {
+    pub fn update(&mut self, args: &[ObjectRef], state: StateRef) -> Result<ObjectRef, PanicObj> {
         if args.len() != 1 {
-            return Rc::new(RefCell::new(Object::new_error(
-                ErrorType::WrongArgumentCount,
+            return Err(PanicObj::new(
+                PanicType::WrongArgumentCount,
                 format!(
                     "expected 1 argument for hashmap.update(), got: {}",
                     args.len()
                 ),
                 state,
-            )));
+            ));
         }
 
         match &*args[0].borrow() {
@@ -385,7 +389,7 @@ impl HashMap {
                         },
                     );
                 }
-                new_objectref(Object::NULL_OBJECT)
+                Ok(new_objectref(Object::NULL_OBJECT))
             }
             Object::Array(arr) => {
                 for item in &arr.items {
@@ -397,41 +401,41 @@ impl HashMap {
                                 let hashed_key = match key.borrow().hash() {
                                     Ok(v) => v,
                                     Err(err_feedback) => {
-                                        return Rc::new(RefCell::new(Object::new_error(
+                                        return Ok(Rc::new(RefCell::new(Object::new_error(
                                             ErrorType::ErrorFromPanic,
                                             err_feedback,
                                             state,
-                                        )));
+                                        ))));
                                     }
                                 };
                                 self.pairs.insert(hashed_key, HashPair { key, value });
                             } else {
-                                return Rc::new(RefCell::new(Object::new_error(
-                                    ErrorType::WrongArgumentType,
+                                return Err(PanicObj::new(
+                                    PanicType::WrongArgumentType,
                                     "expected list of pairs for hashmap.update()".into(),
                                     state,
-                                )));
+                                ));
                             }
                         }
                         _ => {
-                            return Rc::new(RefCell::new(Object::new_error(
-                                ErrorType::WrongArgumentType,
+                            return Err(PanicObj::new(
+                                PanicType::WrongArgumentType,
                                 "expected list of pairs for hashmap.update()".into(),
                                 state,
-                            )));
+                            ));
                         }
                     }
                 }
-                new_objectref(Object::NULL_OBJECT)
+                Ok(new_objectref(Object::NULL_OBJECT))
             }
-            other => Rc::new(RefCell::new(Object::new_error(
-                ErrorType::WrongArgumentType,
+            other => Err(PanicObj::new(
+                PanicType::WrongArgumentType,
                 format!(
                     "expected hashmap or array for hashmap.update(), got: {}",
                     other.get_type()
                 ),
                 state,
-            ))),
+            )),
         }
     }
 }

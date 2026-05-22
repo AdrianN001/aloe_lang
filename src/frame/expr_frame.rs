@@ -5,7 +5,11 @@ use crate::{
     frame::{
         Frame,
         state::{
-            ExpressionState, array_state::ArrayState, await_state::AwaitState, call_state::CallState, for_state::ForState, hashmap_state::HashMapState, if_state::IfState, index_state::IndexState, infix_state::InfixState, member_state::MemberState, scope_res_state::ScopeResolutionState, value_assign_state::ValueAssignState, while_state::WhileState
+            ExpressionState, array_state::ArrayState, await_state::AwaitState,
+            call_state::CallState, for_state::ForState, hashmap_state::HashMapState,
+            if_state::IfState, index_state::IndexState, infix_state::InfixState,
+            member_state::MemberState, scope_res_state::ScopeResolutionState,
+            value_assign_state::ValueAssignState, while_state::WhileState,
         },
     },
     object::{
@@ -195,16 +199,16 @@ impl ExpressionFrame {
         }
     }
 
-    pub fn new_scope_resolution_frame(expr: Expression) -> Self{
-        Self{ 
-            expr, 
-            state: ExpressionState::ScopeResolution { 
-                value: None, 
-                state: ScopeResolutionState{
-                    left_side: None, 
-                    call_buffer: vec![]
-                } 
-            }
+    pub fn new_scope_resolution_frame(expr: Expression) -> Self {
+        Self {
+            expr,
+            state: ExpressionState::ScopeResolution {
+                value: None,
+                state: ScopeResolutionState {
+                    left_side: None,
+                    call_buffer: vec![],
+                },
+            },
         }
     }
 
@@ -244,7 +248,9 @@ impl ExpressionFrame {
             Expression::ValueAssign(_) => {
                 ExpressionFrame::new_value_assign_frame(expression.clone()).to_ref()
             }
-            Expression::ScopeResolution(_) => ExpressionFrame::new_scope_resolution_frame(expression.clone()).to_ref(),
+            Expression::ScopeResolution(_) => {
+                ExpressionFrame::new_scope_resolution_frame(expression.clone()).to_ref()
+            }
             Expression::InvalidExpression => unreachable!(),
         };
 

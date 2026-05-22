@@ -3,6 +3,7 @@ use crate::{
         Expression, array_literal::ArrayLiteral, boolean::Boolean, call_expression::CallExpression,
         hash_map_literal::HashMapLiteral, index_expression::IndexExpression,
         infix::InfixExpression, member::MemberExpression,
+        scope_resolution::ScopeResolutionExpression,
         value_assign_expression::ValueAssignExpression,
     },
     frame::{
@@ -493,6 +494,35 @@ impl ExpressionFrame {
                 MemberExpression::eval_step(
                     left_side,
                     &member_expr.right,
+                    environ,
+                    interpreter_state,
+                    &state.call_buffer,
+                )
+            }
+            ExpressionState::ScopeResolution { value, state } => {
+                if let Some(value_from_scope_res) = value {
+                    return Ok(EvaluationResult::Done(value_from_scope_res.clone()));
+                }
+
+                let scope_res_expr = {
+                    match &self.expr {
+                        Expression::ScopeResolution(scope_res) => scope_res,
+                        _ => unreachable!(),
+                    }
+                };
+
+                let left_side = if let Some(left) = &state.left_side {
+                    left.clone()
+                } else {
+                    return Ok(ExpressionFrame::build_frame_from_expr(
+                        &scope_res_expr.left,
+                        environ.clone(),
+                    ));
+                };
+
+                ScopeResolutionExpression::eval_step(
+                    left_side,
+                    &scope_res_expr.right,
                     environ,
                     interpreter_state,
                     &state.call_buffer,

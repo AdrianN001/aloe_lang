@@ -1,5 +1,6 @@
-import {names, squares} from "./list_methods.aloe" into list_methods;
+import {names, squares, divide} from "./list_methods.aloe" into list_methods;
 
 
-print(list_methods.names);
-print(list_methods.squares);
+print(list_methods::names);
+print(list_methods::squares);
+print(list_methods::divide(2,4))

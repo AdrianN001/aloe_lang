@@ -8,6 +8,7 @@ use crate::ast::expression::for_loop::ForLoopExpression;
 use crate::ast::expression::identifier::Identifier;
 use crate::ast::expression::member::MemberExpression;
 use crate::ast::expression::null::NullExpression;
+use crate::ast::expression::scope_resolution::ScopeResolutionExpression;
 use crate::ast::expression::value_assign_expression::ValueAssignExpression;
 use crate::ast::expression::while_loop::WhileLoopExpression;
 use crate::ast::syntax_error_report::syntax_error::SyntaxError;
@@ -111,6 +112,10 @@ impl Parser {
                 TokenType::Dot => {
                     self.next_token();
                     left_expression = self.parse_dot_expression(&left_expression)?;
+                }
+                TokenType::ScopeResolution => {
+                    self.next_token();
+                    left_expression = self.parse_scope_resolution_expr(&left_expression)?;
                 }
                 TokenType::LBracket => {
                     self.next_token();
@@ -297,6 +302,44 @@ impl Parser {
         member_expr.right = Box::new(right_expr);
 
         Ok(Expression::Member(member_expr))
+    }
+
+    fn parse_scope_resolution_expr(
+        &mut self,
+        left: &Expression,
+    ) -> Result<Expression, SyntaxError> {
+        let token = self.current_token.clone();
+        self.next_token();
+        let right_expr = self.parse_expression(OperationPrecedence::Member)?;
+
+        let mut scope_res_expr = ScopeResolutionExpression {
+            token,
+            left: Box::new(left.to_owned()),
+            ..Default::default()
+        };
+
+        match &right_expr {
+            Expression::Identifier(identifier) => {
+                scope_res_expr.member_name = identifier.value.clone()
+            }
+            Expression::Call(call_expr) => match &*call_expr.function {
+                Expression::Identifier(call_identifier) => {
+                    scope_res_expr.member_name = call_identifier.value.clone()
+                }
+                other_expr => {
+                    return Err(SyntaxError::MethodCallWithoutIdentifier(other_expr.clone()));
+                }
+            },
+            other_expr => {
+                return Err(SyntaxError::MemberExpressionWithoutAttributeOrMethodCall(
+                    other_expr.clone(),
+                ));
+            }
+        }
+
+        scope_res_expr.right = Box::new(right_expr);
+
+        Ok(Expression::ScopeResolution(scope_res_expr))
     }
 
     fn parse_grouped_expression(&mut self) -> Result<Expression, SyntaxError> {

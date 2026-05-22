@@ -50,7 +50,8 @@ pub enum TokenType {
 
     IteratorAssign, // <-
     Dot,
-    Comment, // #
+    Comment,         // #
+    ScopeResolution, // ::
 
     // Delimiters
     Colon,

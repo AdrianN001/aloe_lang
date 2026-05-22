@@ -20,3 +20,12 @@ let long_names = names.filter( fn(name){
   });
 
 print(long_names);
+
+
+fun divide(a, b){
+  if b == 0{
+    __err("Can not divide by 0");
+  }else{
+    a/b
+  }
+}

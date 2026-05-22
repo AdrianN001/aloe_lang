@@ -100,7 +100,7 @@ impl MemberExpression {
                 PanicType::IllegalExpression,
                 format!(
                     "'{}.{}' is illegal.",
-                    left_obj.borrow().inspect(),
+                    left_obj.borrow().get_type(),
                     other_expr_type.to_string()
                 ),
                 state.clone(),
@@ -274,7 +274,7 @@ impl MemberExpression {
         matches!(&*left_obj_borrow, Object::StructObject(_))
     }
 
-    fn get_call_expressions_identifier(
+    pub fn get_call_expressions_identifier(
         call_expr: &CallExpression,
         state: StateRef,
     ) -> Result<String, RuntimeSignal> {

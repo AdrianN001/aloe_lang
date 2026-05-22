@@ -355,7 +355,16 @@ impl Lexer {
                 }
                 _ => Token::simple(TokenType::GT, ">"),
             },
-            ':' => Token::simple(TokenType::Colon, ":"),
+            ':' => {
+                if let Some(next_char) = self.peek()
+                    && next_char == ':'
+                {
+                    self.read_char();
+                    Token::simple(TokenType::ScopeResolution, "::")
+                } else {
+                    Token::simple(TokenType::Colon, ":")
+                }
+            }
 
             '.' => Token::simple(TokenType::Dot, "."),
             '!' => {

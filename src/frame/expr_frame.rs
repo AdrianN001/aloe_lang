@@ -5,11 +5,7 @@ use crate::{
     frame::{
         Frame,
         state::{
-            ExpressionState, array_state::ArrayState, await_state::AwaitState,
-            call_state::CallState, for_state::ForState, hashmap_state::HashMapState,
-            if_state::IfState, index_state::IndexState, infix_state::InfixState,
-            member_state::MemberState, value_assign_state::ValueAssignState,
-            while_state::WhileState,
+            ExpressionState, array_state::ArrayState, await_state::AwaitState, call_state::CallState, for_state::ForState, hashmap_state::HashMapState, if_state::IfState, index_state::IndexState, infix_state::InfixState, member_state::MemberState, scope_res_state::ScopeResolutionState, value_assign_state::ValueAssignState, while_state::WhileState
         },
     },
     object::{
@@ -199,6 +195,19 @@ impl ExpressionFrame {
         }
     }
 
+    pub fn new_scope_resolution_frame(expr: Expression) -> Self{
+        Self{ 
+            expr, 
+            state: ExpressionState::ScopeResolution { 
+                value: None, 
+                state: ScopeResolutionState{
+                    left_side: None, 
+                    call_buffer: vec![]
+                } 
+            }
+        }
+    }
+
     pub fn build_frame_from_expr(expression: &Expression, environ: EnvRef) -> EvaluationResult {
         let new_frame = match expression {
             Expression::AwaitExpr(_) => {
@@ -235,6 +244,7 @@ impl ExpressionFrame {
             Expression::ValueAssign(_) => {
                 ExpressionFrame::new_value_assign_frame(expression.clone()).to_ref()
             }
+            Expression::ScopeResolution(_) => ExpressionFrame::new_scope_resolution_frame(expression.clone()).to_ref(),
             Expression::InvalidExpression => unreachable!(),
         };
 
@@ -422,6 +432,36 @@ impl ExpressionFrame {
                     } else {
                         *value = Some(object.clone());
                     }
+                } else {
+                    *value = Some(object.clone());
+                }
+
+                Ok(())
+            }
+            ExpressionState::ScopeResolution { value, state } => {
+                if state.left_side.is_none() {
+                    state.left_side = Some(object.clone());
+                    return Ok(());
+                }
+
+                let scope_res_expr = {
+                    match &self.expr {
+                        Expression::ScopeResolution(scope_res) => scope_res,
+                        _ => unreachable!(),
+                    }
+                };
+
+                if let Expression::Call(call_expr) = &*scope_res_expr.right {
+                    let expected_arg_n = call_expr.arguments.len();
+
+                    if expected_arg_n != state.call_buffer.len() {
+                        state.call_buffer.push(object.clone());
+                        return Ok(());
+                    } else {
+                        *value = Some(object.clone());
+                    }
+                } else {
+                    *value = Some(object.clone());
                 }
 
                 Ok(())

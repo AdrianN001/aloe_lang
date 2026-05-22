@@ -15,6 +15,7 @@ pub mod integer_literal;
 pub mod member;
 pub mod null;
 pub mod prefix_expression;
+pub mod scope_resolution;
 pub mod string_expr;
 pub mod value_assign_expression;
 pub mod while_loop;
@@ -37,7 +38,8 @@ use value_assign_expression::ValueAssignExpression;
 
 use crate::ast::expression::{
     async_function_expression::AsyncFunctionExpression, await_expression::AwaitExpression,
-    for_loop::ForLoopExpression, null::NullExpression, while_loop::WhileLoopExpression,
+    for_loop::ForLoopExpression, null::NullExpression, scope_resolution::ScopeResolutionExpression,
+    while_loop::WhileLoopExpression,
 };
 
 #[derive(Default, PartialOrd, Ord, Clone, PartialEq, Eq, Hash, Debug)]
@@ -59,6 +61,7 @@ pub enum Expression {
     ForLoop(ForLoopExpression),
     WhileLoop(WhileLoopExpression),
     ValueAssign(ValueAssignExpression),
+    ScopeResolution(ScopeResolutionExpression),
 
     Member(MemberExpression),
 
@@ -94,6 +97,7 @@ impl Expression {
             Expression::AwaitExpr(await_expr) => await_expr.to_string(),
             Expression::WhileLoop(while_loop) => while_loop.to_string(),
             Expression::ValueAssign(value_assign) => value_assign.to_string(),
+            Expression::ScopeResolution(scope_resolution) => scope_resolution.to_string(),
             other => other.token_literal().to_string(),
         }
     }

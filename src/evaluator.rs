@@ -15,6 +15,7 @@ mod infix_expr;
 mod launch_stmt;
 mod member_expr;
 mod prefix_expr;
+mod scope_resolution_expr;
 mod string_literal;
 mod struct_statement;
 mod value_assign;
@@ -76,6 +77,9 @@ impl Expression {
             Expression::Infix(infix_expr) => infix_expr.evaluate_infix_expression(environ, state),
             Expression::Member(member_expression) => member_expression.evaluate(environ, state),
             Expression::WhileLoop(while_loop) => while_loop.evaluate(environ, state),
+            Expression::ScopeResolution(scope_resolution) => {
+                scope_resolution.evaluate(environ, state)
+            }
 
             Expression::AwaitExpr(_) => Err(RuntimeSignal::Panic(PanicObj::new_simple(
                 PanicType::AwaitedInNonAsyncContext,

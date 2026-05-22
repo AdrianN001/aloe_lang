@@ -30,10 +30,6 @@ impl Object {
             return Ok(result);
         }
 
-        if let Object::Module(module) = self {
-            return module.search_variable(name, state);
-        }
-
         let result = match self {
             Object::String(str) => str.apply_attribute(name, state),
             Object::Array(arr) => arr.apply_attribute(name, environ, state),
@@ -65,10 +61,6 @@ impl Object {
         environ: EnvRef,
         state: StateRef,
     ) -> Result<ObjectRef, RuntimeSignal> {
-        if let Object::Module(module) = self {
-            return module.search_function(name, args, environ, state);
-        }
-
         let result = match self {
             Object::String(str) => str.apply_method(name, args, environ, state),
             Object::Array(arr) => arr.apply_method(name, args, environ, state),

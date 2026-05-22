@@ -70,7 +70,7 @@ pub fn get_precedence_of_operator(token: &Token) -> OperationPrecedence {
 
         TokenType::Exponent => OperationPrecedence::Exponent,
 
-        TokenType::Dot => OperationPrecedence::Member,
+        TokenType::Dot | TokenType::ScopeResolution => OperationPrecedence::Member,
         TokenType::LParen => OperationPrecedence::Call,
         TokenType::LBracket => OperationPrecedence::Index,
 

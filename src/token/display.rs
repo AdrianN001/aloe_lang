@@ -57,6 +57,7 @@ impl fmt::Display for TokenType {
             TokenType::Colon => ":",
             TokenType::Comma => ",",
             TokenType::Semicolon => ";",
+            TokenType::ScopeResolution => "::",
 
             TokenType::LParen => "(",
             TokenType::RParen => ")",

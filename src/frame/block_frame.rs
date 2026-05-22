@@ -6,6 +6,7 @@ use crate::{
     object::{
         Object, ObjectRef,
         break_value::BreakValue,
+        built_in::async_await::spawn_builtin_function,
         error::panic_type::PanicType,
         new_objectref,
         panic_obj::{PanicObj, RuntimeSignal},
@@ -27,6 +28,7 @@ pub struct BlockFrame {
     pub last_object: Option<ObjectRef>,
 
     break_value: Option<ObjectRef>, //TODO: temporary solution, we should refactor this later
+    launch_value: Option<ObjectRef>, //TODO: temporary solution
 }
 
 impl BlockFrame {
@@ -45,6 +47,7 @@ impl BlockFrame {
             environ,
             last_object: None,
             break_value: None,
+            launch_value: None,
         }
     }
 
@@ -141,6 +144,20 @@ impl BlockFrame {
                 Ok(EvaluationResult::Continue)
             }
 
+            Statement::Launch(launch_stmt) => {
+                if let Some(launch_value) = &self.launch_value {
+                    let result = spawn_builtin_function(&[launch_value.clone()], state)?;
+                    self.launch_value = None;
+                    self.index += 1;
+                    return Ok(EvaluationResult::Done(result));
+                } else {
+                    return Ok(ExpressionFrame::build_frame_from_expr(
+                        &launch_stmt.expr,
+                        self.environ.clone(),
+                    ));
+                }
+            }
+
             other_statement => {
                 return Err(RuntimeSignal::Panic(PanicObj::new(
                     PanicType::IllegalExpression,
@@ -175,6 +192,11 @@ impl BlockFrame {
                 None
             }
             Statement::Continue(_) => None,
+
+            Statement::Launch(_) => {
+                self.launch_value = Some(value);
+                None
+            }
 
             _ => {
                 self.last_object = Some(value.clone());

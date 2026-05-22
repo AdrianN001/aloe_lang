@@ -1,5 +1,5 @@
 mod array_method;
-mod async_await;
+pub mod async_await;
 mod console;
 mod error;
 mod io;

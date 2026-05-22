@@ -36,7 +36,7 @@ impl FunctionStatement {
         Rc::new(RefCell::new(Object::NULL_OBJECT))
     }
 
-    pub fn evauluate_without_registering(&self, environ: EnvRef) -> ObjectRef {
+    pub fn evaluate_without_registering(&self, environ: EnvRef) -> ObjectRef {
         new_objectref(Object::Func(Box::new(Function {
             parameters: self.parameters.clone(),
             body: self.block.clone(),

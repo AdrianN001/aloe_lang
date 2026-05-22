@@ -20,12 +20,12 @@ async fun main(){
     let port = 4565;
 
     let listener = __atcp_bind(addr, port);
-    println("Server runs on", addr, ":", port);
+    println("Server runs on ${addr}:${port}");
 
     while {
         let connection = await listener.accept();
 
-        __spawn(handle_connection(connection));
+        launch handle_connection(connection);
     }
 
 }

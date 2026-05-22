@@ -16,6 +16,7 @@ impl FunctionStatement {
         let mut buffer = String::new();
 
         buffer.push_str(&self.token.literal);
+        buffer.push(' ');
         buffer.push_str(&self.name);
         buffer.push('(');
         buffer.push_str(

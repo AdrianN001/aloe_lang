@@ -13,6 +13,7 @@ pub mod index_expression;
 pub mod infix;
 pub mod integer_literal;
 pub mod member;
+pub mod null;
 pub mod prefix_expression;
 pub mod string_expr;
 pub mod value_assign_expression;
@@ -36,7 +37,7 @@ use value_assign_expression::ValueAssignExpression;
 
 use crate::ast::expression::{
     async_function_expression::AsyncFunctionExpression, await_expression::AwaitExpression,
-    for_loop::ForLoopExpression, while_loop::WhileLoopExpression,
+    for_loop::ForLoopExpression, null::NullExpression, while_loop::WhileLoopExpression,
 };
 
 #[derive(Default, PartialOrd, Ord, Clone, PartialEq, Eq, Hash, Debug)]
@@ -62,6 +63,8 @@ pub enum Expression {
     Member(MemberExpression),
 
     If(IfExpression),
+
+    Null(NullExpression),
 
     #[default]
     InvalidExpression,

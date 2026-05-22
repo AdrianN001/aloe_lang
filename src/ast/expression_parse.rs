@@ -7,6 +7,7 @@ use crate::ast::expression::float_literal::FloatLiteral;
 use crate::ast::expression::for_loop::ForLoopExpression;
 use crate::ast::expression::identifier::Identifier;
 use crate::ast::expression::member::MemberExpression;
+use crate::ast::expression::null::NullExpression;
 use crate::ast::expression::value_assign_expression::ValueAssignExpression;
 use crate::ast::expression::while_loop::WhileLoopExpression;
 use crate::ast::syntax_error_report::syntax_error::SyntaxError;
@@ -44,6 +45,7 @@ impl Parser {
             TokenType::LBrace => self.parse_hashmap_literal(),
             TokenType::KwFor => self.parse_for_loop_expression(),
             TokenType::KwWhile => self.parse_while_loop_expression(),
+            TokenType::KwNull => Ok(self.parse_null()),
 
             TokenType::String => Ok(self.parse_string_literal()),
 
@@ -127,6 +129,11 @@ impl Parser {
         Ok(left_expression)
     }
 
+    pub fn parse_null(&self) -> Expression {
+        Expression::Null(NullExpression {
+            token: self.current_token.clone(),
+        })
+    }
     pub fn parse_identifier(&self) -> Expression {
         Expression::Identifier(Identifier {
             token: self.current_token.clone(),

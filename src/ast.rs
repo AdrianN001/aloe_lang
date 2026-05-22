@@ -7,6 +7,7 @@ use crate::ast::statement::break_statement::BreakStatement;
 use crate::ast::statement::continue_statement::ContinueStatement;
 use crate::ast::statement::function_statement::FunctionStatement;
 use crate::ast::statement::import_statement::ImportStatement;
+use crate::ast::statement::launch_statement::LaunchStatement;
 use crate::ast::statement::let_statement::LetStatement;
 use crate::ast::statement::struct_statement::StructStatement;
 use crate::ast::syntax_error_report::SyntaxErrorReport;
@@ -99,6 +100,7 @@ impl Parser {
             TokenType::KwImport => self.parse_import(),
             TokenType::KwStruct => self.parse_struct_statement(),
             TokenType::KwAsync => self.parse_async_function_statement(),
+            TokenType::KwLaunch => self.parse_launch_statement(),
             _ => self.parse_expression_statement(),
         }
     }
@@ -273,6 +275,21 @@ impl Parser {
         Ok(Statement::Return(statement))
     }
 
+    fn parse_launch_statement(&mut self) -> Result<Statement, SyntaxError> {
+        let token = self.current_token.clone();
+
+        let expr = {
+            self.next_token();
+            self.parse_expression(OperationPrecedence::Lowest)?
+        };
+
+        if self.peek_token.token_type == TokenType::Semicolon {
+            self.next_token();
+        }
+
+        Ok(Statement::Launch(LaunchStatement { token, expr }))
+    }
+
     fn parse_value_assign(&mut self, left: &Expression) -> Result<Expression, SyntaxError> {
         let expr = ValueAssignExpression {
             token: self.current_token.clone(),
@@ -410,6 +427,17 @@ impl Parser {
                 }
                 TokenType::KwFunctionStatement => {
                     let method = self.parse_function_statement()?;
+                    methods.push(method);
+                }
+                TokenType::KwAsync => {
+                    if self.peek_token.token_type != TokenType::KwFunctionStatement {
+                        return Err(SyntaxError::UnexpectedTokenInStruct(
+                            vec![TokenType::KwFunctionStatement],
+                            self.peek_token.token_type.clone(),
+                            struct_name.to_string(),
+                        ));
+                    }
+                    let method = self.parse_async_function_statement()?;
                     methods.push(method);
                 }
                 _ => {

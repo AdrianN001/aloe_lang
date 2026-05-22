@@ -8,9 +8,20 @@ struct Car{
     fun set_color(this, c){
         this.color = c;
     }
+
+    async fun print_color(this){
+        println(this.color);
+    }
 };
 
 let c = Car("red");
 c.set_color("yellow")!;
 let color = c.get_color();
 print(color);
+
+
+
+launch (async fn(){
+    let example_car = Car("blue");
+    await example_car.print_color();
+})()

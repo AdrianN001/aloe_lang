@@ -12,6 +12,7 @@ mod if_expression;
 mod import_statement;
 mod index_expr;
 mod infix_expr;
+mod launch_stmt;
 mod member_expr;
 mod prefix_expr;
 mod string_literal;
@@ -47,6 +48,7 @@ impl Expression {
             Expression::IntegerLiteral(literal) => Ok(new_objectref(Object::Int(Integer {
                 value: literal.value,
             }))),
+            Expression::Null(_) => Ok(new_objectref(Object::NULL_OBJECT)),
             Expression::FloatLiteral(float_literal) => Ok(float_literal.evaluate()),
             Expression::Identifier(identifier) => identifier.evaluate(environ, state),
             Expression::Bool(bool_literal) => Ok(new_objectref(Object::get_native_boolean_object(
@@ -131,6 +133,7 @@ impl Statement {
             Statement::Function(func_stmt) => Ok(func_stmt.evaluate(environ.clone())),
             Statement::Struct(struct_stmt) => struct_stmt.evaluate(environ, state),
             Statement::AsyncFunction(async_func_stmt) => async_func_stmt.evaluate(environ),
+            Statement::Launch(launch_stmt) => launch_stmt.evaluate(environ, state),
             Statement::Import(_) => Err(RuntimeSignal::Panic(PanicObj::new_simple(
                 PanicType::WrongSyntax,
                 "import is only allowed in the top of the file.",

@@ -2,7 +2,9 @@ use std::collections::HashMap;
 
 use crate::object::{
     Object, ObjectRef,
+    async_function::AsyncFunction,
     error::panic_type::PanicType,
+    function::Function,
     new_objectref,
     panic_obj::{PanicObj, RuntimeSignal},
     return_value::ReturnValue,
@@ -222,26 +224,85 @@ impl StructObject {
 
         let method_borrow = method.borrow();
 
-        let func_obj = match &*method_borrow {
-            Object::Func(func) => func,
-            other_type => {
-                return Err(RuntimeSignal::Panic(PanicObj::new(
-                    PanicType::IllegalExpression,
-                    format!(
-                        "expected function object for method, got: '{}'",
-                        other_type.inspect()
-                    ),
-                    state,
-                )));
-            }
-        };
+        match &*method_borrow {
+            Object::Func(func) => StructObject::call_sync_method(
+                this,
+                func,
+                name,
+                args,
+                state,
+                is_questionmark_set,
+                is_bang_set,
+            ),
+            Object::AsyncFunc(async_func) => StructObject::call_async_method(
+                this,
+                async_func,
+                name,
+                args,
+                state,
+                is_questionmark_set,
+                is_bang_set,
+            ),
+            other_type => Err(RuntimeSignal::Panic(PanicObj::new(
+                PanicType::IllegalExpression,
+                format!(
+                    "expected function object for method, got: '{}'",
+                    other_type.inspect()
+                ),
+                state,
+            ))),
+        }
+    }
 
+    fn call_sync_method(
+        this: ObjectRef,
+        method: &Box<Function>,
+        method_name: &str,
+        args: &[ObjectRef],
+        state: StateRef,
+        is_questionmark_set: bool,
+        is_bang_set: bool,
+    ) -> Result<ObjectRef, RuntimeSignal> {
         let args_with_this = Self::insert_this_reference_to_args(this, args);
-
-        let return_value = func_obj.apply(name.to_string(), &args_with_this, state.clone())?;
+        let return_value = method.apply(method_name.to_string(), &args_with_this, state.clone())?;
 
         let return_value_cloned = return_value.clone();
+        if let Object::Err(err) = &*return_value_cloned.borrow() {
+            if is_questionmark_set && !state.borrow().is_function_context() {
+                return Err(RuntimeSignal::Panic(PanicObj::new_simple(
+                    PanicType::PropagationFromNonfunctionalContext,
+                    "tried to use ? on a function, without function-context",
+                    state.clone(),
+                )));
+            }
+            if is_bang_set {
+                return Err(RuntimeSignal::Panic(PanicObj::from_error(
+                    err,
+                    state.clone(),
+                )));
+            } else if is_questionmark_set {
+                return Ok(new_objectref(Object::ReturnVal(ReturnValue {
+                    value: Box::new(return_value.clone()),
+                })));
+            }
+        }
 
+        Ok(return_value)
+    }
+
+    fn call_async_method(
+        this: ObjectRef,
+        method: &Box<AsyncFunction>,
+        method_name: &str,
+        args: &[ObjectRef],
+        state: StateRef,
+        is_questionmark_set: bool,
+        is_bang_set: bool,
+    ) -> Result<ObjectRef, RuntimeSignal> {
+        let args_with_this = Self::insert_this_reference_to_args(this, args);
+        let return_value = method.apply(method_name.to_string(), &args_with_this, state.clone())?;
+
+        let return_value_cloned = return_value.clone();
         if let Object::Err(err) = &*return_value_cloned.borrow() {
             if is_questionmark_set && !state.borrow().is_function_context() {
                 return Err(RuntimeSignal::Panic(PanicObj::new_simple(

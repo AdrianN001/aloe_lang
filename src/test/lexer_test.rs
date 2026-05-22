@@ -201,7 +201,9 @@ return true;
 return false;
 }
 10 == 10;
-10 != 9;";
+10 != 9;
+let null_value = null;
+launch main();";
 
     let mut lexer = Lexer::new(input.to_string());
 
@@ -293,6 +295,18 @@ return false;
         Token::simple(TokenType::Integer, "10"),
         Token::simple(TokenType::NotEq, "!="),
         Token::simple(TokenType::Integer, "9"),
+        Token::simple(TokenType::Semicolon, ";"),
+        // let nil_value = nil;
+        Token::simple(TokenType::KwLet, "let"),
+        Token::simple(TokenType::Identifier, "null_value"),
+        Token::simple(TokenType::Assign, "="),
+        Token::simple(TokenType::KwNull, "null"),
+        Token::simple(TokenType::Semicolon, ";"),
+        // launch main();
+        Token::simple(TokenType::KwLaunch, "launch"),
+        Token::simple(TokenType::Identifier, "main"),
+        Token::simple(TokenType::LParen, "("),
+        Token::simple(TokenType::RParen, ")"),
         Token::simple(TokenType::Semicolon, ";"),
         Token::simple(TokenType::Eof, ""),
     ];

@@ -210,6 +210,7 @@ impl ExpressionFrame {
             }
             Expression::Index(_) => ExpressionFrame::new_index_frame(expression.clone()).to_ref(),
             Expression::IntegerLiteral(_)
+            | Expression::Null(_)
             | Expression::Bool(_)
             | Expression::FloatLiteral(_)
             | Expression::String(_)

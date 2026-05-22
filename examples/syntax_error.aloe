@@ -1,3 +1,4 @@
+
 fun main(){
     let list = [if true{
         let value = async struct non_valid{}

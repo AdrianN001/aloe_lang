@@ -70,6 +70,7 @@ pub enum TokenType {
     KwLet,
     KwTrue,
     KwFalse,
+    KwNull,
     KwIf,
     KwElif,
     KwElse,
@@ -81,8 +82,6 @@ pub enum TokenType {
 
     KwStruct,
 
-    KwDefer,
-
     KwWhile,
     KwFor,
     KwBreak,
@@ -90,6 +89,7 @@ pub enum TokenType {
 
     KwAsync,
     KwAwait,
+    KwLaunch,
 }
 
 pub fn lookup_identifiers(identifier: &str) -> TokenType {
@@ -99,6 +99,7 @@ pub fn lookup_identifiers(identifier: &str) -> TokenType {
         "let" => TokenType::KwLet,
         "true" => TokenType::KwTrue,
         "false" => TokenType::KwFalse,
+        "null" => TokenType::KwNull,
         "if" => TokenType::KwIf,
         "elif" => TokenType::KwElif,
         "else" => TokenType::KwElse,
@@ -118,6 +119,8 @@ pub fn lookup_identifiers(identifier: &str) -> TokenType {
 
         "async" => TokenType::KwAsync,
         "await" => TokenType::KwAwait,
+
+        "launch" => TokenType::KwLaunch,
 
         _ => TokenType::Identifier,
     }

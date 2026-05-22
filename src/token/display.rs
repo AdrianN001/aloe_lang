@@ -8,9 +8,9 @@ impl fmt::Display for TokenType {
             TokenType::Eof => "EOF",
             TokenType::Comment => "#",
 
-            TokenType::Identifier => "IDENT",
-            TokenType::Integer => "INT",
-            TokenType::String => "STRING",
+            TokenType::Identifier => "identifier",
+            TokenType::Integer => "int",
+            TokenType::String => "str",
 
             TokenType::Assign => "=",
             TokenType::Plus => "+",
@@ -74,7 +74,7 @@ impl fmt::Display for TokenType {
             TokenType::KwReturn => "return",
             TokenType::KwTrue => "true",
             TokenType::KwFalse => "false",
-            TokenType::KwDefer => "defer",
+            TokenType::KwNull => "null",
 
             TokenType::KwStruct => "struct",
 
@@ -89,6 +89,7 @@ impl fmt::Display for TokenType {
 
             TokenType::KwAsync => "async",
             TokenType::KwAwait => "await",
+            TokenType::KwLaunch => "launch",
         };
 
         write!(f, "{s}")

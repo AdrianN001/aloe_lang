@@ -27,5 +27,9 @@ pub enum ErrorType {
     SocketAccept,
     SocketRead,
 
+    PathResolve,
+    PathParentResolve,
+    PathChildResolve,
+
     CustomError(),
 }

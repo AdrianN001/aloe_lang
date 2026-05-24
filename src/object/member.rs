@@ -93,6 +93,10 @@ impl Object {
                 Object::Err(_) => Some(new_objectref(Object::get_native_boolean_object(true))),
                 _ => Some(new_objectref(Object::get_native_boolean_object(false))),
             },
+            "is_null" => match &self{
+                Object::Null(_) => Some(new_objectref(Object::get_native_boolean_object(true))),
+                _ => Some(new_objectref(Object::get_native_boolean_object(false)))
+            }
 
             _ => None,
         }

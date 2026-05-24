@@ -147,11 +147,11 @@ pub fn path_builtin_function(
     let wrapper = match PathWrapper::new(path_arg) {
         Ok(wrapper) => wrapper,
         Err(err_feedback) => {
-            return Err(RuntimeSignal::Panic(PanicObj::new(
-                PanicType::PathResolve,
-                err_feedback,
-                state,
-            )));
+            return Ok(new_objectref(Object::new_error(
+                        ErrorType::PathResolve,
+                        err_feedback.to_string(),
+                        state,
+                    )));
         }
     };
 

@@ -45,9 +45,6 @@ pub enum PanicType {
     SocketWrite,
     Listener,
 
-    PathResolve,
-    PathChildResolve,
-
     MethodMissingThis,
     ConstructorIsNotAMethod,
 

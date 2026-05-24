@@ -3,7 +3,7 @@ use std::fs;
 use crate::object::{
     Object, ObjectRef,
     array::Array,
-    error::panic_type::PanicType,
+    error::{error_type::ErrorType, panic_type::PanicType},
     native_object::{NativeObject, path::PathWrapper},
     new_objectref,
     panic_obj::PanicObj,
@@ -96,22 +96,22 @@ impl PathWrapper {
         let abs_path = match std::fs::canonicalize(&self.native_object) {
             Ok(ok_value) => ok_value,
             Err(err_feedback) => {
-                return Err(PanicObj::new(
-                    PanicType::PathResolve,
+                return Ok(new_objectref(Object::new_error(
+                    ErrorType::PathResolve,
                     err_feedback.to_string(),
                     state,
-                ));
+                )));
             }
         };
 
         let repr_str = match &abs_path.to_str() {
             Some(some_val) => some_val.to_string(),
             None => {
-                return Err(PanicObj::new(
-                    PanicType::PathResolve,
+                return Ok(new_objectref(Object::new_error(
+                    ErrorType::PathResolve,
                     format!("could not get the absolute path of ['{}'].", self.repr_str),
                     state,
-                ));
+                )));
             }
         };
 
@@ -131,18 +131,22 @@ impl PathWrapper {
                 let repr_str = match existing_parent.to_str() {
                     Some(some_val) => some_val,
                     None => {
-                        return Err(PanicObj::new(
-                            PanicType::PathResolve,
+                        return Ok(new_objectref(Object::new_error(
+                            ErrorType::PathParentResolve,
                             format!("could not resolve the parent of ['{}'].", self.repr_str),
                             state,
-                        ));
+                        )));
                     }
                 };
 
                 let wrapper = match PathWrapper::new(repr_str) {
                     Ok(wrapper) => wrapper,
                     Err(err_feedback) => {
-                        return Err(PanicObj::new(PanicType::PathResolve, err_feedback, state));
+                        return Ok(new_objectref(Object::new_error(
+                            ErrorType::PathResolve,
+                            err_feedback,
+                            state,
+                        )));
                     }
                 };
                 Ok(new_objectref(Object::Native(Box::new(NativeObject::Path(
@@ -153,7 +157,11 @@ impl PathWrapper {
                 let wrapper = match PathWrapper::new("") {
                     Ok(wrapper) => wrapper,
                     Err(err_feedback) => {
-                        return Err(PanicObj::new(PanicType::PathResolve, err_feedback, state));
+                        return Ok(new_objectref(Object::new_error(
+                            ErrorType::PathResolve,
+                            err_feedback,
+                            state,
+                        )));
                     }
                 };
 
@@ -168,11 +176,11 @@ impl PathWrapper {
         let children = match fs::read_dir(&self.native_object) {
             Ok(ok_value) => ok_value,
             Err(err_feedback) => {
-                return Err(PanicObj::new(
-                    PanicType::PathChildResolve,
+                return Ok(new_objectref(Object::new_error(
+                    ErrorType::PathChildResolve,
                     err_feedback.to_string(),
                     state,
-                ));
+                )));
             }
         };
 
@@ -182,11 +190,11 @@ impl PathWrapper {
             let ok_child = match child {
                 Ok(ok_value) => ok_value,
                 Err(err_feedback) => {
-                    return Err(PanicObj::new(
-                        PanicType::PathChildResolve,
+                    return Ok(new_objectref(Object::new_error(
+                        ErrorType::PathResolve,
                         err_feedback.to_string(),
                         state,
-                    ));
+                    )));
                 }
             };
 

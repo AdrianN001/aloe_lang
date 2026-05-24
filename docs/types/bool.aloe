@@ -1,0 +1,54 @@
+##
+# datatype: bool
+# Truth value. Holds either "true" or "false".
+# storage: stack
+# literal syntax:
+# 
+# ---bool-literal.aloe---
+#
+# let truthy_value = true;
+# let falsy_value = false;
+#
+##
+struct bool{
+	
+	##
+	# bool.is_ok
+	# returns true, if the value is not error.
+	# typeof: bool
+	# example:
+	# 
+	# ---is_ok.aloe---
+	# let value = false;
+	# value.is_ok;	# true
+	##
+	fun is_ok(this){}
+
+	##
+	# bool.is_err
+	# returns true, if the value is error.
+	# typeof: bool
+	# example:
+	# 
+	# ---is_err.aloe---
+	# let value = false;
+	# value.is_err;	   # false
+	##
+	fun is_err(this){}
+
+	##
+	# bool.is_null
+	# returns true, if the value is null.
+	# typeof: bool
+	# example:
+	# 
+	# ---is_null.aloe---
+	# let value = true;
+	# value.is_null;	  # false
+	# 
+	# let other_value = null;
+	# other_value.is_null; # true
+	##
+	fun is_null(this){}  
+
+}

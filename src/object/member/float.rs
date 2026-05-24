@@ -1,14 +1,15 @@
 use std::{cell::RefCell, rc::Rc};
 
 use crate::object::{
-    Object, ObjectRef, error::panic_type::PanicType, float_obj::FloatObj, integer::Integer,
-    new_objectref, panic_obj::PanicObj, stack_environment::EnvRef, state::StateRef,
-    string_obj::StringObj,
+    Object, ObjectRef, boolean::Boolean, error::panic_type::PanicType, float_obj::FloatObj, integer::Integer, new_objectref, panic_obj::PanicObj, stack_environment::EnvRef, state::StateRef, string_obj::StringObj
 };
 
 impl FloatObj {
     pub fn apply_attribute(&self, name: &str, state: StateRef) -> Result<ObjectRef, PanicObj> {
         match name {
+            "is_negative" => Ok(self.is_negative()),
+            "is_positive" => Ok(self.is_positive()),
+
             _ => Err(PanicObj::new(
                 PanicType::UnknownAttribute,
                 format!("unknown attribute for float: '{}'", name),
@@ -36,6 +37,21 @@ impl FloatObj {
             )),
         }
     }
+
+    // Attributes
+
+    pub fn is_negative(&self) -> ObjectRef {
+        new_objectref(Object::Bool(Boolean {
+            value: self.val.is_sign_negative(),
+        }))
+    }
+
+    pub fn is_positive(&self) -> ObjectRef {
+        new_objectref(Object::Bool(Boolean {
+            value: self.val.is_sign_positive(),
+        }))
+    }
+
 
     // Methods
 

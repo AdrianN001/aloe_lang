@@ -1,0 +1,171 @@
+##
+# datatype: int
+# Signed 64-bit intger.
+# storage: stack
+# literal syntax:
+# 
+# ---int-literal.aloe---
+# let n = 42;
+# let big = 1_000_000;
+#
+# let hex = 0xc0ffee;
+# let bin = 0b1100_0011;
+# let octa = 0o10;
+##
+struct int{
+
+	##
+	# int.is_ok
+	# returns true, if the value is not error.
+	# typeof: bool
+	# example:
+	# 
+	# ---is_ok.aloe---
+	# let number = 0;
+	# number.is_ok;	   # true
+	##
+	fun is_ok(this){}
+
+	##
+	# int.is_err
+	# returns true, if the value is error.
+	# typeof: bool
+	# example:
+	# 
+	# ---is_err.aloe---
+	# let number = 0;
+	# number.is_err;	   # false
+	##
+	fun is_err(this){}
+
+	##
+	# int.is_null
+	# returns true, if the value is null.
+	# typeof: bool
+	# example:
+	# 
+	# ---is_null.aloe---
+	# let number = 0;
+	# number.is_null;	   # false
+	# 
+	# let other_number = null;
+	# other_number.is_null; # true
+	##
+	fun is_null(this){}  
+
+
+	##
+	# int.is_positive
+	# returns true, if the number is positive.
+	# type: bool
+	# example:
+	#
+	# ---is_positive.aloe---
+	# let number = 10;
+	# number.is_positive # returns true
+	# let negative_number = -10;
+	# negative_number.is_positive # returns false
+	#
+	##
+	fun is_positive(this){}
+
+	##
+	# int.is_negative
+	# returns true, if the number is negative.
+	# type: bool
+	# example:
+	#
+	# ---is_negative.aloe---
+	# let number = 10;
+	# number.is_negative # returns false
+	# let negative_number = -10;
+	# negative_number.is_negative # returns true
+	#
+	##
+	fun is_negative(this){}
+
+	##
+	# int.as_str()
+	# returns a decimal string representation.
+	# params: []
+	# returns: str
+	# panics: []
+	# errors: []
+	# example:
+	#
+	# ---as_str.aloe---
+	# let number = 10;
+	# let number_str = 10.as_str();  # "10"
+	#
+	##
+	fun as_str(this){}
+
+	##
+	# int.as_float()
+	# returns a 64-bit float.
+	# params: []
+	# returns: float
+	# panics: []
+	# errors: []
+	# example:
+	#
+	# ---as_float.aloe---
+	# let number = 10;
+	# let number_float = 10.as_float();  # 10.0
+	#
+	##
+	fun as_float(this){}
+
+	##
+	# int.as_int()
+	# returns a copy of the integer.
+	# params: []
+	# returns: int
+	# panics: []
+	# errors: []
+	# example:
+	#
+	# ---as_int.aloe---
+	# let number = 10;
+	# let other_number = 10.as_int();
+	# number == other_number	# true
+	#
+	##
+	fun as_int(this){}
+
+	##
+	# int.as_utf_char()?
+	# return the character, with the UTF code of the integer.
+	# params: []
+	# returns: str
+	# panics: []
+	# errors: [UTFValueCasting]
+	# example:
+	#
+	# ---as_utf_char.aloe---
+	# let number = 65;
+	# let upper_a = number.as_utf_char()!;  # "A"
+	#
+	# let other_number = -10;
+	# let _ = other_number.as_utf_char();   # error
+	# 
+	##
+	fun as_utf_char(this){}
+
+	##
+	# int.clone()
+	# returns a copy of the integer.
+	# params: []
+	# returns: int
+	# panics: []
+	# errors: []
+	# example:
+	#
+	# ---clone.aloe---
+	# let number = 10;
+	# let other_number = 10.clone();
+	# number == other_number	# true
+	#
+	##
+	fun clone(this){}
+}

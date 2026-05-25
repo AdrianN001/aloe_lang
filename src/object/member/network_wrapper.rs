@@ -95,11 +95,11 @@ impl TCPSocketListenerWrapper {
                 self.nonblocking = blocking;
                 Ok(new_objectref(Object::NULL_OBJECT))
             }
-            Err(e) => Err(PanicObj::new(
-                PanicType::Listener,
+            Err(e) => Ok(new_objectref(Object::new_error(
+                ErrorType::NonBlockChange,
                 format!("Failed to set non-blocking mode: {}", e),
                 state,
-            )),
+            ))),
         }
     }
 
@@ -223,7 +223,7 @@ impl TCPSocketWrapper {
                 value: bytes_written as i64,
             }))),
             Err(e) => Ok(new_objectref(Object::new_error(
-                ErrorType::SocketRead,
+                ErrorType::SocketWrite,
                 format!("Failed to write to socket: {}", e),
                 state,
             ))),
@@ -234,7 +234,7 @@ impl TCPSocketWrapper {
         match self.stream.shutdown(std::net::Shutdown::Both) {
             Ok(_) => Ok(new_objectref(Object::NULL_OBJECT)),
             Err(e) => Ok(new_objectref(Object::new_error(
-                ErrorType::SocketRead,
+                ErrorType::SocketClose,
                 format!("Failed to close socket: {}", e),
                 state,
             ))),

@@ -30,4 +30,4 @@ async fun main(){
 
 }
 
-__spawn(main())
+launch main()

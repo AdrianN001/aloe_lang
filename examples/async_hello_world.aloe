@@ -8,4 +8,4 @@ async fun main(){
     await greet(name);
 }
 
-__spawn(main())
+launch main()

@@ -24,8 +24,13 @@ pub enum ErrorType {
 
     UTFValueCasting,
 
+    SocketBind,
+    SocketConnect,
     SocketAccept,
     SocketRead,
+    SocketWrite,
+    SocketClose,
+    NonBlockChange,
 
     PathResolve,
     PathParentResolve,

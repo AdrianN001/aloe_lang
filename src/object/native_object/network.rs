@@ -1,9 +1,7 @@
 use std::net::SocketAddr;
 
 use crate::object::{
-    error::panic_type::PanicType,
-    panic_obj::{PanicObj, RuntimeSignal},
-    state::StateRef,
+    Object, ObjectRef, error::error_type::ErrorType, new_objectref, state::StateRef,
 };
 
 #[derive(Debug)]
@@ -22,12 +20,12 @@ pub struct TCPSocketListenerWrapper {
 }
 
 impl TCPSocketListenerWrapper {
-    pub fn new(port: u16, addr: String, state: StateRef) -> Result<Self, RuntimeSignal> {
+    pub fn new(port: u16, addr: String, state: StateRef) -> Result<Self, ObjectRef> {
         let listener = match std::net::TcpListener::bind(format!("{}:{}", addr, port)) {
             Ok(listener) => listener,
             Err(e) => {
-                return Err(RuntimeSignal::Panic(PanicObj::new(
-                    PanicType::SocketBind,
+                return Err(new_objectref(Object::new_error(
+                    ErrorType::SocketBind,
                     format!("Failed to bind TCP listener: {}", e),
                     state,
                 )));
@@ -51,17 +49,13 @@ impl TCPSocketListenerWrapper {
 }
 
 impl TCPSocketWrapper {
-    pub fn new_with_connect(
-        addr: String,
-        port: u16,
-        state: StateRef,
-    ) -> Result<Self, RuntimeSignal> {
+    pub fn new_with_connect(addr: String, port: u16, state: StateRef) -> Result<Self, ObjectRef> {
         let stream = match std::net::TcpStream::connect(format!("{}:{}", addr, port)) {
             Ok(stream) => stream,
             Err(e) => {
-                return Err(RuntimeSignal::Panic(PanicObj::new(
-                    PanicType::SocketBind,
-                    format!("Failed to connect TCP socket: {}", e),
+                return Err(new_objectref(Object::new_error(
+                    ErrorType::SocketConnect,
+                    format!("Failed to connect to TCP server: {}", e),
                     state,
                 )));
             }

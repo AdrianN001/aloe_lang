@@ -4,12 +4,8 @@ use tokio::sync::Mutex;
 
 use crate::{
     object::{
-        Object, ObjectRef,
-        error::panic_type::PanicType,
-        native_object::NativeObject,
-        new_objectref,
-        panic_obj::{PanicObj, RuntimeSignal},
-        state::StateRef,
+        Object, ObjectRef, error::error_type::ErrorType, native_object::NativeObject,
+        new_objectref, state::StateRef,
     },
     scheduler::TOKIO_RUNTIME,
 };
@@ -29,13 +25,13 @@ pub struct ATCPSocketListenerWrapper {
 }
 
 impl ATCPSocketListenerWrapper {
-    pub fn new(port: u16, addr: String, state: StateRef) -> Result<Self, RuntimeSignal> {
+    pub fn new(port: u16, addr: String, state: StateRef) -> Result<Self, ObjectRef> {
         let listener = match std::net::TcpListener::bind(format!("{}:{}", addr, port)) {
             Ok(listener) => listener,
             Err(e) => {
-                return Err(RuntimeSignal::Panic(PanicObj::new(
-                    PanicType::SocketBind,
-                    format!("Failed to bind TCP listener: {}", e),
+                return Err(new_objectref(Object::new_error(
+                    ErrorType::SocketBind,
+                    format!("Failed to bind TCP server: {}", e),
                     state,
                 )));
             }
@@ -44,8 +40,8 @@ impl ATCPSocketListenerWrapper {
         match listener.set_nonblocking(true) {
             Ok(_) => (),
             Err(e) => {
-                return Err(RuntimeSignal::Panic(PanicObj::new(
-                    PanicType::SocketBind,
+                return Err(new_objectref(Object::new_error(
+                    ErrorType::SocketBind,
                     format!("Failed to set TCP listener to non-blocking: {}", e),
                     state,
                 )));
@@ -58,8 +54,8 @@ impl ATCPSocketListenerWrapper {
             rt.block_on(async {
                 match tokio::net::TcpListener::from_std(listener) {
                     Ok(tokio_listener) => Ok(tokio_listener),
-                    Err(e) => Err(RuntimeSignal::Panic(PanicObj::new(
-                        PanicType::SocketBind,
+                    Err(e) => Err(new_objectref(Object::new_error(
+                        ErrorType::SocketBind,
                         format!("Failed to create Tokio TCP listener: {}", e),
                         state,
                     ))),
@@ -87,16 +83,12 @@ impl ATCPSocketListenerWrapper {
 }
 
 impl ATCPSocketWrapper {
-    pub fn new_with_connect(
-        addr: String,
-        port: u16,
-        state: StateRef,
-    ) -> Result<Self, RuntimeSignal> {
+    pub fn new_with_connect(addr: String, port: u16, state: StateRef) -> Result<Self, ObjectRef> {
         let stream = match std::net::TcpStream::connect(format!("{}:{}", addr, port)) {
             Ok(stream) => stream,
             Err(e) => {
-                return Err(RuntimeSignal::Panic(PanicObj::new(
-                    PanicType::SocketBind,
+                return Err(new_objectref(Object::new_error(
+                    ErrorType::SocketConnect,
                     format!("Failed to connect TCP socket: {}", e),
                     state,
                 )));
@@ -106,9 +98,9 @@ impl ATCPSocketWrapper {
         let peer_addr = match stream.peer_addr() {
             Ok(addr) => addr,
             Err(e) => {
-                return Err(RuntimeSignal::Panic(PanicObj::new(
-                    PanicType::SocketBind,
-                    format!("Failed to get peer address: {}", e),
+                return Err(new_objectref(Object::new_error(
+                    ErrorType::SocketConnect,
+                    format!("Failed to connect TCP socket: {}", e),
                     state,
                 )));
             }
@@ -117,9 +109,9 @@ impl ATCPSocketWrapper {
         match stream.set_nonblocking(true) {
             Ok(_) => (),
             Err(e) => {
-                return Err(RuntimeSignal::Panic(PanicObj::new(
-                    PanicType::SocketBind,
-                    format!("Failed to set TCP socket to non-blocking: {}", e),
+                return Err(new_objectref(Object::new_error(
+                    ErrorType::SocketConnect,
+                    format!("Failed to connect TCP socket: {}", e),
                     state,
                 )));
             }
@@ -131,8 +123,8 @@ impl ATCPSocketWrapper {
             rt.block_on(async {
                 match tokio::net::TcpStream::from_std(stream) {
                     Ok(tokio_stream) => Ok(tokio_stream),
-                    Err(e) => Err(RuntimeSignal::Panic(PanicObj::new(
-                        PanicType::SocketBind,
+                    Err(e) => Err(new_objectref(Object::new_error(
+                        ErrorType::SocketConnect,
                         format!("Failed to create Tokio TCP stream: {}", e),
                         state,
                     ))),

@@ -1,7 +1,9 @@
 use std::{cell::RefCell, rc::Rc};
 
 use crate::object::{
-    Object, ObjectRef, boolean::Boolean, error::panic_type::PanicType, float_obj::FloatObj, integer::Integer, new_objectref, panic_obj::PanicObj, stack_environment::EnvRef, state::StateRef, string_obj::StringObj
+    Object, ObjectRef, boolean::Boolean, error::panic_type::PanicType, float_obj::FloatObj,
+    integer::Integer, new_objectref, panic_obj::PanicObj, stack_environment::EnvRef,
+    state::StateRef, string_obj::StringObj,
 };
 
 impl FloatObj {
@@ -51,7 +53,6 @@ impl FloatObj {
             value: self.val.is_sign_positive(),
         }))
     }
-
 
     // Methods
 

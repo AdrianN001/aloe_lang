@@ -48,22 +48,19 @@ def parse_datatype_block(raw_comment_block: list[str]) -> DataType:
 def parse_method_block(raw_comment_block: list[str]) -> Method:
     name = raw_comment_block[1].removeprefix("# ")
     description = raw_comment_block[2].removeprefix("# ")
-    params = raw_comment_block[3].removeprefix("# params: [").removesuffix("]")
-    returns = raw_comment_block[4].removeprefix("# returns: ")
-    panics = raw_comment_block[5].removeprefix("# panics: [").removesuffix("]")
-    errors = raw_comment_block[6].removeprefix("# errors: [").removesuffix("]")
+    panics = raw_comment_block[3].removeprefix("# panics: [").removesuffix("]")
+    errors = raw_comment_block[4].removeprefix("# errors: [").removesuffix("]")
     code_block = parse_code_block(raw_comment_block[9:])
 
-    return Method(name, description, params, returns, panics, errors, code_block)
+    return Method(name, description, panics, errors, code_block)
 
 def parse_attribute_block(raw_comment_block: list[str]) -> Attribute:
     name = raw_comment_block[1].removeprefix("# ")
     description = raw_comment_block[2].removeprefix("# ")
-    typeof = raw_comment_block[3].removeprefix("# type: ")
 
     example = parse_code_block(raw_comment_block[6:])
 
-    return Attribute(name, description, typeof, example)
+    return Attribute(name, description, example)
 
 def get_doc_from_file(path: str) -> tuple[DataType, str]:
     raw_comment_blocks = read_comments_of_the_file(path)

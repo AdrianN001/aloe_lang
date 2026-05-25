@@ -18,4 +18,4 @@ async fun main(){
     println(content);
 }
 
-__spawn(main())
+launch main()

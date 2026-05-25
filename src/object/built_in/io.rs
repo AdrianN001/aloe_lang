@@ -148,10 +148,10 @@ pub fn path_builtin_function(
         Ok(wrapper) => wrapper,
         Err(err_feedback) => {
             return Ok(new_objectref(Object::new_error(
-                        ErrorType::PathResolve,
-                        err_feedback.to_string(),
-                        state,
-                    )));
+                ErrorType::PathResolve,
+                err_feedback.to_string(),
+                state,
+            )));
         }
     };
 
@@ -217,7 +217,10 @@ pub fn tcp_bind_builtin_function(
         }
     };
 
-    let wrapper = TCPSocketListenerWrapper::new(port_as_u16, addr, state)?;
+    let wrapper = match TCPSocketListenerWrapper::new(port_as_u16, addr, state) {
+        Ok(wrapper) => wrapper,
+        Err(error_object) => return Ok(error_object.clone()),
+    };
 
     Ok(new_objectref(Object::Native(Box::new(
         NativeObject::TCPListener(wrapper),
@@ -281,7 +284,10 @@ pub fn tcp_connect_builtin_function(
         }
     };
 
-    let wrapper = TCPSocketWrapper::new_with_connect(addr, port_as_u16, state)?;
+    let wrapper = match TCPSocketWrapper::new_with_connect(addr, port_as_u16, state) {
+        Ok(wrapper) => wrapper,
+        Err(err_obj) => return Ok(err_obj.clone()),
+    };
 
     Ok(new_objectref(Object::Native(Box::new(
         NativeObject::TCPSocket(wrapper),
@@ -345,7 +351,10 @@ pub fn async_tcp_bind_builtin_function(
         }
     };
 
-    let wrapper = ATCPSocketListenerWrapper::new(port_as_u16, addr, state)?;
+    let wrapper = match ATCPSocketListenerWrapper::new(port_as_u16, addr, state) {
+        Ok(wrapper) => wrapper,
+        Err(err_obj) => return Ok(err_obj),
+    };
 
     Ok(new_objectref(Object::Native(Box::new(
         NativeObject::ATCPListener(wrapper),
@@ -410,7 +419,10 @@ pub fn async_tcp_connect_builtin_function(
         }
     };
 
-    let wrapper = ATCPSocketWrapper::new_with_connect(addr, port_as_u16, state)?;
+    let wrapper = match ATCPSocketWrapper::new_with_connect(addr, port_as_u16, state) {
+        Ok(wrapper) => wrapper,
+        Err(err_obj) => return Ok(err_obj),
+    };
 
     Ok(new_objectref(Object::Native(Box::new(
         NativeObject::ATCPSocket(wrapper),

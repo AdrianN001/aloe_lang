@@ -3,7 +3,7 @@ use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use crate::{
     object::{
         Object, ObjectRef,
-        error::panic_type::PanicType,
+        error::{error_type::ErrorType, panic_type::PanicType},
         future::{FutureObj, future_kind::FutureKind, future_state::FutureState},
         integer::Integer,
         native_object::a_network::{ATCPSocketListenerWrapper, ATCPSocketWrapper},
@@ -83,9 +83,10 @@ impl ATCPSocketListenerWrapper {
                     Err(e) => {
                         let _ = tx.send((
                             future_id,
-                            MessageOutput::Panic((
-                                PanicType::SocketAccept,
+                            MessageOutput::Error((
+                                ErrorType::SocketAccept,
                                 format!("Failed to accept TCP connection: {}", e),
+                                String::from("NonBlockingTCPListener::accept"),
                             )),
                         ));
                     }
@@ -187,9 +188,10 @@ impl ATCPSocketWrapper {
                     Err(e) => {
                         let _ = tx.send((
                             future_id,
-                            MessageOutput::Panic((
-                                PanicType::SocketRead,
+                            MessageOutput::Error((
+                                ErrorType::SocketRead,
                                 format!("Failed to read from TCP socket: {}", e),
+                                String::from("NonBlockingTCPConn::read"),
                             )),
                         ));
                     }
@@ -262,9 +264,10 @@ impl ATCPSocketWrapper {
                     Err(e) => {
                         let _ = tx.send((
                             future_id,
-                            MessageOutput::Panic((
-                                PanicType::SocketWrite,
+                            MessageOutput::Error((
+                                ErrorType::SocketWrite,
                                 format!("Failed to write to TCP socket: {}", e),
+                                String::from("NonBlockingTCPConn::write"),
                             )),
                         ));
                     }

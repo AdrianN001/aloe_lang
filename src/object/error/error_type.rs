@@ -20,6 +20,8 @@ pub enum ErrorType {
 
     ErrorFromPanic,
 
+    IO,
+
     IteratorRanOut,
 
     UTFValueCasting,

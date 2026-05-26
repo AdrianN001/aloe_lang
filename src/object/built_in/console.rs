@@ -9,7 +9,7 @@ use tokio::io::{self, AsyncBufReadExt};
 use crate::{
     object::{
         Object, ObjectRef,
-        error::panic_type::PanicType,
+        error::error_type::ErrorType,
         future::{FutureObj, future_kind::FutureKind, future_state::FutureState},
         new_objectref,
         stack_environment::EnvRef,
@@ -101,9 +101,10 @@ pub fn console_read_async_builtin_function() -> ObjectRef {
                 Err(e) => {
                     let _ = tx.send((
                         future_id,
-                        MessageOutput::Panic((
-                            PanicType::IO,
+                        MessageOutput::Error((
+                            ErrorType::IO,
                             format!("Failed to read from stdin: {}", e),
+                            String::from("input_async"),
                         )),
                     ));
                 }

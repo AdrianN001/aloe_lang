@@ -1,6 +1,14 @@
+use std::{cell::RefCell, rc::Rc};
+
 use crate::object::{
-    Object, ObjectRef, array::Array, error::panic_type::PanicType, integer::Integer,
-    native_object::a_network::ATCPSocketWrapper, new_objectref, panic_obj::RuntimeSignal,
+    Object, ObjectRef,
+    array::Array,
+    error::{error_type::ErrorType, panic_type::PanicType},
+    integer::Integer,
+    native_object::a_network::ATCPSocketWrapper,
+    new_objectref,
+    panic_obj::{PanicObj, RuntimeSignal},
+    state::InterpreterState,
     string_obj::StringObj,
 };
 
@@ -11,7 +19,8 @@ pub enum MessageOutput {
 
     EstablishedConnectionFromAsyncAccept(ATCPSocketWrapper),
 
-    Panic((PanicType, String)),
+    Error((ErrorType, String, String)),
+    Panic((PanicType, String, String)),
 }
 
 impl MessageOutput {
@@ -29,9 +38,26 @@ impl MessageOutput {
             MessageOutput::EstablishedConnectionFromAsyncAccept(connection_stream) => {
                 Ok(connection_stream.to_objecref())
             }
+            MessageOutput::Error((errortype, message, origin)) => {
+                let mut new_state = InterpreterState::default();
+                new_state.push_to_stack(origin);
 
-            //TODO: we should also include the stack trace in the panic message
-            _ => todo!(),
+                let state_ref = Rc::new(RefCell::new(new_state));
+
+                let error = Object::new_error(errortype, message, state_ref);
+
+                Ok(new_objectref(error))
+            }
+            MessageOutput::Panic((panictype, message, origin)) => {
+                let mut new_state = InterpreterState::default();
+                new_state.push_to_stack(origin);
+
+                let state_ref = Rc::new(RefCell::new(new_state));
+
+                let panic = PanicObj::new(panictype, message, state_ref);
+
+                Err(RuntimeSignal::Panic(panic))
+            }
         }
     }
 

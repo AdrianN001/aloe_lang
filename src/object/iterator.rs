@@ -1,15 +1,22 @@
 use crate::object::{
     ObjectRef,
-    iterator::{list_based_iterator::ListBasedIterator, range_based_iterator::RangeBasedIterator},
+    iterator::{
+        enumerator_iterator::EnumeratorIterator, list_based_iterator::ListBasedIterator,
+        range_based_iterator::RangeBasedIterator, zip_iterator::ZipIterator,
+    },
 };
 
+pub mod enumerator_iterator;
 pub mod list_based_iterator;
 pub mod range_based_iterator;
+pub mod zip_iterator;
 
 #[derive(PartialEq, Eq, Clone, Debug)]
 pub enum Iterator {
     RangeBasedIterator(RangeBasedIterator),
     ListBasedIterator(ListBasedIterator),
+    EnumeratorIterator(EnumeratorIterator),
+    ZipIterator(ZipIterator),
 }
 
 impl Iterator {
@@ -27,6 +34,10 @@ impl Iterator {
                 range_based_iterator._has_next_raw()
             }
             Iterator::ListBasedIterator(list_based_iterator) => list_based_iterator._has_next_raw(),
+            Iterator::EnumeratorIterator(enumerator_iterator) => {
+                enumerator_iterator._has_next_raw()
+            }
+            Iterator::ZipIterator(zip_iterator) => zip_iterator._has_next_raw(),
         }
     }
 
@@ -34,6 +45,8 @@ impl Iterator {
         match self {
             Iterator::RangeBasedIterator(range_based_iterator) => range_based_iterator._has_next(),
             Iterator::ListBasedIterator(list_based_iterator) => list_based_iterator._has_next(),
+            Iterator::EnumeratorIterator(enumerator_iterator) => enumerator_iterator._has_next(),
+            Iterator::ZipIterator(zip_iterator) => zip_iterator._has_next(),
         }
     }
 
@@ -41,6 +54,8 @@ impl Iterator {
         match self {
             Iterator::RangeBasedIterator(range_based_iterator) => range_based_iterator._next(),
             Iterator::ListBasedIterator(list_based_iterator) => list_based_iterator._next(),
+            Iterator::EnumeratorIterator(enumerator_iterator) => enumerator_iterator._next(),
+            Iterator::ZipIterator(zip_iterator) => zip_iterator._next(),
         }
     }
 }

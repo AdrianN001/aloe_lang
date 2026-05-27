@@ -3,7 +3,9 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use crate::module::{Module, ModuleRef, module_error::ModuleError, std_lib::STANDARD_LIBRARY_IDENTIFIER};
+use crate::module::{
+    Module, ModuleRef, module_error::ModuleError, std_lib::STANDARD_LIBRARY_IDENTIFIER,
+};
 
 #[derive(Default)]
 pub struct ModuleLoader {
@@ -34,7 +36,7 @@ impl ModuleLoader {
     }
 
     pub fn import_module(&mut self, module_name: &str) -> Result<ModuleRef, ModuleError> {
-        if ModuleLoader::check_if_std_lib_should_be_imported(module_name){
+        if ModuleLoader::check_if_std_lib_should_be_imported(module_name) {
             return self.import_from_std(module_name);
         }
         let root_dir = self.root_file.parent().unwrap();
@@ -61,8 +63,7 @@ impl ModuleLoader {
         Ok(module)
     }
 
-    fn check_if_std_lib_should_be_imported(module_name: &str) -> bool{
+    fn check_if_std_lib_should_be_imported(module_name: &str) -> bool {
         module_name.starts_with(STANDARD_LIBRARY_IDENTIFIER)
     }
-
 }

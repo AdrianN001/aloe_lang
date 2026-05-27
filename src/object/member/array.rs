@@ -5,7 +5,10 @@ use crate::object::{
     array::Array,
     error::{error_type::ErrorType, panic_type::PanicType},
     integer::Integer,
-    iterator::{Iterator, list_based_iterator::ListBasedIterator},
+    iterator::{
+        Iterator, enumerator_iterator::EnumeratorIterator, list_based_iterator::ListBasedIterator,
+        zip_iterator::ZipIterator,
+    },
     new_objectref,
     null::Null,
     panic_obj::{PanicObj, RuntimeSignal},
@@ -55,6 +58,8 @@ impl Array {
             "filter" => self.filter(args, state),
 
             "as_iter" => Ok(self.as_iter()),
+            "enumerate" => self.enumerate(),
+            "zip" => self.zip(args, state),
             "join" => self.join(args, state),
 
             _ => Err(PanicObj::new(
@@ -471,5 +476,61 @@ impl Array {
         Ok(Rc::new(RefCell::new(Object::String(Box::new(StringObj {
             value: strings.join(&join_str_value),
         })))))
+    }
+
+    fn enumerate(&self) -> Result<ObjectRef, PanicObj> {
+        let enumerator_iterator = Iterator::EnumeratorIterator(EnumeratorIterator {
+            list: self.items.clone(),
+            index: 0,
+        });
+
+        Ok(new_objectref(Object::Iterator(Box::new(
+            enumerator_iterator,
+        ))))
+    }
+
+    fn zip(&self, args: &[ObjectRef], state: StateRef) -> Result<ObjectRef, PanicObj> {
+        let mut minimum_length = self.items.len();
+
+        for arg in args {
+            let arg_borrow = arg.borrow();
+
+            let arr_length = match &*arg_borrow {
+                Object::Array(arr) => *&arr.items.len(),
+                other_type => {
+                    return Err(PanicObj::new(
+                        PanicType::WrongArgumentType,
+                        format!(
+                            "expected array as parameter for array.zip(), got: {}",
+                            other_type.get_type()
+                        ),
+                        state,
+                    ));
+                }
+            };
+
+            if minimum_length > arr_length {
+                minimum_length = arr_length;
+            }
+        }
+
+        let self_as_ref = new_objectref(Object::Array(Box::new(Array {
+            items: self.items.clone(),
+        })));
+
+        let zip_iterator = Iterator::ZipIterator(ZipIterator {
+            list: {
+                let mut new_vec = Vec::with_capacity(args.len() + 1);
+                new_vec.push(self_as_ref);
+                args.iter().for_each(|arg| {
+                    new_vec.push(arg.clone());
+                });
+                new_vec
+            },
+            index: 0,
+            min_length: minimum_length,
+        });
+
+        Ok(new_objectref(Object::Iterator(Box::new(zip_iterator))))
     }
 }

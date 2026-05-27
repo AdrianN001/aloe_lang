@@ -1,5 +1,6 @@
 pub mod module_error;
 pub mod module_loader;
+pub mod std_lib;
 
 use std::{cell::RefCell, fs, path::PathBuf, rc::Rc};
 

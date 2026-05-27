@@ -1,0 +1,12 @@
+import {file} from "@std::file.aloe";
+
+fun main(){
+
+    let opened_file = file::open("examples/struct.aloe")?;
+
+    let content = opened_file.read();
+    println(content);
+
+}
+
+main()

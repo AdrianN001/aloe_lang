@@ -12,6 +12,7 @@ pub mod repl;
 pub mod scheduler;
 pub mod script;
 pub mod token;
+pub mod version;
 
 fn main() {
     let args: Vec<String> = env::args().collect();

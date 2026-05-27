@@ -28,7 +28,7 @@ impl ImportStatement {
             Err(err_feedback) => {
                 return Err(RuntimeSignal::Panic(PanicObj::new(
                     PanicType::ModuleCouldNotBeLoaded,
-                    err_feedback.value,
+                    err_feedback.to_string(),
                     _state.clone(),
                 )));
             }

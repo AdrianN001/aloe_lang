@@ -36,9 +36,7 @@ pub fn open_builtin_function(
                 }
             };
 
-            let mode = "r";
-
-            let wrapper = match FileWrapper::new(file_name_raw, mode) {
+            let wrapper = match FileWrapper::new(file_name_raw) {
                 Ok(wrapper) => wrapper,
                 Err(err_feedback) => {
                     return Ok(new_objectref(Object::new_error(
@@ -55,9 +53,9 @@ pub fn open_builtin_function(
         }
 
         2 => {
-            // open("file_name", "mode");
+            // open("file_name", should_create);
             let file_name_borrow = args[0].borrow();
-            let mode_borrow = args[1].borrow();
+            let should_create_borrow = args[1].borrow();
 
             let file_name_raw = match &*file_name_borrow {
                 Object::String(str) => str.value.clone(),
@@ -73,8 +71,8 @@ pub fn open_builtin_function(
                 }
             };
 
-            let mode_raw = match &*mode_borrow {
-                Object::String(str) => str.value.clone(),
+            let should_crate_raw = match &*should_create_borrow {
+                Object::Bool(bool) => bool.value,
                 other_type => {
                     return Err(RuntimeSignal::Panic(PanicObj::new(
                         PanicType::WrongArgumentType,
@@ -87,7 +85,13 @@ pub fn open_builtin_function(
                 }
             };
 
-            let wrapper = match FileWrapper::new(file_name_raw, &mode_raw) {
+            let wrapper_res = if should_crate_raw {
+                FileWrapper::create(file_name_raw)
+            } else {
+                FileWrapper::new(file_name_raw)
+            };
+
+            let wrapper = match wrapper_res {
                 Ok(wrapper) => wrapper,
                 Err(err_feedback) => {
                     return Ok(new_objectref(Object::new_error(

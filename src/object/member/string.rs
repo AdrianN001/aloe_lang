@@ -3,6 +3,7 @@ use std::{cell::RefCell, rc::Rc};
 use crate::object::{
     Object, ObjectRef,
     array::Array,
+    buffer::Buffer,
     error::{error_type::ErrorType, panic_type::PanicType},
     float_obj::FloatObj,
     integer::Integer,
@@ -40,7 +41,7 @@ impl StringObj {
             "as_int" => Ok(self.as_int(state)),
             "as_str" => Ok(self.as_str()),
 
-            "as_byte_array" => Ok(self.as_byte_array()),
+            "as_buffer" => Ok(self.as_buffer()),
             "strip" => self.strip(args, state),
             "lstrip" => self.lstrip(args, state),
             "rstrip" => self.rstrip(args, state),
@@ -250,21 +251,14 @@ impl StringObj {
         })))
     }
 
-    fn as_byte_array(&self) -> ObjectRef {
+    fn as_buffer(&self) -> ObjectRef {
         let value = &self.value;
-        let new_raw_array = value
-            .as_bytes()
-            .iter()
-            .map(|byte| {
-                new_objectref(Object::Int(Integer {
-                    value: *byte as i64,
-                }))
-            })
-            .collect();
 
-        new_objectref(Object::Array(Box::new(Array {
-            items: new_raw_array,
-        })))
+        let bytes = value.as_bytes().to_owned().into_boxed_slice();
+
+        let size = bytes.len();
+
+        new_objectref(Object::Buffer(Box::new(Buffer { data: bytes, size })))
     }
 
     fn strip(&self, args: &[ObjectRef], state: StateRef) -> Result<ObjectRef, PanicObj> {

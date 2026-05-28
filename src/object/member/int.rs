@@ -3,6 +3,7 @@ use std::{cell::RefCell, char, rc::Rc};
 use crate::object::{
     Object, ObjectRef,
     boolean::Boolean,
+    buffer::Buffer,
     error::{error_type::ErrorType, panic_type::PanicType},
     float_obj::FloatObj,
     integer::Integer,
@@ -38,6 +39,8 @@ impl Integer {
             "as_float" => Ok(self.as_float()),
             "as_int" => Ok(self.as_int()),
             "as_utf_char" => Ok(self.as_utf_char(state)),
+            "as_le_bytes" => Ok(self.to_le_bytes()),
+            "as_be_bytes" => Ok(self.to_be_bytes()),
             "clone" => Ok(self.deep_clone()),
 
             _ => Err(PanicObj::new(
@@ -108,6 +111,24 @@ impl Integer {
         let str = String::from(mapped_char);
 
         new_objectref(Object::String(Box::new(StringObj { value: str })))
+    }
+
+    pub fn to_le_bytes(&self) -> ObjectRef {
+        let bytes = self.value.to_le_bytes();
+
+        new_objectref(Object::Buffer(Box::new(Buffer {
+            data: Box::new(bytes),
+            size: bytes.len(),
+        })))
+    }
+
+    pub fn to_be_bytes(&self) -> ObjectRef {
+        let bytes = self.value.to_be_bytes();
+
+        new_objectref(Object::Buffer(Box::new(Buffer {
+            data: Box::new(bytes),
+            size: bytes.len(),
+        })))
     }
 
     pub fn deep_clone(&self) -> ObjectRef {

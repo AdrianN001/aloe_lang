@@ -211,23 +211,13 @@ impl ATCPSocketWrapper {
             ));
         }
 
-        let data = match &*args[0].borrow() {
-            Object::Array(arr) => arr
-                .items
-                .iter()
-                .map(|item| match &*item.borrow() {
-                    Object::Int(i) => Ok(i.value as u8),
-                    _ => Err(PanicObj::new(
-                        PanicType::WrongArgumentType,
-                        "write expects an array of integers (bytes)".into(),
-                        state.clone(),
-                    )),
-                })
-                .collect::<Result<Vec<u8>, PanicObj>>()?,
-            _ => {
+        let arg_borrow = args[0].borrow();
+        let data = match &*arg_borrow {
+            Object::Buffer(buffer) => buffer.data.to_vec(),
+            other_type => {
                 return Err(PanicObj::new(
                     PanicType::WrongArgumentType,
-                    "write expects an array of integers (bytes)".into(),
+                    format!("write expects buffer, got: {}", other_type.get_type()),
                     state,
                 ));
             }

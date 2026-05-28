@@ -1,15 +1,12 @@
 
-let raw_bytes_to_ascii = fn(raw_bytes){
-    raw_bytes.map(fn(byte){byte.as_utf_char()}).join()
-};
 
 async fun handle_connection(client_stream){
     println("new connection with: ", client_stream);
 
-    let incomming_msg = [];
+    let incomming_msg_bytes = null;
 
-    while (incomming_msg = await client_stream.read()).length > 2{
-        println(client_stream, "sent: ", raw_bytes_to_ascii(incomming_msg) );
+    while (incomming_msg_bytes = await client_stream.read()).length > 2{
+        println(client_stream, "sent: ", incomming_msg_bytes.as_str);
     }
 
     println("client disconnected"); 

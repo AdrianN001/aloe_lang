@@ -2,7 +2,7 @@ use std::io::{Read, Write};
 
 use crate::object::{
     Object, ObjectRef,
-    array::Array,
+    buffer::Buffer,
     error::{error_type::ErrorType, panic_type::PanicType},
     integer::Integer,
     native_object::{
@@ -167,16 +167,12 @@ impl TCPSocketWrapper {
         let mut buffer = [0; 1024];
         match self.stream.read(&mut buffer) {
             Ok(bytes_read) => {
-                let data = buffer[..bytes_read]
-                    .iter()
-                    .map(|byte| {
-                        new_objectref(Object::Int(Integer {
-                            value: *byte as i64,
-                        }))
-                    })
-                    .collect();
-                Ok(new_objectref(Object::Array(Box::new(Array {
-                    items: data,
+                let data = buffer[..bytes_read].to_vec().into_boxed_slice();
+                let size = bytes_read;
+
+                Ok(new_objectref(Object::Buffer(Box::new(Buffer {
+                    size,
+                    data,
                 }))))
             }
             Err(e) => Ok(new_objectref(Object::new_error(
@@ -197,22 +193,11 @@ impl TCPSocketWrapper {
         }
 
         let data = match &*args[0].borrow() {
-            Object::Array(arr) => arr
-                .items
-                .iter()
-                .map(|item| match &*item.borrow() {
-                    Object::Int(i) => Ok(i.value as u8),
-                    _ => Err(PanicObj::new(
-                        PanicType::WrongArgumentType,
-                        "write expects an array of integers (bytes)".into(),
-                        state.clone(),
-                    )),
-                })
-                .collect::<Result<Vec<u8>, PanicObj>>()?,
-            _ => {
+            Object::Buffer(buffer) => buffer.data.to_vec(),
+            other_type => {
                 return Err(PanicObj::new(
                     PanicType::WrongArgumentType,
-                    "write expects an array of integers (bytes)".into(),
+                    format!("write expects an buffer, got: {}", other_type.get_type()),
                     state,
                 ));
             }

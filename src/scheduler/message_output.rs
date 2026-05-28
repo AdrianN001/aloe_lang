@@ -2,7 +2,7 @@ use std::{cell::RefCell, rc::Rc};
 
 use crate::object::{
     Object, ObjectRef,
-    array::Array,
+    buffer::Buffer,
     error::{error_type::ErrorType, panic_type::PanicType},
     integer::Integer,
     native_object::a_network::ATCPSocketWrapper,
@@ -32,7 +32,7 @@ impl MessageOutput {
                 }))))
             }
             MessageOutput::BinaryData(binary_data) => {
-                Ok(Self::convert_bytearr_to_objectref(&binary_data))
+                Ok(Self::convert_bytearr_to_objectref(binary_data))
             }
             MessageOutput::Integer(value) => Ok(new_objectref(Object::Int(Integer { value }))),
             MessageOutput::EstablishedConnectionFromAsyncAccept(connection_stream) => {
@@ -61,16 +61,10 @@ impl MessageOutput {
         }
     }
 
-    fn convert_bytearr_to_objectref(data: &[u8]) -> ObjectRef {
-        let arr = data
-            .iter()
-            .map(|byte| {
-                new_objectref(Object::Int(Integer {
-                    value: *byte as i64,
-                }))
-            })
-            .collect();
+    fn convert_bytearr_to_objectref(data: Vec<u8>) -> ObjectRef {
+        let size = data.len();
+        let arr = data.into_boxed_slice();
 
-        new_objectref(Object::Array(Box::new(Array { items: arr })))
+        new_objectref(Object::Buffer(Box::new(Buffer { data: arr, size })))
     }
 }

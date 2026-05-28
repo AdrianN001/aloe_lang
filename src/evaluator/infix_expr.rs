@@ -6,6 +6,7 @@ use crate::{
         Object, ObjectRef,
         array::Array,
         boolean::Boolean,
+        buffer::Buffer,
         error::panic_type::PanicType,
         float_obj::FloatObj,
         hashmap::HashMap,
@@ -74,6 +75,9 @@ impl InfixExpression {
                 ),
                 Object::Bool(bool) => {
                     Self::boolean_infix_operation_dispatch(bool, &self.operator, right_side, state)
+                }
+                Object::Buffer(buffer) => {
+                    Self::buffer_infix_operation_dispatch(buffer, &self.operator, right_side, state)
                 }
                 _ => Err(PanicObj::new(
                     PanicType::OperatorIsNotSupported,
@@ -370,6 +374,28 @@ impl InfixExpression {
         }
     }
 
+    fn buffer_infix_operation_dispatch(
+        buffer: &Buffer,
+        operator: &str,
+        right: ObjectRef,
+        state: StateRef,
+    ) -> Result<ObjectRef, PanicObj> {
+        match operator {
+            "+" => buffer.add(right, state),
+
+            other_operator => Err(PanicObj::new(
+                PanicType::OperatorIsNotSupported,
+                format!(
+                    "unexpected operand types: {} {} {}",
+                    "buffer",
+                    other_operator,
+                    right.borrow().get_type()
+                ),
+                state.clone(),
+            )),
+        }
+    }
+
     fn convert_operands_to_bool(
         left: ObjectRef,
         right: ObjectRef,
@@ -382,7 +408,7 @@ impl InfixExpression {
             Object::Array(arr) => arr.bool()?,
             Object::String(str) => str.bool()?,
             Object::HashMap(hmap) => hmap.bool()?,
-            Object::Iterator(hmap) => hmap.bool()?,
+            Object::Iterator(iter) => iter.bool()?,
             other => {
                 return Err(RuntimeSignal::Panic(PanicObj::new(
                     PanicType::IllegalTypeCasting,
@@ -399,7 +425,7 @@ impl InfixExpression {
             Object::Array(arr) => arr.bool()?,
             Object::String(str) => str.bool()?,
             Object::HashMap(hmap) => hmap.bool()?,
-            Object::Iterator(hmap) => hmap.bool()?,
+            Object::Iterator(iterator) => iterator.bool()?,
             other => {
                 return Err(RuntimeSignal::Panic(PanicObj::new(
                     PanicType::IllegalTypeCasting,

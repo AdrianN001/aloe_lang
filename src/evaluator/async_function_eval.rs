@@ -95,6 +95,7 @@ impl AsyncFunctionExpression {
                     env: new_environment,
                 }))))
             }
+            //TODO: launch (async fn(){})() panics
             _ => panic!(),
         }
     }

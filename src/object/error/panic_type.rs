@@ -1,10 +1,13 @@
 #[derive(PartialEq, Eq, Clone, Debug)]
 pub enum PanicType {
     IndexOutOfBound,
+    Overflow,
     UnknownIdentifier,
     UnknownMethod,
     UnknownAttribute,
 
+    WrongType,
+    WrongIndexType,
     WrongArgumentType,
     WrongArgumentCount,
 
@@ -54,4 +57,6 @@ pub enum PanicType {
     AwaitedInNonAsyncContext,
 
     WrongSyntax,
+
+    UTF8Conversion,
 }

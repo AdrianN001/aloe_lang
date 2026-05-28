@@ -1,5 +1,6 @@
 pub mod array;
 pub mod bool;
+pub mod buffer;
 pub mod float;
 pub mod hashmap;
 pub mod integer;

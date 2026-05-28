@@ -2,6 +2,8 @@ use std::{cell::RefCell, rc::Rc};
 
 use crate::object::error::panic_type::PanicType;
 use crate::object::hashmap::HashPair;
+use crate::object::integer::Integer;
+use crate::object::new_objectref;
 use crate::object::panic_obj::{PanicObj, RuntimeSignal};
 use crate::object::stack_environment::EnvRef;
 use crate::object::state::StateRef;
@@ -49,6 +51,31 @@ impl IndexExpression {
                 }
 
                 Ok(arr_interior_value[index_interior_value as usize].clone())
+            }
+            (Object::Buffer(buffer), Object::Int(index)) => {
+                let buff_interior_value = &buffer.data;
+                let mut index_interior_value = index.value;
+
+                if index_interior_value < 0 {
+                    index_interior_value += buffer.size as i64;
+                }
+
+                if index_interior_value > (buffer.size as i64) - 1 || index_interior_value < 0 {
+                    return Err(RuntimeSignal::Panic(PanicObj::new(
+                        PanicType::IndexOutOfBound,
+                        format!(
+                            "indexing an buffer of size '{}' with index '{}' is illegal.",
+                            buffer.size, index_interior_value
+                        ),
+                        state,
+                    )));
+                }
+
+                let byte = buff_interior_value[index_interior_value as usize];
+
+                let integer = new_objectref(Object::Int(Integer { value: byte as i64 }));
+
+                Ok(integer)
             }
             (Object::String(str), Object::Int(index)) => {
                 let arr_interior_value = &str.value;
@@ -151,6 +178,60 @@ impl IndexExpression {
                 Ok(())
             }
 
+            Object::Buffer(buffer) => {
+                let idx = match &*index_borrow {
+                    Object::Int(i) => i.value,
+                    _ => {
+                        return Err(RuntimeSignal::Panic(PanicObj::new_simple(
+                            PanicType::WrongIndexType,
+                            "Index must be integer",
+                            state.clone(),
+                        )));
+                    }
+                };
+
+                let len = buffer.size as i64;
+
+                let real_index = if idx < 0 { len + idx } else { idx };
+
+                if real_index < 0 || real_index >= len {
+                    return Err(RuntimeSignal::Panic(PanicObj::new_simple(
+                        PanicType::IndexOutOfBound,
+                        "out of bounds panic",
+                        state.clone(),
+                    )));
+                }
+
+                let left_side = &mut buffer.data[real_index as usize];
+                let right_side = match &*rvalue.borrow() {
+                    Object::Int(int) => {
+                        let value = int.value;
+                        match u8::try_from(value) {
+                            Ok(byte) => Ok(byte),
+                            Err(err_feedback) => Err(RuntimeSignal::Panic(PanicObj::new(
+                                PanicType::Overflow,
+                                err_feedback.to_string(),
+                                state,
+                            ))),
+                        }
+                    }
+                    other_type => {
+                        return Err(RuntimeSignal::Panic(PanicObj::new(
+                            PanicType::WrongType,
+                            format!(
+                                "inserting {} into a buffer is illegal.",
+                                other_type.get_type()
+                            ),
+                            state,
+                        )));
+                    }
+                }?;
+
+                *left_side = right_side;
+
+                Ok(())
+            }
+
             Object::HashMap(map) => {
                 let hashed_object = match index_borrow.hash() {
                     Ok(ok_value) => ok_value,
@@ -176,7 +257,10 @@ impl IndexExpression {
 
             _ => Err(RuntimeSignal::Panic(PanicObj::new(
                 PanicType::OperatorIsNotSupported,
-                format!("index operator not supported on {}", left_borrow.get_type()),
+                format!(
+                    "index operator assignment not supported on {}",
+                    left_borrow.get_type()
+                ),
                 state.clone(),
             ))),
         }

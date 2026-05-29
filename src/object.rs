@@ -59,6 +59,8 @@ pub enum Object {
 
     Null(Null),
     BuiltIn(BuiltIn),
+
+    //TODO: Diese ganze mist kann mit Runtime::{Continue,Break,Return} ersetzt werden. Spater
     ReturnVal(ReturnValue),
     BreakVal(BreakValue),
     Continue,

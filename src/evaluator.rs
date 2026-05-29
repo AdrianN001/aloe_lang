@@ -2,7 +2,9 @@ mod array_expression;
 mod async_function_eval;
 mod await_expr;
 mod block_statement;
+mod break_stmt;
 mod call_expr;
+mod expression_stmt;
 mod float_obj;
 mod for_loop;
 mod function_statement;
@@ -13,8 +15,10 @@ mod import_statement;
 mod index_expr;
 mod infix_expr;
 mod launch_stmt;
+mod let_statement;
 mod member_expr;
 mod prefix_expr;
+mod return_stmt;
 mod scope_resolution_expr;
 mod string_literal;
 mod struct_statement;
@@ -26,13 +30,11 @@ use std::rc::Rc;
 
 use crate::ast::program::Program;
 use crate::module::module_loader::ModuleLoader;
-use crate::object::break_value::BreakValue;
 use crate::object::error::panic_type::PanicType;
 use crate::object::function::Function;
 use crate::object::integer::Integer;
 use crate::object::null::Null;
 use crate::object::panic_obj::{PanicObj, RuntimeSignal};
-use crate::object::return_value::ReturnValue;
 use crate::object::stack_environment::{EnvRef, StackEnvironment};
 use crate::object::state::{InterpreterState, StateRef};
 use crate::object::{ObjectRef, new_objectref};
@@ -97,43 +99,12 @@ impl Expression {
 impl Statement {
     pub fn evaluate(&self, environ: EnvRef, state: StateRef) -> Result<ObjectRef, RuntimeSignal> {
         match self {
-            Statement::Expression(expr) => expr.expression.evaluate(environ, state),
+            Statement::Expression(expr_stmt) => expr_stmt.evaluate(environ, state),
             Statement::Block(block_stmt) => block_stmt.evaluate(environ, state),
-            Statement::Let(let_stmt) => {
-                let value = let_stmt.value.evaluate(environ.clone(), state)?;
-
-                environ
-                    .borrow_mut()
-                    .set_to_lowest_level(&let_stmt.name.value, value.clone());
-                Ok(value.clone())
-            }
-            Statement::Return(return_stmt) => {
-                let val = match &return_stmt.value {
-                    Some(return_value) => return_value.evaluate(environ, state)?,
-                    None => new_objectref(Object::NULL_OBJECT),
-                };
-                if let Object::ReturnVal(ret_val) = &*val.borrow() {
-                    return Ok(ret_val.unwrap_to_value().clone());
-                }
-
-                Ok(Rc::new(RefCell::new(Object::ReturnVal(ReturnValue {
-                    value: Box::new(val.clone()),
-                }))))
-            }
-            Statement::Continue(_continue_stmt) => Ok(Rc::new(RefCell::new(Object::Continue))),
-            Statement::Break(break_stmt) => {
-                let val = if let Some(break_expression_value) = &break_stmt.expression {
-                    break_expression_value
-                        .evaluate(environ.clone(), state)?
-                        .clone()
-                } else {
-                    Rc::new(RefCell::new(Object::NULL_OBJECT))
-                };
-
-                Ok(Rc::new(RefCell::new(Object::BreakVal(BreakValue {
-                    value: Box::new(val),
-                }))))
-            }
+            Statement::Let(let_stmt) => let_stmt.evaluate(environ, state),
+            Statement::Return(return_stmt) => return_stmt.evaluate(environ, state),
+            Statement::Continue(_) => Ok(Rc::new(RefCell::new(Object::Continue))),
+            Statement::Break(break_stmt) => break_stmt.evaluate(environ, state),
             Statement::Function(func_stmt) => Ok(func_stmt.evaluate(environ.clone())),
             Statement::Struct(struct_stmt) => struct_stmt.evaluate(environ, state),
             Statement::AsyncFunction(async_func_stmt) => async_func_stmt.evaluate(environ),

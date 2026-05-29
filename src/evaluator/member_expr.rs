@@ -1,14 +1,10 @@
-use std::{cell::RefCell, rc::Rc};
-
 use crate::{
     ast::expression::{Expression, call_expression::CallExpression, member::MemberExpression},
     frame::expr_frame::{EvaluationResult, ExpressionFrame},
     object::{
         Object, ObjectRef,
         error::panic_type::PanicType,
-        new_objectref,
         panic_obj::{PanicObj, RuntimeSignal},
-        return_value::ReturnValue,
         stack_environment::EnvRef,
         state::StateRef,
         struct_object::StructObject,
@@ -62,9 +58,7 @@ impl MemberExpression {
                             state.clone(),
                         )));
                     } else if call_expr.question_mark_set {
-                        return Ok(Rc::new(RefCell::new(Object::ReturnVal(ReturnValue {
-                            value: Box::new(return_value.clone()),
-                        }))));
+                        return Err(RuntimeSignal::Propagation(return_value.clone()));
                     }
                 }
 
@@ -193,11 +187,7 @@ impl MemberExpression {
                             state.clone(),
                         )));
                     } else if call_expr.question_mark_set {
-                        return Ok(EvaluationResult::Done(new_objectref(Object::ReturnVal(
-                            ReturnValue {
-                                value: Box::new(return_value.clone()),
-                            },
-                        ))));
+                        return Err(RuntimeSignal::Propagation(return_value.clone()));
                     }
                 }
 
@@ -242,6 +232,7 @@ impl MemberExpression {
                         true
                     }
                 }
+                Err(RuntimeSignal::Propagation(_)) => true,
                 Err(RuntimeSignal::Yield(_)) => false,
                 Ok(_) => true,
             };
@@ -261,6 +252,7 @@ impl MemberExpression {
                     true
                 }
             }
+            Err(RuntimeSignal::Propagation(_)) => true,
             Err(RuntimeSignal::Yield(_)) => false,
             Ok(_) => true,
         };

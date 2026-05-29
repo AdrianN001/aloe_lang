@@ -1,0 +1,24 @@
+use crate::{
+    ast::statement::expression_statement::ExpressionStatement,
+    object::{
+        Object, ObjectRef, new_objectref, panic_obj::RuntimeSignal, return_value::ReturnValue,
+        stack_environment::EnvRef, state::StateRef,
+    },
+};
+
+impl ExpressionStatement {
+    pub fn evaluate(&self, environ: EnvRef, state: StateRef) -> Result<ObjectRef, RuntimeSignal> {
+        let expr = &self.expression;
+
+        match expr.evaluate(environ, state) {
+            Ok(ok_value) => return Ok(ok_value),
+            Err(RuntimeSignal::Panic(panic_obj)) => return Err(RuntimeSignal::Panic(panic_obj)),
+            Err(RuntimeSignal::Yield(_)) => unreachable!(),
+            Err(RuntimeSignal::Propagation(propagated_error)) => {
+                Ok(new_objectref(Object::ReturnVal(ReturnValue {
+                    value: Box::new(propagated_error),
+                })))
+            }
+        }
+    }
+}

@@ -7,7 +7,6 @@ use crate::object::{
     function::Function,
     new_objectref,
     panic_obj::{PanicObj, RuntimeSignal},
-    return_value::ReturnValue,
     stack_environment::EnvRef,
     state::StateRef,
     struct_model::MethodTableRef,
@@ -281,9 +280,7 @@ impl StructObject {
                     state.clone(),
                 )));
             } else if is_questionmark_set {
-                return Ok(new_objectref(Object::ReturnVal(ReturnValue {
-                    value: Box::new(return_value.clone()),
-                })));
+                return Err(RuntimeSignal::Propagation(return_value.clone()));
             }
         }
 
@@ -317,9 +314,7 @@ impl StructObject {
                     state.clone(),
                 )));
             } else if is_questionmark_set {
-                return Ok(new_objectref(Object::ReturnVal(ReturnValue {
-                    value: Box::new(return_value.clone()),
-                })));
+                return Err(RuntimeSignal::Propagation(return_value.clone()));
             }
         }
 

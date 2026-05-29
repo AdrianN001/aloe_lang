@@ -64,7 +64,6 @@ impl WhileLoopExpression {
                     Object::ReturnVal(_) => return Ok(result.clone()),
                     Object::BreakVal(break_val) => return Ok(*break_val.value.clone()),
                     Object::Continue => break,
-                    Object::Err(_) => return Ok(result.clone()),
                     _ => {}
                 }
             }
@@ -101,7 +100,6 @@ impl WhileLoopExpression {
                     Object::ReturnVal(_) => return Ok(result.clone()),
                     Object::BreakVal(break_val) => return Ok(*break_val.value.clone()),
                     Object::Continue => break,
-                    Object::Err(_) => return Ok(result.clone()),
                     _ => {}
                 }
             }

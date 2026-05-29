@@ -6,9 +6,7 @@ use crate::{
     object::{
         Object, ObjectRef,
         error::panic_type::PanicType,
-        new_objectref,
         panic_obj::{PanicObj, RuntimeSignal},
-        return_value::ReturnValue,
         stack_environment::EnvRef,
         state::StateRef,
     },
@@ -58,9 +56,7 @@ impl ScopeResolutionExpression {
                             state.clone(),
                         )));
                     } else if call_expr.question_mark_set {
-                        return Ok(new_objectref(Object::ReturnVal(ReturnValue {
-                            value: Box::new(function_call_result.clone()),
-                        })));
+                        return Err(RuntimeSignal::Propagation(function_call_result.clone()));
                     }
                 }
 
@@ -146,11 +142,7 @@ impl ScopeResolutionExpression {
                             state.clone(),
                         )));
                     } else if call_expression.question_mark_set {
-                        return Ok(EvaluationResult::Done(new_objectref(Object::ReturnVal(
-                            ReturnValue {
-                                value: Box::new(function_call_result.clone()),
-                            },
-                        ))));
+                        return Err(RuntimeSignal::Propagation(function_call_result.clone()));
                     }
                 }
 

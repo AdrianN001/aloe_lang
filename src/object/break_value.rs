@@ -1,5 +1,6 @@
 use crate::object::ObjectRef;
 
+//TODO: Diese ganze mist kann mit Runtime::Break ersetzt werden. Spater
 #[derive(PartialEq, Eq, Clone, Debug)]
 pub struct BreakValue {
     pub value: Box<ObjectRef>,

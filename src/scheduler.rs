@@ -60,6 +60,8 @@ impl Scheduler {
                     i += 1;
                 }
             }
+
+            // check IO task, if they sent a message from the background.
             if let Some((future_id, message)) = try_get_message_from_scheduler() {
                 if let Some(future_ref) = remove_io_future(&future_id) {
                     let mut future_borrow = future_ref.borrow_mut();
@@ -88,7 +90,7 @@ impl Scheduler {
                 let result = Task::run2(task.clone());
 
                 match result {
-                    Ok(value) => {
+                    Ok(value) | Err(RuntimeSignal::Propagation(value)) => {
                         let current_task_borrow = task.borrow();
 
                         if let Some(original_future) = &current_task_borrow.result_future {

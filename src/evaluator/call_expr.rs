@@ -1,11 +1,7 @@
-use std::cell::RefCell;
-use std::rc::Rc;
-
 use crate::ast::expression::Expression;
 use crate::ast::expression::call_expression::CallExpression;
 use crate::object::error::panic_type::PanicType;
 use crate::object::panic_obj::{PanicObj, RuntimeSignal};
-use crate::object::return_value::ReturnValue;
 use crate::object::stack_environment::EnvRef;
 use crate::object::state::StateRef;
 use crate::object::struct_object::StructObject;
@@ -67,9 +63,8 @@ impl CallExpression {
             if self.bang_set {
                 return Err(RuntimeSignal::Panic(PanicObj::from_error(error, state)));
             } else if self.question_mark_set {
-                return Ok(Rc::new(RefCell::new(Object::ReturnVal(ReturnValue {
-                    value: Box::new(ok_return_value.clone()),
-                }))));
+                // it bubbles till the "statement evaluation/ scheduler(task run2)"
+                return Err(RuntimeSignal::Propagation(ok_return_value.clone()));
             }
         }
 
@@ -138,9 +133,7 @@ impl CallExpression {
             if bang_set {
                 return Err(RuntimeSignal::Panic(PanicObj::from_error(error, state)));
             } else if questionmark_set {
-                return Ok(Rc::new(RefCell::new(Object::ReturnVal(ReturnValue {
-                    value: Box::new(ok_return_value.clone()),
-                }))));
+                return Err(RuntimeSignal::Propagation(ok_return_value.clone()));
             }
         }
 

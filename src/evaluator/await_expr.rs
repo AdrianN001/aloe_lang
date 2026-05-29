@@ -4,9 +4,7 @@ use crate::{
         Object, ObjectRef,
         error::panic_type::PanicType,
         future::{future_kind::FutureKind, future_state::FutureState},
-        new_objectref,
         panic_obj::{PanicObj, RuntimeSignal},
-        return_value::ReturnValue,
         state::StateRef,
     },
     scheduler::{send_task_to_scheduler, send_task_to_sleeper_scheduler, take_current_task},
@@ -78,9 +76,7 @@ impl AwaitExpression {
                             state.clone(),
                         )));
                     } else if call_expr.question_mark_set {
-                        return Ok(new_objectref(Object::ReturnVal(ReturnValue {
-                            value: Box::new(return_value.clone()),
-                        })));
+                        return Err(RuntimeSignal::Propagation(return_value.clone()));
                     }
                 }
                 Ok(return_value)

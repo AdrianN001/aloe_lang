@@ -3,7 +3,10 @@ use crate::test::util::test_cases_for_input_output;
 #[test]
 fn test_int_ascii() {
     let testcases = [
-        (r#""hello".as_buffer().as_arr();"#, "[104, 101, 108, 108, 111]"),
+        (
+            r#""hello".as_buffer().as_arr();"#,
+            "[104, 101, 108, 108, 111]",
+        ),
         ("104.as_utf_char();", "h"),
         (
             "10_000_000.as_utf_char();",

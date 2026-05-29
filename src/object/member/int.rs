@@ -30,12 +30,12 @@ impl Integer {
     pub fn apply_method(
         &mut self,
         name: &str,
-        _args: &[ObjectRef],
+        args: &[ObjectRef],
         _environ: EnvRef,
         state: StateRef,
     ) -> Result<ObjectRef, PanicObj> {
         match name {
-            "as_str" => Ok(self.as_str()),
+            "as_str" => self.as_str(args, state),
             "as_float" => Ok(self.as_float()),
             "as_int" => Ok(self.as_int()),
             "as_utf_char" => Ok(self.as_utf_char(state)),
@@ -69,9 +69,45 @@ impl Integer {
 
     // Methods
 
-    pub fn as_str(&self) -> ObjectRef {
-        Rc::new(RefCell::new(Object::String(Box::new(StringObj {
-            value: self.value.to_string(),
+    pub fn as_str(&self, args: &[ObjectRef], state: StateRef) -> Result<ObjectRef, PanicObj> {
+        let radix = match args.len() {
+            0 => 10,
+            _ => match &*args[0].borrow() {
+                Object::Int(int) => {
+                    if int.value == 2 || int.value == 8 || int.value == 16 {
+                        int.value
+                    } else {
+                        return Ok(new_objectref(Object::new_error(
+                            ErrorType::WrongRadix,
+                            format!("expected radix 2,8 or 16, got: '{}'", int.value),
+                            state,
+                        )));
+                    }
+                }
+                other_type => {
+                    return Err(PanicObj::new(
+                        PanicType::WrongArgumentType,
+                        format!(
+                            "expected int for int.as_str() as argument, got: '{}'",
+                            other_type.get_type()
+                        ),
+                        state,
+                    ));
+                }
+            },
+        };
+
+        let int_as_str = match radix {
+            2 => format!("{:b}", self.value),
+            8 => format!("{:o}", self.value),
+            16 => format!("{:x}", self.value),
+
+            10 => format!("{}", self.value),
+            _ => unreachable!(),
+        };
+
+        Ok(new_objectref(Object::String(Box::new(StringObj {
+            value: int_as_str,
         }))))
     }
 

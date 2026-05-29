@@ -38,7 +38,7 @@ impl StringObj {
             "reversed" => Ok(self.reversed()),
             "chars" => Ok(self.chars()),
             "as_float" => Ok(self.as_float(state)),
-            "as_int" => Ok(self.as_int(state)),
+            "as_int" => self.as_int(args, state),
             "as_str" => Ok(self.as_str()),
 
             "as_buffer" => Ok(self.as_buffer()),
@@ -234,10 +234,37 @@ impl StringObj {
         }
     }
 
-    fn as_int(&self, state: StateRef) -> ObjectRef {
-        match self.value.parse::<i64>() {
-            Ok(int_value) => Rc::new(RefCell::new(Object::Int(Integer { value: int_value }))),
-            Err(err) => Rc::new(RefCell::new(Object::new_error(
+    fn as_int(&self, args: &[ObjectRef], state: StateRef) -> Result<ObjectRef, PanicObj> {
+        let radix = match args.len() {
+            0 => 10,
+            _ => match &*args[0].borrow() {
+                Object::Int(int) => {
+                    if int.value == 2 || int.value == 8 || int.value == 16 {
+                        int.value
+                    } else {
+                        return Ok(new_objectref(Object::new_error(
+                            ErrorType::WrongRadix,
+                            format!("expected radix 2,8 or 16, got: '{}'", int.value),
+                            state,
+                        )));
+                    }
+                }
+                other_type => {
+                    return Err(PanicObj::new(
+                        PanicType::WrongArgumentType,
+                        format!(
+                            "expected int for str.as_int() as argument, got: '{}'",
+                            other_type.get_type()
+                        ),
+                        state,
+                    ));
+                }
+            },
+        };
+
+        match i64::from_str_radix(&self.value, radix as u32) {
+            Ok(int_value) => Ok(new_objectref(Object::Int(Integer { value: int_value }))),
+            Err(err) => Ok(new_objectref(Object::new_error(
                 ErrorType::IllegalCast,
                 err.to_string(),
                 state,

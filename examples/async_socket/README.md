@@ -59,7 +59,7 @@ The client:
 
 ```aloe
 while (inpt = __input()) {
-    await server_stream.write(inpt.as_byte_array()); 
+    await server_stream.write(inpt.as_buffer().as_arr()); 
 }
 ```
 

@@ -1,7 +1,8 @@
-use std::{cell::RefCell, rc::Rc};
+use std::{cell::RefCell, net::SocketAddr, rc::Rc};
 
 use crate::object::{
     Object, ObjectRef,
+    array::Array,
     buffer::Buffer,
     error::{error_type::ErrorType, panic_type::PanicType},
     integer::Integer,
@@ -16,6 +17,8 @@ pub enum MessageOutput {
     BinaryData(Vec<u8>),
     PlainText(String),
     Integer(i64),
+
+    UDPReceiveFrom(Vec<u8>, SocketAddr),
 
     EstablishedConnectionFromAsyncAccept(ATCPSocketWrapper),
 
@@ -57,6 +60,20 @@ impl MessageOutput {
                 let panic = PanicObj::new(panictype, message, state_ref);
 
                 Err(RuntimeSignal::Panic(panic))
+            }
+            MessageOutput::UDPReceiveFrom(buffer, addr) => {
+                let buffer_obj = new_objectref(Object::Buffer(Box::new(Buffer {
+                    size: buffer.len(),
+                    data: buffer.into_boxed_slice(),
+                })));
+
+                let addr_str = new_objectref(Object::String(Box::new(StringObj {
+                    value: addr.to_string(),
+                })));
+
+                Ok(new_objectref(Object::Array(Box::new(Array {
+                    items: vec![buffer_obj, addr_str],
+                }))))
             }
         }
     }

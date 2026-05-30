@@ -1,9 +1,10 @@
+import {tcp} from "@std::net/socket/tcp.aloe"; 
 
 async fun main(){
     let addr = "127.0.0.1";
     let port = 4565;
 
-    let server_stream = __atcp_connect(addr, port);
+    let server_stream = await tcp::connect_async(addr, port);
     println("Connected to the server on[", addr, ":", port,"]");
 
     print("Write something:>>","");

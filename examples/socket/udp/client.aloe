@@ -1,0 +1,20 @@
+
+import {udp} from "@std::net/socket/udp.aloe";
+
+fun main(){
+
+    let addr = "127.0.0.1";
+    let port = 4566;
+
+    let socket = udp::bind(addr, port)?;
+    let msg = "hello\n".as_buffer();
+
+    for {
+
+        let bytes_sent = socket.send_to(msg, "0.0.0.0:4565");
+        println("sent ${bytes_sent} bytes");
+        __sleep(500);
+    }
+}
+
+main()

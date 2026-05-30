@@ -27,6 +27,7 @@ pub enum ErrorType {
 
     UTFValueCasting,
 
+    IllegalAddress,
     SocketBind,
     SocketConnect,
     SocketAccept,

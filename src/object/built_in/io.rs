@@ -3,9 +3,9 @@ use crate::object::{
     error::{error_type::ErrorType, panic_type::PanicType},
     native_object::{
         NativeObject,
-        a_network::{ATCPSocketListenerWrapper, ATCPSocketWrapper},
+        a_network::{ATCPSocketListenerWrapper, ATCPSocketWrapper, AUDPSocketWrapper},
         file::FileWrapper,
-        network::{TCPSocketListenerWrapper, TCPSocketWrapper},
+        network::{TCPSocketListenerWrapper, TCPSocketWrapper, UDPSocketWrapper},
         path::PathWrapper,
     },
     new_objectref,
@@ -430,5 +430,139 @@ pub fn async_tcp_connect_builtin_function(
 
     Ok(new_objectref(Object::Native(Box::new(
         NativeObject::ATCPSocket(wrapper),
+    ))))
+}
+
+pub fn async_udp_bind_builtin_function(
+    args: &[ObjectRef],
+    state: StateRef,
+) -> Result<ObjectRef, RuntimeSignal> {
+    if args.len() != 2 {
+        return Err(RuntimeSignal::Panic(PanicObj::new(
+            PanicType::WrongArgumentCount,
+            format!(
+                "unexpected number of parameter for __async_udp_bind(). Expected: 2, got: '{}'",
+                args.len()
+            ),
+            state,
+        )));
+    }
+
+    let addr = match &*args[0].borrow() {
+        Object::String(str_obj) => str_obj.value.to_string(),
+        other_type => {
+            return Err(RuntimeSignal::Panic(PanicObj::new(
+                PanicType::WrongArgumentType,
+                format!(
+                    "unexpected parameter type for __async_udp_bind() address parameter. Expected: 'str', got: '{}'",
+                    other_type.get_type()
+                ),
+                state,
+            )));
+        }
+    };
+
+    let port = match &*args[1].borrow() {
+        Object::Int(int_obj) => int_obj.value,
+        other_type => {
+            return Err(RuntimeSignal::Panic(PanicObj::new(
+                PanicType::WrongArgumentType,
+                format!(
+                    "unexpected parameter type for __async_udp_bind() port parameter. Expected: 'int', got: '{}'",
+                    other_type.get_type()
+                ),
+                state,
+            )));
+        }
+    };
+
+    let port_as_u16 = match u16::try_from(port) {
+        Ok(port_u16) => port_u16,
+        Err(_) => {
+            return Err(RuntimeSignal::Panic(PanicObj::new(
+                PanicType::WrongArgumentType,
+                format!(
+                    "port number out of range for __async_udp_bind(). Expected: 0-65535, got: '{}'",
+                    port
+                ),
+                state,
+            )));
+        }
+    };
+
+    let wrapper = match AUDPSocketWrapper::new(&addr, port_as_u16, state) {
+        Ok(wrapper) => wrapper,
+        Err(err_obj) => return Ok(err_obj),
+    };
+
+    Ok(new_objectref(Object::Native(Box::new(
+        NativeObject::AUDPSocket(wrapper),
+    ))))
+}
+
+pub fn udp_bind_builtin_function(
+    args: &[ObjectRef],
+    state: StateRef,
+) -> Result<ObjectRef, RuntimeSignal> {
+    if args.len() != 2 {
+        return Err(RuntimeSignal::Panic(PanicObj::new(
+            PanicType::WrongArgumentCount,
+            format!(
+                "unexpected number of parameter for __async_udp_bind(). Expected: 2, got: '{}'",
+                args.len()
+            ),
+            state,
+        )));
+    }
+
+    let addr = match &*args[0].borrow() {
+        Object::String(str_obj) => str_obj.value.to_string(),
+        other_type => {
+            return Err(RuntimeSignal::Panic(PanicObj::new(
+                PanicType::WrongArgumentType,
+                format!(
+                    "unexpected parameter type for __async_udp_bind() address parameter. Expected: 'str', got: '{}'",
+                    other_type.get_type()
+                ),
+                state,
+            )));
+        }
+    };
+
+    let port = match &*args[1].borrow() {
+        Object::Int(int_obj) => int_obj.value,
+        other_type => {
+            return Err(RuntimeSignal::Panic(PanicObj::new(
+                PanicType::WrongArgumentType,
+                format!(
+                    "unexpected parameter type for __async_udp_bind() port parameter. Expected: 'int', got: '{}'",
+                    other_type.get_type()
+                ),
+                state,
+            )));
+        }
+    };
+
+    let port_as_u16 = match u16::try_from(port) {
+        Ok(port_u16) => port_u16,
+        Err(_) => {
+            return Err(RuntimeSignal::Panic(PanicObj::new(
+                PanicType::WrongArgumentType,
+                format!(
+                    "port number out of range for __async_udp_bind(). Expected: 0-65535, got: '{}'",
+                    port
+                ),
+                state,
+            )));
+        }
+    };
+
+    let wrapper = match UDPSocketWrapper::new(addr, port_as_u16, state) {
+        Ok(wrapper) => wrapper,
+        Err(err_obj) => return Ok(err_obj),
+    };
+
+    Ok(new_objectref(Object::Native(Box::new(
+        NativeObject::UDPSocket(wrapper),
     ))))
 }

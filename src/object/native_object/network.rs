@@ -19,6 +19,15 @@ pub struct TCPSocketListenerWrapper {
     pub nonblocking: bool,
 }
 
+#[derive(Debug)]
+pub struct UDPSocketWrapper {
+    pub socket: std::net::UdpSocket,
+    pub port: u16,
+    pub addr: String,
+
+    pub nonblocking: bool,
+}
+
 impl TCPSocketListenerWrapper {
     pub fn new(port: u16, addr: String, state: StateRef) -> Result<Self, ObjectRef> {
         let listener = match std::net::TcpListener::bind(format!("{}:{}", addr, port)) {
@@ -72,6 +81,50 @@ impl TCPSocketWrapper {
 
     pub fn inspect(&self) -> String {
         format!("[TCPSocketWrapper for stream {:?}]", self.stream)
+    }
+}
+
+impl UDPSocketWrapper {
+    pub fn new(addr: String, port: u16, state: StateRef) -> Result<Self, ObjectRef> {
+        let socket = match std::net::UdpSocket::bind(format!("{}:{}", addr, port)) {
+            Ok(socket) => socket,
+            Err(err_feedback) => {
+                return Err(new_objectref(Object::new_error(
+                    ErrorType::SocketConnect,
+                    format!("Failed to connect to TCP server: {}", err_feedback),
+                    state,
+                )));
+            }
+        };
+
+        Ok(Self {
+            socket,
+            port,
+            addr,
+            nonblocking: false,
+        })
+    }
+
+    pub fn type_name(&self) -> String {
+        "<native object 'UdpSocket'>".into()
+    }
+
+    pub fn inspect(&self) -> String {
+        format!("[UDPSocket for {}:{}]", self.addr, self.port)
+    }
+}
+
+impl PartialEq for UDPSocketWrapper {
+    fn eq(&self, _: &Self) -> bool {
+        false
+    }
+}
+
+impl Eq for UDPSocketWrapper {}
+
+impl Clone for UDPSocketWrapper {
+    fn clone(&self) -> Self {
+        todo!()
     }
 }
 

@@ -1,6 +1,6 @@
 use std::{net::SocketAddr, sync::Arc};
 
-use tokio::sync::Mutex;
+use tokio::{net::UdpSocket, sync::Mutex};
 
 use crate::{
     object::{
@@ -20,6 +20,13 @@ pub struct ATCPSocketWrapper {
 #[derive(Debug)]
 pub struct ATCPSocketListenerWrapper {
     pub listener: Arc<tokio::net::TcpListener>,
+    pub port: u16,
+    pub addr: String,
+}
+
+#[derive(Debug)]
+pub struct AUDPSocketWrapper {
+    pub socket: Arc<tokio::net::UdpSocket>,
     pub port: u16,
     pub addr: String,
 }
@@ -163,6 +170,53 @@ impl ATCPSocketWrapper {
             "[ATCPSocketWrapper for reader {:?}, writer {:?}]",
             self.reader, self.writer
         )
+    }
+}
+
+impl AUDPSocketWrapper {
+    pub fn new(address: &str, port: u16, state: StateRef) -> Result<Self, ObjectRef> {
+        let tokio_socket = TOKIO_RUNTIME.with(|slot| {
+            let rt = slot.borrow();
+
+            rt.block_on(async {
+                match UdpSocket::bind(format!("{}:{}", address, port)).await {
+                    Ok(tokio_listener) => Ok(tokio_listener),
+                    Err(e) => Err(new_objectref(Object::new_error(
+                        ErrorType::SocketBind,
+                        format!("Failed to create Tokio TCP listener: {}", e),
+                        state,
+                    ))),
+                }
+            })
+        })?;
+
+        Ok(Self {
+            addr: address.to_string(),
+            socket: Arc::new(tokio_socket),
+            port,
+        })
+    }
+
+    pub fn type_name(&self) -> String {
+        "<native object 'AUDPSocket'>".into()
+    }
+
+    pub fn inspect(&self) -> String {
+        format!("[AUDPSocket, binded to: {}:{}]", self.addr, self.port)
+    }
+}
+
+impl PartialEq for AUDPSocketWrapper {
+    fn eq(&self, _other: &Self) -> bool {
+        false
+    }
+}
+
+impl Eq for AUDPSocketWrapper {}
+
+impl Clone for AUDPSocketWrapper {
+    fn clone(&self) -> Self {
+        todo!();
     }
 }
 

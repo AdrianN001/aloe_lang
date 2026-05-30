@@ -41,6 +41,8 @@ impl Identifier {
             "__tcp_connect" => Some(BuiltIn::TCPConnect),
             "__atcp_bind" => Some(BuiltIn::ATCPBind),
             "__atcp_connect" => Some(BuiltIn::ATCPConnect),
+            "__audp_bind" => Some(BuiltIn::AUDPBind),
+            "__udp_bind" => Some(BuiltIn::UDPBind),
 
             "__sleep" => Some(BuiltIn::Sleep),
             "__sleep2" => Some(BuiltIn::Sleep2),

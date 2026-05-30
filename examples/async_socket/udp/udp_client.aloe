@@ -1,0 +1,20 @@
+
+import {udp} from "@std::net/socket/udp.aloe";
+
+async fun main(){
+
+    let addr = "127.0.0.1";
+    let port = 4566;
+
+    let socket = await udp::bind_async(addr, port)?;
+
+    for i <- range(1000){
+        let msg = "${i.as_str(2)}\n".as_buffer()?;
+
+        let bytes_sent = await socket.send_to_async(msg, "0.0.0.0:4565");
+        println("sent ${bytes_sent} bytes");
+        await __sleep2(500);
+    }
+}
+
+__spawn(main())

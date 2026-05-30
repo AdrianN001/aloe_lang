@@ -6,9 +6,9 @@ pub mod path;
 use crate::object::{
     ObjectRef,
     native_object::{
-        a_network::{ATCPSocketListenerWrapper, ATCPSocketWrapper},
+        a_network::{ATCPSocketListenerWrapper, ATCPSocketWrapper, AUDPSocketWrapper},
         file::FileWrapper,
-        network::{TCPSocketListenerWrapper, TCPSocketWrapper},
+        network::{TCPSocketListenerWrapper, TCPSocketWrapper, UDPSocketWrapper},
         path::PathWrapper,
     },
     panic_obj::PanicObj,
@@ -22,9 +22,11 @@ pub enum NativeObject {
 
     TCPListener(TCPSocketListenerWrapper),
     TCPSocket(TCPSocketWrapper),
+    UDPSocket(UDPSocketWrapper),
 
     ATCPListener(ATCPSocketListenerWrapper),
     ATCPSocket(ATCPSocketWrapper),
+    AUDPSocket(AUDPSocketWrapper),
 }
 
 impl NativeObject {
@@ -36,6 +38,8 @@ impl NativeObject {
             NativeObject::TCPSocket(socket) => socket.type_name(),
             NativeObject::ATCPListener(listener) => listener.type_name(),
             NativeObject::ATCPSocket(socket) => socket.type_name(),
+            NativeObject::AUDPSocket(socket) => socket.type_name(),
+            NativeObject::UDPSocket(socket) => socket.type_name(),
         }
     }
 
@@ -47,6 +51,8 @@ impl NativeObject {
             NativeObject::TCPSocket(socket) => socket.inspect(),
             NativeObject::ATCPListener(listener) => listener.inspect(),
             NativeObject::ATCPSocket(socket) => socket.inspect(),
+            NativeObject::AUDPSocket(socket) => socket.inspect(),
+            NativeObject::UDPSocket(socket) => socket.inspect(),
         }
     }
 
@@ -58,6 +64,8 @@ impl NativeObject {
             NativeObject::TCPSocket(socket) => socket.to_bool(),
             NativeObject::ATCPListener(listener) => listener.to_bool(),
             NativeObject::ATCPSocket(socket) => socket.to_bool(),
+            NativeObject::AUDPSocket(socket) => socket.to_bool(),
+            NativeObject::UDPSocket(socket) => socket.to_bool(),
         }
     }
 
@@ -69,6 +77,8 @@ impl NativeObject {
             NativeObject::TCPSocket(socket) => !socket.is_closed(),
             NativeObject::ATCPListener(listener) => listener.to_bool_raw(),
             NativeObject::ATCPSocket(socket) => socket.to_bool_raw(),
+            NativeObject::AUDPSocket(socket) => socket.to_bool_raw(),
+            NativeObject::UDPSocket(socket) => socket.to_bool_raw(),
         }
     }
 
@@ -85,6 +95,8 @@ impl NativeObject {
             NativeObject::TCPSocket(socket) => socket.apply_method(name, args, state),
             NativeObject::ATCPListener(listener) => listener.apply_method(name, args, state),
             NativeObject::ATCPSocket(socket) => socket.apply_method(name, args, state),
+            NativeObject::AUDPSocket(socket) => socket.apply_method(name, args, state),
+            NativeObject::UDPSocket(socket) => socket.apply_method(name, args, state),
         }
     }
 
@@ -96,6 +108,8 @@ impl NativeObject {
             NativeObject::TCPSocket(socket) => socket.apply_attribute(name, state),
             NativeObject::ATCPListener(listener) => listener.apply_attribute(name, state),
             NativeObject::ATCPSocket(socket) => socket.apply_attribute(name, state),
+            NativeObject::AUDPSocket(socket) => socket.apply_attribute(name, state),
+            NativeObject::UDPSocket(socket) => socket.apply_attribute(name, state),
         }
     }
 }

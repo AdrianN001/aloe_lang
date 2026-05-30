@@ -1,4 +1,4 @@
-
+import {tcp} from "@std::net/socket/tcp.aloe"; 
 
 async fun handle_connection(client_stream){
     println("new connection with: ", client_stream);
@@ -16,7 +16,7 @@ async fun main(){
     let addr = "127.0.0.1";
     let port = 4565;
 
-    let listener = __atcp_bind(addr, port);
+    let listener = await tcp::bind_async(addr, port)?;
     println("Server runs on ${addr}:${port}");
 
     while {
@@ -27,4 +27,4 @@ async fun main(){
 
 }
 
-launch main()
+__spawn(main())

@@ -26,8 +26,8 @@ use crate::object::{
         error::error_builtin_function,
         io::{
             async_tcp_bind_builtin_function, async_tcp_connect_builtin_function,
-            open_builtin_function, path_builtin_function, tcp_bind_builtin_function,
-            tcp_connect_builtin_function,
+            async_udp_bind_builtin_function, open_builtin_function, path_builtin_function,
+            tcp_bind_builtin_function, tcp_connect_builtin_function, udp_bind_builtin_function,
         },
         iterator::range_builtin_function,
         len::len_builtin_function,
@@ -71,6 +71,8 @@ pub enum BuiltIn {
     TCPConnect,
     ATCPBind,
     ATCPConnect,
+    AUDPBind,
+    UDPBind,
 
     Sleep,
     Sleep2,
@@ -161,6 +163,8 @@ impl BuiltIn {
             BuiltIn::TCPConnect => tcp_connect_builtin_function(args, state),
             BuiltIn::ATCPBind => async_tcp_bind_builtin_function(args, state),
             BuiltIn::ATCPConnect => async_tcp_connect_builtin_function(args, state),
+            BuiltIn::AUDPBind => async_udp_bind_builtin_function(args, state),
+            BuiltIn::UDPBind => udp_bind_builtin_function(args, state),
 
             BuiltIn::Sleep => sleep(args, state),
             BuiltIn::Sleep2 => awaitable_sleep_builtin_function(args, state, environ),

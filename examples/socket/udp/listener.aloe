@@ -1,0 +1,19 @@
+import {udp} from "@std::net/socket/udp.aloe";
+
+async fun main(){
+
+    let addr = "127.0.0.1";
+    let port = 4566;
+
+    let socket = udp::bind(addr, port)?;
+
+    for {
+        let _ = socket.recv_from();
+        let buffer = _[0];
+        let addr = _[1];
+
+        println("got: ${buffer.as_str}, from: ${addr}");
+    }
+}
+
+__spawn(main())

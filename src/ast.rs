@@ -1,5 +1,4 @@
 use crate::ast::expression::Expression;
-use crate::ast::expression::identifier::Identifier;
 use crate::ast::expression::value_assign_expression::ValueAssignExpression;
 use crate::ast::precedence::OperationPrecedence;
 use crate::ast::statement::async_function_statement::AsyncFunctionStatement;
@@ -106,43 +105,29 @@ impl Parser {
     }
 
     fn parse_let(&mut self) -> Result<Statement, SyntaxError> {
-        let mut statement = LetStatement {
-            token: self.current_token.clone(),
-            ..Default::default()
-        };
-
-        // if "let" is not followed by var name
-        if self.peek_token.token_type != TokenType::Identifier {
-            return Err(SyntaxError::UnexpectedToken(
-                TokenType::Identifier,
-                self.peek_token.token_type.clone(),
-            ));
-        } else {
-            self.next_token();
-        }
-
-        statement.name = Identifier {
-            value: self.current_token.literal.clone(),
-            token: self.current_token.clone(),
-        };
-
-        if self.peek_token.token_type != TokenType::Assign {
-            return Err(SyntaxError::UnexpectedToken(
-                TokenType::Identifier,
-                self.peek_token.token_type.clone(),
-            ));
-        } else {
-            self.next_token();
-        }
-
+        let curr_token = self.current_token.clone();
         self.next_token();
-        statement.value = self.parse_expression(OperationPrecedence::Lowest)?;
+
+        let assignment = self.parse_expression(OperationPrecedence::Lowest)?;
+
+        match assignment {
+            Expression::ValueAssign(_) => {}
+            other_type => {
+                return Err(SyntaxError::UnexpectedExpression(
+                    vec!["value assignment"],
+                    other_type,
+                ));
+            }
+        };
 
         if self.peek_token.token_type == TokenType::Semicolon {
             self.next_token();
         }
 
-        Ok(Statement::Let(statement))
+        Ok(Statement::Let(LetStatement {
+            token: curr_token,
+            assignment,
+        }))
     }
 
     fn parse_continue(&mut self) -> Result<Statement, SyntaxError> {
@@ -295,9 +280,10 @@ impl Parser {
             token: self.current_token.clone(),
             left: {
                 match left {
-                    Expression::Index(_) | Expression::Identifier(_) | Expression::Member(_) => {
-                        Box::new(left.clone())
-                    }
+                    Expression::Index(_)
+                    | Expression::Identifier(_)
+                    | Expression::Member(_)
+                    | Expression::Array(_) => Box::new(left.clone()),
                     other_expression_type => {
                         return Err(SyntaxError::UnexpectedExpression(
                             vec![

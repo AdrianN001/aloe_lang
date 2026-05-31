@@ -1,7 +1,10 @@
 use std::{cell::RefCell, rc::Rc};
 
 use crate::{
-    ast::statement::Statement,
+    ast::{
+        expression::{Expression, value_assign_expression::ValueAssignExpression},
+        statement::{Statement, let_statement::LetStatement},
+    },
     frame::expr_frame::{EvaluationResult, ExpressionFrame},
     object::{
         Object, ObjectRef,
@@ -73,8 +76,12 @@ impl BlockFrame {
         self.eval_current_stmt(&stmt, state)
     }
 
-    pub fn resume_with(&mut self, value: ObjectRef) -> Option<ObjectRef> {
-        self.handle_statement_after_ready_value(value.clone())
+    pub fn resume_with(
+        &mut self,
+        value: ObjectRef,
+        state: StateRef,
+    ) -> Result<Option<ObjectRef>, RuntimeSignal> {
+        self.handle_statement_after_ready_value(value.clone(), state)
     }
 
     fn eval_current_stmt(
@@ -83,10 +90,16 @@ impl BlockFrame {
         state: StateRef,
     ) -> Result<EvaluationResult, RuntimeSignal> {
         match statement {
-            Statement::Let(let_stmt) => Ok(ExpressionFrame::build_frame_from_expr(
-                &let_stmt.value,
-                self.environ.clone(),
-            )),
+            Statement::Let(let_stmt) => {
+                let right_side = match &let_stmt.assignment {
+                    Expression::ValueAssign(assignment) => assignment.right.clone(),
+                    _ => unreachable!(),
+                };
+                Ok(ExpressionFrame::build_frame_from_expr(
+                    &right_side,
+                    self.environ.clone(),
+                ))
+            }
             Statement::Return(return_stmt) => {
                 //NOTE: Wir mussen die Interpreterstate nicht checken, ob es eine funktion ist, weil await darf eh nur in async funktionen benutzt werden
                 if let Some(return_value) = &return_stmt.value {
@@ -171,37 +184,88 @@ impl BlockFrame {
         }
     }
 
-    fn handle_statement_after_ready_value(&mut self, value: ObjectRef) -> Option<ObjectRef> {
+    fn handle_statement_after_ready_value(
+        &mut self,
+        value: ObjectRef,
+        state: StateRef,
+    ) -> Result<Option<ObjectRef>, RuntimeSignal> {
         let current_statement = &self.statements[self.index];
         match current_statement {
             Statement::Let(let_stmt) => {
+                self.handle_let_statement_with_value(let_stmt, value, state)?;
+                /*
                 self.environ
                     .borrow_mut()
                     .set(&let_stmt.name.value, value.clone());
+                */
                 self.index += 1;
-                None
+                Ok(None)
             }
             Statement::Return(_) => {
                 self.index += 1;
-                Some(value)
+                Ok(Some(value))
             }
             Statement::Break(_) => {
                 self.break_value = Some(new_objectref(Object::BreakVal(BreakValue {
                     value: Box::new(value.clone()),
                 })));
-                None
+                Ok(None)
             }
-            Statement::Continue(_) => None,
+            Statement::Continue(_) => Ok(None),
 
             Statement::Launch(_) => {
                 self.launch_value = Some(value);
-                None
+                Ok(None)
             }
 
             _ => {
                 self.last_object = Some(value.clone());
                 self.index += 1;
-                None
+                Ok(None)
+            }
+        }
+    }
+
+    fn handle_let_statement_with_value(
+        &self,
+        statement: &LetStatement,
+        right_value: ObjectRef,
+        interpreter_state: StateRef,
+    ) -> Result<(), RuntimeSignal> {
+        let assignment_expr = match &statement.assignment {
+            Expression::ValueAssign(value_assign) => value_assign,
+            _ => unreachable!(),
+        };
+
+        match &*assignment_expr.left {
+            Expression::Identifier(identifier_expr) => {
+                self.environ
+                    .borrow_mut()
+                    .set_to_lowest_level(&identifier_expr.value, right_value);
+                Ok(())
+            }
+            Expression::Array(destruct_arr) => {
+                let identifiers = ValueAssignExpression::get_identifier_from_destruct_arr(
+                    &destruct_arr,
+                    interpreter_state.clone(),
+                )?;
+                let _ = ValueAssignExpression::evaluate_destructuring_with_let_binding(
+                    &identifiers,
+                    right_value,
+                    self.environ.clone(),
+                    interpreter_state,
+                )?;
+                Ok(())
+            }
+            other_expression => {
+                return Err(RuntimeSignal::Panic(PanicObj::new(
+                    PanicType::WrongSyntax,
+                    format!(
+                        "expcted after let keyword an identifier, or an array for destructuring, got: '{}'",
+                        other_expression.to_string()
+                    ),
+                    interpreter_state,
+                )));
             }
         }
     }

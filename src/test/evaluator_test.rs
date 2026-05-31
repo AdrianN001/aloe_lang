@@ -2444,3 +2444,34 @@ fn test_method_call_without_parenthesis() {
 
     test_cases_for_input_output(&testcases);
 }
+
+#[test]
+fn test_array_destructuring() {
+    let testcases = [
+        ("let [a,b] = [1,2]; a;", "1"),
+        ("let [a,b] = [1,2]; b;", "2"),
+        (
+            "let func_returning_arr = fn(){ [1,2,3] }; let [a,b,c] = func_returning_arr(); a;",
+            "1",
+        ),
+        (
+            "let func_returning_arr = fn(){ [1,2,3] }; let [a,b,c] = func_returning_arr(); b;",
+            "2",
+        ),
+        (
+            "let func_returning_arr = fn(){ [1,2,3] }; let [a,b,c] = func_returning_arr(); c;",
+            "3",
+        ),
+        (
+            "let [a,b,c] = [1,2];",
+            "Array on the right side has a length of 2, but there are 3 identifiers the left side.",
+        ),
+        ("let [head, tail] = range(10).collect(); head;", "0"),
+        (
+            "let [head, tail] = range(10).collect(); tail;",
+            "[1, 2, 3, 4, 5, 6, 7, 8, 9]",
+        ),
+    ];
+
+    test_cases_for_input_output(&testcases);
+}

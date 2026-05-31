@@ -10,6 +10,7 @@ pub enum PanicType {
     WrongIndexType,
     WrongArgumentType,
     WrongArgumentCount,
+    Destructuring,
 
     DivisionByNull,
 

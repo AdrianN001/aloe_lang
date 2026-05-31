@@ -43,7 +43,9 @@ impl Frame {
                     .resume_with(value, interpreter_state)?;
                 Ok(None)
             }
-            Frame::BlockFrame(block_frame) => Ok(block_frame.borrow_mut().resume_with(value)),
+            Frame::BlockFrame(block_frame) => block_frame
+                .borrow_mut()
+                .resume_with(value, interpreter_state),
         }
     }
 

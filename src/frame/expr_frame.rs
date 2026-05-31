@@ -188,10 +188,18 @@ impl ExpressionFrame {
     }
 
     pub fn new_value_assign_frame(expr: Expression) -> Self {
+        let value_assign_expr = match &expr {
+            Expression::ValueAssign(value_assign) => value_assign,
+            _ => unreachable!(),
+        };
+
+        let is_destruct = matches!(*value_assign_expr.left, Expression::Array(_));
+
         Self {
             expr,
             state: ExpressionState::ValueAssign {
                 state: ValueAssignState {
+                    needs_to_resolve_right_side: !is_destruct,
                     left_value: None,
                     right_value: None,
                 },

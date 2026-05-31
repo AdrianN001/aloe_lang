@@ -240,6 +240,16 @@ __spawn(b());
 ",
             "null",
         ),
+        (
+            "
+        async fun get_value() { [1,2,3] }
+        async fun main(){
+            let [a,b] = await get_value();
+            println(a,b);
+        }
+        __spawn(main())",
+            "null",
+        ),
     ];
 
     test_cases_for_input_output(&testcases);

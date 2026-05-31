@@ -1,5 +1,5 @@
 use crate::{
-    ast::statement::let_statement::LetStatement,
+    ast::{expression::Expression, statement::let_statement::LetStatement},
     object::{
         Object, ObjectRef, new_objectref, panic_obj::RuntimeSignal, return_value::ReturnValue,
         stack_environment::EnvRef, state::StateRef,
@@ -8,7 +8,12 @@ use crate::{
 
 impl LetStatement {
     pub fn evaluate(&self, environ: EnvRef, state: StateRef) -> Result<ObjectRef, RuntimeSignal> {
-        let value_res = self.value.evaluate(environ.clone(), state.clone());
+        let value_assign_expr = match &self.assignment {
+            Expression::ValueAssign(value_assign) => value_assign,
+            _ => unreachable!(),
+        };
+
+        let value_res = value_assign_expr.evaluate_with_let_binding(environ.clone(), state.clone());
 
         let value = match value_res {
             Ok(ok_value) => ok_value,
@@ -19,9 +24,6 @@ impl LetStatement {
             }
         };
 
-        environ
-            .borrow_mut()
-            .set_to_lowest_level(&self.name.value, value.clone());
         Ok(value.clone())
     }
 

@@ -8,9 +8,7 @@ async fun main(){
     let socket = await udp::bind_async(addr, port)?;
 
     for {
-        let _ = await socket.recv_from_async();
-        let buffer = _[0];
-        let addr = _[1];
+        let [buffer, addr] = await socket.recv_from_async();
 
         println("got: ${buffer.as_str}, from: ${addr}");
     }

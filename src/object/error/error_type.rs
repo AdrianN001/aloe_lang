@@ -40,5 +40,7 @@ pub enum ErrorType {
     PathParentResolve,
     PathChildResolve,
 
+    Command,
+
     CustomError(),
 }

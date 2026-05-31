@@ -18,6 +18,7 @@ pub mod iterator;
 pub mod module;
 pub mod network_wrapper;
 pub mod path_wrapper;
+pub mod process;
 pub mod string;
 
 impl Object {

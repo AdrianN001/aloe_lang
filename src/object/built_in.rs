@@ -7,6 +7,7 @@ mod iterator;
 mod len;
 mod math;
 mod memory;
+mod process;
 mod random;
 mod time;
 mod utils;
@@ -34,6 +35,7 @@ use crate::object::{
         memory::{
             id_builtin_function, number_of_references_builtin_function, size_of_builtin_function,
         },
+        process::command_builtin_function,
         random::random_builtin_function,
         time::{awaitable_sleep_builtin_function, sleep, time_builtin_function},
         utils::{inspect_builtin_function, type_builtin_function},
@@ -73,6 +75,8 @@ pub enum BuiltIn {
     ATCPConnect,
     AUDPBind,
     UDPBind,
+
+    Cmd,
 
     Sleep,
     Sleep2,
@@ -165,6 +169,8 @@ impl BuiltIn {
             BuiltIn::ATCPConnect => async_tcp_connect_builtin_function(args, state),
             BuiltIn::AUDPBind => async_udp_bind_builtin_function(args, state),
             BuiltIn::UDPBind => udp_bind_builtin_function(args, state),
+
+            BuiltIn::Cmd => command_builtin_function(args, state),
 
             BuiltIn::Sleep => sleep(args, state),
             BuiltIn::Sleep2 => awaitable_sleep_builtin_function(args, state, environ),

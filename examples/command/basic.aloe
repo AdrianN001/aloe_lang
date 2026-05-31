@@ -1,0 +1,10 @@
+import {command} from "@std::process/command.aloe";
+
+let cmd = command::new("echo").add_arg("hello, world");
+
+let [status, stdout, stderr] = cmd.output()!;
+
+
+println("status = ${status}");
+println("stdout = ${stdout.as_str}");
+println("stderr = ${stderr.as_str}");

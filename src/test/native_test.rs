@@ -24,3 +24,54 @@ pub fn test_path() {
 
     test_cases_for_input_output(&testcases);
 }
+
+#[test]
+pub fn test_cmd() {
+    let testcases = [
+        (
+            "
+        let command = __cmd(\"echo\");
+        command.add_arg(\"hello, world\");
+        command.program
+        ",
+            "echo",
+        ),
+        (
+            "
+        let command = __cmd(\"echo\");
+        command.add_arg(\"hello, world\");
+        command.args
+        ",
+            "[hello, world]",
+        ),
+        (
+            "
+        let command = __cmd(\"echo\");
+        command.add_arg(\"hello, world\");
+        let [status, stdout, stderr] = command.output();
+        status
+        ",
+            "0",
+        ),
+        (
+            "
+        let command = __cmd(\"echo\");
+        command.add_arg(\"hello, world\");
+        let [status, stdout, stderr] = command.output();
+        stdout.as_str
+        ",
+            "hello, world\n",
+        ),
+        (
+            "
+        let command = __cmd(\"echo\");
+        command.add_arg(\"hello, world\");
+        let [status, stdout, stderr] = command.output();
+        stderr.as_str
+        ",
+            "",
+        ),
+    ];
+
+    test_cases_for_input_output(&testcases);
+}

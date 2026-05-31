@@ -40,24 +40,14 @@ pub enum PanicType {
     IllegalExpression,
     Propagation,
 
-    FileOpen,
-    IO,
-
-    SocketBind,
-    SocketAccept,
-    SocketRead,
-    SocketWrite,
-    Listener,
-
     MethodMissingThis,
     ConstructorIsNotAMethod,
 
     NonAwaitableObjectWasAwaited,
-    MultipleAwaitInOneStatement,
-
+    //memory: MultipleAwaitInOneStatement,
     AwaitedInNonAsyncContext,
 
     WrongSyntax,
 
-    UTF8Conversion,
+    UTF8Conversion, //TODO: error
 }

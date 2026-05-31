@@ -2,6 +2,7 @@ pub mod a_network;
 pub mod file;
 pub mod network;
 pub mod path;
+pub mod process;
 
 use crate::object::{
     ObjectRef,
@@ -10,6 +11,7 @@ use crate::object::{
         file::FileWrapper,
         network::{TCPSocketListenerWrapper, TCPSocketWrapper, UDPSocketWrapper},
         path::PathWrapper,
+        process::CommandWrapper,
     },
     panic_obj::PanicObj,
     state::StateRef,
@@ -27,6 +29,8 @@ pub enum NativeObject {
     ATCPListener(ATCPSocketListenerWrapper),
     ATCPSocket(ATCPSocketWrapper),
     AUDPSocket(AUDPSocketWrapper),
+
+    Command(CommandWrapper),
 }
 
 impl NativeObject {
@@ -40,6 +44,7 @@ impl NativeObject {
             NativeObject::ATCPSocket(socket) => socket.type_name(),
             NativeObject::AUDPSocket(socket) => socket.type_name(),
             NativeObject::UDPSocket(socket) => socket.type_name(),
+            NativeObject::Command(command) => command.type_name(),
         }
     }
 
@@ -53,6 +58,7 @@ impl NativeObject {
             NativeObject::ATCPSocket(socket) => socket.inspect(),
             NativeObject::AUDPSocket(socket) => socket.inspect(),
             NativeObject::UDPSocket(socket) => socket.inspect(),
+            NativeObject::Command(command) => command.inspect(),
         }
     }
 
@@ -66,6 +72,7 @@ impl NativeObject {
             NativeObject::ATCPSocket(socket) => socket.to_bool(),
             NativeObject::AUDPSocket(socket) => socket.to_bool(),
             NativeObject::UDPSocket(socket) => socket.to_bool(),
+            NativeObject::Command(command) => command.to_bool(),
         }
     }
 
@@ -79,6 +86,7 @@ impl NativeObject {
             NativeObject::ATCPSocket(socket) => socket.to_bool_raw(),
             NativeObject::AUDPSocket(socket) => socket.to_bool_raw(),
             NativeObject::UDPSocket(socket) => socket.to_bool_raw(),
+            NativeObject::Command(command) => command.to_bool_raw(),
         }
     }
 
@@ -97,6 +105,7 @@ impl NativeObject {
             NativeObject::ATCPSocket(socket) => socket.apply_method(name, args, state),
             NativeObject::AUDPSocket(socket) => socket.apply_method(name, args, state),
             NativeObject::UDPSocket(socket) => socket.apply_method(name, args, state),
+            NativeObject::Command(command) => command.apply_method(name, args, state),
         }
     }
 
@@ -110,6 +119,7 @@ impl NativeObject {
             NativeObject::ATCPSocket(socket) => socket.apply_attribute(name, state),
             NativeObject::AUDPSocket(socket) => socket.apply_attribute(name, state),
             NativeObject::UDPSocket(socket) => socket.apply_attribute(name, state),
+            NativeObject::Command(command) => command.apply_attribute(name, state),
         }
     }
 }

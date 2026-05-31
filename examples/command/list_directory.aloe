@@ -1,0 +1,10 @@
+import {command} from "@std::process/command.aloe";
+
+let cmd = command::new("ls").add_arg("-l").add_arg("-a");
+
+let [status, stdout, stderr] = cmd.output()!;
+
+
+println("status = ${status}");
+println("stdout = ${stdout.as_str}");
+println("stderr = ${stderr.as_str}");

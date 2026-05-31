@@ -1,0 +1,10 @@
+import {command} from "@std::process/command.aloe";
+
+let cmd = command::new("sh").add_arg("-c").add_arg("echo \"Error\" >&2");
+
+let [status, stdout, stderr] = cmd.output()!;
+
+
+println("status = ${status}");
+println("stdout = ${stdout.as_str}");
+println("stderr = ${stderr.as_str}");

@@ -43,8 +43,8 @@ impl Parser {
         let mut new_parser = Self {
             lexer,
             report: SyntaxErrorReport::new(),
-            current_token: Token::simple(TokenType::Illegal, "\0"),
-            peek_token: Token::simple(TokenType::Illegal, "\0"),
+            current_token: Token::simple(TokenType::Illegal, "\0", 0),
+            peek_token: Token::simple(TokenType::Illegal, "\0", 0),
         };
 
         // both current_token und peek_token is set
@@ -52,6 +52,10 @@ impl Parser {
         new_parser.next_token();
 
         new_parser
+    }
+
+    fn get_current_line(&self) -> usize {
+        self.lexer.current_line
     }
 
     fn next_token(&mut self) {
@@ -116,6 +120,7 @@ impl Parser {
                 return Err(SyntaxError::UnexpectedExpression(
                     vec!["value assignment"],
                     other_type,
+                    self.get_current_line(),
                 ));
             }
         };
@@ -150,6 +155,7 @@ impl Parser {
             return Err(SyntaxError::UnexpectedToken(
                 TokenType::Identifier,
                 self.peek_token.token_type.clone(),
+                self.get_current_line(),
             ));
         }
         self.next_token();
@@ -160,6 +166,7 @@ impl Parser {
             return Err(SyntaxError::UnexpectedToken(
                 TokenType::LParen,
                 self.peek_token.token_type.clone(),
+                self.get_current_line(),
             ));
         }
         self.next_token();
@@ -170,6 +177,7 @@ impl Parser {
             return Err(SyntaxError::UnexpectedToken(
                 TokenType::LBrace,
                 self.peek_token.token_type.clone(),
+                self.get_current_line(),
             ));
         }
         self.next_token();
@@ -186,6 +194,7 @@ impl Parser {
             return Err(SyntaxError::UnexpectedKeyword(
                 TokenType::LBrace,
                 self.peek_token.token_type.clone(),
+                self.get_current_line(),
             ));
         }
         self.next_token();
@@ -196,6 +205,7 @@ impl Parser {
             return Err(SyntaxError::UnexpectedKeyword(
                 TokenType::KwFrom,
                 self.peek_token.token_type.clone(),
+                self.get_current_line(),
             ));
         }
         self.next_token();
@@ -204,6 +214,7 @@ impl Parser {
             return Err(SyntaxError::UnexpectedToken(
                 TokenType::String,
                 self.peek_token.token_type.clone(),
+                self.get_current_line(),
             ));
         }
         self.next_token();
@@ -219,6 +230,7 @@ impl Parser {
                 return Err(SyntaxError::UnexpectedToken(
                     TokenType::Identifier,
                     self.peek_token.token_type.clone(),
+                    self.get_current_line(),
                 ));
             }
             self.next_token();
@@ -292,13 +304,14 @@ impl Parser {
                                 "Member Expression".into(),
                             ],
                             other_expression_type.clone(),
+                            self.get_current_line(),
                         ));
                     }
                 }
             },
             right: {
                 if self.peek_token.token_type == TokenType::Semicolon {
-                    return Err(SyntaxError::UnexpectedSemicolon);
+                    return Err(SyntaxError::UnexpectedSemicolon(self.get_current_line()));
                 }
                 self.next_token();
                 let right_expr = self.parse_expression(OperationPrecedence::Lowest)?;
@@ -342,6 +355,7 @@ impl Parser {
             return Err(SyntaxError::UnexpectedToken(
                 TokenType::Identifier,
                 self.peek_token.token_type.clone(),
+                self.get_current_line(),
             ));
         }
         self.next_token();
@@ -355,6 +369,7 @@ impl Parser {
                     return Err(SyntaxError::UnexpectedExpression(
                         vec!["Identifer"],
                         other_expr.clone(),
+                        self.get_current_line(),
                     ));
                 }
             }
@@ -364,6 +379,7 @@ impl Parser {
             return Err(SyntaxError::UnexpectedToken(
                 TokenType::Identifier,
                 self.peek_token.token_type.clone(),
+                self.get_current_line(),
             ));
         }
         self.next_token();
@@ -405,6 +421,7 @@ impl Parser {
                             vec![TokenType::Semicolon],
                             self.peek_token.token_type.clone(),
                             struct_name.to_string(),
+                            self.get_current_line(),
                         ));
                     }
                     self.next_token();
@@ -421,6 +438,7 @@ impl Parser {
                             vec![TokenType::KwFunctionStatement],
                             self.peek_token.token_type.clone(),
                             struct_name.to_string(),
+                            self.get_current_line(),
                         ));
                     }
                     let method = self.parse_async_function_statement()?;
@@ -431,6 +449,7 @@ impl Parser {
                         vec![TokenType::Identifier, TokenType::KwFunction],
                         self.current_token.token_type.clone(),
                         struct_name.to_string(),
+                        self.get_current_line(),
                     ));
                 }
             }
@@ -458,6 +477,7 @@ impl Parser {
             other_token => Err(SyntaxError::UnexpectedTokenAfterAsync(
                 vec![TokenType::KwFunction, TokenType::KwFunctionStatement],
                 other_token.clone(),
+                self.get_current_line(),
             )),
         }
     }

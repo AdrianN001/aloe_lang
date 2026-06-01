@@ -6,6 +6,10 @@ fun divide(a, b){
     a/b
 }
 
-println("10/5 = ${divide(10, 5)!}");
-println("10/0 = ${divide(10, 0)!}");
-println("0/10 = ${divide(0, 10)!}"); # this line will not be executed
+fun main(){
+    println("10/5 = ${divide(10, 5)?}");
+    println("10/0 = ${divide(10, 0)?}");
+    println("0/10 = ${divide(0, 10)?}"); # this line will not be executed
+}
+
+println(main());

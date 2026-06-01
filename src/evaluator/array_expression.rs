@@ -8,6 +8,9 @@ use crate::{
 
 impl ArrayLiteral {
     pub fn evaluate(&self, environ: EnvRef, state: StateRef) -> Result<ObjectRef, RuntimeSignal> {
+        {
+            state.borrow_mut().set_current_line(self.token.line_number);
+        }
         let mut objects = Vec::new();
 
         for element in &self.elements {

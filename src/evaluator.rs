@@ -60,9 +60,11 @@ impl Expression {
             Expression::Prefix(prefix_expr) => {
                 let right_side = prefix_expr.right.evaluate(environ, state.clone())?;
 
-                right_side
-                    .borrow_mut()
-                    .evaluate_prefix(&prefix_expr.operator, state)
+                right_side.borrow_mut().evaluate_prefix(
+                    &prefix_expr.operator,
+                    prefix_expr.token.line_number,
+                    state,
+                )
             }
             Expression::ValueAssign(value_assign) => value_assign.evaluate(environ, state),
             Expression::HashMapLiteral(hashmap) => hashmap.evaluate(environ, state),

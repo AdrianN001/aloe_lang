@@ -76,9 +76,10 @@ impl Function {
         }
 
         {
-            state
-                .borrow_mut()
-                .push_to_stack(name_of_the_function.clone());
+            let mut state_borrow = state.borrow_mut();
+            let current_line = state_borrow.current_line;
+
+            state_borrow.push_to_stack(name_of_the_function.clone(), current_line);
         }
 
         let env = self.extend_environment_with_args(name_of_the_function, arguments);

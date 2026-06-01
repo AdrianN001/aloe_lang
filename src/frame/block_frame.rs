@@ -91,6 +91,11 @@ impl BlockFrame {
     ) -> Result<EvaluationResult, RuntimeSignal> {
         match statement {
             Statement::Let(let_stmt) => {
+                {
+                    state
+                        .borrow_mut()
+                        .set_current_line(let_stmt.token.line_number);
+                }
                 let right_side = match &let_stmt.assignment {
                     Expression::ValueAssign(assignment) => assignment.right.clone(),
                     _ => unreachable!(),
@@ -101,6 +106,11 @@ impl BlockFrame {
                 ))
             }
             Statement::Return(return_stmt) => {
+                {
+                    state
+                        .borrow_mut()
+                        .set_current_line(return_stmt.token.line_number);
+                }
                 //NOTE: Wir mussen die Interpreterstate nicht checken, ob es eine funktion ist, weil await darf eh nur in async funktionen benutzt werden
                 if let Some(return_value) = &return_stmt.value {
                     Ok(ExpressionFrame::build_frame_from_expr(
@@ -117,6 +127,11 @@ impl BlockFrame {
             )),
 
             Statement::Break(break_stmt) => {
+                {
+                    state
+                        .borrow_mut()
+                        .set_current_line(break_stmt.token.line_number);
+                }
                 let is_loop_context = { self.environ.borrow().is_loop_context() };
 
                 if !is_loop_context {
@@ -143,7 +158,12 @@ impl BlockFrame {
                     ))))
                 }
             }
-            Statement::Continue(_) => {
+            Statement::Continue(continue_stmt) => {
+                {
+                    state
+                        .borrow_mut()
+                        .set_current_line(continue_stmt.token.line_number);
+                }
                 let is_loop_context = { self.environ.borrow().is_loop_context() };
 
                 if !is_loop_context {
@@ -158,6 +178,11 @@ impl BlockFrame {
             }
 
             Statement::Launch(launch_stmt) => {
+                {
+                    state
+                        .borrow_mut()
+                        .set_current_line(launch_stmt.token.line_number);
+                }
                 if let Some(launch_value) = &self.launch_value {
                     let result = spawn_builtin_function(&[launch_value.clone()], state)?;
                     self.launch_value = None;

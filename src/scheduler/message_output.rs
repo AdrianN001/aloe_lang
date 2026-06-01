@@ -43,7 +43,7 @@ impl MessageOutput {
             }
             MessageOutput::Error((errortype, message, origin)) => {
                 let mut new_state = InterpreterState::default();
-                new_state.push_to_stack(origin);
+                new_state.push_to_stack(origin, 0);
 
                 let state_ref = Rc::new(RefCell::new(new_state));
 
@@ -53,7 +53,7 @@ impl MessageOutput {
             }
             MessageOutput::Panic((panictype, message, origin)) => {
                 let mut new_state = InterpreterState::default();
-                new_state.push_to_stack(origin);
+                new_state.push_to_stack(origin, 0);
 
                 let state_ref = Rc::new(RefCell::new(new_state));
 

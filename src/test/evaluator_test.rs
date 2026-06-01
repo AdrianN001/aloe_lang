@@ -781,7 +781,7 @@ fn eval_hashmap_indexing() {
         (r#"{"asd": 123, true: "abc"}["asd"]"#, "123"),
         (
             r#"{}["asd"]"#,
-            "Stack trace:\n\t at <global>\nItemNotFoundError: hashmap has no key: 'asd'",
+            "Stack trace:\n\t at <global>\nline 1, ItemNotFoundError: hashmap has no key: 'asd'",
         ),
         (r#"{false: fn(){return 5;}()}[false]"#, "5"),
     ];

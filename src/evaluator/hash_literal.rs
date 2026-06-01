@@ -16,6 +16,10 @@ impl HashMapLiteral {
     pub fn evaluate(&self, environ: EnvRef, state: StateRef) -> Result<ObjectRef, RuntimeSignal> {
         let mut pairs = BTreeMap::new();
 
+        {
+            state.borrow_mut().set_current_line(self.token.line_number);
+        }
+
         for (k, v) in &self.pairs {
             let key = k.evaluate(environ.clone(), state.clone())?;
 

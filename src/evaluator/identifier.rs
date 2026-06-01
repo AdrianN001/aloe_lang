@@ -29,6 +29,7 @@ impl Identifier {
 
             "type" => Some(BuiltIn::Type),
             "inspect" => Some(BuiltIn::Inspect),
+            "__line__" => Some(BuiltIn::Line),
 
             "range" => Some(BuiltIn::Range),
             "__random" => Some(BuiltIn::Random),

@@ -25,6 +25,9 @@ impl InfixExpression {
         environ: EnvRef,
         state: StateRef,
     ) -> Result<ObjectRef, RuntimeSignal> {
+        {
+            state.borrow_mut().set_current_line(self.token.line_number);
+        }
         let left_side = self.left.evaluate(environ.clone(), state.clone())?;
 
         if self.operator == "??" {

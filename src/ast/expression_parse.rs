@@ -56,6 +56,7 @@ impl Parser {
             _ => {
                 return Err(SyntaxError::TokenCanNotBeParsedCorrectly(
                     self.current_token.token_type.clone(),
+                    self.get_current_line(),
                 ));
             }
         }?;
@@ -173,6 +174,7 @@ impl Parser {
             return Err(SyntaxError::UnexpectedTokenAfterAsync(
                 vec![TokenType::KwFunction, TokenType::KwFunctionStatement],
                 self.current_token.token_type.clone(),
+                self.get_current_line(),
             ));
         }
 
@@ -203,6 +205,7 @@ impl Parser {
             return Err(SyntaxError::UnexpectedTokenInForLoopHead(
                 vec!["Identifier", "Opening Block"],
                 self.peek_token.token_type.clone(),
+                self.get_current_line(),
             ));
         }
         self.next_token(); // curr at 'identifier'
@@ -213,6 +216,7 @@ impl Parser {
             return Err(SyntaxError::UnexpectedToken(
                 TokenType::IteratorAssign,
                 self.peek_token.token_type.clone(),
+                self.get_current_line(),
             ));
         }
         self.next_token(); // curr at <-
@@ -289,12 +293,16 @@ impl Parser {
                     member_expr.member_name = call_identifier.value.clone()
                 }
                 other_expr => {
-                    return Err(SyntaxError::MethodCallWithoutIdentifier(other_expr.clone()));
+                    return Err(SyntaxError::MethodCallWithoutIdentifier(
+                        other_expr.clone(),
+                        self.get_current_line(),
+                    ));
                 }
             },
             other_expr => {
                 return Err(SyntaxError::MemberExpressionWithoutAttributeOrMethodCall(
                     other_expr.clone(),
+                    self.get_current_line(),
                 ));
             }
         }
@@ -327,12 +335,16 @@ impl Parser {
                     scope_res_expr.member_name = call_identifier.value.clone()
                 }
                 other_expr => {
-                    return Err(SyntaxError::MethodCallWithoutIdentifier(other_expr.clone()));
+                    return Err(SyntaxError::MethodCallWithoutIdentifier(
+                        other_expr.clone(),
+                        self.get_current_line(),
+                    ));
                 }
             },
             other_expr => {
                 return Err(SyntaxError::MemberExpressionWithoutAttributeOrMethodCall(
                     other_expr.clone(),
+                    self.get_current_line(),
                 ));
             }
         }
@@ -350,6 +362,7 @@ impl Parser {
             return Err(SyntaxError::UnexpectedToken(
                 TokenType::RParen,
                 self.peek_token.token_type.clone(),
+                self.get_current_line(),
             ));
         }
         self.next_token();
@@ -381,6 +394,7 @@ impl Parser {
             })),
             Err(_) => Err(SyntaxError::IntegerCanNotBeParsed(
                 self.current_token.literal.clone(),
+                self.get_current_line(),
             )),
         }
     }
@@ -409,6 +423,7 @@ impl Parser {
             return Err(SyntaxError::UnexpectedToken(
                 TokenType::RBrace,
                 self.peek_token.token_type.clone(),
+                self.get_current_line(),
             ));
         }
         self.next_token();
@@ -461,6 +476,7 @@ impl Parser {
                         "Member Expression".into(),
                     ],
                     other_expression_type.clone(),
+                    self.get_current_line(),
                 ));
             }
         };
@@ -487,7 +503,8 @@ impl Parser {
             operator: matching_operator_str,
             left: left_side.clone(),
             right: {
-                let precedence = get_precedence_of_operator(&Token::simple(matching_operator, ""));
+                let precedence =
+                    get_precedence_of_operator(&Token::simple(matching_operator, "", 0));
                 self.next_token();
                 match self.parse_expression(precedence) {
                     Ok(expr) => Box::new(expr),
@@ -538,6 +555,7 @@ impl Parser {
                 return Err(SyntaxError::UnexpectedToken(
                     TokenType::Colon,
                     self.peek_token.token_type.clone(),
+                    self.get_current_line(),
                 ));
             }
             self.next_token();
@@ -552,6 +570,7 @@ impl Parser {
                     return Err(SyntaxError::UnexpectedTokenWithMultipleChoice(
                         vec![TokenType::RBrace, TokenType::Comma],
                         self.peek_token.token_type.clone(),
+                        self.get_current_line(),
                     ));
                 }
                 self.next_token();
@@ -562,6 +581,7 @@ impl Parser {
             return Err(SyntaxError::UnexpectedToken(
                 TokenType::RBrace,
                 self.peek_token.token_type.clone(),
+                self.get_current_line(),
             ));
         }
         self.next_token();
@@ -585,6 +605,7 @@ impl Parser {
             return Err(SyntaxError::UnexpectedToken(
                 TokenType::LBrace,
                 self.peek_token.token_type.clone(),
+                self.get_current_line(),
             ));
         }
         self.next_token();
@@ -604,6 +625,7 @@ impl Parser {
                 return Err(SyntaxError::UnexpectedToken(
                     TokenType::LBrace,
                     self.peek_token.token_type.clone(),
+                    self.get_current_line(),
                 ));
             }
             self.next_token();
@@ -621,6 +643,7 @@ impl Parser {
                 return Err(SyntaxError::UnexpectedToken(
                     TokenType::LBrace,
                     self.peek_token.token_type.clone(),
+                    self.get_current_line(),
                 ));
             }
             self.next_token();
@@ -667,6 +690,7 @@ impl Parser {
             return Err(SyntaxError::UnexpectedToken(
                 TokenType::LParen,
                 self.peek_token.token_type.clone(),
+                self.get_current_line(),
             ));
         }
         self.next_token();
@@ -677,6 +701,7 @@ impl Parser {
             return Err(SyntaxError::UnexpectedToken(
                 TokenType::LBrace,
                 self.peek_token.token_type.clone(),
+                self.get_current_line(),
             ));
         }
         self.next_token();
@@ -719,6 +744,7 @@ impl Parser {
             return Err(SyntaxError::UnexpectedToken(
                 TokenType::RParen,
                 self.peek_token.token_type.clone(),
+                self.get_current_line(),
             ));
         }
         self.next_token();
@@ -776,6 +802,7 @@ impl Parser {
             return Err(SyntaxError::UnexpectedToken(
                 end_token,
                 self.peek_token.token_type.clone(),
+                self.get_current_line(),
             ));
         }
         self.next_token();

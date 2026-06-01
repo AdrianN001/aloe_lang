@@ -14,6 +14,9 @@ use crate::{
 
 impl StringExpr {
     pub fn evaluate(&self, environ: EnvRef, state: StateRef) -> Result<ObjectRef, RuntimeSignal> {
+        {
+            state.borrow_mut().set_current_line(self.token.line_number);
+        }
         let raw_str = &self.value;
         if raw_str.is_empty() {
             return Ok(new_objectref(Object::String(Box::new(StringObj {

@@ -8,6 +8,9 @@ use crate::{
 
 impl LetStatement {
     pub fn evaluate(&self, environ: EnvRef, state: StateRef) -> Result<ObjectRef, RuntimeSignal> {
+        {
+            state.borrow_mut().set_current_line(self.token.line_number);
+        }
         let value_assign_expr = match &self.assignment {
             Expression::ValueAssign(value_assign) => value_assign,
             _ => unreachable!(),

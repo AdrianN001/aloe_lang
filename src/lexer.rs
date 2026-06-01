@@ -9,6 +9,8 @@ pub struct Lexer {
     read_pos: usize,
 
     character: char,
+
+    pub current_line: usize,
 }
 
 impl Lexer {
@@ -19,6 +21,7 @@ impl Lexer {
             read_pos: 0,
 
             character: 0 as char,
+            current_line: 1,
         };
 
         new_lexer.read_char();
@@ -47,6 +50,10 @@ impl Lexer {
             self.position = self.read_pos;
             self.read_pos += 1;
             return None;
+        }
+
+        if self.character == '\n' {
+            self.current_line += 1;
         }
 
         self.character = self.input[self.read_pos];
@@ -232,66 +239,66 @@ impl Lexer {
                     && next_char == '='
                 {
                     self.read_char();
-                    Token::simple(TokenType::Eq, "==")
+                    Token::simple(TokenType::Eq, "==", self.current_line)
                 } else {
-                    Token::simple(TokenType::Assign, "=")
+                    Token::simple(TokenType::Assign, "=", self.current_line)
                 }
             }
-            ';' => Token::simple(TokenType::Semicolon, ";"),
-            '(' => Token::simple(TokenType::LParen, "("),
-            ')' => Token::simple(TokenType::RParen, ")"),
-            '[' => Token::simple(TokenType::LBracket, "["),
-            ']' => Token::simple(TokenType::RBracket, "]"),
-            ',' => Token::simple(TokenType::Comma, ","),
+            ';' => Token::simple(TokenType::Semicolon, ";", self.current_line),
+            '(' => Token::simple(TokenType::LParen, "(", self.current_line),
+            ')' => Token::simple(TokenType::RParen, ")", self.current_line),
+            '[' => Token::simple(TokenType::LBracket, "[", self.current_line),
+            ']' => Token::simple(TokenType::RBracket, "]", self.current_line),
+            ',' => Token::simple(TokenType::Comma, ",", self.current_line),
             '+' => match self.peek() {
                 Some('=') => {
                     self.read_char();
-                    Token::simple(TokenType::PlusEq, "+=")
+                    Token::simple(TokenType::PlusEq, "+=", self.current_line)
                 }
-                _ => Token::simple(TokenType::Plus, "+"),
+                _ => Token::simple(TokenType::Plus, "+", self.current_line),
             },
             '-' => match self.peek() {
                 Some('=') => {
                     self.read_char();
-                    Token::simple(TokenType::MinusEq, "-=")
+                    Token::simple(TokenType::MinusEq, "-=", self.current_line)
                 }
-                _ => Token::simple(TokenType::Minus, "-"),
+                _ => Token::simple(TokenType::Minus, "-", self.current_line),
             },
             '/' => match self.peek() {
                 Some('=') => {
                     self.read_char();
-                    Token::simple(TokenType::DivEq, "/=")
+                    Token::simple(TokenType::DivEq, "/=", self.current_line)
                 }
-                _ => Token::simple(TokenType::Slash, "/"),
+                _ => Token::simple(TokenType::Slash, "/", self.current_line),
             },
             '&' => match self.peek() {
                 Some('&') => {
                     self.read_char();
-                    Token::simple(TokenType::LogicalAnd, "&&")
+                    Token::simple(TokenType::LogicalAnd, "&&", self.current_line)
                 }
                 Some('=') => {
                     self.read_char();
-                    Token::simple(TokenType::BinaryAndEq, "&=")
+                    Token::simple(TokenType::BinaryAndEq, "&=", self.current_line)
                 }
-                _ => Token::simple(TokenType::BinaryAnd, "&"),
+                _ => Token::simple(TokenType::BinaryAnd, "&", self.current_line),
             },
             '|' => match self.peek() {
                 Some('|') => {
                     self.read_char();
-                    Token::simple(TokenType::LogicalOr, "||")
+                    Token::simple(TokenType::LogicalOr, "||", self.current_line)
                 }
                 Some('=') => {
                     self.read_char();
-                    Token::simple(TokenType::BinaryOrEq, "|=")
+                    Token::simple(TokenType::BinaryOrEq, "|=", self.current_line)
                 }
-                _ => Token::simple(TokenType::BinaryOr, "|"),
+                _ => Token::simple(TokenType::BinaryOr, "|", self.current_line),
             },
             '^' => match self.peek() {
                 Some('=') => {
                     self.read_char();
-                    Token::simple(TokenType::BinaryXorEq, "^=")
+                    Token::simple(TokenType::BinaryXorEq, "^=", self.current_line)
                 }
-                _ => Token::simple(TokenType::LogicalXor, "^"),
+                _ => Token::simple(TokenType::LogicalXor, "^", self.current_line),
             },
             '*' => match self.peek() {
                 Some('*') => {
@@ -299,44 +306,44 @@ impl Lexer {
                     match self.peek() {
                         Some('=') => {
                             self.read_char();
-                            Token::simple(TokenType::ExpoEq, "**=")
+                            Token::simple(TokenType::ExpoEq, "**=", self.current_line)
                         }
-                        _ => Token::simple(TokenType::Exponent, "**"),
+                        _ => Token::simple(TokenType::Exponent, "**", self.current_line),
                     }
                 }
                 Some('=') => {
                     self.read_char();
-                    Token::simple(TokenType::MulEq, "*=")
+                    Token::simple(TokenType::MulEq, "*=", self.current_line)
                 }
-                _ => Token::simple(TokenType::Asterisk, "*"),
+                _ => Token::simple(TokenType::Asterisk, "*", self.current_line),
             },
             '<' => match self.peek() {
                 Some('-') => {
                     self.read_char();
-                    Token::simple(TokenType::IteratorAssign, "<-")
+                    Token::simple(TokenType::IteratorAssign, "<-", self.current_line)
                 }
                 Some('<') => {
                     self.read_char();
                     match self.peek() {
                         Some('=') => {
                             self.read_char();
-                            Token::simple(TokenType::BinaryLeftShiftEq, "<<=")
+                            Token::simple(TokenType::BinaryLeftShiftEq, "<<=", self.current_line)
                         }
-                        _ => Token::simple(TokenType::BinaryLeftShift, "<<"),
+                        _ => Token::simple(TokenType::BinaryLeftShift, "<<", self.current_line),
                     }
                 }
                 Some('=') => {
                     self.read_char();
-                    Token::simple(TokenType::LE, "<=")
+                    Token::simple(TokenType::LE, "<=", self.current_line)
                 }
-                _ => Token::simple(TokenType::LT, "<"),
+                _ => Token::simple(TokenType::LT, "<", self.current_line),
             },
             '%' => match self.peek() {
                 Some('=') => {
                     self.read_char();
-                    Token::simple(TokenType::ModEq, "%=")
+                    Token::simple(TokenType::ModEq, "%=", self.current_line)
                 }
-                _ => Token::simple(TokenType::Modulo, "%"),
+                _ => Token::simple(TokenType::Modulo, "%", self.current_line),
             },
             '>' => match self.peek() {
                 Some('>') => {
@@ -344,37 +351,37 @@ impl Lexer {
                     match self.peek() {
                         Some('=') => {
                             self.read_char();
-                            Token::simple(TokenType::BinaryRightShiftEq, ">>=")
+                            Token::simple(TokenType::BinaryRightShiftEq, ">>=", self.current_line)
                         }
-                        _ => Token::simple(TokenType::BinaryRightShift, ">>"),
+                        _ => Token::simple(TokenType::BinaryRightShift, ">>", self.current_line),
                     }
                 }
                 Some('=') => {
                     self.read_char();
-                    Token::simple(TokenType::GE, ">=")
+                    Token::simple(TokenType::GE, ">=", self.current_line)
                 }
-                _ => Token::simple(TokenType::GT, ">"),
+                _ => Token::simple(TokenType::GT, ">", self.current_line),
             },
             ':' => {
                 if let Some(next_char) = self.peek()
                     && next_char == ':'
                 {
                     self.read_char();
-                    Token::simple(TokenType::ScopeResolution, "::")
+                    Token::simple(TokenType::ScopeResolution, "::", self.current_line)
                 } else {
-                    Token::simple(TokenType::Colon, ":")
+                    Token::simple(TokenType::Colon, ":", self.current_line)
                 }
             }
 
-            '.' => Token::simple(TokenType::Dot, "."),
+            '.' => Token::simple(TokenType::Dot, ".", self.current_line),
             '!' => {
                 if let Some(next_char) = self.peek()
                     && next_char == '='
                 {
                     self.read_char();
-                    Token::simple(TokenType::NotEq, "!=")
+                    Token::simple(TokenType::NotEq, "!=", self.current_line)
                 } else {
-                    Token::simple(TokenType::Bang, "!")
+                    Token::simple(TokenType::Bang, "!", self.current_line)
                 }
             }
             '?' => {
@@ -382,32 +389,37 @@ impl Lexer {
                     && next_char == '?'
                 {
                     self.read_char();
-                    Token::simple(TokenType::Coalescing, "??")
+                    Token::simple(TokenType::Coalescing, "??", self.current_line)
                 } else {
-                    Token::simple(TokenType::QuestionMark, "?")
+                    Token::simple(TokenType::QuestionMark, "?", self.current_line)
                 }
             }
-            '{' => Token::simple(TokenType::LBrace, "{"),
-            '}' => Token::simple(TokenType::RBrace, "}"),
+            '{' => Token::simple(TokenType::LBrace, "{", self.current_line),
+            '}' => Token::simple(TokenType::RBrace, "}", self.current_line),
             '"' => {
                 let string_content = self.read_string();
-                return Token::simple(TokenType::String, &string_content);
+                return Token::simple(TokenType::String, &string_content, self.current_line);
             }
 
-            '\0' => Token::simple(TokenType::Eof, ""),
+            '\0' => Token::simple(TokenType::Eof, "", self.current_line),
 
             other_character => {
                 if is_letter(other_character) {
+                    let start = self.current_line;
                     let identifier = self.read_identifier();
                     let token_type = lookup_identifiers(&identifier);
 
-                    return Token::new(token_type, identifier);
+                    return Token::new(token_type, identifier, start);
                 } else if other_character.is_ascii_digit() {
                     let number = self.read_number();
 
-                    return Token::new(TokenType::Integer, number);
+                    return Token::new(TokenType::Integer, number, self.current_line);
                 } else {
-                    Token::new(TokenType::Illegal, self.character.to_string())
+                    Token::new(
+                        TokenType::Illegal,
+                        self.character.to_string(),
+                        self.current_line,
+                    )
                 }
             }
         };

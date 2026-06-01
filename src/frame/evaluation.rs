@@ -44,6 +44,12 @@ impl ExpressionFrame {
                     }
                 };
 
+                {
+                    interpreter_state
+                        .borrow_mut()
+                        .set_current_line(call_expr.token.line_number);
+                }
+
                 if !*ready_to_evaluate && state.parameters_required_by_func != 0 {
                     state.current_argument += 1;
                     return Ok(ExpressionFrame::build_frame_from_expr(
@@ -94,6 +100,12 @@ impl ExpressionFrame {
                     }
                 };
 
+                {
+                    interpreter_state
+                        .borrow_mut()
+                        .set_current_line(arr_expr.token.line_number);
+                }
+
                 if !*ready_to_evaluate && number_of_elements != 0 {
                     state.curr_element += 1;
                     return Ok(ExpressionFrame::build_frame_from_expr(
@@ -119,25 +131,33 @@ impl ExpressionFrame {
                     }
                 };
 
+                {
+                    interpreter_state
+                        .borrow_mut()
+                        .set_current_line(unary_expr.token.line_number);
+                }
+
                 if !*ready_to_evaluate {
                     return Ok(ExpressionFrame::build_frame_from_expr(
                         &unary_expr.right,
                         environ.clone(),
                     ));
                 }
-                let prefix_operator = {
+                let (prefix_operator, line_number) = {
                     let expr = &self.expr;
                     match expr {
-                        Expression::Prefix(prefix) => &prefix.operator,
+                        Expression::Prefix(prefix) => (&prefix.operator, prefix.token.line_number),
                         _ => unreachable!(),
                     }
                 };
 
                 let value_clone = value.as_ref().unwrap();
                 let value_borrow = value_clone.borrow();
-                Ok(EvaluationResult::Done(
-                    value_borrow.evaluate_prefix(&prefix_operator, interpreter_state)?,
-                ))
+                Ok(EvaluationResult::Done(value_borrow.evaluate_prefix(
+                    &prefix_operator,
+                    line_number,
+                    interpreter_state,
+                )?))
             }
 
             ExpressionState::Primitive => match self.expr.evaluate(environ, interpreter_state) {
@@ -154,6 +174,12 @@ impl ExpressionFrame {
                         _ => unreachable!(),
                     }
                 };
+
+                {
+                    interpreter_state
+                        .borrow_mut()
+                        .set_current_line(index_expr.token.line_number);
+                }
 
                 if !*ready_to_evaluate {
                     if state.indexable.is_none() {
@@ -208,7 +234,7 @@ impl ExpressionFrame {
                                 return Ok(ExpressionFrame::build_frame_from_expr(
                                     &Expression::Bool(Boolean {
                                         value: true,
-                                        token: Token::simple(TokenType::KwTrue, "true"),
+                                        token: Token::simple(TokenType::KwTrue, "true", 0),
                                     }),
                                     environ,
                                 ));
@@ -255,6 +281,11 @@ impl ExpressionFrame {
                         _ => unreachable!(),
                     }
                 };
+                {
+                    interpreter_state
+                        .borrow_mut()
+                        .set_current_line(hashmap_expr.token.line_number);
+                }
                 if *ready_to_evaluate || hashmap_expr.pairs.is_empty() {
                     return Ok(EvaluationResult::Done(
                         HashMapLiteral::evaluate_with_evaluated_vals(
@@ -295,6 +326,11 @@ impl ExpressionFrame {
                         _ => unreachable!(),
                     }
                 };
+                {
+                    interpreter_state
+                        .borrow_mut()
+                        .set_current_line(infix_expr.token.line_number);
+                }
                 if !*ready_to_evaluate {
                     if state.left.is_none() {
                         return Ok(ExpressionFrame::build_frame_from_expr(
@@ -327,6 +363,12 @@ impl ExpressionFrame {
                         _ => unreachable!(),
                     }
                 };
+
+                {
+                    interpreter_state
+                        .borrow_mut()
+                        .set_current_line(while_expr.token.line_number);
+                }
 
                 if while_expr.condition.is_none() {
                     state.is_infinite = true;
@@ -374,6 +416,12 @@ impl ExpressionFrame {
                         _ => unreachable!(),
                     }
                 };
+
+                {
+                    interpreter_state
+                        .borrow_mut()
+                        .set_current_line(for_expr.token.line_number);
+                }
 
                 if let Some(value_from_break) = value {
                     return Ok(EvaluationResult::Done(value_from_break.clone()));
@@ -482,6 +530,12 @@ impl ExpressionFrame {
                     }
                 };
 
+                {
+                    interpreter_state
+                        .borrow_mut()
+                        .set_current_line(member_expr.token.line_number);
+                }
+
                 let left_side = if let Some(left) = &state.left_side {
                     left.clone()
                 } else {
@@ -511,6 +565,12 @@ impl ExpressionFrame {
                     }
                 };
 
+                {
+                    interpreter_state
+                        .borrow_mut()
+                        .set_current_line(scope_res_expr.token.line_number);
+                }
+
                 let left_side = if let Some(left) = &state.left_side {
                     left.clone()
                 } else {
@@ -535,6 +595,12 @@ impl ExpressionFrame {
                         _ => unreachable!(),
                     }
                 };
+
+                {
+                    interpreter_state
+                        .borrow_mut()
+                        .set_current_line(value_assign_expr.token.line_number);
+                }
 
                 if state.right_value.is_none() {
                     return Ok(ExpressionFrame::build_frame_from_expr(

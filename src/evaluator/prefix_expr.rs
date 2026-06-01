@@ -14,8 +14,12 @@ impl Object {
     pub fn evaluate_prefix(
         &self,
         operator: &str,
+        line_number: usize,
         state: StateRef,
     ) -> Result<ObjectRef, RuntimeSignal> {
+        {
+            state.borrow_mut().set_current_line(line_number);
+        }
         match operator {
             "!" => self.evaluate_bang_operator_expression(state),
             "-" => self.evaluate_minus_prefix_operator_expression(state),

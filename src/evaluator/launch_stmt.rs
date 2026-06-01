@@ -8,6 +8,9 @@ use crate::{
 
 impl LaunchStatement {
     pub fn evaluate(&self, environ: EnvRef, state: StateRef) -> Result<ObjectRef, RuntimeSignal> {
+        {
+            state.borrow_mut().set_current_line(self.token.line_number);
+        }
         let value = self.expr.evaluate(environ.clone(), state.clone())?;
 
         spawn_builtin_function(&[value], state)

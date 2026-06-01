@@ -25,6 +25,12 @@ impl AwaitExpression {
             }
         };
 
+        {
+            state
+                .borrow_mut()
+                .set_current_line(await_expr.token.line_number);
+        }
+
         let future_obj = match &mut *future_ref_borrow {
             Object::Future(future_obj) => future_obj,
             Object::ReturnVal(_) => return Ok(future_ref.clone()), //progagation

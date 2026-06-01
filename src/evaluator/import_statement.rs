@@ -19,6 +19,9 @@ impl ImportStatement {
         _state: StateRef,
         module_loader: &mut ModuleLoader,
     ) -> Result<ObjectRef, RuntimeSignal> {
+        {
+            _state.borrow_mut().set_current_line(self.token.line_number);
+        }
         let imported_identifiers =
             Self::get_identifier_expressions(&self.identifiers, _state.clone())?;
         let path = self.module_name.clone();

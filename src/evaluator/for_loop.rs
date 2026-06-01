@@ -32,6 +32,10 @@ impl ForLoopExpression {
         )));
 
         {
+            state.borrow_mut().set_current_line(self.token.line_number);
+        }
+
+        {
             let mut env_borrow = new_environment.borrow_mut();
             env_borrow.set_loop_context(true);
         }

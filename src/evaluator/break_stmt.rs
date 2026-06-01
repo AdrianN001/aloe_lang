@@ -8,6 +8,9 @@ use crate::{
 
 impl BreakStatement {
     pub fn evaluate(&self, environ: EnvRef, state: StateRef) -> Result<ObjectRef, RuntimeSignal> {
+        {
+            state.borrow_mut().set_current_line(self.token.line_number);
+        }
         let val = if let Some(break_expression_value) = &self.expression {
             break_expression_value
                 .evaluate(environ.clone(), state)?

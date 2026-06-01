@@ -85,7 +85,10 @@ impl Scheduler {
                     let task_borrow = task.borrow();
                     let task_name = task_borrow.name.clone();
                     let state = task_borrow.state.clone();
-                    state.borrow_mut().push_to_stack(task_name);
+
+                    let mut state_borrow = state.borrow_mut();
+                    let line = state_borrow.current_line;
+                    state_borrow.push_to_stack(task_name, line);
                 }
                 let result = Task::run2(task.clone());
 

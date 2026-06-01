@@ -8,6 +8,9 @@ use crate::{
 
 impl ReturnStatement {
     pub fn evaluate(&self, environ: EnvRef, state: StateRef) -> Result<ObjectRef, RuntimeSignal> {
+        {
+            state.borrow_mut().set_current_line(self.token.line_number);
+        }
         let val = match &self.value {
             Some(return_value) => {
                 let ret_val_obj_res = return_value.evaluate(environ, state);

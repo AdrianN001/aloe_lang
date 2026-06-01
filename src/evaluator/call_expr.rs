@@ -9,6 +9,9 @@ use crate::object::{Object, ObjectRef};
 
 impl CallExpression {
     pub fn evaluate(&self, environ: EnvRef, state: StateRef) -> Result<ObjectRef, RuntimeSignal> {
+        {
+            state.borrow_mut().set_current_line(self.token.line_number);
+        }
         let obj_to_call = self
             .function
             .evaluate(environ.clone(), state.clone())?

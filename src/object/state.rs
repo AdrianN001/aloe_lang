@@ -9,10 +9,18 @@ pub type StateRef = Rc<RefCell<InterpreterState>>;
 #[derive(Debug)]
 pub struct InterpreterState {
     pub stack: Vec<CallFrame>,
+    pub current_line: usize,
 }
 impl InterpreterState {
-    pub fn push_to_stack(&mut self, stack_name: String) {
-        self.stack.push(CallFrame { name: stack_name });
+    pub fn push_to_stack(&mut self, stack_name: String, line: usize) {
+        self.stack.push(CallFrame {
+            name: stack_name,
+            function_call_line: line,
+        });
+    }
+
+    pub fn set_current_line(&mut self, line: usize) {
+        self.current_line = line;
     }
 
     pub fn is_function_context(&self) -> bool {
@@ -27,14 +35,23 @@ impl InterpreterState {
         self.stack
             .iter()
             .rev()
-            .map(|call_frame| call_frame.name.clone())
+            .map(|call_frame| {
+                format!(
+                    "{} at line {}",
+                    call_frame.name.clone(),
+                    call_frame.function_call_line
+                )
+            })
             .collect()
     }
 }
 
 impl Default for InterpreterState {
     fn default() -> Self {
-        Self { stack: Vec::new() }
+        Self {
+            stack: Vec::new(),
+            current_line: 0,
+        }
     }
 }
 

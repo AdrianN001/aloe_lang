@@ -28,7 +28,10 @@ impl Error {
         }
 
         buffer.push('\n');
-        buffer.push_str(&format!("{:?}Error: {}", self.type_of, self.value));
+        buffer.push_str(&format!(
+            "line {}, {:?}Error: {}",
+            state_borrow.current_line, self.type_of, self.value
+        ));
         buffer
     }
 

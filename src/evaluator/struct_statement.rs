@@ -18,6 +18,9 @@ use crate::{
 
 impl StructStatement {
     pub fn evaluate(&self, environ: EnvRef, state: StateRef) -> Result<ObjectRef, RuntimeSignal> {
+        {
+            state.borrow_mut().set_current_line(self.token.line_number);
+        }
         let struct_name = match &self.name {
             Expression::Identifier(identifier) => identifier.value.clone(),
             other_expr => {

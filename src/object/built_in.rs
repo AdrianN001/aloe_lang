@@ -38,7 +38,7 @@ use crate::object::{
         process::command_builtin_function,
         random::random_builtin_function,
         time::{awaitable_sleep_builtin_function, sleep, time_builtin_function},
-        utils::{inspect_builtin_function, type_builtin_function},
+        utils::{inspect_builtin_function, line_number_builtin_function, type_builtin_function},
     },
     panic_obj::RuntimeSignal,
     stack_environment::EnvRef,
@@ -61,6 +61,7 @@ pub enum BuiltIn {
 
     Type,
     Inspect,
+    Line,
 
     Range,
 
@@ -155,6 +156,7 @@ impl BuiltIn {
 
             BuiltIn::Type => type_builtin_function(args, state),
             BuiltIn::Inspect => inspect_builtin_function(args, state),
+            BuiltIn::Line => line_number_builtin_function(args, state),
 
             BuiltIn::Range => range_builtin_function(args, state),
             BuiltIn::Random => Ok(random_builtin_function()),

@@ -4,53 +4,65 @@ use crate::{ast::expression::Expression, token::token_type::TokenType};
 
 #[derive(Debug, Clone)]
 pub enum SyntaxError {
-    UnexpectedKeyword(TokenType, TokenType), // UnexpectedKeyword(expected, got)
-    UnexpectedToken(TokenType, TokenType),   // UnexpectedToken(expected, got)
-    UnexpectedTokenWithMultipleChoice(Vec<TokenType>, TokenType),
-    UnexpectedExpression(Vec<&'static str>, Expression),
+    UnexpectedKeyword(TokenType, TokenType, usize), // UnexpectedKeyword(expected, got)
+    UnexpectedToken(TokenType, TokenType, usize),   // UnexpectedToken(expected, got)
+    UnexpectedTokenWithMultipleChoice(Vec<TokenType>, TokenType, usize),
+    UnexpectedExpression(Vec<&'static str>, Expression, usize),
 
-    UnexpectedSemicolon,
+    UnexpectedSemicolon(usize),
 
-    UnexpectedTokenInStruct(Vec<TokenType>, TokenType, String), //UnexpectedTokenInStruct(expected, got, StructName),
-    UnexpectedTokenAfterAsync(Vec<TokenType>, TokenType),
+    UnexpectedTokenInStruct(Vec<TokenType>, TokenType, String, usize), //UnexpectedTokenInStruct(expected, got, StructName),
+    UnexpectedTokenAfterAsync(Vec<TokenType>, TokenType, usize),
 
-    UnexpectedTokenInForLoopHead(Vec<&'static str>, TokenType),
+    UnexpectedTokenInForLoopHead(Vec<&'static str>, TokenType, usize),
 
-    MethodCallWithoutIdentifier(Expression), // received Expression
-    MemberExpressionWithoutAttributeOrMethodCall(Expression), // received Expression,
+    MethodCallWithoutIdentifier(Expression, usize), // received Expression
+    MemberExpressionWithoutAttributeOrMethodCall(Expression, usize), // received Expression,
 
-    IntegerCanNotBeParsed(String),
+    IntegerCanNotBeParsed(String, usize),
 
-    TokenCanNotBeParsedCorrectly(TokenType),
+    TokenCanNotBeParsedCorrectly(TokenType, usize),
 }
 
 impl fmt::Display for SyntaxError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let text = match self {
-            SyntaxError::UnexpectedKeyword(expected, got) => {
-                format!("Expected Keyword: '{}', but got: '{}'", expected, got)
+            SyntaxError::UnexpectedKeyword(expected, got, line_number) => {
+                format!(
+                    "line {}, expected Keyword: '{}', but got: '{}'",
+                    line_number, expected, got
+                )
             }
-            SyntaxError::UnexpectedToken(expected, got) => {
-                format!("Expected '{}', but got: '{}'", expected, got)
+            SyntaxError::UnexpectedToken(expected, got, line_number) => {
+                format!(
+                    "line {}, expected '{}', but got: '{}'",
+                    line_number, expected, got
+                )
             }
-            SyntaxError::UnexpectedTokenWithMultipleChoice(expected_list, got) => {
+            SyntaxError::UnexpectedTokenWithMultipleChoice(expected_list, got, line_number) => {
                 let expected_str = expected_list
                     .iter()
                     .map(|token| token.to_string())
                     .collect::<Vec<String>>()
                     .join(" or ");
-                format!("Expected '{}', but got: '{}'", expected_str, got)
+                format!(
+                    "line {}, expected '{}', but got: '{}'",
+                    line_number, expected_str, got
+                )
             }
-            SyntaxError::UnexpectedExpression(expected_list, got) => {
+            SyntaxError::UnexpectedExpression(expected_list, got, line_number) => {
                 let expected_str = expected_list.join(" or ");
                 format!(
-                    "Expected '{}', but got: '{}'",
+                    "line {}, expected '{}', but got: '{}'",
+                    line_number,
                     expected_str,
                     got.to_string()
                 )
             }
-            SyntaxError::UnexpectedSemicolon => String::from("Unexpeced semicolon (;)"),
-            SyntaxError::UnexpectedTokenInStruct(expected_list, got, struct_name) => {
+            SyntaxError::UnexpectedSemicolon(line_number) => {
+                format!("line {}, unexpeced semicolon (;)", line_number)
+            }
+            SyntaxError::UnexpectedTokenInStruct(expected_list, got, struct_name, line_number) => {
                 let expected_str = expected_list
                     .iter()
                     .map(|token| token.to_string())
@@ -58,11 +70,11 @@ impl fmt::Display for SyntaxError {
                     .join(" or ");
 
                 format!(
-                    "Expected '{}' in struct '{}', but got: {}",
-                    expected_str, struct_name, got
+                    "line {}, expected '{}' in struct '{}', but got: {}",
+                    line_number, expected_str, struct_name, got
                 )
             }
-            SyntaxError::UnexpectedTokenAfterAsync(expected_list, got) => {
+            SyntaxError::UnexpectedTokenAfterAsync(expected_list, got, line_number) => {
                 let expected_str = expected_list
                     .iter()
                     .map(|token| token.to_string())
@@ -70,29 +82,41 @@ impl fmt::Display for SyntaxError {
                     .join(" or ");
 
                 format!(
-                    "Expected '{}' after async keyword, but got: {}",
-                    expected_str, got
+                    "line {}, expected '{}' after async keyword, but got: {}",
+                    line_number, expected_str, got
                 )
             }
-            SyntaxError::UnexpectedTokenInForLoopHead(expected_list, got) => {
+            SyntaxError::UnexpectedTokenInForLoopHead(expected_list, got, line_number) => {
                 let expected_str = expected_list.join(" or ");
 
                 format!(
-                    "Expected '{}' in for loop head, got: '{}'",
-                    expected_str, got
+                    "line {}, expected '{}' in for loop head, got: '{}'",
+                    line_number, expected_str, got
                 )
             }
-            SyntaxError::MethodCallWithoutIdentifier(_) => {
-                String::from("Method call without identifier is not allowed.")
+            SyntaxError::MethodCallWithoutIdentifier(_, line_number) => {
+                format!(
+                    "line {}, method call without identifier is not allowed.",
+                    line_number
+                )
             }
-            SyntaxError::MemberExpressionWithoutAttributeOrMethodCall(_) => {
-                String::from("A method expression must have an attribute or a method call in it")
+            SyntaxError::MemberExpressionWithoutAttributeOrMethodCall(_, line_number) => {
+                format!(
+                    "line {}, method expression must have an attribute or a method call in it",
+                    line_number
+                )
             }
-            SyntaxError::IntegerCanNotBeParsed(received_expression) => {
-                format!("{} can not be parsed into an integer.", received_expression)
+            SyntaxError::IntegerCanNotBeParsed(received_expression, line_number) => {
+                format!(
+                    "line {}, {} can not be parsed into an integer.",
+                    line_number, received_expression
+                )
             }
-            SyntaxError::TokenCanNotBeParsedCorrectly(received_token) => {
-                format!("'{}' can not be parsed correctly", received_token)
+            SyntaxError::TokenCanNotBeParsedCorrectly(received_token, line_number) => {
+                format!(
+                    "line {}, '{}' can not be parsed correctly",
+                    line_number, received_token
+                )
             }
         };
         write!(f, "{}", text)

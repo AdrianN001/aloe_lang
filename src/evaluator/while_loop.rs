@@ -15,6 +15,9 @@ use crate::{
 
 impl WhileLoopExpression {
     pub fn evaluate(&self, environ: EnvRef, state: StateRef) -> Result<ObjectRef, RuntimeSignal> {
+        {
+            state.borrow_mut().set_current_line(self.token.line_number);
+        }
         let new_environ = StackEnvironment::new_enclosed(
             environ,
             if let Some(condition) = &self.condition {

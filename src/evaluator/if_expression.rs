@@ -11,6 +11,9 @@ use crate::{
 
 impl IfExpression {
     pub fn evaluate(&self, environ: EnvRef, state: StateRef) -> Result<ObjectRef, RuntimeSignal> {
+        {
+            state.borrow_mut().set_current_line(self.token.line_number);
+        }
         let condition = self.condition.evaluate(environ.clone(), state.clone())?;
 
         if condition.borrow().is_truthy() {

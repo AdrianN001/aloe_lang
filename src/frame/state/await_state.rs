@@ -35,6 +35,12 @@ impl AwaitState {
             }
         };
 
+        {
+            state
+                .borrow_mut()
+                .set_current_line(_await_expr.token.line_number);
+        }
+
         match self {
             AwaitState::Start => {
                 *self = AwaitState::Waiting;

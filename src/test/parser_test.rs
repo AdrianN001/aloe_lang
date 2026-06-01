@@ -447,11 +447,11 @@ fn test_array_liter_parsing() {
             "[1, 2];",
             [
                 Expression::IntegerLiteral(IntegerLiteral {
-                    token: Token::simple(TokenType::Integer, "1"),
+                    token: Token::simple(TokenType::Integer, "1", 1),
                     value: 1,
                 }),
                 Expression::IntegerLiteral(IntegerLiteral {
-                    token: Token::simple(TokenType::Integer, "2"),
+                    token: Token::simple(TokenType::Integer, "2", 1),
                     value: 2,
                 }),
             ]
@@ -461,15 +461,15 @@ fn test_array_liter_parsing() {
             r#"[true, "hello, world", 1];"#,
             [
                 Expression::Bool(Boolean {
-                    token: Token::simple(TokenType::KwTrue, "true"),
+                    token: Token::simple(TokenType::KwTrue, "true", 1),
                     value: true,
                 }),
                 Expression::String(StringExpr {
-                    token: Token::simple(TokenType::String, "hello, world"),
+                    token: Token::simple(TokenType::String, "hello, world", 1),
                     value: "hello, world".into(),
                 }),
                 Expression::IntegerLiteral(IntegerLiteral {
-                    token: Token::simple(TokenType::Integer, "1"),
+                    token: Token::simple(TokenType::Integer, "1", 1),
                     value: 1,
                 }),
             ]

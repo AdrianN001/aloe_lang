@@ -19,6 +19,9 @@ use crate::{
 
 impl ValueAssignExpression {
     pub fn evaluate(&self, environ: EnvRef, state: StateRef) -> Result<ObjectRef, RuntimeSignal> {
+        {
+            state.borrow_mut().set_current_line(self.token.line_number);
+        }
         let right = self.right.evaluate(environ.clone(), state.clone())?;
 
         match &*self.left {

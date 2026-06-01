@@ -15,6 +15,9 @@ use crate::{
 
 impl IndexExpression {
     pub fn evaluate(&self, environ: EnvRef, state: StateRef) -> Result<ObjectRef, RuntimeSignal> {
+        {
+            state.borrow_mut().set_current_line(self.token.line_number);
+        }
         let left_expr = self.left.evaluate(environ.clone(), state.clone())?;
         let index = self.right.evaluate(environ.clone(), state.clone())?;
 

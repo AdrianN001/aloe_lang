@@ -10,6 +10,10 @@ impl ExpressionStatement {
     pub fn evaluate(&self, environ: EnvRef, state: StateRef) -> Result<ObjectRef, RuntimeSignal> {
         let expr = &self.expression;
 
+        {
+            state.borrow_mut().set_current_line(self.token.line_number);
+        }
+
         match expr.evaluate(environ, state) {
             Ok(ok_value) => return Ok(ok_value),
             Err(RuntimeSignal::Panic(panic_obj)) => return Err(RuntimeSignal::Panic(panic_obj)),

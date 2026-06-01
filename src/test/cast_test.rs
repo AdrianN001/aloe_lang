@@ -7,9 +7,7 @@ fn test_int_ascii() {
             r#""hello".as_buffer().as_arr();"#,
             "[104, 101, 108, 108, 111]",
         ),
-        (
-            "[104, 101, 108, 108, 111].as_buffer.as_str","hello"
-        ),
+        ("[104, 101, 108, 108, 111].as_buffer.as_str", "hello"),
         ("104.as_utf_char();", "h"),
         (
             "10_000_000.as_utf_char();",

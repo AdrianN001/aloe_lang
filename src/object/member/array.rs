@@ -1,10 +1,21 @@
 use std::{cell::RefCell, rc::Rc};
 
 use crate::object::{
-    Object, ObjectRef, array::Array, buffer::Buffer, error::{error_type::ErrorType, panic_type::PanicType}, integer::Integer, iterator::{
+    Object, ObjectRef,
+    array::Array,
+    buffer::Buffer,
+    error::{error_type::ErrorType, panic_type::PanicType},
+    integer::Integer,
+    iterator::{
         Iterator, enumerator_iterator::EnumeratorIterator, list_based_iterator::ListBasedIterator,
         zip_iterator::ZipIterator,
-    }, new_objectref, null::Null, panic_obj::{PanicObj, RuntimeSignal}, stack_environment::EnvRef, state::StateRef, string_obj::StringObj
+    },
+    new_objectref,
+    null::Null,
+    panic_obj::{PanicObj, RuntimeSignal},
+    stack_environment::EnvRef,
+    state::StateRef,
+    string_obj::StringObj,
 };
 
 impl Array {
@@ -415,39 +426,55 @@ impl Array {
         ))))
     }
 
-    fn as_buffer(&self, args: &[ObjectRef], state: StateRef) -> Result<ObjectRef, PanicObj>{
-        if !args.is_empty(){
-            return Err(PanicObj::new(PanicType::WrongArgumentCount, format!("expected 0 argument for array.as_buffer(), got: {}", args.len()), state));
+    fn as_buffer(&self, args: &[ObjectRef], state: StateRef) -> Result<ObjectRef, PanicObj> {
+        if !args.is_empty() {
+            return Err(PanicObj::new(
+                PanicType::WrongArgumentCount,
+                format!(
+                    "expected 0 argument for array.as_buffer(), got: {}",
+                    args.len()
+                ),
+                state,
+            ));
         }
 
-        let bytes = self.items.iter().map(|item|{
-            let val = match &*item.borrow(){
-                Object::Int(integer) => integer.value,
-                other_type => return Err(PanicObj::new(
-                    PanicType::WrongType,
-                    format!("expected an array of integers, got: '{}'", other_type.get_type()),
-                    state.clone()
-                ))
-            };
+        let bytes = self
+            .items
+            .iter()
+            .map(|item| {
+                let val = match &*item.borrow() {
+                    Object::Int(integer) => integer.value,
+                    other_type => {
+                        return Err(PanicObj::new(
+                            PanicType::WrongType,
+                            format!(
+                                "expected an array of integers, got: '{}'",
+                                other_type.get_type()
+                            ),
+                            state.clone(),
+                        ));
+                    }
+                };
 
-            let byte = match u8::try_from(val){
-                Ok(byte) => byte,
-                Err(err_feedback) => return Err(PanicObj::new(
-                    PanicType::IllegalTypeCasting,
-                    err_feedback.to_string(),
-                    state.clone()
-                ))
-            };
+                let byte = match u8::try_from(val) {
+                    Ok(byte) => byte,
+                    Err(err_feedback) => {
+                        return Err(PanicObj::new(
+                            PanicType::IllegalTypeCasting,
+                            err_feedback.to_string(),
+                            state.clone(),
+                        ));
+                    }
+                };
 
-            Ok(byte)
-        }).collect::<Result<Vec<u8>, PanicObj>>()?;
+                Ok(byte)
+            })
+            .collect::<Result<Vec<u8>, PanicObj>>()?;
 
-        let bytes_arr = new_objectref(Object::Buffer(Box::new(
-            Buffer{
-                size: bytes.len(),
-                data: bytes.into_boxed_slice()
-            }
-        )));
+        let bytes_arr = new_objectref(Object::Buffer(Box::new(Buffer {
+            size: bytes.len(),
+            data: bytes.into_boxed_slice(),
+        })));
 
         Ok(bytes_arr)
     }

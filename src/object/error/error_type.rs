@@ -4,6 +4,8 @@ pub enum ErrorType {
     IllegalCast,
     FileOpening,
 
+    UnknownPanicType,
+
     WrongRadix,
     FileIsClosed,
 

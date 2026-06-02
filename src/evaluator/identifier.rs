@@ -35,6 +35,7 @@ impl Identifier {
             "__random" => Some(BuiltIn::Random),
 
             "__err" => Some(BuiltIn::Err),
+            "panic" => Some(BuiltIn::Panic),
 
             "__open" => Some(BuiltIn::Open),
             "__path" => Some(BuiltIn::Path),

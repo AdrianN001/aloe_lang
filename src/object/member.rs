@@ -10,6 +10,7 @@ use crate::object::{
 pub mod a_network_wrapper;
 pub mod array;
 pub mod buffer;
+pub mod error;
 pub mod file_wrapper;
 pub mod float;
 pub mod hashmap;
@@ -41,6 +42,7 @@ impl Object {
             Object::HashMap(hashmap) => hashmap.apply_attribute(name, environ, state),
             Object::Native(native) => native.apply_attribute(name, state),
             Object::Buffer(buffer) => buffer.apply_attribute(name, state),
+            Object::Err(err) => err.apply_attribute(name, state),
 
             Object::StructObject(struct_obj) => struct_obj.apply_attribute(name, environ, state),
 
@@ -73,6 +75,7 @@ impl Object {
             Object::HashMap(hashmap) => hashmap.apply_method(name, args, environ, state),
             Object::Native(native) => native.apply_method(name, args, state),
             Object::Buffer(buffer) => buffer.apply_method(name, args, environ, state),
+            Object::Err(err) => err.apply_method(name, args, environ, state),
 
             _ => Err(PanicObj::new(
                 PanicType::UnknownMethod,

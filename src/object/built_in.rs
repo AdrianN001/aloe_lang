@@ -24,7 +24,7 @@ use crate::object::{
             console_read_async_builtin_function, console_read_builtin_function,
             console_write_builtin_function, console_writeln_builtin_function,
         },
-        error::error_builtin_function,
+        error::{error_builtin_function, panic_buitin_function},
         io::{
             async_tcp_bind_builtin_function, async_tcp_connect_builtin_function,
             async_udp_bind_builtin_function, open_builtin_function, path_builtin_function,
@@ -67,6 +67,7 @@ pub enum BuiltIn {
 
     Random,
     Err,
+    Panic,
 
     Open,
     Path,
@@ -162,6 +163,7 @@ impl BuiltIn {
             BuiltIn::Random => Ok(random_builtin_function()),
 
             BuiltIn::Err => error_builtin_function(args, state),
+            BuiltIn::Panic => panic_buitin_function(args, state),
 
             BuiltIn::Open => open_builtin_function(args, state),
             BuiltIn::Path => path_builtin_function(args, state),

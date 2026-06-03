@@ -622,6 +622,82 @@ fn test_float_number_parsing() {
 }
 
 #[test]
+fn test_scientific_notation_parsing_lexer() {
+    let testcases = [
+        ("1e9;", TokenType::Float, "1e9"),
+        ("3e-2;", TokenType::Float, "3e-2"),
+        ("2.5e+3;", TokenType::Float, "2.5e+3"),
+        ("1.5E-4;", TokenType::Float, "1.5E-4"),
+    ];
+
+    testcases.iter().for_each(|test_case| {
+        let input = test_case.0.into();
+        let expected_token_type = &test_case.1;
+        let expected_literal = test_case.2;
+
+        let mut lexer = Lexer::new(input);
+        let token = lexer.next_token();
+
+        assert_eq!(&token.token_type, expected_token_type);
+        assert_eq!(token.literal, expected_literal);
+    });
+}
+
+#[test]
+fn test_scientific_notation_parsing_parser() {
+    let testcases = [("1e9;", 1e9), ("3e-2;", 3e-2), ("2.5e+3;", 2.5e+3)];
+
+    testcases.iter().for_each(|test_case| {
+        let input = test_case.0.into();
+        let _expected_value = test_case.1;
+
+        let lexer = Lexer::new(input);
+        let parser = Parser::new(lexer);
+        let program = parser.into_a_program().unwrap();
+
+        assert_eq!(program.statements.len(), 1);
+
+        let last_expr = match &program.statements[0] {
+            Statement::Expression(expr) => expr,
+            _ => panic!(),
+        };
+
+        let _float_expression = match &last_expr.expression {
+            Expression::FloatLiteral(float) => float,
+            _ => panic!("expected float literal, got {:?}", &last_expr.expression),
+        };
+
+        // Verify it parses as a float
+        assert!(matches!(last_expr.expression, Expression::FloatLiteral(_)));
+    })
+}
+
+#[test]
+fn test_hex_with_e_not_parsed_as_float() {
+    // Ensure that hex numbers containing 'e' like 0xdeadbeef are not treated as floats
+    let testcases = [
+        ("0xdeadbeef;", TokenType::Integer, "0xdeadbeef"),
+        ("0xDEADBEEF;", TokenType::Integer, "0xDEADBEEF"),
+    ];
+
+    testcases.iter().for_each(|test_case| {
+        let input = test_case.0.into();
+        let expected_token_type = &test_case.1;
+        let expected_literal = test_case.2;
+
+        let mut lexer = Lexer::new(input);
+        let token = lexer.next_token();
+
+        assert_eq!(
+            &token.token_type, expected_token_type,
+            "Input: {}",
+            test_case.0
+        );
+        assert_eq!(token.literal, expected_literal);
+    });
+}
+
+#[test]
 fn test_for_loop_without_statements() {
     let testcases = [
         ("for i <- [1,2,3]{}", "i", "[1, 2, 3]"),

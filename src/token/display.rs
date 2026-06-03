@@ -10,6 +10,7 @@ impl fmt::Display for TokenType {
 
             TokenType::Identifier => "identifier",
             TokenType::Integer => "int",
+            TokenType::Float => "float",
             TokenType::String => "str",
 
             TokenType::Assign => "=",

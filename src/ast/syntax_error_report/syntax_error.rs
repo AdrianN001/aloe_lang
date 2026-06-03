@@ -20,6 +20,7 @@ pub enum SyntaxError {
     MemberExpressionWithoutAttributeOrMethodCall(Expression, usize), // received Expression,
 
     IntegerCanNotBeParsed(String, usize),
+    FloatCanNotBeParsed(String, usize),
 
     TokenCanNotBeParsedCorrectly(TokenType, usize),
 }
@@ -109,6 +110,12 @@ impl fmt::Display for SyntaxError {
             SyntaxError::IntegerCanNotBeParsed(received_expression, line_number) => {
                 format!(
                     "line {}, {} can not be parsed into an integer.",
+                    line_number, received_expression
+                )
+            }
+            SyntaxError::FloatCanNotBeParsed(received_expression, line_number) => {
+                format!(
+                    "line {}, {} can not be parsed into a float.",
                     line_number, received_expression
                 )
             }

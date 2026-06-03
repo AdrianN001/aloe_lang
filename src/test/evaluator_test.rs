@@ -56,6 +56,104 @@ fn test_eval_integer_literal_bases() {
 }
 
 #[test]
+fn test_eval_float_object() {
+    let testcases = [("3.14;", 3.14), ("0.5;", 0.5), ("10.0;", 10.0)];
+
+    testcases.iter().for_each(|testcase| {
+        let input = testcase.0.into();
+        let expected_value = testcase.1;
+
+        let lexer = Lexer::new(input);
+        let parser = Parser::new(lexer);
+
+        let program = parser.into_a_program().unwrap();
+
+        assert_eq!(program.statements.len(), 1);
+
+        match &*program.evaluate_with_default().unwrap().borrow() {
+            Object::FloatObj(float) => {
+                assert!((float.val - expected_value).abs() < f64::EPSILON);
+            }
+            _ => panic!("Expected FloatObj"),
+        }
+    })
+}
+
+#[test]
+fn test_eval_scientific_notation() {
+    let testcases: [(&str, f64); 6] = [
+        ("1e9;", 1e9),
+        ("3e-2;", 3e-2),
+        ("2.5e+3;", 2.5e+3),
+        ("1.5E-4;", 1.5E-4),
+        ("2E5;", 2E5),
+        ("5e-3;", 5e-3),
+    ];
+
+    testcases.iter().for_each(|testcase| {
+        let input = testcase.0.into();
+        let expected_value: f64 = testcase.1;
+
+        let lexer = Lexer::new(input);
+        let parser = Parser::new(lexer);
+
+        let program = parser.into_a_program().unwrap();
+
+        assert_eq!(program.statements.len(), 1);
+
+        match &*program.evaluate_with_default().unwrap().borrow() {
+            Object::FloatObj(float) => {
+                // Use relative tolerance for scientific notation values
+                let tolerance = (expected_value.abs() * 1e-10).max(1e-10);
+                assert!(
+                    (float.val - expected_value).abs() < tolerance,
+                    "Expected {} but got {}",
+                    expected_value,
+                    float.val
+                );
+            }
+            _ => panic!("Expected FloatObj for input: {}", testcase.0),
+        }
+    })
+}
+
+#[test]
+fn test_eval_scientific_notation_in_expressions() {
+    let testcases: [(&str, f64); 4] = [
+        ("1e2 + 2e2;", 300.0),
+        ("1e3 * 2;", 2000.0),
+        ("1e-2 / 2;", 0.005),
+        ("5e1 - 2e1;", 30.0),
+    ];
+
+    testcases.iter().for_each(|testcase| {
+        let input = testcase.0.into();
+        let expected_value: f64 = testcase.1;
+
+        let lexer = Lexer::new(input);
+        let parser = Parser::new(lexer);
+
+        let program = parser.into_a_program().unwrap();
+
+        assert_eq!(program.statements.len(), 1);
+
+        match &*program.evaluate_with_default().unwrap().borrow() {
+            Object::FloatObj(float) => {
+                let tolerance = (expected_value.abs() * 1e-10).max(1e-10);
+                assert!(
+                    (float.val - expected_value).abs() < tolerance,
+                    "Input: {}, Expected: {}, Got: {}",
+                    testcase.0,
+                    expected_value,
+                    float.val
+                );
+            }
+            _ => panic!("Expected FloatObj for input: {}", testcase.0),
+        }
+    })
+}
+
+#[test]
 fn test_eval_bool_object() {
     let testcases = [("true;", true), ("false;", false)];
 

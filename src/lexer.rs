@@ -122,6 +122,7 @@ impl Lexer {
 
         let mut last_was_underscore = false;
 
+        // Read integer part
         while self.character.is_ascii_digit() || self.character == '_' {
             match self.character {
                 '_' => {
@@ -135,6 +136,29 @@ impl Lexer {
                 }
             }
             self.read_char();
+        }
+
+        // Read decimal part
+        if self.character == '.' && self.peek().map_or(false, |c| c.is_ascii_digit()) {
+            self.read_char(); // consume '.'
+            while self.character.is_ascii_digit() || self.character == '_' {
+                last_was_underscore = self.character == '_';
+                self.read_char();
+            }
+        }
+
+        // Read exponent part (e.g., e9, E-2, e+3)
+        if self.character == 'e' || self.character == 'E' {
+            self.read_char(); // consume 'e' or 'E'
+
+            if self.character == '+' || self.character == '-' {
+                self.read_char(); // consume '+' or '-'
+            }
+
+            while self.character.is_ascii_digit() || self.character == '_' {
+                last_was_underscore = self.character == '_';
+                self.read_char();
+            }
         }
 
         let mut end_pos = if last_was_underscore {
@@ -412,8 +436,32 @@ impl Lexer {
                     return Token::new(token_type, identifier, start);
                 } else if other_character.is_ascii_digit() {
                     let number = self.read_number();
+                    // Determine if this is a float
+                    // Only treat as float if:
+                    // 1. Contains '.' (decimal point), OR
+                    // 2. Contains 'e'/'E' AND doesn't start with 0x/0b/0o prefix (hex/binary/octal)
+                    let is_float = if number.contains('.') {
+                        true
+                    } else if (number.contains('e') || number.contains('E'))
+                        && !number.starts_with("0x")
+                        && !number.starts_with("0X")
+                        && !number.starts_with("0b")
+                        && !number.starts_with("0B")
+                        && !number.starts_with("0o")
+                        && !number.starts_with("0O")
+                    {
+                        true
+                    } else {
+                        false
+                    };
 
-                    return Token::new(TokenType::Integer, number, self.current_line);
+                    let token_type = if is_float {
+                        TokenType::Float
+                    } else {
+                        TokenType::Integer
+                    };
+
+                    return Token::new(token_type, number, self.current_line);
                 } else {
                     Token::new(
                         TokenType::Illegal,

@@ -37,6 +37,7 @@ impl Parser {
         let mut left_expression = match self.current_token.token_type {
             TokenType::Identifier => Ok(self.parse_identifier()),
             TokenType::Integer => self.parse_integer_literal(),
+            TokenType::Float => self.parse_float_literal(),
             TokenType::LParen => self.parse_grouped_expression(),
             TokenType::KwIf => self.parse_if_expression(),
             TokenType::KwFunction => self.parse_function_expression(),
@@ -273,7 +274,7 @@ impl Parser {
         {
             return Ok(Expression::FloatLiteral(FloatLiteral {
                 token,
-                integer_part: int_part.value as i32,
+                integer_part: int_part.value as i64,
                 float_part: float_part.value as u64,
             }));
         }
@@ -393,6 +394,46 @@ impl Parser {
                 value: integer_value,
             })),
             Err(_) => Err(SyntaxError::IntegerCanNotBeParsed(
+                self.current_token.literal.clone(),
+                self.get_current_line(),
+            )),
+        }
+    }
+
+    fn parse_float_literal(&self) -> Result<Expression, SyntaxError> {
+        let literal = self.current_token.literal.replace('_', "");
+        match literal.parse::<f64>() {
+            Ok(float_value) => {
+                // Check if this contains exponent notation (e or E)
+                if literal.contains('e') || literal.contains('E') {
+                    // For scientific notation, use the parsed f64 value
+                    // integer_part will be calculated by the evaluator from the literal
+                    Ok(Expression::FloatLiteral(FloatLiteral {
+                        token: self.current_token.clone(),
+                        integer_part: float_value.trunc() as i64,
+                        float_part: 0, // Set to 0, evaluator will handle it from literal
+                    }))
+                } else if literal.contains('.') {
+                    // For decimal notation like 1.5, use the original format
+                    let parts: Vec<&str> = literal.split('.').collect();
+                    let integer_part: i64 = parts.get(0).and_then(|s| s.parse().ok()).unwrap_or(0);
+                    let float_part: u64 = parts.get(1).and_then(|s| s.parse().ok()).unwrap_or(0);
+
+                    Ok(Expression::FloatLiteral(FloatLiteral {
+                        token: self.current_token.clone(),
+                        integer_part,
+                        float_part,
+                    }))
+                } else {
+                    // This shouldn't happen for a float token, but handle it anyway
+                    Ok(Expression::FloatLiteral(FloatLiteral {
+                        token: self.current_token.clone(),
+                        integer_part: float_value.trunc() as i64,
+                        float_part: 0,
+                    }))
+                }
+            }
+            Err(_) => Err(SyntaxError::FloatCanNotBeParsed(
                 self.current_token.literal.clone(),
                 self.get_current_line(),
             )),

@@ -76,8 +76,16 @@ impl Module {
         }
     }
 
-    pub fn execute(&mut self, module_loader: &mut ModuleLoader) -> Result<(), RuntimeSignal> {
-        let source_file_content = Self::read_source_file(&self.abs_path.display().to_string());
+    pub fn execute(
+        self_ref: ModuleRef,
+        module_loader: &mut ModuleLoader,
+    ) -> Result<(), RuntimeSignal> {
+        let (name, abs_path) = {
+            let borrow = self_ref.borrow();
+            (borrow.name.clone(), borrow.abs_path.display().to_string())
+        };
+
+        let source_file_content = Self::read_source_file(&abs_path);
 
         let lexer = Lexer::new(source_file_content);
         let parser = Parser::new(lexer);
@@ -86,20 +94,26 @@ impl Module {
             Err(err) => {
                 return Err(RuntimeSignal::Panic(PanicObj::new(
                     PanicType::WrongSyntax,
-                    format!("Syntax error in module '{}': \n{}", self.name, err),
+                    format!("Syntax error in module '{}': \n{}", name, err),
                     Rc::new(RefCell::new(InterpreterState::default())),
                 )));
             }
         };
 
         let mut raw_environment = StackEnvironment::new();
-        self.load_dunder_into_env(&mut raw_environment, module_loader);
+        {
+            let self_borrow = self_ref.borrow();
+            self_borrow.load_dunder_into_env(&mut raw_environment, module_loader);
+        }
 
         let environment = Rc::new(RefCell::new(raw_environment));
 
-        let _last_obj = program.evaluate(environment.clone(), module_loader)?;
+        {
+            let mut borrow = self_ref.borrow_mut();
+            borrow.environ = Some(environment.clone());
+        }
 
-        self.environ = Some(environment);
+        let _last_obj = program.evaluate(environment.clone(), module_loader)?;
 
         Ok(())
     }

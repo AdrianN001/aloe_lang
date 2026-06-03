@@ -1,0 +1,5 @@
+import {json} from "@std::parser/json.aloe";
+
+let m = json::from_str("{\"a\": 1, \"b\": {\"c\": 3}}");
+
+println(m.get("b").get("c"))

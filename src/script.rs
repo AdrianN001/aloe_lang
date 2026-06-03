@@ -14,7 +14,7 @@ pub fn run_script(file_path: &str) -> Result<(), ModuleError> {
     let mut module_cache = ModuleLoader::new(file_path);
     module_cache.set(main_module.clone());
 
-    let result_of_the_script = main_module.borrow_mut().execute(&mut module_cache);
+    let result_of_the_script = Module::execute(main_module.clone(), &mut module_cache);
 
     if let Err(RuntimeSignal::Panic(panic_obj)) = result_of_the_script {
         println!("{}", panic_obj);

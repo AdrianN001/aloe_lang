@@ -3,8 +3,9 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use crate::module::{
-    Module, ModuleRef, module_error::ModuleError, std_lib::STANDARD_LIBRARY_IDENTIFIER,
+use crate::{
+    module::{Module, ModuleRef, module_error::ModuleError, std_lib::STANDARD_LIBRARY_IDENTIFIER},
+    object::panic_obj::RuntimeSignal,
 };
 
 #[derive(Default)]
@@ -55,9 +56,15 @@ impl ModuleLoader {
 
         self.set(module.clone());
 
-        {
-            let mut borrow = module.borrow_mut();
-            borrow.execute(self).unwrap();
+        match Module::execute(module.clone(), self) {
+            Ok(_) => {}
+            Err(RuntimeSignal::Panic(e)) => {
+                return Err(ModuleError::new(
+                    module_name,
+                    &format!("module execution failed: \n{}", e),
+                ));
+            }
+            _ => unreachable!(),
         }
 
         Ok(module)

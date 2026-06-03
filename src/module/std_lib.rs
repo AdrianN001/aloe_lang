@@ -2,6 +2,7 @@ use std::env;
 
 use crate::{
     module::{Module, ModuleRef, module_error::ModuleError, module_loader::ModuleLoader},
+    object::panic_obj::RuntimeSignal,
     version::CURRENT_VERSION,
 };
 
@@ -39,9 +40,15 @@ impl ModuleLoader {
 
         self.set(module.clone());
 
-        {
-            let mut borrow = module.borrow_mut();
-            borrow.execute(self).unwrap();
+        match Module::execute(module.clone(), self) {
+            Ok(_) => {}
+            Err(RuntimeSignal::Panic(e)) => {
+                return Err(ModuleError::new(
+                    module_path,
+                    &format!("module execution failed: \n{}", e),
+                ));
+            }
+            _ => unreachable!(),
         }
 
         Ok(module)

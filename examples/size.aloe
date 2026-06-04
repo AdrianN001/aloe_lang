@@ -9,7 +9,7 @@ let types = [
     range(0, 100),
     fn(x){x},
     async fn(x){x},
-    __err(""),
+    error("", ""),
     ["hello, world"],
     {"hello": "world"},
     EmptyStruct,

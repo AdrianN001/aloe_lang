@@ -44,5 +44,59 @@ pub enum ErrorType {
 
     Command,
 
-    CustomError(),
+    CustomError(String),
+}
+
+impl ErrorType {
+    pub fn from_str(err_type: &str) -> Self {
+        match err_type {
+            "IndexOutOfBound" => Self::IndexOutOfBound,
+            "IllegalCast" => Self::IllegalCast,
+            "FileOpening" => Self::FileOpening,
+
+            "UnknownPanicType" => Self::UnknownPanicType,
+
+            "WrongRadix" => Self::WrongRadix,
+            "FileIsClosed" => Self::FileIsClosed,
+
+            "FileMode" => Self::FileMode,
+            "FileRead" => Self::FileRead,
+            "FileSeek" => Self::FileSeek,
+
+            "RangeInput" => Self::RangeInput,
+
+            "ObjectIsNotHashable" => Self::ObjectIsNotHashable,
+
+            "ItemNotFound" => Self::ItemNotFound,
+
+            "FunctionHasMismatchingNumberOfParameters" => {
+                Self::FunctionHasMismatchingNumberOfParameters
+            }
+
+            "ErrorFromPanic" => Self::ErrorFromPanic,
+
+            "IO" => Self::IO,
+
+            "IteratorRanOut" => Self::IteratorRanOut,
+
+            "UTFValueCasting" => Self::UTFValueCasting,
+
+            "IllegalAddress" => Self::IllegalAddress,
+            "SocketBind" => Self::SocketBind,
+            "SocketConnect" => Self::SocketConnect,
+            "SocketAccept" => Self::SocketAccept,
+            "SocketRead" => Self::SocketRead,
+            "SocketWrite" => Self::SocketWrite,
+            "SocketClose" => Self::SocketClose,
+            "NonBlockChange" => Self::NonBlockChange,
+
+            "PathResolve" => Self::PathResolve,
+            "PathParentResolve" => Self::PathParentResolve,
+            "PathChildResolve" => Self::PathChildResolve,
+
+            "Command" => Self::Command,
+
+            other_type => Self::CustomError(other_type.to_string()),
+        }
+    }
 }

@@ -28,10 +28,21 @@ impl Error {
         }
 
         buffer.push('\n');
-        buffer.push_str(&format!(
-            "line {}, {:?}Error: {}",
-            state_borrow.current_line, self.type_of, self.value
-        ));
+        match &self.type_of {
+            ErrorType::CustomError(custom_error) => {
+                buffer.push_str(&format!(
+                    "line {}, *{}Error: {}",
+                    state_borrow.current_line, custom_error, self.value
+                ));
+            }
+            other_err_type => {
+                buffer.push_str(&format!(
+                    "line {}, {:?}Error: {}",
+                    state_borrow.current_line, other_err_type, self.value
+                ));
+            }
+        }
+
         buffer
     }
 

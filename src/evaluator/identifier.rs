@@ -34,7 +34,7 @@ impl Identifier {
             "range" => Some(BuiltIn::Range),
             "__random" => Some(BuiltIn::Random),
 
-            "__err" => Some(BuiltIn::Err),
+            "error" => Some(BuiltIn::Err),
             "panic" => Some(BuiltIn::Panic),
 
             "__open" => Some(BuiltIn::Open),

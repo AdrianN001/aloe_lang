@@ -1,7 +1,7 @@
 
 fun divide(a, b){
     if b == 0{
-        return __err("can't divide by zero");
+        return error("DivisionByNull","can't divide by zero");
     }
     a/b
 }

@@ -24,7 +24,7 @@ print(long_names);
 
 fun divide(a, b){
   if b == 0{
-    __err("Can not divide by 0");
+    error("DivisionByNull", "Can not divide by 0");
   }else{
     a/b
   }

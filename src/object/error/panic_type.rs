@@ -1,6 +1,7 @@
 #[derive(PartialEq, Eq, Clone, Debug)]
 pub enum PanicType {
     IndexOutOfBound,
+    KeyNotFound,
     Overflow,
     UnknownIdentifier,
     UnknownMethod,
@@ -57,6 +58,7 @@ impl PanicType {
     pub fn from_str(string: &str) -> Option<PanicType> {
         match string {
             "IndexOutOfBound" => Some(PanicType::IndexOutOfBound),
+            "KeyNotFound" => Some(PanicType::KeyNotFound),
             "Overflow" => Some(PanicType::Overflow),
             "UnknownIdentifier" => Some(PanicType::UnknownIdentifier),
             "UnknownMethod" => Some(PanicType::UnknownMethod),

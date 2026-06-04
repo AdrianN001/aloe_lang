@@ -169,7 +169,7 @@ __spawn(main())",
             "
 
     async fun function_that_returns_error(){
-        return __err(\"custom error text \");
+        return error(\"CustomError\", \"custom error text \");
     }
     async fun main(){
         let value = await function_that_returns_error()?;

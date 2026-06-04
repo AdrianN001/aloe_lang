@@ -178,6 +178,46 @@ impl HashMap {
         )))
     }
 
+    pub fn get_panic(&self, args: &[ObjectRef], state: StateRef) -> Result<ObjectRef, PanicObj> {
+        if args.len() != 1 && args.len() != 2 {
+            return Err(PanicObj::new(
+                PanicType::WrongArgumentCount,
+                format!(
+                    "expected 1 or 2 arguments for hashmap.get(), got: {}",
+                    args.len()
+                ),
+                state,
+            ));
+        }
+
+        let arg_borrow = args[0].borrow();
+
+        let hashed_key = match arg_borrow.hash() {
+            Ok(val) => val,
+            Err(err_feedback) => {
+                return Ok(Rc::new(RefCell::new(Object::new_error(
+                    ErrorType::ErrorFromPanic,
+                    err_feedback,
+                    state,
+                ))));
+            }
+        };
+
+        if let Some(value) = self.pairs.get(&hashed_key) {
+            return Ok(value.value.clone());
+        }
+
+        if args.len() == 2 {
+            return Ok(args[1].clone());
+        }
+
+        Err(PanicObj::new(
+            PanicType::KeyNotFound,
+            format!("hashmap has no key: '{}'", &*arg_borrow.inspect()),
+            state,
+        ))
+    }
+
     pub fn clear(&mut self) -> ObjectRef {
         self.pairs.clear();
 

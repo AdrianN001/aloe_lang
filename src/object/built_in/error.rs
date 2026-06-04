@@ -10,28 +10,36 @@ pub fn error_builtin_function(
     args: &[ObjectRef],
     state: StateRef,
 ) -> Result<ObjectRef, RuntimeSignal> {
-    if args.len() != 1 {
+    if args.len() != 2 {
         return Err(RuntimeSignal::Panic(PanicObj::new(
             PanicType::WrongArgumentCount,
-            format!("expected 1 argument for err(), got: {}", args.len()),
+            format!("expected 2 arguments for error(), got: {}", args.len()),
             state,
         )));
     }
 
-    let arg_borrow = args[0].borrow();
-
-    let error_message = if let Object::String(str) = &*arg_borrow {
-        str.value.clone()
+    let error_type_raw = if let Object::String(string) = &*args[0].borrow() {
+        string.value.clone()
     } else {
         return Err(RuntimeSignal::Panic(PanicObj::new(
             PanicType::WrongArgumentType,
-            format!("expected 'str' as argument for err()"),
+            format!("expected string as first argument for error()"),
+            state,
+        )));
+    };
+
+    let error_message = if let Object::String(string) = &*args[1].borrow() {
+        string.value.clone()
+    } else {
+        return Err(RuntimeSignal::Panic(PanicObj::new(
+            PanicType::WrongArgumentType,
+            format!("expected string as argument for error()"),
             state,
         )));
     };
 
     Ok(new_objectref(Object::new_error(
-        ErrorType::CustomError(),
+        ErrorType::from_str(&error_type_raw),
         error_message,
         state,
     )))

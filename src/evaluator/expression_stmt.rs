@@ -16,13 +16,13 @@ impl ExpressionStatement {
 
         match expr.evaluate(environ, state) {
             Ok(ok_value) => return Ok(ok_value),
-            Err(RuntimeSignal::Panic(panic_obj)) => return Err(RuntimeSignal::Panic(panic_obj)),
             Err(RuntimeSignal::Yield(_)) => unreachable!(),
             Err(RuntimeSignal::Propagation(propagated_error)) => {
                 Ok(new_objectref(Object::ReturnVal(ReturnValue {
                     value: Box::new(propagated_error),
                 })))
             }
+            other => return other,
         }
     }
 }

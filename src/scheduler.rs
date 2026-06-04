@@ -10,12 +10,13 @@ pub mod message_output;
 use crate::{
     object::{
         Object, ObjectRef,
+        error::panic_type::PanicType,
         future::{
             future_state::FutureState,
             task::{Task, TaskRef},
             task_kind::TaskKind,
         },
-        panic_obj::RuntimeSignal,
+        panic_obj::{PanicObj, RuntimeSignal},
     },
     scheduler::message_output::MessageOutput,
 };
@@ -118,6 +119,30 @@ impl Scheduler {
 
                     Err(RuntimeSignal::Panic(p)) => {
                         return Err(RuntimeSignal::Panic(p));
+                    }
+
+                    Err(RuntimeSignal::Break(_)) => {
+                        return Err(RuntimeSignal::Panic(PanicObj::new(
+                            PanicType::UnexpectedKeyword,
+                            "break statement cannot be used outside of a loop".to_string(),
+                            {
+                                let task_borrow = task.borrow();
+                                let state = task_borrow.state.clone();
+                                state.clone()
+                            },
+                        )));
+                    }
+
+                    Err(RuntimeSignal::Continue) => {
+                        return Err(RuntimeSignal::Panic(PanicObj::new(
+                            PanicType::UnexpectedKeyword,
+                            "continue statement cannot be used outside of a loop".to_string(),
+                            {
+                                let task_borrow = task.borrow();
+                                let state = task_borrow.state.clone();
+                                state.clone()
+                            },
+                        )));
                     }
                 }
 

@@ -25,6 +25,8 @@ impl LetStatement {
             Err(RuntimeSignal::Propagation(err_obj)) => {
                 return LetStatement::create_a_return_obj_from_err(err_obj);
             }
+
+            other => return other,
         };
 
         Ok(value.clone())

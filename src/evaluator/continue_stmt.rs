@@ -1,12 +1,12 @@
 use crate::{
-    ast::statement::break_statement::BreakStatement,
+    ast::statement::continue_statement::ContinueStatement,
     object::{
-        Object, ObjectRef, error::panic_type::PanicType, new_objectref, panic_obj::RuntimeSignal,
+        ObjectRef, error::panic_type::PanicType, panic_obj::RuntimeSignal,
         stack_environment::EnvRef, state::StateRef,
     },
 };
 
-impl BreakStatement {
+impl ContinueStatement {
     pub fn evaluate(&self, environ: EnvRef, state: StateRef) -> Result<ObjectRef, RuntimeSignal> {
         {
             state.borrow_mut().set_current_line(self.token.line_number);
@@ -18,20 +18,12 @@ impl BreakStatement {
             return Err(RuntimeSignal::Panic(
                 crate::object::panic_obj::PanicObj::new_simple(
                     PanicType::UnexpectedKeyword,
-                    "unexpected break keyword in non-loop context".into(),
+                    "unexpected continue keyword in non-loop context".into(),
                     state.clone(),
                 ),
             ));
         }
 
-        let val = if let Some(break_expression_value) = &self.expression {
-            break_expression_value
-                .evaluate(environ.clone(), state)?
-                .clone()
-        } else {
-            new_objectref(Object::NULL_OBJECT)
-        };
-
-        Err(RuntimeSignal::Break(val))
+        Err(RuntimeSignal::Continue)
     }
 }

@@ -13,6 +13,7 @@ create_dir_for_current_version(){
 }
 
 fetch_standard_library_to_std_lib_location(){
+    rm -rf "$aloe_language_lib_dir/std/$version_name"
     git clone "$std_lib_location_gh" \
         "$aloe_language_lib_dir/std/$version_name"
 }

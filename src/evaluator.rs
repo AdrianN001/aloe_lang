@@ -4,6 +4,7 @@ mod await_expr;
 mod block_statement;
 mod break_stmt;
 mod call_expr;
+mod continue_stmt;
 mod expression_stmt;
 mod float_obj;
 mod for_loop;
@@ -105,7 +106,7 @@ impl Statement {
             Statement::Block(block_stmt) => block_stmt.evaluate(environ, state),
             Statement::Let(let_stmt) => let_stmt.evaluate(environ, state),
             Statement::Return(return_stmt) => return_stmt.evaluate(environ, state),
-            Statement::Continue(_) => Ok(Rc::new(RefCell::new(Object::Continue))),
+            Statement::Continue(continue_stmt) => continue_stmt.evaluate(environ, state),
             Statement::Break(break_stmt) => break_stmt.evaluate(environ, state),
             Statement::Function(func_stmt) => Ok(func_stmt.evaluate(environ.clone())),
             Statement::Struct(struct_stmt) => struct_stmt.evaluate(environ, state),

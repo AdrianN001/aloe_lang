@@ -235,6 +235,8 @@ impl MemberExpression {
                         true
                     }
                 }
+                Err(RuntimeSignal::Continue) => false,
+                Err(RuntimeSignal::Break(_)) => false,
                 Err(RuntimeSignal::Propagation(_)) => true,
                 Err(RuntimeSignal::Yield(_)) => false,
                 Ok(_) => true,
@@ -255,8 +257,10 @@ impl MemberExpression {
                     true
                 }
             }
+            Err(RuntimeSignal::Break(_)) => false,
             Err(RuntimeSignal::Propagation(_)) => true,
             Err(RuntimeSignal::Yield(_)) => false,
+            Err(RuntimeSignal::Continue) => false,
             Ok(_) => true,
         };
 

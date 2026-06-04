@@ -12,6 +12,8 @@ pub enum RuntimeSignal {
     Panic(PanicObj),
     Yield(TaskRef),
     Propagation(ObjectRef),
+    Break(ObjectRef),
+    Continue,
     //TODO: Break(ObjectRef),
 }
 

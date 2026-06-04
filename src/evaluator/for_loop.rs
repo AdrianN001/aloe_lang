@@ -102,12 +102,15 @@ impl ForLoopExpression {
                     )));
                 }
 
-                let result = statement.evaluate(environ.clone(), state.clone())?;
+                let result = match statement.evaluate(environ.clone(), state.clone()) {
+                    Ok(result) => result,
+                    Err(RuntimeSignal::Break(val)) => return Ok(val),
+                    Err(RuntimeSignal::Continue) => break,
+                    other_err => return other_err,
+                };
 
                 match &*result.borrow() {
                     Object::ReturnVal(_) => return Ok(result.clone()),
-                    Object::BreakVal(break_val) => return Ok(*break_val.value.clone()),
-                    Object::Continue => break,
                     _ => {}
                 }
             }
@@ -133,12 +136,15 @@ impl ForLoopExpression {
                     )));
                 }
 
-                let result = statement.evaluate(environ.clone(), state.clone())?;
+                let result = match statement.evaluate(environ.clone(), state.clone()) {
+                    Ok(result) => result,
+                    Err(RuntimeSignal::Break(val)) => return Ok(val),
+                    Err(RuntimeSignal::Continue) => break,
+                    other_err => return other_err,
+                };
 
                 match &*result.borrow() {
                     Object::ReturnVal(_) => return Ok(result.clone()),
-                    Object::BreakVal(break_val) => return Ok(*break_val.value.clone()),
-                    Object::Continue => break,
                     _ => {}
                 }
             }

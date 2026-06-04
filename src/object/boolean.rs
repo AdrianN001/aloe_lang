@@ -7,7 +7,7 @@ pub struct Boolean {
 
 impl Boolean {
     pub fn get_type(&self) -> String {
-        "boolean".into()
+        "<type bool>".into()
     }
 
     pub fn inspect(&self) -> String {

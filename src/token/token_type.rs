@@ -83,6 +83,7 @@ pub enum TokenType {
     KwInto,
 
     KwStruct,
+    KwEnum,
 
     KwWhile,
     KwFor,
@@ -112,6 +113,7 @@ pub fn lookup_identifiers(identifier: &str) -> TokenType {
         "into" => TokenType::KwInto,
 
         "struct" => TokenType::KwStruct,
+        "enum" => TokenType::KwEnum,
 
         "while" => TokenType::KwWhile,
         "for" => TokenType::KwFor,

@@ -78,7 +78,7 @@ impl ATCPSocketListenerWrapper {
     }
 
     pub fn type_name(&self) -> String {
-        "<native object 'ATCPSocketListener'>".into()
+        "<native object 'ATCPSocketListenerWrapper'>".into()
     }
 
     pub fn inspect(&self) -> String {
@@ -162,7 +162,7 @@ impl ATCPSocketWrapper {
     }
 
     pub fn type_name(&self) -> String {
-        "<native object 'ATCPSocket'>".into()
+        "<native object 'ATCPSocketWrapper'>".into()
     }
 
     pub fn inspect(&self) -> String {
@@ -198,7 +198,7 @@ impl AUDPSocketWrapper {
     }
 
     pub fn type_name(&self) -> String {
-        "<native object 'AUDPSocket'>".into()
+        "<native object 'AUDPSocketWrapper'>".into()
     }
 
     pub fn inspect(&self) -> String {

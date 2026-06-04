@@ -5,7 +5,10 @@ use crate::{
     frame::expr_frame::{EvaluationResult, ExpressionFrame},
     object::{
         Object, ObjectRef,
+        enum_model::EnumModel,
         error::panic_type::PanicType,
+        integer::Integer,
+        new_objectref,
         panic_obj::{PanicObj, RuntimeSignal},
         stack_environment::EnvRef,
         state::StateRef,
@@ -22,6 +25,9 @@ impl ScopeResolutionExpression {
 
         let module_obj = match &*left_obj_borrow {
             Object::Module(module) => module,
+            Object::EnumModel(enum_model) => {
+                return self.evaluate_with_enum_object(&enum_model, state);
+            }
             other_type => {
                 return Err(RuntimeSignal::Panic(PanicObj::new(
                     PanicType::OperatorIsNotSupported,
@@ -92,6 +98,13 @@ impl ScopeResolutionExpression {
         let left_side_borrow = left_side.borrow();
         let module_object = match &*left_side_borrow {
             Object::Module(module) => module,
+            Object::EnumModel(enum_model) => {
+                return ScopeResolutionExpression::evaluate_step_with_enum_object(
+                    &*enum_model,
+                    right_expression,
+                    state,
+                );
+            }
             other_type => {
                 return Err(RuntimeSignal::Panic(PanicObj::new(
                     PanicType::OperatorIsNotSupported,
@@ -161,5 +174,82 @@ impl ScopeResolutionExpression {
                 state.clone(),
             ))),
         }
+    }
+
+    fn evaluate_with_enum_object(
+        &self,
+        enum_obj: &EnumModel,
+        state: StateRef,
+    ) -> Result<ObjectRef, RuntimeSignal> {
+        let right_side_identifier_value = match &*self.right {
+            Expression::Identifier(identifier) => identifier.value.clone(),
+            other_expression => {
+                return Err(RuntimeSignal::Panic(PanicObj::new(
+                    PanicType::WrongSyntax,
+                    format!(
+                        "expected identifier on the right side of the scope resolution operator with enum, got: {}",
+                        other_expression.to_string()
+                    ),
+                    state,
+                )));
+            }
+        };
+
+        let value = match enum_obj.values.get(&right_side_identifier_value) {
+            Some(val) => val,
+            None => {
+                return Err(RuntimeSignal::Panic(PanicObj::new(
+                    PanicType::UnknownEnumValue,
+                    format!(
+                        "{}::{} does not exist",
+                        enum_obj.name, right_side_identifier_value
+                    ),
+                    state,
+                )));
+            }
+        };
+
+        Ok(new_objectref(Object::Int(Integer {
+            value: *value as i64,
+        })))
+    }
+    fn evaluate_step_with_enum_object(
+        enum_obj: &EnumModel,
+        right_expression: &Expression,
+        state: StateRef,
+    ) -> Result<EvaluationResult, RuntimeSignal> {
+        let right_side_identifier_value = match right_expression {
+            Expression::Identifier(identifier) => identifier.value.clone(),
+            other_expression => {
+                return Err(RuntimeSignal::Panic(PanicObj::new(
+                    PanicType::WrongSyntax,
+                    format!(
+                        "expected identifier on the right side of the scope resolution operator with enum, got: {}",
+                        other_expression.to_string()
+                    ),
+                    state,
+                )));
+            }
+        };
+
+        let value = match enum_obj.values.get(&right_side_identifier_value) {
+            Some(val) => val,
+            None => {
+                return Err(RuntimeSignal::Panic(PanicObj::new(
+                    PanicType::UnknownEnumValue,
+                    format!(
+                        "{}::{} does not exist",
+                        enum_obj.name, right_side_identifier_value
+                    ),
+                    state,
+                )));
+            }
+        };
+
+        Ok(EvaluationResult::Done(new_objectref(Object::Int(
+            Integer {
+                value: *value as i64,
+            },
+        ))))
     }
 }

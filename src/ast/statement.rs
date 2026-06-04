@@ -3,6 +3,7 @@ pub mod block_statement;
 pub mod break_statement;
 pub mod continue_statement;
 pub mod defer_statement;
+pub mod enum_statement;
 pub mod expression_statement;
 pub mod function_statement;
 pub mod import_statement;
@@ -20,8 +21,8 @@ use struct_statement::StructStatement;
 
 use crate::ast::statement::{
     async_function_statement::AsyncFunctionStatement, break_statement::BreakStatement,
-    continue_statement::ContinueStatement, function_statement::FunctionStatement,
-    launch_statement::LaunchStatement,
+    continue_statement::ContinueStatement, enum_statement::EnumStatement,
+    function_statement::FunctionStatement, launch_statement::LaunchStatement,
 };
 
 #[derive(Clone, Hash, PartialOrd, Ord, PartialEq, Eq, Debug)]
@@ -37,6 +38,7 @@ pub enum Statement {
     Import(ImportStatement),
     Struct(StructStatement),
     Launch(LaunchStatement),
+    Enum(EnumStatement),
 }
 
 impl Statement {
@@ -53,6 +55,7 @@ impl Statement {
             Statement::Struct(s) => &s.token.literal,
             Statement::AsyncFunction(s) => &s.token.literal,
             Statement::Launch(s) => &s.token.literal,
+            Statement::Enum(s) => &s.token.literal,
         }
     }
 
@@ -69,6 +72,7 @@ impl Statement {
             Statement::Struct(s) => s.to_string(),
             Statement::AsyncFunction(s) => s.to_string(),
             Statement::Launch(s) => s.to_string(),
+            Statement::Enum(s) => s.to_string(),
         }
     }
 }

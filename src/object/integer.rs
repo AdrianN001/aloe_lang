@@ -7,7 +7,7 @@ pub struct Integer {
 
 impl Integer {
     pub fn get_type(&self) -> String {
-        "integer".into()
+        "<type int>".into()
     }
 
     pub fn inspect(&self) -> String {

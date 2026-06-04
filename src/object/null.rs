@@ -3,7 +3,7 @@ pub struct Null {}
 
 impl Null {
     pub fn get_type(&self) -> String {
-        "null".into()
+        "<type null>".into()
     }
 
     pub fn inspect(&self) -> String {

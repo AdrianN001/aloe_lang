@@ -9,7 +9,7 @@ pub struct Array {
 
 impl Array {
     pub fn get_type(&self) -> String {
-        "array".into()
+        "<type array>".into()
     }
 
     pub fn inspect(&self) -> String {

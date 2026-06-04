@@ -5,6 +5,7 @@ pub enum PanicType {
     UnknownIdentifier,
     UnknownMethod,
     UnknownAttribute,
+    UnknownEnumValue,
 
     WrongType,
     WrongIndexType,

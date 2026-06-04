@@ -49,7 +49,7 @@ impl TCPSocketListenerWrapper {
     }
 
     pub fn type_name(&self) -> String {
-        "<native object 'TCPSocketListener'>".into()
+        "<native object 'TCPSocketListenerWrapper'>".into()
     }
 
     pub fn inspect(&self) -> String {
@@ -76,7 +76,7 @@ impl TCPSocketWrapper {
     }
 
     pub fn type_name(&self) -> String {
-        "<native object 'TCPSocket'>".into()
+        "<native object 'TCPSocketWrapper'>".into()
     }
 
     pub fn inspect(&self) -> String {
@@ -106,7 +106,7 @@ impl UDPSocketWrapper {
     }
 
     pub fn type_name(&self) -> String {
-        "<native object 'UdpSocket'>".into()
+        "<native object 'UdpSocketWrapper'>".into()
     }
 
     pub fn inspect(&self) -> String {

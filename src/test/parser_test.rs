@@ -986,3 +986,49 @@ fn test_while_loop_parse() {
         }
     });
 }
+
+#[test]
+fn test_enum_statement() {
+    let testcases = [
+        (
+            "enum State{ready;sleeping;}",
+            "State",
+            vec!["ready", "sleeping"],
+        ),
+        ("enum State{}", "State", vec![]),
+    ];
+
+    testcases.iter().for_each(|test_case| {
+        let input = test_case.0.into();
+        let expected_enum_name = test_case.1;
+        let expected_enum_values = &test_case.2;
+
+        let lexer = Lexer::new(input);
+        let parser = Parser::new(lexer);
+        let program = parser.into_a_program().unwrap();
+
+        assert_eq!(program.statements.len(), 1);
+
+        let enum_statement = match &program.statements[0] {
+            Statement::Enum(enum_stmt) => enum_stmt,
+            _ => panic!(),
+        };
+
+        let enum_name_raw = match &enum_statement.name {
+            Expression::Identifier(identifier_expr) => identifier_expr.value.clone(),
+            _ => panic!(),
+        };
+
+        let enum_values = enum_statement
+            .values
+            .iter()
+            .map(|value_expr| match value_expr {
+                Expression::Identifier(identifier) => identifier.value.clone(),
+                _ => panic!(),
+            })
+            .collect::<Vec<String>>();
+
+        assert_eq!(enum_name_raw, expected_enum_name);
+        assert_eq!(enum_values, *expected_enum_values);
+    });
+}

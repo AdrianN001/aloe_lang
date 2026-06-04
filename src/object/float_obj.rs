@@ -9,7 +9,7 @@ pub struct FloatObj {
 
 impl FloatObj {
     pub fn get_type(&self) -> String {
-        "float".into()
+        "<type float>".into()
     }
 
     pub fn inspect(&self) -> String {

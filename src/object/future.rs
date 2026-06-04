@@ -36,7 +36,7 @@ impl FutureObj {
 
 impl FutureObj {
     pub fn get_type(&self) -> String {
-        String::from("<type 'future'>")
+        String::from("<type future>")
     }
 
     pub fn inspect(&self) -> String {

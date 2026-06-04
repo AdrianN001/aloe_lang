@@ -2573,3 +2573,51 @@ fn test_array_destructuring() {
 
     test_cases_for_input_output(&testcases);
 }
+
+#[test]
+fn test_enum_object() {
+    let testcases = [
+        (
+            "
+        enum State{
+            start;
+            middle;
+            end;
+        }
+        State::start;",
+            "0",
+        ),
+        (
+            "
+        enum State{
+            start;
+            middle;
+            end;
+        }
+        State::middle;",
+            "1",
+        ),
+        (
+            "
+        enum State{
+            start;
+            middle;
+            end;
+        }
+        State::end;",
+            "2",
+        ),
+        (
+            "
+        enum State{
+            start;
+            middle;
+            end;
+        }
+        State::wrong_value;",
+            "State::wrong_value does not exist",
+        ),
+    ];
+
+    test_cases_for_input_output(&testcases);
+}

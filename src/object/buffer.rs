@@ -7,7 +7,7 @@ pub struct Buffer {
 
 impl Buffer {
     pub fn get_type(&self) -> String {
-        String::from("buffer")
+        String::from("<type buffer>")
     }
 
     pub fn inspect(&self) -> String {

@@ -12,6 +12,7 @@ pub enum SyntaxError {
     UnexpectedSemicolon(usize),
 
     UnexpectedTokenInStruct(Vec<TokenType>, TokenType, String, usize), //UnexpectedTokenInStruct(expected, got, StructName),
+    UnexpectedTokenInEnum(Vec<TokenType>, TokenType, String, usize),
     UnexpectedTokenAfterAsync(Vec<TokenType>, TokenType, usize),
 
     UnexpectedTokenInForLoopHead(Vec<&'static str>, TokenType, usize),
@@ -72,6 +73,19 @@ impl fmt::Display for SyntaxError {
 
                 format!(
                     "line {}, expected '{}' in struct '{}', but got: {}",
+                    line_number, expected_str, struct_name, got
+                )
+            }
+
+            SyntaxError::UnexpectedTokenInEnum(expected_list, got, struct_name, line_number) => {
+                let expected_str = expected_list
+                    .iter()
+                    .map(|token| token.to_string())
+                    .collect::<Vec<String>>()
+                    .join(" or ");
+
+                format!(
+                    "line {}, expected '{}' in enum '{}', but got: {}",
                     line_number, expected_str, struct_name, got
                 )
             }

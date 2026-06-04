@@ -22,7 +22,7 @@ pub struct AsyncFunction {
 
 impl AsyncFunction {
     pub fn get_type(&self) -> String {
-        "async function".into()
+        "<type async-func>".into()
     }
 
     pub fn inspect(&self) -> String {

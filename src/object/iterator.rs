@@ -21,7 +21,7 @@ pub enum Iterator {
 
 impl Iterator {
     pub fn get_type(&self) -> String {
-        "iterator object".into()
+        "<type iterator>".into()
     }
 
     pub fn inspect(&self) -> String {

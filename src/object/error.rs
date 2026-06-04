@@ -12,7 +12,7 @@ pub struct Error {
 
 impl Error {
     pub fn get_type(&self) -> String {
-        "error".into()
+        "<type error>".into()
     }
 
     pub fn inspect(&self) -> String {

@@ -79,6 +79,7 @@ impl fmt::Display for TokenType {
             TokenType::KwNull => "null",
 
             TokenType::KwStruct => "struct",
+            TokenType::KwEnum => "enum",
 
             TokenType::KwWhile => "while",
             TokenType::KwFor => "for",

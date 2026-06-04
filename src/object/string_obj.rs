@@ -10,7 +10,7 @@ pub struct StringObj {
 
 impl StringObj {
     pub fn get_type(&self) -> String {
-        "str".into()
+        "<type str>".into()
     }
 
     pub fn inspect(&self) -> String {

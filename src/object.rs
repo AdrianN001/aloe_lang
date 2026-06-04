@@ -5,6 +5,7 @@ pub mod break_value;
 pub mod buffer;
 pub mod built_in;
 pub mod copy;
+pub mod enum_model;
 pub mod error;
 pub mod float_obj;
 pub mod function;
@@ -42,7 +43,7 @@ use return_value::ReturnValue;
 use string_obj::StringObj;
 
 use crate::object::{
-    async_function::AsyncFunction, break_value::BreakValue, buffer::Buffer,
+    async_function::AsyncFunction, break_value::BreakValue, buffer::Buffer, enum_model::EnumModel,
     error::error_type::ErrorType, future::FutureObj, hashable::Hashable, hashmap::HashKey,
     iterator::Iterator, module::ModuleObject, native_object::NativeObject, state::StateRef,
     struct_model::StructModel, struct_object::StructObject,
@@ -78,6 +79,7 @@ pub enum Object {
     Native(Box<NativeObject>),
     Future(Box<FutureObj>),
     Module(Box<ModuleObject>),
+    EnumModel(Box<EnumModel>),
 
     Buffer(Box<Buffer>),
 }
@@ -126,6 +128,7 @@ impl Object {
             Object::Future(future) => future.get_type(),
             Object::Module(module) => module.get_type(),
             Object::Buffer(buffer) => buffer.get_type(),
+            Object::EnumModel(enum_model) => enum_model.get_type(),
         }
     }
 
@@ -152,6 +155,7 @@ impl Object {
             Object::Future(future) => future.inspect(),
             Object::Module(module) => module.inspect(),
             Object::Buffer(buffer) => buffer.inspect(),
+            Object::EnumModel(enum_model) => enum_model.inspect(),
         }
     }
 

@@ -21,7 +21,7 @@ pub struct Function {
 
 impl Function {
     pub fn get_type(&self) -> String {
-        "function".into()
+        "<type func>".into()
     }
 
     pub fn inspect(&self) -> String {

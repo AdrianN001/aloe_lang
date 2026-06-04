@@ -16,7 +16,7 @@ pub struct ModuleObject {
 
 impl ModuleObject {
     pub fn get_type(&self) -> String {
-        String::from("<type 'module'>")
+        String::from("<type module>")
     }
 
     pub fn inspect(&self) -> String {

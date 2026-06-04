@@ -9,7 +9,7 @@ pub struct HashMap {
 
 impl HashMap {
     pub fn get_type(&self) -> String {
-        "dict".into()
+        "<type dict>".into()
     }
 
     pub fn inspect(&self) -> String {

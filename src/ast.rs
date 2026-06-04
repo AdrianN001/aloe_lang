@@ -4,6 +4,7 @@ use crate::ast::precedence::OperationPrecedence;
 use crate::ast::statement::async_function_statement::AsyncFunctionStatement;
 use crate::ast::statement::break_statement::BreakStatement;
 use crate::ast::statement::continue_statement::ContinueStatement;
+use crate::ast::statement::enum_statement::EnumStatement;
 use crate::ast::statement::function_statement::FunctionStatement;
 use crate::ast::statement::import_statement::ImportStatement;
 use crate::ast::statement::launch_statement::LaunchStatement;
@@ -104,6 +105,7 @@ impl Parser {
             TokenType::KwStruct => self.parse_struct_statement(),
             TokenType::KwAsync => self.parse_async_function_statement(),
             TokenType::KwLaunch => self.parse_launch_statement(),
+            TokenType::KwEnum => self.parse_enum_statement(),
             _ => self.parse_expression_statement(),
         }
     }
@@ -377,7 +379,7 @@ impl Parser {
 
         if self.peek_token.token_type != TokenType::LBrace {
             return Err(SyntaxError::UnexpectedToken(
-                TokenType::Identifier,
+                TokenType::LBrace,
                 self.peek_token.token_type.clone(),
                 self.get_current_line(),
             ));
@@ -457,6 +459,96 @@ impl Parser {
         self.next_token();
 
         Ok((attributes, methods))
+    }
+
+    fn parse_enum_statement(&mut self) -> Result<Statement, SyntaxError> {
+        let token = self.current_token.clone();
+
+        if self.peek_token.token_type != TokenType::Identifier {
+            return Err(SyntaxError::UnexpectedToken(
+                TokenType::Identifier,
+                self.peek_token.token_type.clone(),
+                self.get_current_line(),
+            ));
+        }
+        self.next_token();
+
+        let name = self.parse_expression(OperationPrecedence::Lowest)?;
+
+        let name_of_the_enum_raw = {
+            match &name {
+                Expression::Identifier(identifier) => identifier.value.clone(),
+                other_expr => {
+                    return Err(SyntaxError::UnexpectedExpression(
+                        vec!["Identifer"],
+                        other_expr.clone(),
+                        self.get_current_line(),
+                    ));
+                }
+            }
+        };
+
+        if self.peek_token.token_type != TokenType::LBrace {
+            return Err(SyntaxError::UnexpectedToken(
+                TokenType::LBrace,
+                self.peek_token.token_type.clone(),
+                self.get_current_line(),
+            ));
+        }
+        self.next_token();
+
+        let values = self.parse_enum_body(&name_of_the_enum_raw)?;
+
+        if self.peek_token.token_type == TokenType::Semicolon {
+            self.next_token();
+        }
+
+        Ok(Statement::Enum(EnumStatement {
+            token,
+            name,
+            values,
+        }))
+    }
+
+    fn parse_enum_body(&mut self, enum_name: &str) -> Result<Vec<Expression>, SyntaxError> {
+        let mut values = Vec::new();
+
+        if self.peek_token.token_type == TokenType::RBrace {
+            self.next_token();
+            return Ok(values);
+        }
+
+        while self.peek_token.token_type != TokenType::RBrace {
+            self.next_token();
+            match self.current_token.token_type {
+                TokenType::Identifier => {
+                    let identifier = self.parse_identifier();
+
+                    if self.peek_token.token_type != TokenType::Semicolon {
+                        return Err(SyntaxError::UnexpectedTokenInEnum(
+                            vec![TokenType::Semicolon],
+                            self.peek_token.token_type.clone(),
+                            enum_name.to_string(),
+                            self.get_current_line(),
+                        ));
+                    }
+                    self.next_token();
+
+                    values.push(identifier);
+                }
+                _ => {
+                    return Err(SyntaxError::UnexpectedTokenInEnum(
+                        vec![TokenType::Identifier, TokenType::KwFunction],
+                        self.current_token.token_type.clone(),
+                        enum_name.to_string(),
+                        self.get_current_line(),
+                    ));
+                }
+            }
+        }
+        self.next_token();
+
+        Ok(values)
     }
 
     fn parse_async_function_statement(&mut self) -> Result<Statement, SyntaxError> {

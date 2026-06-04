@@ -129,7 +129,7 @@ pub enum BuiltIn {
 
 impl BuiltIn {
     pub fn get_type(&self) -> String {
-        "built-in function".into()
+        "<type built-in>".into()
     }
 
     pub fn inspect(&self) -> String {

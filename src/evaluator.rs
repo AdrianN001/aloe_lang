@@ -5,6 +5,7 @@ mod block_statement;
 mod break_stmt;
 mod call_expr;
 mod continue_stmt;
+mod enum_statement;
 mod expression_stmt;
 mod float_obj;
 mod for_loop;
@@ -112,6 +113,7 @@ impl Statement {
             Statement::Struct(struct_stmt) => struct_stmt.evaluate(environ, state),
             Statement::AsyncFunction(async_func_stmt) => async_func_stmt.evaluate(environ),
             Statement::Launch(launch_stmt) => launch_stmt.evaluate(environ, state),
+            Statement::Enum(enum_stmt) => enum_stmt.evaluate(environ, state),
             Statement::Import(_) => Err(RuntimeSignal::Panic(PanicObj::new_simple(
                 PanicType::WrongSyntax,
                 "import is only allowed in the top of the file.",

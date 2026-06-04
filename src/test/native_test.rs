@@ -9,7 +9,7 @@ pub fn test_path() {
         ),
         (
             "__path(23);",
-            "unexpected parameter type for __path(). Expected: 'str', got: 'integer'",
+            "unexpected parameter type for __path(). Expected: 'str', got: '<type int>'",
         ),
         ("__path(\".\")", "[PathWrapper for \".\"]"),
         ("__path(\".\").exists;", "true"),

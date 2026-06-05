@@ -20,7 +20,7 @@ pub mod native_object;
 pub mod null;
 pub mod operation;
 pub mod panic_obj;
-pub mod return_value;
+
 pub mod stack_environment;
 pub mod state;
 pub mod string_obj;
@@ -39,7 +39,6 @@ use function::Function;
 use hashmap::HashMap;
 use integer::Integer;
 use null::Null;
-use return_value::ReturnValue;
 use string_obj::StringObj;
 
 use crate::object::{
@@ -62,7 +61,6 @@ pub enum Object {
     BuiltIn(BuiltIn),
 
     //TODO: Diese ganze mist kann mit Runtime::{Continue,Break,Return} ersetzt werden. Spater
-    ReturnVal(ReturnValue),
     BreakVal(BreakValue),
     Continue,
 
@@ -111,7 +109,6 @@ impl Object {
             Object::Bool(obj) => obj.get_type(),
             Object::Null(obj) => obj.get_type(),
             Object::Func(obj) => obj.get_type(),
-            Object::ReturnVal(obj) => obj.get_type(),
             Object::String(obj) => obj.get_type(),
             Object::BuiltIn(obj) => obj.get_type(),
             Object::Err(obj) => obj.get_type(),
@@ -138,7 +135,6 @@ impl Object {
             Object::Bool(obj) => obj.inspect(),
             Object::Null(obj) => obj.inspect(),
             Object::Func(function) => function.inspect(),
-            Object::ReturnVal(obj) => obj.inspect(),
             Object::String(obj) => obj.inspect(),
             Object::BuiltIn(obj) => obj.inspect(),
             Object::Err(obj) => obj.inspect(),

@@ -1,9 +1,6 @@
 use crate::{
     ast::statement::expression_statement::ExpressionStatement,
-    object::{
-        Object, ObjectRef, new_objectref, panic_obj::RuntimeSignal, return_value::ReturnValue,
-        stack_environment::EnvRef, state::StateRef,
-    },
+    object::{ObjectRef, panic_obj::RuntimeSignal, stack_environment::EnvRef, state::StateRef},
 };
 
 impl ExpressionStatement {
@@ -18,9 +15,7 @@ impl ExpressionStatement {
             Ok(ok_value) => return Ok(ok_value),
             Err(RuntimeSignal::Yield(_)) => unreachable!(),
             Err(RuntimeSignal::Propagation(propagated_error)) => {
-                Ok(new_objectref(Object::ReturnVal(ReturnValue {
-                    value: Box::new(propagated_error),
-                })))
+                Err(RuntimeSignal::Return(propagated_error.clone()))
             }
             other => return other,
         }

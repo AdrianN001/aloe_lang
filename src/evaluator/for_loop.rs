@@ -1,10 +1,7 @@
 use std::{cell::RefCell, rc::Rc};
 
 use crate::{
-    ast::{
-        expression::{Expression, for_loop::ForLoopExpression, identifier::Identifier},
-        statement::Statement,
-    },
+    ast::expression::{Expression, for_loop::ForLoopExpression, identifier::Identifier},
     object::{
         Object, ObjectRef,
         error::panic_type::PanicType,
@@ -78,7 +75,6 @@ impl ForLoopExpression {
             Object::Array(arr) => arr.build_iterator(),
             Object::String(str) => str.build_char_iterator(),
             Object::HashMap(hashmap) => hashmap.build_iterator(),
-            Object::ReturnVal(_) => return Ok(provided_object.clone()), // propagated
             _ => {
                 return Err(RuntimeSignal::Panic(PanicObj::new_simple(
                     PanicType::ObjectNotIterable,
@@ -92,27 +88,12 @@ impl ForLoopExpression {
             environ.borrow_mut().set(&variable.value, current_value);
 
             for statement in &self.block.statements {
-                if matches!(statement, Statement::Return(_))
-                    && !state.borrow().is_function_context()
-                {
-                    return Err(RuntimeSignal::Panic(PanicObj::new_simple(
-                        PanicType::ReturnFromNonfunctionalContext,
-                        "return statement was used in a non-function context",
-                        state.clone(),
-                    )));
-                }
-
-                let result = match statement.evaluate(environ.clone(), state.clone()) {
+                let _ = match statement.evaluate(environ.clone(), state.clone()) {
                     Ok(result) => result,
                     Err(RuntimeSignal::Break(val)) => return Ok(val),
                     Err(RuntimeSignal::Continue) => break,
                     other_err => return other_err,
                 };
-
-                match &*result.borrow() {
-                    Object::ReturnVal(_) => return Ok(result.clone()),
-                    _ => {}
-                }
             }
         }
 
@@ -126,27 +107,12 @@ impl ForLoopExpression {
     ) -> Result<ObjectRef, RuntimeSignal> {
         loop {
             for statement in &self.block.statements {
-                if matches!(statement, Statement::Return(_))
-                    && !state.borrow().is_function_context()
-                {
-                    return Err(RuntimeSignal::Panic(PanicObj::new_simple(
-                        PanicType::ReturnFromNonfunctionalContext,
-                        "return statement was used in a non-function context",
-                        state.clone(),
-                    )));
-                }
-
-                let result = match statement.evaluate(environ.clone(), state.clone()) {
+                let _ = match statement.evaluate(environ.clone(), state.clone()) {
                     Ok(result) => result,
                     Err(RuntimeSignal::Break(val)) => return Ok(val),
                     Err(RuntimeSignal::Continue) => break,
                     other_err => return other_err,
                 };
-
-                match &*result.borrow() {
-                    Object::ReturnVal(_) => return Ok(result.clone()),
-                    _ => {}
-                }
             }
         }
     }

@@ -1,14 +1,9 @@
 use crate::{
-    ast::{
-        expression::{Expression, while_loop::WhileLoopExpression},
-        statement::Statement,
-    },
+    ast::expression::{Expression, while_loop::WhileLoopExpression},
     object::{
         Object::{self},
-        ObjectRef,
-        error::panic_type::PanicType,
-        new_objectref,
-        panic_obj::{PanicObj, RuntimeSignal},
+        ObjectRef, new_objectref,
+        panic_obj::RuntimeSignal,
         stack_environment::{EnvRef, StackEnvironment},
         state::StateRef,
     },
@@ -52,27 +47,12 @@ impl WhileLoopExpression {
 
         while should_run {
             for statement in &self.block.statements {
-                if matches!(statement, Statement::Return(_))
-                    && !state.borrow().is_function_context()
-                {
-                    return Err(RuntimeSignal::Panic(PanicObj::new_simple(
-                        PanicType::ReturnFromNonfunctionalContext,
-                        "return statement was used in a non-function context",
-                        state.clone(),
-                    )));
-                }
-
-                let result = match statement.evaluate(environ.clone(), state.clone()) {
+                let _ = match statement.evaluate(environ.clone(), state.clone()) {
                     Ok(result) => result,
                     Err(RuntimeSignal::Break(val)) => return Ok(val),
                     Err(RuntimeSignal::Continue) => break,
                     other_err => return other_err,
                 };
-
-                match &*result.borrow() {
-                    Object::ReturnVal(_) => return Ok(result.clone()),
-                    _ => {}
-                }
             }
 
             should_run = Self::check_if_expression_is_truthy(
@@ -92,26 +72,12 @@ impl WhileLoopExpression {
     ) -> Result<ObjectRef, RuntimeSignal> {
         loop {
             for statement in &self.block.statements {
-                if matches!(statement, Statement::Return(_))
-                    && !state.borrow().is_function_context()
-                {
-                    return Err(RuntimeSignal::Panic(PanicObj::new_simple(
-                        PanicType::ReturnFromNonfunctionalContext,
-                        "return statement was used in a non-function context",
-                        state.clone(),
-                    )));
-                }
-                let result = match statement.evaluate(environ.clone(), state.clone()) {
+                let _ = match statement.evaluate(environ.clone(), state.clone()) {
                     Ok(result) => result,
                     Err(RuntimeSignal::Break(val)) => return Ok(val),
                     Err(RuntimeSignal::Continue) => break,
                     other_err => return other_err,
                 };
-
-                match &*result.borrow() {
-                    Object::ReturnVal(_) => return Ok(result.clone()),
-                    _ => {}
-                }
             }
         }
     }

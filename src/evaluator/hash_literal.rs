@@ -23,15 +23,7 @@ impl HashMapLiteral {
         for (k, v) in &self.pairs {
             let key = k.evaluate(environ.clone(), state.clone())?;
 
-            if let Object::ReturnVal(_) = &*key.borrow() {
-                return Ok(key.clone());
-            }
-
             let value = v.evaluate(environ.clone(), state.clone())?;
-
-            if let Object::ReturnVal(_) = &*value.borrow() {
-                return Ok(value.clone());
-            }
 
             let hashed_key = match key.borrow().hash() {
                 Ok(ok_value) => ok_value,
@@ -72,15 +64,7 @@ impl HashMapLiteral {
         for index in 0..keys.len() {
             let key = &keys[index];
 
-            if let Object::ReturnVal(_) = &*key.borrow() {
-                return Ok(key.clone());
-            }
-
             let value = &values[index];
-
-            if let Object::ReturnVal(_) = &*value.borrow() {
-                return Ok(value.clone());
-            }
 
             let hashed_key = match key.borrow().hash() {
                 Ok(ok_value) => ok_value,

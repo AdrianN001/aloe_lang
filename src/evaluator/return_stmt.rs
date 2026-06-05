@@ -1,8 +1,12 @@
 use crate::{
     ast::statement::return_statement::ReturnStatement,
     object::{
-        Object, ObjectRef, new_objectref, panic_obj::RuntimeSignal, return_value::ReturnValue,
-        stack_environment::EnvRef, state::StateRef,
+        Object, ObjectRef,
+        error::panic_type::PanicType,
+        new_objectref,
+        panic_obj::{PanicObj, RuntimeSignal},
+        stack_environment::EnvRef,
+        state::StateRef,
     },
 };
 
@@ -11,6 +15,15 @@ impl ReturnStatement {
         {
             state.borrow_mut().set_current_line(self.token.line_number);
         }
+
+        if !state.borrow().is_function_context() {
+            return Err(RuntimeSignal::Panic(PanicObj::new_simple(
+                PanicType::ReturnFromNonfunctionalContext,
+                "unexpected return keyword in non-function context",
+                state.clone(),
+            )));
+        }
+
         let val = match &self.value {
             Some(return_value) => {
                 let ret_val_obj_res = return_value.evaluate(environ, state);
@@ -19,13 +32,8 @@ impl ReturnStatement {
             }
             None => new_objectref(Object::NULL_OBJECT),
         };
-        if let Object::ReturnVal(ret_val) = &*val.borrow() {
-            return Ok(ret_val.unwrap_to_value().clone());
-        }
 
-        Ok(new_objectref(Object::ReturnVal(ReturnValue {
-            value: Box::new(val.clone()),
-        })))
+        Err(RuntimeSignal::Return(val.clone()))
     }
 
     pub fn check_if_value_is_propagation(
@@ -38,6 +46,7 @@ impl ReturnStatement {
             Err(RuntimeSignal::Break(val)) => return Err(RuntimeSignal::Break(val)),
             Err(RuntimeSignal::Continue) => return Err(RuntimeSignal::Continue),
             Err(RuntimeSignal::Propagation(progated_err)) => return Ok((true, progated_err)),
+            Err(RuntimeSignal::Return(val)) => return Err(RuntimeSignal::Return(val)),
         }
     }
 }

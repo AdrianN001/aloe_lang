@@ -332,7 +332,7 @@ fn test_return_statement() {
         ),
         (
             "if true { return 5; }",
-            "cannot return from a non-function context",
+            "unexpected return keyword in non-function context",
         ),
         (
             "
@@ -340,7 +340,7 @@ for i <- range(10){
     return 5;
 }
 ",
-            "return statement was used in a non-function context",
+            "unexpected return keyword in non-function context",
         ),
         (
             "
@@ -350,7 +350,7 @@ if true{
     }
 }
 ",
-            "cannot return from a non-function context",
+            "unexpected return keyword in non-function context",
         ),
         (
             "
@@ -877,29 +877,11 @@ fn eval_hashmap_pair_count() {
 fn eval_hashmap_indexing() {
     let testcases = [
         (r#"{"asd": 123, true: "abc"}["asd"]"#, "123"),
-        (
-            r#"{}["asd"]"#,
-            "Stack trace:\n\t at <global>\nline 1, ItemNotFoundError: hashmap has no key: 'asd'",
-        ),
+        (r#"{}["asd"]"#, "hashmap has no key: 'asd'"),
         (r#"{false: fn(){return 5;}()}[false]"#, "5"),
     ];
 
-    testcases.iter().for_each(|testcase| {
-        let input = testcase.0.into();
-        let expected_value = testcase.1;
-
-        let lexer = Lexer::new(input);
-        let parser = Parser::new(lexer);
-        let program = parser.into_a_program().unwrap();
-
-        let last_object = match program.evaluate_with_default() {
-            Ok(x) => x,
-            Err(RuntimeSignal::Panic(err)) => panic!("{}", err),
-            _ => todo!(),
-        };
-
-        assert_eq!(last_object.borrow().inspect(), expected_value)
-    })
+    test_cases_for_input_output(&testcases);
 }
 
 #[test]

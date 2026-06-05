@@ -2,7 +2,8 @@ use crate::{
     ast::expression::{Expression, call_expression::CallExpression, member::MemberExpression},
     frame::expr_frame::{EvaluationResult, ExpressionFrame},
     object::{
-        Object, ObjectRef,
+        Object::{self},
+        ObjectRef,
         error::panic_type::PanicType,
         panic_obj::{PanicObj, RuntimeSignal},
         stack_environment::EnvRef,
@@ -17,10 +18,6 @@ impl MemberExpression {
             state.borrow_mut().set_current_line(self.token.line_number);
         }
         let left_obj = self.left.evaluate(environ.clone(), state.clone())?;
-
-        if let Object::ReturnVal(ret_val) = &*left_obj.borrow() {
-            return Ok(ret_val.unwrap_to_value().clone());
-        }
 
         match &*self.right {
             Expression::Call(call_expr) => {
@@ -112,10 +109,6 @@ impl MemberExpression {
         state: StateRef,
         awaited_arguments: &[ObjectRef],
     ) -> Result<EvaluationResult, RuntimeSignal> {
-        if let Object::ReturnVal(ret_val) = &*left_side.borrow() {
-            return Ok(EvaluationResult::Done(ret_val.unwrap_to_value().clone()));
-        }
-
         match right_expression {
             Expression::Identifier(identifier) => {
                 let name_of_attribute = &identifier.value;
@@ -235,6 +228,7 @@ impl MemberExpression {
                         true
                     }
                 }
+                Err(RuntimeSignal::Return(_)) => true,
                 Err(RuntimeSignal::Continue) => false,
                 Err(RuntimeSignal::Break(_)) => false,
                 Err(RuntimeSignal::Propagation(_)) => true,
@@ -257,6 +251,7 @@ impl MemberExpression {
                     true
                 }
             }
+            Err(RuntimeSignal::Return(_)) => true,
             Err(RuntimeSignal::Break(_)) => false,
             Err(RuntimeSignal::Propagation(_)) => true,
             Err(RuntimeSignal::Yield(_)) => false,
@@ -295,10 +290,6 @@ impl MemberExpression {
     ) -> Result<ObjectRef, RuntimeSignal> {
         let left_obj = self.left.evaluate(environ.clone(), state.clone())?;
         let mut left_obj_borrow = left_obj.borrow_mut();
-
-        if let Object::ReturnVal(ret_val) = &*left_obj_borrow {
-            return Ok(ret_val.unwrap_to_value().clone());
-        }
 
         match &*self.right {
             Expression::Identifier(attribute) => {

@@ -24,13 +24,6 @@ impl CallExpression {
 
         let args = self.evaluate_arguments(environ.clone(), state.clone())?;
 
-        // only propagation '?' can it cause. (hopefully)
-        for argument in &args {
-            if let Object::ReturnVal(_) = &*argument.borrow() {
-                return Ok(argument.clone());
-            }
-        }
-
         let return_value = match &*obj_to_call.borrow() {
             Object::Func(function) => function.apply(function_name, &args, state.clone()),
             Object::AsyncFunc(async_function) => {
@@ -52,7 +45,12 @@ impl CallExpression {
             ))),
         };
 
-        let ok_return_value = return_value?;
+        let ok_return_value = match return_value {
+            Ok(value) => value,
+            Err(RuntimeSignal::Return(return_value)) => return_value,
+
+            other_case => return other_case,
+        };
 
         if let Object::Err(error) = &*ok_return_value.borrow() {
             if self.question_mark_set && !state.borrow().is_function_context() {
@@ -94,13 +92,6 @@ impl CallExpression {
         questionmark_set: bool,
         bang_set: bool,
     ) -> Result<ObjectRef, RuntimeSignal> {
-        // only propagation '?' can it cause. (hopefully)
-        for argument in args {
-            if let Object::ReturnVal(_) = &*argument.borrow() {
-                return Ok(argument.clone());
-            }
-        }
-
         let return_value = match &*callable_object.borrow() {
             Object::Func(function) => function.apply(function_name, &args, state.clone()),
             Object::AsyncFunc(async_function) => {
@@ -122,8 +113,12 @@ impl CallExpression {
             ))),
         };
 
-        let ok_return_value = return_value?;
+        let ok_return_value = match return_value {
+            Ok(value) => value,
+            Err(RuntimeSignal::Return(return_value)) => return_value,
 
+            other_case => return other_case,
+        };
         if let Object::Err(error) = &*ok_return_value.borrow() {
             if questionmark_set && !state.borrow().is_function_context() {
                 return Err(RuntimeSignal::Panic(PanicObj::new(

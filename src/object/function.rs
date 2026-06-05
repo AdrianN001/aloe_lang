@@ -9,7 +9,7 @@ use crate::object::stack_environment::EnvRef;
 use crate::object::state::StateRef;
 use crate::{
     ast::{expression::identifier::Identifier, statement::block_statement::BlockStatement},
-    object::{Object, stack_environment::StackEnvironment},
+    object::stack_environment::StackEnvironment,
 };
 
 #[derive(Clone, PartialEq, Eq, Debug)]
@@ -84,19 +84,16 @@ impl Function {
 
         let env = self.extend_environment_with_args(name_of_the_function, arguments);
 
-        let last_expr = self
-            .body
-            .evaluate_with_function_context(env, state.clone())?;
+        let result = self.body.evaluate_with_function_context(env, state.clone());
 
         {
             state.borrow_mut().pop_from_stack();
         }
 
-        let content_of_last_expr = last_expr.borrow();
-
-        match &*content_of_last_expr {
-            Object::ReturnVal(ret_val) => Ok(ret_val.unwrap_to_value()),
-            _ => Ok(last_expr.clone()),
+        match result {
+            Ok(ok_value) => return Ok(ok_value),
+            Err(RuntimeSignal::Return(returned_value)) => return Ok(returned_value.clone()),
+            other => return other,
         }
     }
 

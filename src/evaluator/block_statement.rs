@@ -2,8 +2,7 @@ use std::cell::RefCell;
 use std::rc::Rc;
 
 use crate::ast::statement::block_statement::BlockStatement;
-use crate::object::error::panic_type::PanicType;
-use crate::object::panic_obj::{PanicObj, RuntimeSignal};
+use crate::object::panic_obj::RuntimeSignal;
 use crate::object::stack_environment::EnvRef;
 use crate::object::state::StateRef;
 use crate::object::{Object, ObjectRef};
@@ -14,39 +13,6 @@ impl BlockStatement {
 
         for statement in self.statements.iter() {
             result = statement.evaluate(environ.clone(), state.clone())?;
-            let borrowed_result = result.borrow();
-
-            match &*borrowed_result {
-                Object::ReturnVal(_ret_val) => {
-                    if state.borrow().is_function_context() {
-                        return Ok(result.clone());
-                    } else {
-                        return Err(RuntimeSignal::Panic(PanicObj::new_simple(
-                            PanicType::ReturnFromNonfunctionalContext,
-                            "cannot return from a non-function context",
-                            state.clone(),
-                        )));
-                    }
-                }
-                Object::BreakVal(_) | Object::Continue => {
-                    if environ.borrow().is_loop_context() {
-                        return Ok(result.clone());
-                    } else {
-                        let keyword = if matches!(*borrowed_result, Object::BreakVal(_)) {
-                            "break"
-                        } else {
-                            "continue"
-                        };
-
-                        return Err(RuntimeSignal::Panic(PanicObj::new_simple(
-                            PanicType::UnexpectedKeyword,
-                            &format!("unexpected {} keyword in non-loop context", keyword),
-                            state.clone(),
-                        )));
-                    }
-                }
-                _ => {}
-            }
         }
 
         Ok(result)
@@ -61,28 +27,7 @@ impl BlockStatement {
 
         for statement in self.statements.iter() {
             result = statement.evaluate(environ.clone(), state.clone())?;
-            let borrowed_result = result.borrow();
-
-            match &*borrowed_result {
-                Object::BreakVal(_) => {
-                    return Err(RuntimeSignal::Panic(PanicObj::new_simple(
-                        PanicType::UnexpectedKeyword,
-                        "unexpected break keyword in non-loop context",
-                        state.clone(),
-                    )));
-                }
-                Object::Continue => {
-                    return Err(RuntimeSignal::Panic(PanicObj::new_simple(
-                        PanicType::UnexpectedKeyword,
-                        "unexpected continue keyword in non-loop context",
-                        state.clone(),
-                    )));
-                }
-                Object::ReturnVal(_ret_val) => return Ok(result.clone()),
-                _ => {}
-            }
         }
-
         Ok(result)
     }
 }

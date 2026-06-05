@@ -86,10 +86,6 @@ impl Task {
                         self_ref.borrow_mut().frames.pop();
                     }
 
-                    if let Object::ReturnVal(return_val) = &*value.borrow() {
-                        return Ok(*return_val.value.clone());
-                    }
-
                     let parent_frame_opt = {
                         let task = self_ref.borrow();
 

@@ -137,7 +137,18 @@ impl Program {
                 Statement::Import(import_stmt) => {
                     import_stmt.evaluate(environ.clone(), state.clone(), module_loader)?
                 }
-                other_stmt => other_stmt.evaluate(environ.clone(), state.clone())?,
+                other_stmt => match other_stmt.evaluate(environ.clone(), state.clone()) {
+                    Ok(result) => result,
+                    Err(RuntimeSignal::Return(_val)) => {
+                        return Err(RuntimeSignal::Panic(PanicObj::new_simple(
+                            PanicType::UnexpectedKeyword,
+                            "unexpected return statement outside of function",
+                            state.clone(),
+                        )));
+                    }
+
+                    other => return other,
+                },
             };
 
             let borrowed_result = result.borrow();
@@ -157,13 +168,7 @@ impl Program {
                         state,
                     )));
                 }
-                Object::ReturnVal(_) => {
-                    return Err(RuntimeSignal::Panic(PanicObj::new_simple(
-                        PanicType::ReturnFromNonfunctionalContext,
-                        "unexpected return keyword in non-function context",
-                        state,
-                    )));
-                }
+
                 _ => {}
             }
         }
@@ -190,7 +195,18 @@ impl Program {
                         state,
                     )));
                 }
-                other_stmt => other_stmt.evaluate(environ.clone(), state.clone())?,
+                other_stmt => match other_stmt.evaluate(environ.clone(), state.clone()) {
+                    Ok(result) => result,
+                    Err(RuntimeSignal::Return(_val)) => {
+                        return Err(RuntimeSignal::Panic(PanicObj::new_simple(
+                            PanicType::UnexpectedKeyword,
+                            "unexpected return statement outside of function",
+                            state.clone(),
+                        )));
+                    }
+
+                    other => return other,
+                },
             };
 
             let borrowed_result = result.borrow();
@@ -210,13 +226,7 @@ impl Program {
                         state,
                     )));
                 }
-                Object::ReturnVal(_) => {
-                    return Err(RuntimeSignal::Panic(PanicObj::new_simple(
-                        PanicType::ReturnFromNonfunctionalContext,
-                        "unexpected return keyword in non-function context",
-                        state,
-                    )));
-                }
+
                 _ => {}
             }
         }
@@ -238,7 +248,18 @@ impl Program {
                         state,
                     )));
                 }
-                other_stmt => other_stmt.evaluate(environ.clone(), state.clone())?,
+                other_stmt => match other_stmt.evaluate(environ.clone(), state.clone()) {
+                    Ok(result) => result,
+                    Err(RuntimeSignal::Return(_val)) => {
+                        return Err(RuntimeSignal::Panic(PanicObj::new_simple(
+                            PanicType::UnexpectedKeyword,
+                            "unexpected return statement outside of function",
+                            state.clone(),
+                        )));
+                    }
+
+                    other => return other,
+                },
             };
 
             let borrowed_result = result.borrow();
@@ -258,13 +279,7 @@ impl Program {
                         state,
                     )));
                 }
-                Object::ReturnVal(_) => {
-                    return Err(RuntimeSignal::Panic(PanicObj::new_simple(
-                        PanicType::ReturnFromNonfunctionalContext,
-                        "unexpected return keyword in non-function context",
-                        state,
-                    )));
-                }
+
                 _ => {}
             }
         }

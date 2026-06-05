@@ -121,6 +121,10 @@ impl Scheduler {
                         return Err(RuntimeSignal::Panic(p));
                     }
 
+                    Err(RuntimeSignal::Return(_)) => {
+                        panic!()
+                    }
+
                     Err(RuntimeSignal::Break(_)) => {
                         return Err(RuntimeSignal::Panic(PanicObj::new(
                             PanicType::UnexpectedKeyword,

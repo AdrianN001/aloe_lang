@@ -478,9 +478,6 @@ impl ExpressionFrame {
                         Object::Array(arr) => Some(arr.build_iterator()),
                         Object::String(str) => Some(str.build_char_iterator()),
                         Object::HashMap(hashmap) => Some(hashmap.build_iterator()),
-                        Object::ReturnVal(_) => {
-                            return Ok(EvaluationResult::Done(provided_object.clone()));
-                        } // propagated
                         _ => {
                             return Err(RuntimeSignal::Panic(PanicObj::new_simple(
                                 PanicType::ObjectNotIterable,

@@ -92,6 +92,8 @@ impl Identifier {
             "gcd" => Some(BuiltIn::Gcd),
             "lcm" => Some(BuiltIn::Lcm),
             "factorial" => Some(BuiltIn::Factorial),
+
+            "assert" => Some(BuiltIn::Assert),
             _ => None,
         }
     }

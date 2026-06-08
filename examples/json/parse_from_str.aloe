@@ -6,6 +6,6 @@ let m = json::from_str("{\"a\": 1, \"b\": {\"c\": 3}, \"d\": [true, false, {
 
 println(m)
 
-let a = json::from_str("[1,2,3]")?;
+let a = json::from_str("[1,2,3]")!;
 
 println(a)

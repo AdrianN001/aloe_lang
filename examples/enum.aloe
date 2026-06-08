@@ -1,0 +1,9 @@
+enum Action{
+    Read,
+    Write,
+    Update,
+    Delete
+}
+
+let get_request = Action::Read;
+let post_request = Action::Write;

@@ -11,6 +11,7 @@ mod process;
 mod random;
 mod time;
 mod utils;
+mod test;
 
 use crate::object::{
     ObjectRef,
@@ -125,6 +126,8 @@ pub enum BuiltIn {
     Gcd,
     Lcm,
     Factorial,
+
+    Assert,
 }
 
 impl BuiltIn {
@@ -221,6 +224,8 @@ impl BuiltIn {
             BuiltIn::Gcd => math::gcd_builtin_function(args, state),
             BuiltIn::Lcm => math::lcm_builtin_function(args, state),
             BuiltIn::Factorial => math::factorial_builtin_function(args, state),
+
+            BuiltIn::Assert => test::assert_builtin_function(args, state),
         }
     }
 }

@@ -1,0 +1,3 @@
+import {time} from "@std::time.aloe";
+
+println("milliseconds since the unix epoch: ${time::now_as_millis()}");

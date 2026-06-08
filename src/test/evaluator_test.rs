@@ -2178,16 +2178,6 @@ c.get_color();
         (
             "
 struct Car{
-    fun bad(){
-        return 1;
-    }
-};
-",
-            "expected at least 1 parameter for method (to be used as 'this'), got: 0",
-        ),
-        (
-            "
-struct Car{
     color;
 
     fun is_color(this, c){
@@ -2262,6 +2252,35 @@ c2.set(\"green\");
 c1.color;
 ",
             "green",
+        ),
+        (
+            "
+struct Car{
+    color;
+
+    fun set(this, c){
+        this.color = c;
+    }
+};
+
+let c1 = Car(\"red\");
+Car::set(c1, \"green\");
+",
+            "green",
+        ),
+        (
+            "
+struct Car{
+
+    fun wheel_count(){
+        return 4;
+    }
+};
+
+let c1 = Car();
+Car::wheel_count()
+",
+            "4",
         ),
     ];
 

@@ -39,40 +39,38 @@ impl StructStatement {
         let methods = {
             let mut map = HashMap::new();
 
-            self.methods
-                .iter()
-                .try_for_each(|stmt|{
-                    match stmt{
-                        Statement::Function(func_stmt) => {
-                            if func_stmt.parameters.is_empty(){
-                                return Err( RuntimeSignal::Panic( PanicObj::new_simple(PanicType::MethodMissingThis, "expected at least 1 parameter for method (to be used as 'this'), got: 0", state.clone())))
-                            }
-                            let method_obj = func_stmt.evaluate_without_registering(environ.clone());
-                            let name = func_stmt.name.clone();
+            self.methods.iter().try_for_each(|stmt| match stmt {
+                Statement::Function(func_stmt) => {
+                    let method_obj = func_stmt.evaluate_without_registering(environ.clone());
+                    let name = func_stmt.name.clone();
 
-                            map.insert(name, method_obj);
-                            Ok(())
-                        },
-                        Statement::AsyncFunction(async_func_stmt) => {
-                            let underlying_function = {
-                                match &*async_func_stmt.function{
-                                    Statement::Function(func) => func,
-                                    _ => unreachable!()
-                                }
-                            };
-                            if underlying_function.parameters.is_empty(){
-                                return Err( RuntimeSignal::Panic( PanicObj::new_simple(PanicType::MethodMissingThis, "expected at least 1 parameter for method (to be used as 'this'), got: 0", state.clone())))
-                            }
-
-                            let async_method_obj = async_func_stmt.evaluate_without_registering(environ.clone())?;
-                            let name = underlying_function.name.clone();
-
-                            map.insert(name, async_method_obj);
-                            Ok(())
+                    map.insert(name, method_obj);
+                    Ok(())
+                }
+                Statement::AsyncFunction(async_func_stmt) => {
+                    let underlying_function = {
+                        match &*async_func_stmt.function {
+                            Statement::Function(func) => func,
+                            _ => unreachable!(),
                         }
-                        other_stmt => Err( RuntimeSignal::Panic( PanicObj::new(PanicType::IllegalExpression, format!("expected the method the be function statement, got: '{}'", other_stmt.to_string() ), state.clone())))
-                    }
-                })?;
+                    };
+
+                    let async_method_obj =
+                        async_func_stmt.evaluate_without_registering(environ.clone())?;
+                    let name = underlying_function.name.clone();
+
+                    map.insert(name, async_method_obj);
+                    Ok(())
+                }
+                other_stmt => Err(RuntimeSignal::Panic(PanicObj::new(
+                    PanicType::IllegalExpression,
+                    format!(
+                        "expected the method the be function statement, got: '{}'",
+                        other_stmt.to_string()
+                    ),
+                    state.clone(),
+                ))),
+            })?;
             map
         };
 

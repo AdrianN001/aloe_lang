@@ -9,9 +9,9 @@ mod math;
 mod memory;
 mod process;
 mod random;
+mod test;
 mod time;
 mod utils;
-mod test;
 
 use crate::object::{
     ObjectRef,

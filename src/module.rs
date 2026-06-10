@@ -126,17 +126,17 @@ impl Module {
         let name = new_objectref(Object::String(Box::new(StringObj {
             value: self.rel_path.display().to_string(),
         })));
-        environment.set("__name__", name);
+        environment.insert_with_val_binding("__name__", name);
 
         let module_path = new_objectref(Object::String(Box::new(StringObj {
             value: self.abs_path.display().to_string(),
         })));
-        environment.set("__module__", module_path);
+        environment.insert_with_val_binding("__module__", module_path);
 
         let root_file = new_objectref(Object::String(Box::new(StringObj {
             value: module_loader.root_file.display().to_string(),
         })));
-        environment.set("__main__", root_file);
+        environment.insert_with_val_binding("__main__", root_file);
     }
 
     pub fn to_reference(self) -> ModuleRef {

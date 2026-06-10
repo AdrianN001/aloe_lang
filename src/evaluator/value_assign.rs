@@ -27,7 +27,7 @@ impl ValueAssignExpression {
         match &*self.left {
             Expression::Identifier(identifier) => {
                 let mut environ_borrow = environ.borrow_mut();
-                if !environ_borrow.try_to_assign(&identifier.value, right.clone()) {
+                if !environ_borrow.try_to_assign(&identifier.value, right.clone(), state.clone())? {
                     return Err(RuntimeSignal::Panic(PanicObj::new(
                         PanicType::VariableIsNotDeclared,
                         format!("variable '{}' was not declared.", &identifier.value),
@@ -83,7 +83,47 @@ impl ValueAssignExpression {
             Expression::Identifier(identifier) => {
                 environ
                     .borrow_mut()
-                    .set_to_lowest_level(&identifier.value, right.clone());
+                    .insert_with_let_binding(&identifier.value, right.clone());
+                Ok(right)
+            }
+            other_expression => {
+                return Err(RuntimeSignal::Panic(PanicObj::new(
+                    PanicType::WrongSyntax,
+                    format!(
+                        "expcted after let keyword an identifier, or an array for destructuring, got: '{}'",
+                        other_expression.to_string()
+                    ),
+                    state,
+                )));
+            }
+        }
+    }
+
+    pub fn evaluate_with_val_binding(
+        &self,
+        environ: EnvRef,
+        state: StateRef,
+    ) -> Result<ObjectRef, RuntimeSignal> {
+        let right = self.right.evaluate(environ.clone(), state.clone())?;
+
+        match &*self.left {
+            Expression::Array(destruct_arr) => {
+                let identifiers = ValueAssignExpression::get_identifier_from_destruct_arr(
+                    destruct_arr,
+                    state.clone(),
+                )?;
+
+                ValueAssignExpression::evaluate_destructuring_with_val_binding(
+                    &identifiers,
+                    right,
+                    environ,
+                    state,
+                )
+            }
+            Expression::Identifier(identifier) => {
+                environ
+                    .borrow_mut()
+                    .insert_with_val_binding(&identifier.value, right.clone());
                 Ok(right)
             }
             other_expression => {
@@ -169,7 +209,7 @@ impl ValueAssignExpression {
                     environ
                         .clone()
                         .borrow_mut()
-                        .set_to_lowest_level(identifier, value);
+                        .insert_with_let_binding(identifier, value);
                 });
             Ok(right_side_value.clone())
         } else {
@@ -179,7 +219,7 @@ impl ValueAssignExpression {
 
                 environ
                     .borrow_mut()
-                    .set_to_lowest_level(&identifier, value.clone());
+                    .insert_with_let_binding(&identifier, value.clone());
             }
 
             let last_identifer = identifiers.last().expect("last exists");
@@ -190,7 +230,74 @@ impl ValueAssignExpression {
 
             environ
                 .borrow_mut()
-                .set_to_lowest_level(last_identifer, rest_arr);
+                .insert_with_let_binding(last_identifer, rest_arr);
+
+            Ok(right_side_value.clone())
+        }
+    }
+
+    pub fn evaluate_destructuring_with_val_binding(
+        identifiers: &[String],
+        right_side_value: ObjectRef,
+        environ: EnvRef,
+        state: StateRef,
+    ) -> Result<ObjectRef, RuntimeSignal> {
+        let right_side_borrow = right_side_value.borrow();
+
+        let array = match &*right_side_borrow {
+            Object::Array(arr) => arr,
+            other_type => {
+                return Err(RuntimeSignal::Panic(PanicObj::new(
+                    PanicType::Destructuring,
+                    format!("{} can not be destructred", other_type.get_type()),
+                    state,
+                )));
+            }
+        };
+
+        let array_items = array.items.clone();
+        let array_length = array.items.len();
+
+        if identifiers.len() > array_length {
+            return Err(RuntimeSignal::Panic(PanicObj::new(
+                PanicType::Destructuring,
+                format!(
+                    "Array on the right side has a length of {}, but there are {} identifiers the left side.",
+                    array_length,
+                    identifiers.len()
+                ),
+                state,
+            )));
+        } else if identifiers.len() == array_length {
+            identifiers
+                .iter()
+                .zip(array_items)
+                .for_each(|(identifier, value)| {
+                    environ
+                        .clone()
+                        .borrow_mut()
+                        .insert_with_val_binding(identifier, value);
+                });
+            Ok(right_side_value.clone())
+        } else {
+            for indx in 0..identifiers.len() - 1 {
+                let identifier = &identifiers[indx];
+                let value = &array_items[indx];
+
+                environ
+                    .borrow_mut()
+                    .insert_with_val_binding(&identifier, value.clone());
+            }
+
+            let last_identifer = identifiers.last().expect("last exists");
+            let sub_array = &array_items[identifiers.len() - 1..];
+            let rest_arr = new_objectref(Object::Array(Box::new(Array {
+                items: sub_array.to_vec(),
+            })));
+
+            environ
+                .borrow_mut()
+                .insert_with_val_binding(last_identifer, rest_arr);
 
             Ok(right_side_value.clone())
         }
@@ -233,7 +340,10 @@ impl ValueAssignExpression {
                 .iter()
                 .zip(array_items)
                 .map(|(identifier, value)| {
-                    let variable_found = environ.borrow_mut().try_to_assign(identifier, value);
+                    let variable_found =
+                        environ
+                            .borrow_mut()
+                            .try_to_assign(identifier, value, state.clone())?;
                     if !variable_found {
                         return Err(RuntimeSignal::Panic(PanicObj::new(
                             PanicType::VariableIsNotDeclared,
@@ -250,9 +360,10 @@ impl ValueAssignExpression {
                 let identifier = &identifiers[indx];
                 let value = &array_items[indx];
 
-                let variable_found = environ
-                    .borrow_mut()
-                    .try_to_assign(identifier, value.clone());
+                let variable_found =
+                    environ
+                        .borrow_mut()
+                        .try_to_assign(identifier, value.clone(), state.clone())?;
                 if !variable_found {
                     return Err(RuntimeSignal::Panic(PanicObj::new(
                         PanicType::VariableIsNotDeclared,
@@ -268,7 +379,10 @@ impl ValueAssignExpression {
                 items: sub_array.to_vec(),
             })));
 
-            let variable_found = environ.borrow_mut().try_to_assign(last_identifer, rest_arr);
+            let variable_found =
+                environ
+                    .borrow_mut()
+                    .try_to_assign(last_identifer, rest_arr, state.clone())?;
             if !variable_found {
                 return Err(RuntimeSignal::Panic(PanicObj::new(
                     PanicType::VariableIsNotDeclared,
@@ -291,7 +405,11 @@ impl ValueAssignExpression {
         match left_expr {
             Expression::Identifier(identifier) => {
                 let mut environ_borrow = environ.borrow_mut();
-                if !environ_borrow.try_to_assign(&identifier.value, right_value.clone()) {
+                if !environ_borrow.try_to_assign(
+                    &identifier.value,
+                    right_value.clone(),
+                    interpreter_state.clone(),
+                )? {
                     return Err(RuntimeSignal::Panic(PanicObj::new(
                         PanicType::VariableIsNotDeclared,
                         format!("variable '{}' was not declared.", &identifier.value),

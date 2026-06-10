@@ -67,7 +67,7 @@ impl ImportStatement {
 
                 {
                     let mut own_environ_borrow = _environ.borrow_mut();
-                    own_environ_borrow.set(custom_name, new_module_ref);
+                    own_environ_borrow.insert_with_let_binding(custom_name, new_module_ref);
                 }
             }
             None => {
@@ -144,7 +144,7 @@ impl ImportStatement {
                 }
             };
 
-            own_environ_borrow.set(identifier, exported_identifier.clone());
+            own_environ_borrow.insert_with_let_binding(identifier, exported_identifier.clone());
         }
 
         Ok(())

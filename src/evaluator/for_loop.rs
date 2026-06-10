@@ -85,7 +85,9 @@ impl ForLoopExpression {
         };
 
         while let Some(current_value) = iterator._next() {
-            environ.borrow_mut().set(&variable.value, current_value);
+            environ
+                .borrow_mut()
+                .insert_with_let_binding(&variable.value, current_value);
 
             for statement in &self.block.statements {
                 let _ = match statement.evaluate(environ.clone(), state.clone()) {

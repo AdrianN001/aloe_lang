@@ -24,6 +24,7 @@ mod return_stmt;
 mod scope_resolution_expr;
 mod string_literal;
 mod struct_statement;
+mod val_statement;
 mod value_assign;
 mod while_loop;
 
@@ -106,6 +107,7 @@ impl Statement {
             Statement::Expression(expr_stmt) => expr_stmt.evaluate(environ, state),
             Statement::Block(block_stmt) => block_stmt.evaluate(environ, state),
             Statement::Let(let_stmt) => let_stmt.evaluate(environ, state),
+            Statement::Val(val_stmt) => val_stmt.evaluate(environ, state),
             Statement::Return(return_stmt) => return_stmt.evaluate(environ, state),
             Statement::Continue(continue_stmt) => continue_stmt.evaluate(environ, state),
             Statement::Break(break_stmt) => break_stmt.evaluate(environ, state),

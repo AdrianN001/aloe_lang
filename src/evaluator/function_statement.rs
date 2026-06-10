@@ -32,7 +32,7 @@ impl FunctionStatement {
         })));
         environ
             .borrow_mut()
-            .set(&self.name, function_object.clone());
+            .insert_with_let_binding(&self.name, function_object.clone());
         Rc::new(RefCell::new(Object::NULL_OBJECT))
     }
 

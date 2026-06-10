@@ -37,7 +37,7 @@ impl AsyncFunctionStatement {
                     env: new_environment,
                 })));
 
-                environ.borrow_mut().set(name, obj);
+                environ.borrow_mut().insert_with_let_binding(name, obj);
 
                 Ok(new_objectref(Object::NULL_OBJECT))
             }

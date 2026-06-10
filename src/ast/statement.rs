@@ -11,6 +11,7 @@ pub mod launch_statement;
 pub mod let_statement;
 pub mod return_statement;
 pub mod struct_statement;
+pub mod val_statement;
 
 use block_statement::BlockStatement;
 use expression_statement::ExpressionStatement;
@@ -23,11 +24,13 @@ use crate::ast::statement::{
     async_function_statement::AsyncFunctionStatement, break_statement::BreakStatement,
     continue_statement::ContinueStatement, enum_statement::EnumStatement,
     function_statement::FunctionStatement, launch_statement::LaunchStatement,
+    val_statement::ValStatement,
 };
 
 #[derive(Clone, Hash, PartialOrd, Ord, PartialEq, Eq, Debug)]
 pub enum Statement {
     Let(LetStatement),
+    Val(ValStatement),
     Return(ReturnStatement),
     Break(BreakStatement),
     Continue(ContinueStatement),
@@ -45,6 +48,7 @@ impl Statement {
     pub fn token_literal(&self) -> &str {
         match self {
             Statement::Let(s) => &s.token.literal,
+            Statement::Val(s) => &s.token.literal,
             Statement::Return(s) => &s.token.literal,
             Statement::Expression(s) => &s.token.literal,
             Statement::Block(s) => &s.token.literal,
@@ -62,6 +66,7 @@ impl Statement {
     pub fn to_string(&self) -> String {
         match self {
             Statement::Let(s) => s.to_string(),
+            Statement::Val(s) => s.to_string(),
             Statement::Return(s) => s.to_string(),
             Statement::Expression(s) => s.to_string(),
             Statement::Function(s) => s.to_string(),

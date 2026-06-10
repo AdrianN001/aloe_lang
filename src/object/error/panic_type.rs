@@ -10,6 +10,8 @@ pub enum PanicType {
 
     Assertion,
 
+    AssignToConstant,
+
     WrongType,
     WrongIndexType,
     WrongArgumentType,
@@ -66,7 +68,10 @@ impl PanicType {
             "UnknownMethod" => Some(PanicType::UnknownMethod),
             "UnknownAttribute" => Some(PanicType::UnknownAttribute),
             "UnknownEnumValue" => Some(PanicType::UnknownEnumValue),
+
             "Assertion" => Some(PanicType::Assertion),
+
+            "AssignToConstant" => Some(PanicType::AssignToConstant),
 
             "WrongType" => Some(PanicType::WrongType),
             "WrongIndexType" => Some(PanicType::WrongIndexType),

@@ -10,6 +10,7 @@ use crate::ast::statement::import_statement::ImportStatement;
 use crate::ast::statement::launch_statement::LaunchStatement;
 use crate::ast::statement::let_statement::LetStatement;
 use crate::ast::statement::struct_statement::StructStatement;
+use crate::ast::statement::val_statement::ValStatement;
 use crate::ast::syntax_error_report::SyntaxErrorReport;
 use crate::ast::syntax_error_report::syntax_error::SyntaxError;
 use crate::{
@@ -97,6 +98,7 @@ impl Parser {
 
         match self.current_token.token_type {
             TokenType::KwLet => self.parse_let(),
+            TokenType::KwVal => self.parse_val(),
             TokenType::KwReturn => self.parse_return(),
             TokenType::KwBreak => self.parse_break(),
             TokenType::KwContinue => self.parse_continue(),
@@ -132,6 +134,33 @@ impl Parser {
         }
 
         Ok(Statement::Let(LetStatement {
+            token: curr_token,
+            assignment,
+        }))
+    }
+
+    fn parse_val(&mut self) -> Result<Statement, SyntaxError> {
+        let curr_token = self.current_token.clone();
+        self.next_token();
+
+        let assignment = self.parse_expression(OperationPrecedence::Lowest)?;
+
+        match assignment {
+            Expression::ValueAssign(_) => {}
+            other_type => {
+                return Err(SyntaxError::UnexpectedExpression(
+                    vec!["value assignment"],
+                    other_type,
+                    self.get_current_line(),
+                ));
+            }
+        };
+
+        if self.peek_token.token_type == TokenType::Semicolon {
+            self.next_token();
+        }
+
+        Ok(Statement::Val(ValStatement {
             token: curr_token,
             assignment,
         }))

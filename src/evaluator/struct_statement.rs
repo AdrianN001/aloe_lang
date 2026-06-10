@@ -84,7 +84,7 @@ impl StructStatement {
         {
             let mut environ_borrow = environ.borrow_mut();
 
-            environ_borrow.set(&struct_name, model.clone());
+            environ_borrow.insert_with_let_binding(&struct_name, model.clone());
         }
 
         Ok(model)

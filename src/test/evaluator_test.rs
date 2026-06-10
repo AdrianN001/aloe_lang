@@ -1,7 +1,7 @@
 use crate::{
     ast::Parser,
     lexer::Lexer,
-    object::{Object, panic_obj::RuntimeSignal},
+    object::{Object, error::panic_type::PanicType, panic_obj::RuntimeSignal},
     test::util::test_cases_for_input_output,
 };
 
@@ -1199,6 +1199,34 @@ fn test_variable_reassignment() {
     ];
 
     test_cases_for_input_output(&testcases);
+}
+
+#[test]
+fn test_val_binding_evaluation() {
+    let testcases = [
+        ("val x = 5; x;", "5"),
+        ("val b = false; b;", "false"),
+        ("val s = \"hello\"; s;", "hello"),
+    ];
+
+    test_cases_for_input_output(&testcases);
+}
+
+#[test]
+fn test_val_reassignment_panics_assign_to_constant() {
+    let input = "val x = 5; x = 6;";
+    let lexer = Lexer::new(input.to_string());
+    let parser = Parser::new(lexer);
+    let program = parser.into_a_program().unwrap();
+
+    match program.evaluate_with_default() {
+        Err(RuntimeSignal::Panic(err)) => {
+            assert_eq!(err.panic_type, PanicType::AssignToConstant);
+            assert_eq!(err.value, "val x is a constant value.");
+        }
+        Ok(_) => panic!("expected constant assignment panic"),
+        _ => panic!("expected Panic runtime signal"),
+    }
 }
 
 #[test]

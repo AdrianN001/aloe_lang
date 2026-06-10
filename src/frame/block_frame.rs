@@ -3,7 +3,7 @@ use std::{cell::RefCell, rc::Rc};
 use crate::{
     ast::{
         expression::{Expression, value_assign_expression::ValueAssignExpression},
-        statement::{Statement, let_statement::LetStatement},
+        statement::{Statement, let_statement::LetStatement, val_statement::ValStatement},
     },
     frame::expr_frame::{EvaluationResult, ExpressionFrame},
     object::{
@@ -61,7 +61,7 @@ impl BlockFrame {
     pub fn add_new_variable(&mut self, variable_name: &str, variable_value: ObjectRef) {
         self.environ
             .borrow_mut()
-            .set_to_lowest_level(variable_name, variable_value);
+            .insert_with_let_binding(variable_name, variable_value);
     }
 
     pub fn eval_step(&mut self, state: StateRef) -> Result<EvaluationResult, RuntimeSignal> {
@@ -97,6 +97,21 @@ impl BlockFrame {
                         .set_current_line(let_stmt.token.line_number);
                 }
                 let right_side = match &let_stmt.assignment {
+                    Expression::ValueAssign(assignment) => assignment.right.clone(),
+                    _ => unreachable!(),
+                };
+                Ok(ExpressionFrame::build_frame_from_expr(
+                    &right_side,
+                    self.environ.clone(),
+                ))
+            }
+            Statement::Val(val_stmt) => {
+                {
+                    state
+                        .borrow_mut()
+                        .set_current_line(val_stmt.token.line_number);
+                }
+                let right_side = match &val_stmt.assignment {
                     Expression::ValueAssign(assignment) => assignment.right.clone(),
                     _ => unreachable!(),
                 };
@@ -218,11 +233,11 @@ impl BlockFrame {
         match current_statement {
             Statement::Let(let_stmt) => {
                 self.handle_let_statement_with_value(let_stmt, value, state)?;
-                /*
-                self.environ
-                    .borrow_mut()
-                    .set(&let_stmt.name.value, value.clone());
-                */
+                self.index += 1;
+                Ok(None)
+            }
+            Statement::Val(val_stmt) => {
+                self.handle_val_statement_with_value(val_stmt, value, state)?;
                 self.index += 1;
                 Ok(None)
             }
@@ -266,7 +281,7 @@ impl BlockFrame {
             Expression::Identifier(identifier_expr) => {
                 self.environ
                     .borrow_mut()
-                    .set_to_lowest_level(&identifier_expr.value, right_value);
+                    .insert_with_let_binding(&identifier_expr.value, right_value);
                 Ok(())
             }
             Expression::Array(destruct_arr) => {
@@ -287,6 +302,50 @@ impl BlockFrame {
                     PanicType::WrongSyntax,
                     format!(
                         "expcted after let keyword an identifier, or an array for destructuring, got: '{}'",
+                        other_expression.to_string()
+                    ),
+                    interpreter_state,
+                )));
+            }
+        }
+    }
+
+    fn handle_val_statement_with_value(
+        &self,
+        statement: &ValStatement,
+        right_value: ObjectRef,
+        interpreter_state: StateRef,
+    ) -> Result<(), RuntimeSignal> {
+        let assignment_expr = match &statement.assignment {
+            Expression::ValueAssign(value_assign) => value_assign,
+            _ => unreachable!(),
+        };
+
+        match &*assignment_expr.left {
+            Expression::Identifier(identifier_expr) => {
+                self.environ
+                    .borrow_mut()
+                    .insert_with_val_binding(&identifier_expr.value, right_value);
+                Ok(())
+            }
+            Expression::Array(destruct_arr) => {
+                let identifiers = ValueAssignExpression::get_identifier_from_destruct_arr(
+                    &destruct_arr,
+                    interpreter_state.clone(),
+                )?;
+                let _ = ValueAssignExpression::evaluate_destructuring_with_val_binding(
+                    &identifiers,
+                    right_value,
+                    self.environ.clone(),
+                    interpreter_state,
+                )?;
+                Ok(())
+            }
+            other_expression => {
+                return Err(RuntimeSignal::Panic(PanicObj::new(
+                    PanicType::WrongSyntax,
+                    format!(
+                        "expcted after val keyword an identifier, or an array for destructuring, got: '{}'",
                         other_expression.to_string()
                     ),
                     interpreter_state,

@@ -1,12 +1,19 @@
 use std::{cell::RefCell, collections::HashMap, rc::Rc};
 
-use crate::object::ObjectRef;
+use crate::object::{
+    ObjectRef,
+    error::panic_type::PanicType,
+    panic_obj::{PanicObj, RuntimeSignal},
+    state::StateRef,
+};
 
 pub type EnvRef = Rc<RefCell<StackEnvironment>>;
 
 #[derive(Default, Clone, PartialEq, Eq, Debug)]
 pub struct StackEnvironment {
     pub map: HashMap<String, ObjectRef>,
+    pub constants: HashMap<String, ObjectRef>,
+
     pub outer: Option<EnvRef>,
     is_loop_context: bool,
     stack_layer_name: String,
@@ -16,6 +23,7 @@ impl StackEnvironment {
     pub fn new() -> Self {
         StackEnvironment {
             map: HashMap::new(),
+            constants: HashMap::new(),
             outer: None,
             is_loop_context: false,
             stack_layer_name: "<global>".into(),
@@ -26,6 +34,7 @@ impl StackEnvironment {
         let is_loop_context = { outer.borrow().is_loop_context };
         StackEnvironment {
             map: HashMap::new(),
+            constants: HashMap::new(),
             outer: Some(outer.clone()),
             is_loop_context,
             stack_layer_name,
@@ -40,30 +49,43 @@ impl StackEnvironment {
         self.is_loop_context
     }
 
-    pub fn try_to_assign(&mut self, identifier: &str, value: ObjectRef) -> bool {
+    pub fn try_to_assign(
+        &mut self,
+        identifier: &str,
+        value: ObjectRef,
+        state: StateRef,
+    ) -> Result<bool, RuntimeSignal> {
         if self.map.contains_key(identifier) {
             self.map.insert(identifier.into(), value);
-            return true;
+            return Ok(true);
+        } else if self.constants.contains_key(identifier) {
+            return Err(RuntimeSignal::Panic(PanicObj::new(
+                PanicType::AssignToConstant,
+                format!("val {} is a constant value.", identifier),
+                state,
+            )));
         }
 
         if let Some(outer) = &self.outer {
-            return outer.borrow_mut().try_to_assign(identifier, value);
+            return outer.borrow_mut().try_to_assign(identifier, value, state);
         }
 
-        false
+        Ok(false)
     }
 
-    pub fn set(&mut self, identifier: &str, value: ObjectRef) {
-        if !self.try_to_assign(identifier, value.clone()) {
-            self.set_to_lowest_level(identifier, value);
-        }
-    }
-
-    pub fn set_to_lowest_level(&mut self, identifier: &str, value: ObjectRef) {
+    pub fn insert_with_let_binding(&mut self, identifier: &str, value: ObjectRef) {
         self.map.insert(identifier.into(), value);
     }
 
+    pub fn insert_with_val_binding(&mut self, identifier: &str, value: ObjectRef) {
+        self.constants.insert(identifier.into(), value);
+    }
+
     pub fn get(&self, identifier: &str) -> Option<ObjectRef> {
+        if let Some(constant_val) = self.constants.get(identifier) {
+            return Some(constant_val.clone());
+        }
+
         match self.map.get(identifier) {
             Some(val) => Some(val.clone()),
             None => {

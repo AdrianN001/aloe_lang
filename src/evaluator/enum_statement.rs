@@ -63,7 +63,7 @@ impl EnumStatement {
         {
             environ
                 .borrow_mut()
-                .set_to_lowest_level(&name, new_enum_object.clone());
+                .insert_with_let_binding(&name, new_enum_object.clone());
         }
 
         Ok(new_enum_object)

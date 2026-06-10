@@ -70,6 +70,25 @@ fn test_return_statement() {
 }
 
 #[test]
+fn test_val_statement_parsing() {
+    let input = "val x = 5;";
+    let lexer = Lexer::new(input.to_string());
+    let parser = Parser::new(lexer);
+    let program = parser.into_a_program().unwrap();
+
+    assert_eq!(program.statements.len(), 1);
+
+    if let Statement::Val(val_statement) = &program.statements[0] {
+        assert!(matches!(
+            val_statement.assignment,
+            Expression::ValueAssign(_)
+        ));
+    } else {
+        panic!("expected val statement");
+    }
+}
+
+#[test]
 fn test_identiefier_expression_parsing() {
     let input = "
     foobar;

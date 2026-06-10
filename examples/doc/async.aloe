@@ -1,11 +1,13 @@
+import {file} from "@std::file.aloe";
+
 
 async fun fetch_file_and_get_content(file_path){
     
     println("Fetching: ${file_path}");
-    let file = __open(file_path);
+    let file_opened = file::open(file_path)?;
 
     println("Reading content");
-    let content = await file.read_async();
+    let content = await file_opened.read_async();
 
     return content;
 }

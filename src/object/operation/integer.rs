@@ -115,9 +115,19 @@ impl Integer {
 
     pub fn modulo(&self, right: ObjectRef, _state: StateRef) -> Result<ObjectRef, PanicObj> {
         match &*right.borrow() {
-            Object::Int(right_integer) => Ok(new_objectref(Object::Int(Integer {
-                value: self.value % right_integer.value,
-            }))),
+            Object::Int(right_integer) => {
+                if right_integer.value != 0 {
+                    Ok(new_objectref(Object::Int(Integer {
+                        value: self.value % right_integer.value,
+                    })))
+                } else {
+                    Err(PanicObj::new(
+                        PanicType::DivisionByNull,
+                        "modulo by 0 is not allowed".to_string(),
+                        _state,
+                    ))
+                }
+            }
             other_type => Err(PanicObj::new(
                 PanicType::OperatorIsNotSupported,
                 format!(

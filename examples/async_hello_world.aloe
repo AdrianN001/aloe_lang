@@ -4,7 +4,7 @@ async fun greet(name){
 
 async fun main(){
     print("Type your name here >> ", "");
-    let name = await __input_async();
+    let name = await input_async();
     await greet(name);
 }
 

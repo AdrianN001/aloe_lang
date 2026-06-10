@@ -1,0 +1,16 @@
+
+fun print_factors(number){
+    if type(number) != "<type int>"{
+        panic("WrongArgumentType", "expected int, got: ${type(number)}");
+    }
+
+    print("positive factors of ${number}: ", "");
+    for i <- range(2, number)?{
+        if (number % i) == 0{
+            print(i, ", ")
+        }
+    }
+    println();
+}
+
+print_factors(input().as_int()!)

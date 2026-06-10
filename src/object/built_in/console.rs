@@ -51,7 +51,7 @@ pub fn console_writeln_builtin_function(args: &[ObjectRef]) -> ObjectRef {
     Rc::new(RefCell::new(Object::NULL_OBJECT))
 }
 
-// __input()
+// input()
 pub fn console_read_builtin_function() -> ObjectRef {
     std::io::stdout().flush().unwrap();
 
@@ -65,7 +65,7 @@ pub fn console_read_builtin_function() -> ObjectRef {
     new_objectref(Object::String(Box::new(StringObj { value: buffer })))
 }
 
-// __input_async()
+//input_async()
 pub fn console_read_async_builtin_function() -> ObjectRef {
     let future = new_objectref(Object::Future(Box::new(FutureObj::new(
         FutureState::Pending(FutureKind::IO),

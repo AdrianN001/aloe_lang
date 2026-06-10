@@ -1,0 +1,24 @@
+import {command} from "@std::process/command.aloe";
+
+fun create_new_popup(title, message){
+    let popup_cmd = command::new("sh")
+                        .add_arg("-c")
+                        .add_arg("osascript -e 'display notification \"${message}\" with title \"${title}\"'");
+
+    let [status, stdout, stderr] = popup_cmd.output();
+
+    println("status = ${status}");
+    println("stderr = ${stderr.as_str}");
+}
+
+fun main(){
+    print("title?>>", "");
+    let title = input();
+
+    print("message?>>", "");
+    let message = input();
+
+    create_new_popup(title, message);
+}
+
+main()

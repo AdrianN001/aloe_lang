@@ -10,7 +10,7 @@ async fun main(){
     print("Write something:>>","");
     let inpt = "";
 
-    while inpt = __input() {
+    while inpt = input() {
         await server_stream.write(inpt.as_buffer())!;
         print("Write something:>>","");
     }

@@ -24,8 +24,8 @@ impl Identifier {
 
             "print" => Some(BuiltIn::Print),
             "println" => Some(BuiltIn::Println),
-            "__input" => Some(BuiltIn::Read),
-            "__input_async" => Some(BuiltIn::ARead),
+            "input" => Some(BuiltIn::Read),
+            "input_async" => Some(BuiltIn::ARead),
 
             "type" => Some(BuiltIn::Type),
             "inspect" => Some(BuiltIn::Inspect),

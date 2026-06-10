@@ -47,11 +47,11 @@ impl HashMap {
             "setdefault" => self.setdefault(args, state),
             "update" => self.update(args, state),
             "remove" => self.remove(args, state),
-            "clear" => Ok(self.clear()),
+            "clear" => self.clear(args, state),
             "has_key" => self.has_key(args, state),
-            "as_iter" => Ok(self.as_iter()),
+            "as_iter" => self.as_iter(args, state),
 
-            "clone" => Ok(self.deep_copy()),
+            "clone" => self.deep_copy(args, state),
 
             _ => Err(PanicObj::new(
                 PanicType::UnknownMethod,
@@ -218,13 +218,33 @@ impl HashMap {
         ))
     }
 
-    pub fn clear(&mut self) -> ObjectRef {
+    pub fn clear(&mut self, args: &[ObjectRef], state: StateRef) -> Result<ObjectRef, PanicObj> {
+        if !args.is_empty() {
+            return Err(PanicObj::new(
+                PanicType::WrongArgumentCount,
+                format!(
+                    "hashmap.clear() takes no arguments, but {} were provided",
+                    args.len()
+                ),
+                state,
+            ));
+        }
         self.pairs.clear();
 
-        Rc::new(RefCell::new(Object::NULL_OBJECT))
+        Ok(Rc::new(RefCell::new(Object::NULL_OBJECT)))
     }
 
-    pub fn deep_copy(&self) -> ObjectRef {
+    pub fn deep_copy(&self, args: &[ObjectRef], state: StateRef) -> Result<ObjectRef, PanicObj> {
+        if !args.is_empty() {
+            return Err(PanicObj::new(
+                PanicType::WrongArgumentCount,
+                format!(
+                    "hashmap.clone() takes no arguments, but {} were provided",
+                    args.len()
+                ),
+                state,
+            ));
+        }
         let mut new_pairs = BTreeMap::new();
 
         for (key_hash, pair) in &self.pairs {
@@ -237,13 +257,25 @@ impl HashMap {
             );
         }
 
-        Rc::new(RefCell::new(Object::HashMap(Box::new(HashMap {
+        Ok(Rc::new(RefCell::new(Object::HashMap(Box::new(HashMap {
             pairs: new_pairs,
-        }))))
+        })))))
     }
 
-    pub fn as_iter(&self) -> ObjectRef {
-        new_objectref(Object::Iterator(Box::new(self.build_iterator())))
+    pub fn as_iter(&self, args: &[ObjectRef], state: StateRef) -> Result<ObjectRef, PanicObj> {
+        if !args.is_empty() {
+            return Err(PanicObj::new(
+                PanicType::WrongArgumentCount,
+                format!(
+                    "hashmap.as_iter() takes no arguments, but {} were provided",
+                    args.len()
+                ),
+                state,
+            ));
+        }
+        Ok(new_objectref(Object::Iterator(Box::new(
+            self.build_iterator(),
+        ))))
     }
 
     pub fn build_iterator(&self) -> Iterator {

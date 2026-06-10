@@ -23,11 +23,11 @@ impl ATCPSocketListenerWrapper {
     pub fn apply_method(
         &mut self,
         name: &str,
-        _args: &[ObjectRef],
+        args: &[ObjectRef],
         state: StateRef,
     ) -> Result<ObjectRef, PanicObj> {
         match name {
-            "accept" => self.accept(state),
+            "accept" => self.accept(args, state),
             _ => Err(PanicObj::new(
                 PanicType::UnknownMethod,
                 format!("ATCPSocketListener has no method named '{}'", name),
@@ -52,7 +52,17 @@ impl ATCPSocketListenerWrapper {
 impl ATCPSocketListenerWrapper {
     // methods
 
-    pub fn accept(&self, _state: StateRef) -> Result<ObjectRef, PanicObj> {
+    pub fn accept(&self, args: &[ObjectRef], state: StateRef) -> Result<ObjectRef, PanicObj> {
+        if !args.is_empty() {
+            return Err(PanicObj::new(
+                PanicType::WrongArgumentCount,
+                format!(
+                    "listener.accept() takes no arguments, but {} were provided",
+                    args.len()
+                ),
+                state,
+            ));
+        }
         let future = new_objectref(Object::Future(Box::new(FutureObj::new(
             FutureState::Pending(FutureKind::IO),
         ))));
@@ -132,7 +142,7 @@ impl ATCPSocketWrapper {
         state: StateRef,
     ) -> Result<ObjectRef, PanicObj> {
         match name {
-            "read" => self.read(state),
+            "read" => self.read(args, state),
             "write" => self.write(args, state),
             _ => Err(PanicObj::new(
                 PanicType::UnknownMethod,
@@ -158,7 +168,17 @@ impl ATCPSocketWrapper {
 impl ATCPSocketWrapper {
     // methods
 
-    pub fn read(&mut self, _state: StateRef) -> Result<ObjectRef, PanicObj> {
+    pub fn read(&mut self, args: &[ObjectRef], state: StateRef) -> Result<ObjectRef, PanicObj> {
+        if !args.is_empty() {
+            return Err(PanicObj::new(
+                PanicType::WrongArgumentCount,
+                format!(
+                    "socket.read() takes no arguments, but {} were provided",
+                    args.len()
+                ),
+                state,
+            ));
+        }
         let future = new_objectref(Object::Future(Box::new(FutureObj::new(
             FutureState::Pending(FutureKind::IO),
         ))));

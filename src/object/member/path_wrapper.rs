@@ -35,14 +35,14 @@ impl PathWrapper {
     pub fn apply_method(
         &self,
         name: &str,
-        _args: &[ObjectRef],
+        args: &[ObjectRef],
         state: StateRef,
     ) -> Result<ObjectRef, PanicObj> {
         match name {
-            "as_absolute" => self.as_absolute(state),
-            "as_str" => self.as_str(),
-            "parent" => self.parent(state),
-            "children" => self.children(state),
+            "as_absolute" => self.as_absolute(args, state),
+            "as_str" => self.as_str(args, state),
+            "parent" => self.parent(args, state),
+            "children" => self.children(args, state),
 
             unknown_method => Err(PanicObj::new(
                 PanicType::UnknownMethod,
@@ -92,7 +92,17 @@ impl PathWrapper {
 
     // methods
 
-    pub fn as_absolute(&self, state: StateRef) -> Result<ObjectRef, PanicObj> {
+    pub fn as_absolute(&self, args: &[ObjectRef], state: StateRef) -> Result<ObjectRef, PanicObj> {
+        if !args.is_empty() {
+            return Err(PanicObj::new(
+                PanicType::WrongArgumentCount,
+                format!(
+                    "path.as_absolute() takes no arguments, but {} were provided",
+                    args.len()
+                ),
+                state,
+            ));
+        }
         let abs_path = match std::fs::canonicalize(&self.native_object) {
             Ok(ok_value) => ok_value,
             Err(err_feedback) => {
@@ -125,7 +135,17 @@ impl PathWrapper {
         )))))
     }
 
-    pub fn parent(&self, state: StateRef) -> Result<ObjectRef, PanicObj> {
+    pub fn parent(&self, args: &[ObjectRef], state: StateRef) -> Result<ObjectRef, PanicObj> {
+        if !args.is_empty() {
+            return Err(PanicObj::new(
+                PanicType::WrongArgumentCount,
+                format!(
+                    "path.parent() takes no arguments, but {} were provided",
+                    args.len()
+                ),
+                state,
+            ));
+        }
         match self.native_object.parent() {
             Some(existing_parent) => {
                 let repr_str = match existing_parent.to_str() {
@@ -172,7 +192,17 @@ impl PathWrapper {
         }
     }
 
-    pub fn children(&self, state: StateRef) -> Result<ObjectRef, PanicObj> {
+    pub fn children(&self, args: &[ObjectRef], state: StateRef) -> Result<ObjectRef, PanicObj> {
+        if !args.is_empty() {
+            return Err(PanicObj::new(
+                PanicType::WrongArgumentCount,
+                format!(
+                    "path.children() takes no arguments, but {} were provided",
+                    args.len()
+                ),
+                state,
+            ));
+        }
         let children = match fs::read_dir(&self.native_object) {
             Ok(ok_value) => ok_value,
             Err(err_feedback) => {
@@ -214,7 +244,17 @@ impl PathWrapper {
         }))))
     }
 
-    pub fn as_str(&self) -> Result<ObjectRef, PanicObj> {
+    pub fn as_str(&self, args: &[ObjectRef], state: StateRef) -> Result<ObjectRef, PanicObj> {
+        if !args.is_empty() {
+            return Err(PanicObj::new(
+                PanicType::WrongArgumentCount,
+                format!(
+                    "path.as_str() takes no arguments, but {} were provided",
+                    args.len()
+                ),
+                state,
+            ));
+        }
         Ok(new_objectref(Object::String(Box::new(StringObj {
             value: self.repr_str.clone(),
         }))))

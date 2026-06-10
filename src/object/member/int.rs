@@ -36,12 +36,12 @@ impl Integer {
     ) -> Result<ObjectRef, PanicObj> {
         match name {
             "as_str" => self.as_str(args, state),
-            "as_float" => Ok(self.as_float()),
-            "as_int" => Ok(self.as_int()),
-            "as_utf_char" => Ok(self.as_utf_char(state)),
-            "as_le_bytes" => Ok(self.to_le_bytes()),
-            "as_be_bytes" => Ok(self.to_be_bytes()),
-            "clone" => Ok(self.deep_clone()),
+            "as_float" => self.as_float(args, state),
+            "as_int" => self.as_int(args, state),
+            "as_utf_char" => self.as_utf_char(args, state),
+            "as_le_bytes" => self.to_le_bytes(args, state),
+            "as_be_bytes" => self.to_be_bytes(args, state),
+            "clone" => self.deep_clone(args, state),
 
             _ => Err(PanicObj::new(
                 PanicType::UnknownMethod,
@@ -111,63 +111,127 @@ impl Integer {
         }))))
     }
 
-    pub fn as_float(&self) -> ObjectRef {
-        Rc::new(RefCell::new(Object::FloatObj(FloatObj {
+    pub fn as_float(&self, args: &[ObjectRef], state: StateRef) -> Result<ObjectRef, PanicObj> {
+        if !args.is_empty() {
+            return Err(PanicObj::new(
+                PanicType::WrongArgumentCount,
+                format!(
+                    "int.as_float() takes no arguments, but {} were provided",
+                    args.len()
+                ),
+                state,
+            ));
+        }
+        Ok(Rc::new(RefCell::new(Object::FloatObj(FloatObj {
             val: self.value as f64,
-        })))
+        }))))
     }
 
-    pub fn as_int(&self) -> ObjectRef {
-        new_objectref(Object::Int(Integer { value: self.value }))
+    pub fn as_int(&self, args: &[ObjectRef], state: StateRef) -> Result<ObjectRef, PanicObj> {
+        if !args.is_empty() {
+            return Err(PanicObj::new(
+                PanicType::WrongArgumentCount,
+                format!(
+                    "int.as_int() takes no arguments, but {} were provided",
+                    args.len()
+                ),
+                state,
+            ));
+        }
+        Ok(new_objectref(Object::Int(Integer { value: self.value })))
     }
 
-    pub fn as_utf_char(&self, state: StateRef) -> ObjectRef {
+    pub fn as_utf_char(&self, args: &[ObjectRef], state: StateRef) -> Result<ObjectRef, PanicObj> {
+        if !args.is_empty() {
+            return Err(PanicObj::new(
+                PanicType::WrongArgumentCount,
+                format!(
+                    "int.as_utf_char() takes no arguments, but {} were provided",
+                    args.len()
+                ),
+                state,
+            ));
+        }
         let bytes_value: u32 = match self.value.try_into() {
             Ok(bytes) => bytes,
             Err(_) => {
-                return new_objectref(Object::new_error(
+                return Ok(new_objectref(Object::new_error(
                     ErrorType::UTFValueCasting,
                     format!("{} can not be converted to character.", self.value),
                     state,
-                ));
+                )));
             }
         };
 
         let mapped_char = match char::from_u32(bytes_value) {
             Some(mapped_char) => mapped_char,
             None => {
-                return new_objectref(Object::new_error(
+                return Ok(new_objectref(Object::new_error(
                     ErrorType::UTFValueCasting,
                     format!("{} can not be converted to character.", self.value),
                     state,
-                ));
+                )));
             }
         };
 
         let str = String::from(mapped_char);
 
-        new_objectref(Object::String(Box::new(StringObj { value: str })))
+        Ok(new_objectref(Object::String(Box::new(StringObj {
+            value: str,
+        }))))
     }
 
-    pub fn to_le_bytes(&self) -> ObjectRef {
+    pub fn to_le_bytes(&self, args: &[ObjectRef], state: StateRef) -> Result<ObjectRef, PanicObj> {
+        if !args.is_empty() {
+            return Err(PanicObj::new(
+                PanicType::WrongArgumentCount,
+                format!(
+                    "int.as_le_bytes() takes no arguments, but {} were provided",
+                    args.len()
+                ),
+                state,
+            ));
+        }
         let bytes = self.value.to_le_bytes();
 
-        new_objectref(Object::Buffer(Box::new(Buffer {
+        Ok(new_objectref(Object::Buffer(Box::new(Buffer {
             data: Box::new(bytes),
             size: bytes.len(),
-        })))
+        }))))
     }
 
-    pub fn to_be_bytes(&self) -> ObjectRef {
+    pub fn to_be_bytes(&self, args: &[ObjectRef], state: StateRef) -> Result<ObjectRef, PanicObj> {
+        if !args.is_empty() {
+            return Err(PanicObj::new(
+                PanicType::WrongArgumentCount,
+                format!(
+                    "int.as_be_bytes() takes no arguments, but {} were provided",
+                    args.len()
+                ),
+                state,
+            ));
+        }
         let bytes = self.value.to_be_bytes();
 
-        new_objectref(Object::Buffer(Box::new(Buffer {
+        Ok(new_objectref(Object::Buffer(Box::new(Buffer {
             data: Box::new(bytes),
             size: bytes.len(),
-        })))
+        }))))
     }
 
-    pub fn deep_clone(&self) -> ObjectRef {
-        Rc::new(RefCell::new(Object::Int(Integer { value: self.value })))
+    pub fn deep_clone(&self, args: &[ObjectRef], state: StateRef) -> Result<ObjectRef, PanicObj> {
+        if !args.is_empty() {
+            return Err(PanicObj::new(
+                PanicType::WrongArgumentCount,
+                format!(
+                    "int.clone() takes no arguments, but {} were provided",
+                    args.len()
+                ),
+                state,
+            ));
+        }
+        Ok(Rc::new(RefCell::new(Object::Int(Integer {
+            value: self.value,
+        }))))
     }
 }

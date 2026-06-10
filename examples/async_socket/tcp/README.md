@@ -58,7 +58,7 @@ The client:
 ### Main Loop
 
 ```aloe
-while (inpt = __input()) {
+while (inpt = input()) {
     await server_stream.write(inpt.as_buffer().as_arr()); 
 }
 ```

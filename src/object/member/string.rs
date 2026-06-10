@@ -35,13 +35,13 @@ impl StringObj {
         state: StateRef,
     ) -> Result<ObjectRef, PanicObj> {
         match name {
-            "reversed" => Ok(self.reversed()),
-            "chars" => Ok(self.chars()),
-            "as_float" => Ok(self.as_float(state)),
+            "reversed" => self.reversed(args, state),
+            "chars" => self.chars(args, state),
+            "as_float" => self.as_float(args, state),
             "as_int" => self.as_int(args, state),
-            "as_str" => Ok(self.as_str()),
+            "as_str" => self.as_str(args, state),
 
-            "as_buffer" => Ok(self.as_buffer()),
+            "as_buffer" => self.as_buffer(args, state),
             "strip" => self.strip(args, state),
             "lstrip" => self.lstrip(args, state),
             "rstrip" => self.rstrip(args, state),
@@ -50,14 +50,14 @@ impl StringObj {
             "contains" => self.contains(args, state),
             "slice" => self.slice(args, state),
             "split" => self.split(args, state),
-            "clone" => Ok(self.deep_copy()),
+            "clone" => self.deep_copy(args, state),
 
-            "to_lower" => Ok(self.to_lower()),
-            "to_upper" => Ok(self.to_upper()),
+            "to_lower" => self.to_lower(args, state),
+            "to_upper" => self.to_upper(args, state),
 
-            "is_empty" => Ok(self.is_empty()),
-            "is_ascii" => Ok(self.is_ascii()),
-            "is_digit" => Ok(self.is_digit()),
+            "is_empty" => self.is_empty(args, state),
+            "is_ascii" => self.is_ascii(args, state),
+            "is_digit" => self.is_digit(args, state),
 
             "starts_with" => self.starts_with(args, state),
             "ends_with" => self.ends_with(args, state),
@@ -80,14 +80,34 @@ impl StringObj {
 
     // Methods
 
-    fn reversed(&self) -> ObjectRef {
-        Rc::new(RefCell::new(Object::String(Box::new(StringObj {
+    fn reversed(&self, args: &[ObjectRef], state: StateRef) -> Result<ObjectRef, PanicObj> {
+        if !args.is_empty() {
+            return Err(PanicObj::new(
+                PanicType::WrongArgumentCount,
+                format!(
+                    "string.reversed() takes no arguments, but {} were provided",
+                    args.len()
+                ),
+                state,
+            ));
+        }
+        Ok(Rc::new(RefCell::new(Object::String(Box::new(StringObj {
             value: self.value.chars().rev().collect(),
-        }))))
+        })))))
     }
 
-    fn chars(&self) -> ObjectRef {
-        new_objectref(Object::Array(Box::new(Array {
+    fn chars(&self, args: &[ObjectRef], state: StateRef) -> Result<ObjectRef, PanicObj> {
+        if !args.is_empty() {
+            return Err(PanicObj::new(
+                PanicType::WrongArgumentCount,
+                format!(
+                    "string.chars() takes no arguments, but {} were provided",
+                    args.len()
+                ),
+                state,
+            ));
+        }
+        Ok(new_objectref(Object::Array(Box::new(Array {
             items: self
                 .value
                 .chars()
@@ -97,7 +117,7 @@ impl StringObj {
                     })))
                 })
                 .collect(),
-        })))
+        }))))
     }
 
     pub fn build_char_iterator(&self) -> Iterator {
@@ -221,8 +241,18 @@ impl StringObj {
         })))))
     }
 
-    fn as_float(&self, state: StateRef) -> ObjectRef {
-        match self.value.parse::<f64>() {
+    fn as_float(&self, args: &[ObjectRef], state: StateRef) -> Result<ObjectRef, PanicObj> {
+        if !args.is_empty() {
+            return Err(PanicObj::new(
+                PanicType::WrongArgumentCount,
+                format!(
+                    "string.as_float() takes no arguments, but {} were provided",
+                    args.len()
+                ),
+                state,
+            ));
+        }
+        Ok(match self.value.parse::<f64>() {
             Ok(float_value) => Rc::new(RefCell::new(Object::FloatObj(FloatObj {
                 val: float_value,
             }))),
@@ -231,7 +261,7 @@ impl StringObj {
                 err.to_string(),
                 state,
             ))),
-        }
+        })
     }
 
     fn as_int(&self, args: &[ObjectRef], state: StateRef) -> Result<ObjectRef, PanicObj> {
@@ -272,20 +302,43 @@ impl StringObj {
         }
     }
 
-    fn as_str(&self) -> ObjectRef {
-        new_objectref(Object::String(Box::new(StringObj {
+    fn as_str(&self, args: &[ObjectRef], state: StateRef) -> Result<ObjectRef, PanicObj> {
+        if !args.is_empty() {
+            return Err(PanicObj::new(
+                PanicType::WrongArgumentCount,
+                format!(
+                    "string.as_str() takes no arguments, but {} were provided",
+                    args.len()
+                ),
+                state,
+            ));
+        }
+        Ok(new_objectref(Object::String(Box::new(StringObj {
             value: self.value.clone(),
-        })))
+        }))))
     }
 
-    fn as_buffer(&self) -> ObjectRef {
+    fn as_buffer(&self, args: &[ObjectRef], state: StateRef) -> Result<ObjectRef, PanicObj> {
+        if !args.is_empty() {
+            return Err(PanicObj::new(
+                PanicType::WrongArgumentCount,
+                format!(
+                    "string.as_buffer() takes no arguments, but {} were provided",
+                    args.len()
+                ),
+                state,
+            ));
+        }
         let value = &self.value;
 
         let bytes = value.as_bytes().to_owned().into_boxed_slice();
 
         let size = bytes.len();
 
-        new_objectref(Object::Buffer(Box::new(Buffer { data: bytes, size })))
+        Ok(new_objectref(Object::Buffer(Box::new(Buffer {
+            data: bytes,
+            size,
+        }))))
     }
 
     fn strip(&self, args: &[ObjectRef], state: StateRef) -> Result<ObjectRef, PanicObj> {
@@ -489,7 +542,7 @@ impl StringObj {
 
     fn split(&self, args: &[ObjectRef], state: StateRef) -> Result<ObjectRef, PanicObj> {
         let split_value = if args.is_empty() {
-            return Ok(self.chars());
+            return self.chars(args, state);
         } else {
             match &*args[0].borrow() {
                 Object::String(str) => str.value.clone(),
@@ -507,7 +560,7 @@ impl StringObj {
         };
 
         if split_value.is_empty() {
-            return Ok(self.chars());
+            return self.chars([].as_slice(), state);
         }
 
         Ok(new_objectref(Object::Array(Box::new(Array {
@@ -523,36 +576,100 @@ impl StringObj {
         }))))
     }
 
-    fn deep_copy(&self) -> ObjectRef {
-        Rc::new(RefCell::new(Object::String(Box::new(StringObj {
+    fn deep_copy(&self, args: &[ObjectRef], state: StateRef) -> Result<ObjectRef, PanicObj> {
+        if !args.is_empty() {
+            return Err(PanicObj::new(
+                PanicType::WrongArgumentCount,
+                format!(
+                    "string.clone() takes no arguments, but {} were provided",
+                    args.len()
+                ),
+                state,
+            ));
+        }
+        Ok(Rc::new(RefCell::new(Object::String(Box::new(StringObj {
             value: self.value.clone(),
+        })))))
+    }
+
+    fn to_lower(&self, args: &[ObjectRef], state: StateRef) -> Result<ObjectRef, PanicObj> {
+        if !args.is_empty() {
+            return Err(PanicObj::new(
+                PanicType::WrongArgumentCount,
+                format!(
+                    "string.to_lower() takes no arguments, but {} were provided",
+                    args.len()
+                ),
+                state,
+            ));
+        }
+        Ok(new_objectref(Object::String(Box::new(StringObj {
+            value: self.value.to_lowercase(),
         }))))
     }
 
-    fn to_lower(&self) -> ObjectRef {
-        new_objectref(Object::String(Box::new(StringObj {
-            value: self.value.to_lowercase(),
-        })))
-    }
-
-    fn to_upper(&self) -> ObjectRef {
-        new_objectref(Object::String(Box::new(StringObj {
+    fn to_upper(&self, args: &[ObjectRef], state: StateRef) -> Result<ObjectRef, PanicObj> {
+        if !args.is_empty() {
+            return Err(PanicObj::new(
+                PanicType::WrongArgumentCount,
+                format!(
+                    "string.to_upper() takes no arguments, but {} were provided",
+                    args.len()
+                ),
+                state,
+            ));
+        }
+        Ok(new_objectref(Object::String(Box::new(StringObj {
             value: self.value.to_uppercase(),
-        })))
+        }))))
     }
 
-    fn is_ascii(&self) -> ObjectRef {
-        new_objectref(Object::get_native_boolean_object(self.value.is_ascii()))
+    fn is_ascii(&self, args: &[ObjectRef], state: StateRef) -> Result<ObjectRef, PanicObj> {
+        if !args.is_empty() {
+            return Err(PanicObj::new(
+                PanicType::WrongArgumentCount,
+                format!(
+                    "string.is_ascii() takes no arguments, but {} were provided",
+                    args.len()
+                ),
+                state,
+            ));
+        }
+        Ok(new_objectref(Object::get_native_boolean_object(
+            self.value.is_ascii(),
+        )))
     }
 
-    fn is_digit(&self) -> ObjectRef {
-        new_objectref(Object::get_native_boolean_object(
+    fn is_digit(&self, args: &[ObjectRef], state: StateRef) -> Result<ObjectRef, PanicObj> {
+        if !args.is_empty() {
+            return Err(PanicObj::new(
+                PanicType::WrongArgumentCount,
+                format!(
+                    "string.is_digit() takes no arguments, but {} were provided",
+                    args.len()
+                ),
+                state,
+            ));
+        }
+        Ok(new_objectref(Object::get_native_boolean_object(
             self.value.chars().all(|c| c.is_ascii_digit()),
-        ))
+        )))
     }
 
-    fn is_empty(&self) -> ObjectRef {
-        new_objectref(Object::get_native_boolean_object(self.value.is_empty()))
+    fn is_empty(&self, args: &[ObjectRef], state: StateRef) -> Result<ObjectRef, PanicObj> {
+        if !args.is_empty() {
+            return Err(PanicObj::new(
+                PanicType::WrongArgumentCount,
+                format!(
+                    "string.is_empty() takes no arguments, but {} were provided",
+                    args.len()
+                ),
+                state,
+            ));
+        }
+        Ok(new_objectref(Object::get_native_boolean_object(
+            self.value.is_empty(),
+        )))
     }
 
     fn starts_with(&self, args: &[ObjectRef], state: StateRef) -> Result<ObjectRef, PanicObj> {

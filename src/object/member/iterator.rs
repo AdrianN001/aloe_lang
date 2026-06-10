@@ -23,14 +23,14 @@ impl Iterator {
     pub fn apply_method(
         &mut self,
         name: &str,
-        _args: &[ObjectRef],
+        args: &[ObjectRef],
         _environ: EnvRef,
         state: StateRef,
     ) -> Result<ObjectRef, PanicObj> {
         match name {
-            "has_next" => Ok(self.has_next()),
-            "next" => Ok(self.next(state)),
-            "collect" => Ok(self.collect()),
+            "has_next" => self.has_next(args, state),
+            "next" => self.next(args, state),
+            "collect" => self.collect(args, state),
 
             _ => Err(PanicObj::new(
                 PanicType::UnknownMethod,
@@ -42,30 +42,62 @@ impl Iterator {
 
     // Methods
 
-    fn has_next(&self) -> ObjectRef {
-        self._has_next()
+    fn has_next(&self, args: &[ObjectRef], state: StateRef) -> Result<ObjectRef, PanicObj> {
+        if !args.is_empty() {
+            return Err(PanicObj::new(
+                PanicType::WrongArgumentCount,
+                format!(
+                    "iterator.has_next() takes no arguments, but {} were provided",
+                    args.len()
+                ),
+                state,
+            ));
+        }
+        Ok(self._has_next())
     }
 
-    fn next(&mut self, state: StateRef) -> ObjectRef {
+    fn next(&mut self, args: &[ObjectRef], state: StateRef) -> Result<ObjectRef, PanicObj> {
+        if !args.is_empty() {
+            return Err(PanicObj::new(
+                PanicType::WrongArgumentCount,
+                format!(
+                    "iterator.next() takes no arguments, but {} were provided",
+                    args.len()
+                ),
+                state,
+            ));
+        }
         let next_object = self._next();
         if let Some(val) = next_object {
-            return val;
+            return Ok(val);
         }
 
-        Rc::new(RefCell::new(Object::new_error(
+        Ok(Rc::new(RefCell::new(Object::new_error(
             ErrorType::IteratorRanOut,
-            "IteratorError: iterator ran out.".into(),
+            "iterator ran out.".into(),
             state,
-        )))
+        ))))
     }
 
-    fn collect(&mut self) -> ObjectRef {
+    fn collect(&mut self, args: &[ObjectRef], state: StateRef) -> Result<ObjectRef, PanicObj> {
+        if !args.is_empty() {
+            return Err(PanicObj::new(
+                PanicType::WrongArgumentCount,
+                format!(
+                    "iterator.collect() takes no arguments, but {} were provided",
+                    args.len()
+                ),
+                state,
+            ));
+        }
         let mut arr = Vec::new();
 
         while let Some(val) = self._next() {
             arr.push(val);
         }
 
-        Rc::new(RefCell::new(Object::Array(Box::new(Array { items: arr }))))
+        Ok(Rc::new(RefCell::new(Object::Array(Box::new(Array {
+            items: arr,
+        })))))
     }
 }

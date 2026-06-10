@@ -22,15 +22,15 @@ impl FloatObj {
     pub fn apply_method(
         &mut self,
         name: &str,
-        _args: &[ObjectRef],
+        args: &[ObjectRef],
         _environ: EnvRef,
         state: StateRef,
     ) -> Result<ObjectRef, PanicObj> {
         match name {
-            "as_str" => Ok(self.as_str()),
-            "as_int" => Ok(self.as_int()),
-            "as_float" => Ok(self.as_float()),
-            "clone" => Ok(self.deep_copy()),
+            "as_str" => self.as_str(args, state),
+            "as_int" => self.as_int(args, state),
+            "as_float" => self.as_float(args, state),
+            "clone" => self.deep_copy(args, state),
 
             _ => Err(PanicObj::new(
                 PanicType::UnknownMethod,
@@ -56,23 +56,65 @@ impl FloatObj {
 
     // Methods
 
-    pub fn as_str(&self) -> ObjectRef {
-        Rc::new(RefCell::new(Object::String(Box::new(StringObj {
+    pub fn as_str(&self, args: &[ObjectRef], state: StateRef) -> Result<ObjectRef, PanicObj> {
+        if !args.is_empty() {
+            return Err(PanicObj::new(
+                PanicType::WrongArgumentCount,
+                format!(
+                    "float.as_str() takes no arguments, but {} were provided",
+                    args.len()
+                ),
+                state,
+            ));
+        }
+        Ok(Rc::new(RefCell::new(Object::String(Box::new(StringObj {
             value: self.val.to_string(),
+        })))))
+    }
+
+    pub fn as_int(&self, args: &[ObjectRef], state: StateRef) -> Result<ObjectRef, PanicObj> {
+        if !args.is_empty() {
+            return Err(PanicObj::new(
+                PanicType::WrongArgumentCount,
+                format!(
+                    "float.as_int() takes no arguments, but {} were provided",
+                    args.len()
+                ),
+                state,
+            ));
+        }
+        Ok(Rc::new(RefCell::new(Object::Int(Integer {
+            value: self.val as i64,
         }))))
     }
 
-    pub fn as_int(&self) -> ObjectRef {
-        Rc::new(RefCell::new(Object::Int(Integer {
-            value: self.val as i64,
-        })))
+    pub fn as_float(&self, args: &[ObjectRef], state: StateRef) -> Result<ObjectRef, PanicObj> {
+        if !args.is_empty() {
+            return Err(PanicObj::new(
+                PanicType::WrongArgumentCount,
+                format!(
+                    "float.as_float() takes no arguments, but {} were provided",
+                    args.len()
+                ),
+                state,
+            ));
+        }
+        Ok(new_objectref(Object::FloatObj(FloatObj { val: self.val })))
     }
 
-    pub fn as_float(&self) -> ObjectRef {
-        new_objectref(Object::FloatObj(FloatObj { val: self.val }))
-    }
-
-    pub fn deep_copy(&self) -> ObjectRef {
-        Rc::new(RefCell::new(Object::FloatObj(FloatObj { val: self.val })))
+    pub fn deep_copy(&self, args: &[ObjectRef], state: StateRef) -> Result<ObjectRef, PanicObj> {
+        if !args.is_empty() {
+            return Err(PanicObj::new(
+                PanicType::WrongArgumentCount,
+                format!(
+                    "float.clone() takes no arguments, but {} were provided",
+                    args.len()
+                ),
+                state,
+            ));
+        }
+        Ok(Rc::new(RefCell::new(Object::FloatObj(FloatObj {
+            val: self.val,
+        }))))
     }
 }

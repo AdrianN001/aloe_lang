@@ -27,7 +27,7 @@ impl TCPSocketListenerWrapper {
         state: StateRef,
     ) -> Result<ObjectRef, PanicObj> {
         match name {
-            "accept" => self.accept(state),
+            "accept" => self.accept(args, state),
             "set_nonblocking" => self.set_nonblocking(args, state),
             _ => Err(PanicObj::new(
                 PanicType::UnknownMethod,
@@ -54,7 +54,17 @@ impl TCPSocketListenerWrapper {
 impl TCPSocketListenerWrapper {
     // methods
 
-    pub fn accept(&self, state: StateRef) -> Result<ObjectRef, PanicObj> {
+    pub fn accept(&self, args: &[ObjectRef], state: StateRef) -> Result<ObjectRef, PanicObj> {
+        if !args.is_empty() {
+            return Err(PanicObj::new(
+                PanicType::WrongArgumentCount,
+                format!(
+                    "listener.accept() takes no arguments, but {} were provided",
+                    args.len()
+                ),
+                state,
+            ));
+        }
         match self.listener.accept() {
             Ok((stream, addr)) => {
                 let wrapper = TCPSocketWrapper { stream, addr };
@@ -142,9 +152,9 @@ impl TCPSocketWrapper {
         state: StateRef,
     ) -> Result<ObjectRef, PanicObj> {
         match name {
-            "read" => self.read(state),
+            "read" => self.read(args, state),
             "write" => self.write(args, state),
-            "close" => self.close(state),
+            "close" => self.close(args, state),
             _ => Err(PanicObj::new(
                 PanicType::UnknownMethod,
                 format!("TCPSocket has no method named '{}'", name),
@@ -167,7 +177,17 @@ impl TCPSocketWrapper {
 impl TCPSocketWrapper {
     // methods
 
-    pub fn read(&mut self, state: StateRef) -> Result<ObjectRef, PanicObj> {
+    pub fn read(&mut self, args: &[ObjectRef], state: StateRef) -> Result<ObjectRef, PanicObj> {
+        if !args.is_empty() {
+            return Err(PanicObj::new(
+                PanicType::WrongArgumentCount,
+                format!(
+                    "socket.read() takes no arguments, but {} were provided",
+                    args.len()
+                ),
+                state,
+            ));
+        }
         let mut buffer = [0; 1024];
         match self.stream.read(&mut buffer) {
             Ok(bytes_read) => {
@@ -219,7 +239,17 @@ impl TCPSocketWrapper {
         }
     }
 
-    pub fn close(&mut self, state: StateRef) -> Result<ObjectRef, PanicObj> {
+    pub fn close(&mut self, args: &[ObjectRef], state: StateRef) -> Result<ObjectRef, PanicObj> {
+        if !args.is_empty() {
+            return Err(PanicObj::new(
+                PanicType::WrongArgumentCount,
+                format!(
+                    "socket.close() takes no arguments, but {} were provided",
+                    args.len()
+                ),
+                state,
+            ));
+        }
         match self.stream.shutdown(std::net::Shutdown::Both) {
             Ok(_) => Ok(new_objectref(Object::NULL_OBJECT)),
             Err(e) => Ok(new_objectref(Object::new_error(

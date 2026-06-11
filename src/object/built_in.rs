@@ -7,6 +7,7 @@ mod iterator;
 mod len;
 mod math;
 mod memory;
+mod os;
 mod process;
 mod random;
 mod test;
@@ -36,7 +37,15 @@ use crate::object::{
         memory::{
             id_builtin_function, number_of_references_builtin_function, size_of_builtin_function,
         },
-        process::command_builtin_function,
+        os::{
+            arch_builtin_function, get_current_dir_builtin_function, get_env_builtin_function,
+            get_home_dir_builtin_function, get_temp_dir_builtin_function,
+            platform_builtin_function, set_env_builtin_function, unset_env_builtin_function,
+        },
+        process::{
+            args_builtin_function, command_builtin_function, exit_builtin_function,
+            pid_builtin_function,
+        },
         random::random_builtin_function,
         time::{awaitable_sleep_builtin_function, sleep, time_builtin_function},
         utils::{inspect_builtin_function, line_number_builtin_function, type_builtin_function},
@@ -79,7 +88,11 @@ pub enum BuiltIn {
     AUDPBind,
     UDPBind,
 
+    // Process
     Cmd,
+    Exit,
+    Pid,
+    Args,
 
     Sleep,
     Sleep2,
@@ -87,10 +100,12 @@ pub enum BuiltIn {
 
     Spawn,
 
+    //Memory
     Id,
     RefNumber,
     Size,
 
+    //Math
     Ceil,
     Floor,
     Trunc,
@@ -128,6 +143,16 @@ pub enum BuiltIn {
     Factorial,
 
     Assert,
+
+    //OS
+    GetEnv,
+    SetEnv,
+    UnsetEnv,
+    CurrDir,
+    HomeDir,
+    TempDir,
+    Platform,
+    Arch,
 }
 
 impl BuiltIn {
@@ -178,6 +203,9 @@ impl BuiltIn {
             BuiltIn::UDPBind => udp_bind_builtin_function(args, state),
 
             BuiltIn::Cmd => command_builtin_function(args, state),
+            BuiltIn::Exit => exit_builtin_function(args, state),
+            BuiltIn::Args => args_builtin_function(args, state),
+            BuiltIn::Pid => pid_builtin_function(args, state),
 
             BuiltIn::Sleep => sleep(args, state),
             BuiltIn::Sleep2 => awaitable_sleep_builtin_function(args, state, environ),
@@ -226,6 +254,16 @@ impl BuiltIn {
             BuiltIn::Factorial => math::factorial_builtin_function(args, state),
 
             BuiltIn::Assert => test::assert_builtin_function(args, state),
+
+            //OS
+            BuiltIn::GetEnv => get_env_builtin_function(args, state),
+            BuiltIn::SetEnv => set_env_builtin_function(args, state),
+            BuiltIn::UnsetEnv => unset_env_builtin_function(args, state),
+            BuiltIn::CurrDir => get_current_dir_builtin_function(args, state),
+            BuiltIn::HomeDir => get_home_dir_builtin_function(args, state),
+            BuiltIn::TempDir => get_temp_dir_builtin_function(args, state),
+            BuiltIn::Platform => platform_builtin_function(args, state),
+            BuiltIn::Arch => arch_builtin_function(args, state),
         }
     }
 }

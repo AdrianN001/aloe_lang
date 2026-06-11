@@ -17,6 +17,15 @@ impl PathWrapper {
         })
     }
 
+    pub fn new_from_pathbuf(path_buf: PathBuf) -> PathWrapper {
+        let repr_str = path_buf.to_string_lossy().to_string();
+
+        PathWrapper {
+            repr_str,
+            native_object: path_buf,
+        }
+    }
+
     pub fn inspect(&self) -> String {
         format!("[PathWrapper for {:?}]", self.repr_str)
     }

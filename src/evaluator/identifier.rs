@@ -47,6 +47,9 @@ impl Identifier {
             "__udp_bind" => Some(BuiltIn::UDPBind),
 
             "__cmd" => Some(BuiltIn::Cmd),
+            "__exit" => Some(BuiltIn::Exit),
+            "__args" => Some(BuiltIn::Args),
+            "__pid" => Some(BuiltIn::Pid),
 
             "__sleep" => Some(BuiltIn::Sleep),
             "__sleep2" => Some(BuiltIn::Sleep2),
@@ -94,6 +97,15 @@ impl Identifier {
             "factorial" => Some(BuiltIn::Factorial),
 
             "assert" => Some(BuiltIn::Assert),
+
+            "__os_getenv" => Some(BuiltIn::GetEnv),
+            "__os_setenv" => Some(BuiltIn::SetEnv),
+            "__os_unsetenv" => Some(BuiltIn::UnsetEnv),
+            "__os_get_current_dir" => Some(BuiltIn::CurrDir),
+            "__os_get_home_dir" => Some(BuiltIn::HomeDir),
+            "__os_get_temp_dir" => Some(BuiltIn::TempDir),
+            "__os_platform" => Some(BuiltIn::Platform),
+            "__os_arch" => Some(BuiltIn::Arch),
             _ => None,
         }
     }

@@ -62,7 +62,7 @@ pub fn awaitable_sleep_builtin_function(
             return Err(RuntimeSignal::Panic(PanicObj::new(
                 PanicType::WrongArgumentType,
                 format!(
-                    "expected 'int' as argument type for __sleep(), got: '{}'",
+                    "expected 'int' as argument type for __sleep2(), got: '{}'",
                     other_type.get_type()
                 ),
                 state,

@@ -550,7 +550,7 @@ impl StringObj {
                     return Err(PanicObj::new(
                         PanicType::WrongArgumentType,
                         format!(
-                            "expected to be the first paramter a 'str', got: {}",
+                            "expected to be the first parameter a 'str', got: {}",
                             other_type.get_type()
                         ),
                         state,

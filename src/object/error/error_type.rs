@@ -44,6 +44,9 @@ pub enum ErrorType {
 
     Command,
 
+    OS,
+    EnvironmentVariableNotFound,
+
     CustomError(String),
 }
 
@@ -95,6 +98,9 @@ impl ErrorType {
             "PathChildResolve" => Self::PathChildResolve,
 
             "Command" => Self::Command,
+
+            "OS" => Self::OS,
+            "EnvironmentVariableNotFound" => Self::EnvironmentVariableNotFound,
 
             other_type => Self::CustomError(other_type.to_string()),
         }

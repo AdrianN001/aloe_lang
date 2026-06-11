@@ -1,6 +1,8 @@
 import {os} from "@std::os.aloe";
 
 println("os => ${os::platform()}");
+
+println("current directory => ${os::current_dir()}")
 println("home directory => ${os::home_dir()!}");
 println("temp dir => ${os::temp_dir()}");
 println("arch => ${os::arch()}");

@@ -42,7 +42,7 @@ impl Object {
             Object::HashMap(hashmap) => hashmap.apply_attribute(name, environ, state),
             Object::Native(native) => native.apply_attribute(name, state),
             Object::Buffer(buffer) => buffer.apply_attribute(name, state),
-            Object::Err(err) => err.apply_attribute(name, state),
+            Object::Error(err) => err.apply_attribute(name, state),
 
             Object::StructObject(struct_obj) => struct_obj.apply_attribute(name, environ, state),
 
@@ -75,7 +75,7 @@ impl Object {
             Object::HashMap(hashmap) => hashmap.apply_method(name, args, environ, state),
             Object::Native(native) => native.apply_method(name, args, state),
             Object::Buffer(buffer) => buffer.apply_method(name, args, environ, state),
-            Object::Err(err) => err.apply_method(name, args, environ, state),
+            Object::Error(err) => err.apply_method(name, args, environ, state),
 
             _ => Err(PanicObj::new(
                 PanicType::UnknownMethod,
@@ -93,11 +93,11 @@ impl Object {
     fn check_early_attributes(&self, name: &str) -> Option<ObjectRef> {
         match name {
             "is_ok" => match &self {
-                Object::Err(_) => Some(new_objectref(Object::get_native_boolean_object(false))),
+                Object::Error(_) => Some(new_objectref(Object::get_native_boolean_object(false))),
                 _ => Some(new_objectref(Object::get_native_boolean_object(true))),
             },
             "is_err" => match &self {
-                Object::Err(_) => Some(new_objectref(Object::get_native_boolean_object(true))),
+                Object::Error(_) => Some(new_objectref(Object::get_native_boolean_object(true))),
                 _ => Some(new_objectref(Object::get_native_boolean_object(false))),
             },
             "is_null" => match &self {

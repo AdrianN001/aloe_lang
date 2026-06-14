@@ -23,7 +23,7 @@ pub fn test_cases_for_input_output(testcases: &[(&str, &str)]) {
             _ => todo!(),
         };
         match &*last_object.borrow() {
-            Object::Err(err) => assert_eq!(err.inspect_message(), expected_value),
+            Object::Error(err) => assert_eq!(err.inspect_message(), expected_value),
             other_type => assert_eq!(other_type.inspect(), expected_value),
         }
     });

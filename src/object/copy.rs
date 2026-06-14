@@ -90,7 +90,7 @@ impl Object {
 
             Object::Func(func) => Rc::new(RefCell::new(Object::Func(func.clone()))),
 
-            Object::Err(e) => Rc::new(RefCell::new(Object::Err(e.clone()))),
+            Object::Error(e) => Rc::new(RefCell::new(Object::Error(e.clone()))),
 
             other => panic!("type {} cannot be copied", other.get_type()),
         };

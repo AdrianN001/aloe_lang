@@ -69,7 +69,7 @@ pub enum Object {
     Iterator(Box<Iterator>),
     Func(Box<Function>),
     AsyncFunc(Box<AsyncFunction>),
-    Err(Box<Error>),
+    Error(Box<Error>),
     Array(Box<Array>),
     HashMap(Box<HashMap>),
     StructModel(Box<StructModel>),
@@ -96,7 +96,7 @@ impl Object {
     }
 
     pub fn new_error(type_of: ErrorType, error_value: String, state: StateRef) -> Self {
-        Object::Err(Box::new(Error {
+        Object::Error(Box::new(Error {
             type_of,
             value: error_value,
             state: state.clone(),
@@ -111,7 +111,7 @@ impl Object {
             Object::Func(obj) => obj.get_type(),
             Object::String(obj) => obj.get_type(),
             Object::BuiltIn(obj) => obj.get_type(),
-            Object::Err(obj) => obj.get_type(),
+            Object::Error(obj) => obj.get_type(),
             Object::Array(obj) => obj.get_type(),
             Object::HashMap(obj) => obj.get_type(),
             Object::FloatObj(obj) => obj.get_type(),
@@ -137,7 +137,7 @@ impl Object {
             Object::Func(function) => function.inspect(),
             Object::String(obj) => obj.inspect(),
             Object::BuiltIn(obj) => obj.inspect(),
-            Object::Err(obj) => obj.inspect(),
+            Object::Error(obj) => obj.inspect(),
             Object::Array(obj) => obj.inspect(),
             Object::HashMap(obj) => obj.inspect(),
             Object::FloatObj(obj) => obj.inspect(),

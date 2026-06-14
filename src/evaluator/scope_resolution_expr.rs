@@ -108,7 +108,7 @@ impl ScopeResolutionExpression {
 
                 let return_value_cloned = function_call_result.clone();
 
-                if let Object::Err(err) = &*return_value_cloned.borrow() {
+                if let Object::Error(err) = &*return_value_cloned.borrow() {
                     if call_expr.question_mark_set && !state.borrow().is_function_context() {
                         return Err(RuntimeSignal::Panic(PanicObj::new_simple(
                             PanicType::PropagationFromNonfunctionalContext,
@@ -158,7 +158,7 @@ impl ScopeResolutionExpression {
 
                 let return_value_cloned = function_call_result.clone();
 
-                if let Object::Err(err) = &*return_value_cloned.borrow() {
+                if let Object::Error(err) = &*return_value_cloned.borrow() {
                     if call_expr.question_mark_set && !state.borrow().is_function_context() {
                         return Err(RuntimeSignal::Panic(PanicObj::new_simple(
                             PanicType::PropagationFromNonfunctionalContext,
@@ -307,7 +307,7 @@ impl ScopeResolutionExpression {
 
                 let return_value_cloned = function_call_result.clone();
 
-                if let Object::Err(err) = &*return_value_cloned.borrow() {
+                if let Object::Error(err) = &*return_value_cloned.borrow() {
                     if call_expression.question_mark_set && !state.borrow().is_function_context() {
                         return Err(RuntimeSignal::Panic(PanicObj::new_simple(
                             PanicType::PropagationFromNonfunctionalContext,
@@ -366,7 +366,7 @@ impl ScopeResolutionExpression {
 
                 let return_value_cloned = function_call_result.clone();
 
-                if let Object::Err(err) = &*return_value_cloned.borrow() {
+                if let Object::Error(err) = &*return_value_cloned.borrow() {
                     if call_expression.question_mark_set && !state.borrow().is_function_context() {
                         return Err(RuntimeSignal::Panic(PanicObj::new_simple(
                             PanicType::PropagationFromNonfunctionalContext,

@@ -11,7 +11,7 @@ impl Object {
             Object::HashMap(hmap) => !hmap.pairs.is_empty(),
             Object::Iterator(iterator) => iterator._has_next_raw(),
             Object::Native(native_obj) => native_obj.as_bool_raw(),
-            Object::Null(_) | Object::Err(_) => false,
+            Object::Null(_) | Object::Error(_) => false,
             _ => false,
         }
     }

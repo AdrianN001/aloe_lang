@@ -52,7 +52,7 @@ impl CallExpression {
             other_case => return other_case,
         };
 
-        if let Object::Err(error) = &*ok_return_value.borrow() {
+        if let Object::Error(error) = &*ok_return_value.borrow() {
             if self.question_mark_set && !state.borrow().is_function_context() {
                 return Err(RuntimeSignal::Panic(PanicObj::new(
                     PanicType::PropagationFromNonfunctionalContext,
@@ -119,7 +119,7 @@ impl CallExpression {
 
             other_case => return other_case,
         };
-        if let Object::Err(error) = &*ok_return_value.borrow() {
+        if let Object::Error(error) = &*ok_return_value.borrow() {
             if questionmark_set && !state.borrow().is_function_context() {
                 return Err(RuntimeSignal::Panic(PanicObj::new(
                     PanicType::PropagationFromNonfunctionalContext,

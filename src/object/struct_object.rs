@@ -266,7 +266,7 @@ impl StructObject {
         let return_value = method.apply(method_name.to_string(), &args_with_this, state.clone())?;
 
         let return_value_cloned = return_value.clone();
-        if let Object::Err(err) = &*return_value_cloned.borrow() {
+        if let Object::Error(err) = &*return_value_cloned.borrow() {
             if is_questionmark_set && !state.borrow().is_function_context() {
                 return Err(RuntimeSignal::Panic(PanicObj::new_simple(
                     PanicType::PropagationFromNonfunctionalContext,
@@ -300,7 +300,7 @@ impl StructObject {
         let return_value = method.apply(method_name.to_string(), &args_with_this, state.clone())?;
 
         let return_value_cloned = return_value.clone();
-        if let Object::Err(err) = &*return_value_cloned.borrow() {
+        if let Object::Error(err) = &*return_value_cloned.borrow() {
             if is_questionmark_set && !state.borrow().is_function_context() {
                 return Err(RuntimeSignal::Panic(PanicObj::new_simple(
                     PanicType::PropagationFromNonfunctionalContext,

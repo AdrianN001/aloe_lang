@@ -44,7 +44,7 @@ impl MemberExpression {
 
                 let return_value_cloned = return_value.clone();
 
-                if let Object::Err(err) = &*return_value_cloned.borrow() {
+                if let Object::Error(err) = &*return_value_cloned.borrow() {
                     if call_expr.question_mark_set && !state.borrow().is_function_context() {
                         return Err(RuntimeSignal::Panic(PanicObj::new_simple(
                             PanicType::PropagationFromNonfunctionalContext,
@@ -169,7 +169,7 @@ impl MemberExpression {
 
                 let return_value_cloned = return_value.clone();
 
-                if let Object::Err(err) = &*return_value_cloned.borrow() {
+                if let Object::Error(err) = &*return_value_cloned.borrow() {
                     if call_expr.question_mark_set && !state.borrow().is_function_context() {
                         return Err(RuntimeSignal::Panic(PanicObj::new_simple(
                             PanicType::PropagationFromNonfunctionalContext,

@@ -74,7 +74,7 @@ impl AwaitExpression {
     ) -> Result<ObjectRef, RuntimeSignal> {
         match &*self.expr {
             Expression::Call(call_expr) => {
-                if let Object::Err(err) = &*return_value.borrow() {
+                if let Object::Error(err) = &*return_value.borrow() {
                     if call_expr.bang_set {
                         return Err(RuntimeSignal::Panic(PanicObj::from_error(
                             err,

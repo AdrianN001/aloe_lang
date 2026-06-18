@@ -14,46 +14,6 @@
 #
 ##
 struct str{
-	
-	##
-	# str.is_ok
-	# returns true, if the value is not error.
-	# typeof: bool
-	# example:
-	# 
-	# ---is_ok.aloe---
-	# let value = "hello, world";
-	# value.is_ok; # true
-	##
-	fun is_ok(this){}
-
-	##
-	# str.is_err
-	# returns true, if the value is error.
-	# typeof: bool
-	# example:
-	# 
-	# ---is_err.aloe---
-	# let value = "hello, world";
-	# value.is_err;	   # false
-	##
-	fun is_err(this){}
-
-	##
-	# str.is_null
-	# returns true, if the value is null.
-	# typeof: bool
-	# example:
-	# 
-	# ---is_null.aloe---
-	# let value = "hello";
-	# value.is_null;	 # false
-	# 
-	# let other_value = null;
-	# other_value.is_null; # true
-	##
-	fun is_null(this){} 
-
 	##
 	# str.length
 	# Length in bytes, not Unicode characters. Multibyte glyphs count as more than one.

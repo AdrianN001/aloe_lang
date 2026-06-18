@@ -11,41 +11,4 @@
 #
 ##
 struct null{
-
-	##
-	# null.is_ok
-	# returns true, if the value is not error.
-	# typeof: bool
-	# example:
-	# 
-	# ---is_ok.aloe---
-	# let null_value = null;
-	# null_value.is_ok;  # true
-	##
-	fun is_ok(this){}
-
-	##
-	# null.is_err
-	# returns true, if the value is error.
-	# typeof: bool
-	# example:
-	# 
-	# ---is_err.aloe---
-	# let value = null;
-	# value.is_err;	   # false
-	##
-	fun is_err(this){}
-
-	##
-	# null.is_null
-	# returns true.
-	# typeof: bool
-	# example:
-	# 
-	# ---is_null.aloe---
-	# let value = null;
-	# value.is_null;	  # true
-	##
-	fun is_null(this){}  
-
 }

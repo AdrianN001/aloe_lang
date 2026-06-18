@@ -13,47 +13,6 @@
 # let octa = 0o10;
 ##
 struct int{
-
-	##
-	# int.is_ok
-	# returns true, if the value is not error.
-	# typeof: bool
-	# example:
-	# 
-	# ---is_ok.aloe---
-	# let number = 0;
-	# number.is_ok;	   # true
-	##
-	fun is_ok(this){}
-
-	##
-	# int.is_err
-	# returns true, if the value is error.
-	# typeof: bool
-	# example:
-	# 
-	# ---is_err.aloe---
-	# let number = 0;
-	# number.is_err;	   # false
-	##
-	fun is_err(this){}
-
-	##
-	# int.is_null
-	# returns true, if the value is null.
-	# typeof: bool
-	# example:
-	# 
-	# ---is_null.aloe---
-	# let number = 0;
-	# number.is_null;	   # false
-	# 
-	# let other_number = null;
-	# other_number.is_null; # true
-	##
-	fun is_null(this){}  
-
-
 	##
 	# int.is_positive
 	# returns true, if the number is positive.

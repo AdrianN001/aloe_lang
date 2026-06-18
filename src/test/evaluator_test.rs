@@ -2310,6 +2310,22 @@ Car::wheel_count()
 ",
             "4",
         ),
+        (
+            "
+struct Car{
+    color;
+
+    fun set(this, c){
+        this.color = c;
+    }
+};
+
+let c1 = Car(\"red\");
+
+Car::set();
+",
+            "expected 2 arguments for function 'set()', got: 0",
+        ),
     ];
 
     test_cases_for_input_output(&testcases);

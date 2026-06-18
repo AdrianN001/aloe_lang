@@ -13,6 +13,7 @@ pub mod buffer;
 pub mod error;
 pub mod file_wrapper;
 pub mod float;
+mod function;
 pub mod hashmap;
 pub mod int;
 pub mod iterator;
@@ -43,6 +44,7 @@ impl Object {
             Object::Native(native) => native.apply_attribute(name, state),
             Object::Buffer(buffer) => buffer.apply_attribute(name, state),
             Object::Error(err) => err.apply_attribute(name, state),
+            Object::Func(func) => func.apply_attribute(name, environ, state),
 
             Object::StructObject(struct_obj) => struct_obj.apply_attribute(name, environ, state),
 
@@ -76,6 +78,7 @@ impl Object {
             Object::Native(native) => native.apply_method(name, args, state),
             Object::Buffer(buffer) => buffer.apply_method(name, args, environ, state),
             Object::Error(err) => err.apply_method(name, args, environ, state),
+            Object::Func(func) => func.apply_method(name, args, environ, state),
 
             _ => Err(PanicObj::new(
                 PanicType::UnknownMethod,

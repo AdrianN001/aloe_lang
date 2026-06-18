@@ -2620,11 +2620,11 @@ fn test_array_destructuring() {
 }
 
 #[test]
-fn test_function_attribute(){
+fn test_function_attribute() {
     let testcases = [
         ("fun double(x){x+x} double.arity", "1"),
         ("let add = fn(x,y){x+y}; add.arity", "2"),
-        ("let ret_null = fn(){}; ret_null.arity", "0")
+        ("let ret_null = fn(){}; ret_null.arity", "0"),
     ];
 
     test_cases_for_input_output(&testcases);

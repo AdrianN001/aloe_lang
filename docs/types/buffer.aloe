@@ -1,0 +1,75 @@
+##
+# datatype: buffer
+# Raw sequence of bytes.
+# storage: heap
+##
+struct buffer{
+
+##
+# buffer.length -> int
+# number of bytes stored in the buffer.
+##
+fun length(this){}
+
+##
+# buffer.clone() -> buffer
+# returns a copy of the buffer.
+# panics: [WrongArgumentCount, WrongArgumentType]
+# errors: []
+##
+fun clone(this){}
+
+##
+# buffer.as_str()? -> str
+# converts the buffer into an UTF-8 string.
+# panics: [WrongArgumentCount, WrongArgumentType]
+# errors: [UTF8Conversion]
+##
+fun as_str(this){}
+
+##
+# buffer.as_arr() -> array[int]
+# converts the buffer into an array of bytes.
+# panics: [WrongArgumentCount, WrongArgumentType]
+# errors: []
+##
+fun as_arr(this){}
+
+##
+# buffer.slice(start: int, end: int) -> buffer
+# returns a sub-buffer from start to end.
+# negative indices count from the end.
+# panics: [WrongArgumentCount, WrongArgumentType]
+# errors: []
+##
+fun slice(this){}
+
+}
+
+##
+
+# datatype: error
+
+# Recoverable runtime error.
+
+# storage: heap
+
+##
+
+struct error{
+
+```
+##
+# error.message -> str
+# human readable description of the error.
+##
+fun message(this){}
+
+##
+# error.as_str() -> str
+# returns the error message.
+# panics: [WrongArgumentCount, WrongArgumentType]
+# errors: []
+##
+fun as_str(this){}
+}

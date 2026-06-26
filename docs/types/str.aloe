@@ -1,31 +1,267 @@
 ##
 # datatype: str
-# Immutable UTF-8 text. 
+# UTF-8 encoded immutable string.
 # storage: heap
 # literal syntax:
-# 
-# ---str-literal.aloe---
 #
-# let plain = "hello";
-# let name = "Aloe";
-# let hi = "Hi, ${name}!";
-# let path = "C:\\plants\\aloe.aloe";
-# let multi = "line one\nline two";
+# ---str-literal.aloe---
+# let name = "Alice";
+# let empty = "";
 #
 ##
 struct str{
-	##
-	# str.length
-	# Length in bytes, not Unicode characters. Multibyte glyphs count as more than one.
-	# typeof: int
-	# example
-	#
-	# ---length.aloe---
-	# let s = "hello, world!";
-	# println(s.length);	 # 13
-	#
-	# s = "aö";
-	# println(s.length);	 # 3 (not 2)
-	##
-	fun length(this){}
+
+##
+# str.length() -> int
+# returns the number of bytes in the string.
+# panics: []
+# errors: []
+# example:
+#
+# ---length.aloe---
+# let text = "Hello";
+# text.length(); # 5
+#
+##
+fun length(this){}
+
+##
+# str.reversed()
+# returns a reversed copy of the string.
+# panics: []
+# errors: []
+# example:
+#
+# ---reversed.aloe---
+# let text = "Hello";
+# text.reversed(); # "olleH"
+#
+##
+fun reversed(this){}
+
+##
+# str.chars() -> iterator
+# returns an iterator over all characters.
+# panics: []
+# errors: []
+# example:
+#
+# ---chars.aloe---
+# for c in "abc".chars(){
+#     println(c);
+# }
+#
+##
+fun chars(this){}
+
+##
+# str.as_float()? -> float
+# converts the string into a float.
+# panics: []
+# errors: [InvalidFloat]
+# example:
+#
+# ---as_float.aloe---
+# "3.14".as_float()!; # 3.14
+#
+##
+fun as_float(this){}
+
+##
+# str.as_int()? -> int
+# converts the string into an integer.
+# panics: []
+# errors: [InvalidInteger]
+# example:
+#
+# ---as_int.aloe---
+# "42".as_int()!; # 42
+#
+##
+fun as_int(this){}
+
+##
+# str.as_str() -> str
+# returns a copy of the string.
+# panics: []
+# errors: []
+# example:
+#
+# ---as_str.aloe---
+# let text = "hello";
+# text.as_str();
+#
+##
+fun as_str(this){}
+
+##
+# str.as_buffer() -> buffer
+# converts the string into a UTF-8 buffer.
+# panics: []
+# errors: []
+# example:
+#
+# ---as_buffer.aloe---
+# let data = "hello".as_buffer();
+#
+##
+fun as_buffer(this){}
+
+##
+# str.strip() -> str
+# removes leading and trailing whitespace.
+# panics: []
+# errors: []
+# example:
+#
+# ---strip.aloe---
+# " hello ".strip(); # "hello"
+#
+##
+fun strip(this){}
+
+##
+# str.lstrip() -> str
+# removes leading whitespace.
+# panics: []
+# errors: []
+# example:
+#
+# ---lstrip.aloe---
+# " hello".lstrip(); # "hello"
+#
+##
+fun lstrip(this){}
+
+##
+# str.rstrip() -> str
+# removes trailing whitespace.
+# panics: []
+# errors: []
+# example:
+#
+# ---rstrip.aloe---
+# "hello ".rstrip(); # "hello"
+#
+##
+fun rstrip(this){}
+
+##
+# str.replace(old: str, new: str) -> str
+# replaces all occurrences of a substring.
+# panics: [WrongArgumentType, WrongArgumentCount]
+# errors: []
+# example:
+#
+# ---replace.aloe---
+# "hello".replace("l", "x");
+# # "hexxo"
+#
+##
+fun replace(this, old, new){}
+
+##
+# str.contains(value: str) -> bool
+# checks whether a substring exists.
+# panics: [WrongArgumentCount, WrongArgumentType]
+# errors: []
+# example:
+#
+# ---contains.aloe---
+# "hello".contains("ell");
+# # true
+#
+##
+fun contains(this, value){}
+
+##
+# str.slice(start: int, end: int) -> str
+# returns a substring.
+# panics: [IndexOutOfBounds]
+# errors: []
+# example:
+#
+# ---slice.aloe---
+# "hello".slice(1,4);
+# # "ell"
+#
+##
+fun slice(this, start, end){}
+
+##
+# str.split(separator: str) -> array
+# splits the string into an array.
+# panics: [WrongArgumentCount, WrongArgumentType]
+# errors: []
+# example:
+#
+# ---split.aloe---
+# "a,b,c".split(",");
+#
+##
+fun split(this, separator){}
+
+##
+# str.clone() -> str
+# returns a copy of the string.
+# panics: []
+# errors: []
+#
+##
+fun clone(this){}
+
+##
+# str.to_lower() -> str
+# converts all characters to lowercase.
+#
+##
+fun to_lower(this){}
+
+##
+# str.to_upper() -> str
+# converts all characters to uppercase.
+#
+##
+fun to_upper(this){}
+
+##
+# str.is_empty() -> bool
+# returns true if the string contains no characters.
+#
+##
+fun is_empty(this){}
+
+##
+# str.is_ascii() -> bool
+# returns true if all characters are ASCII.
+#
+##
+fun is_ascii(this){}
+
+##
+# str.is_digit()
+# returns true if all characters are digits.
+# params: []
+# returns: bool
+#
+##
+fun is_digit(this){}
+
+##
+# str.starts_with()
+# checks whether the string starts with a prefix.
+# params: [prefix: str]
+# returns: bool
+#
+##
+fun starts_with(this, prefix){}
+
+##
+# str.ends_with()
+# checks whether the string ends with a suffix.
+# params: [suffix: str]
+# returns: bool
+#
+##
+fun ends_with(this, suffix){}
 }

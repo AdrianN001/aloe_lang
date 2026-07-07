@@ -3,6 +3,7 @@ use std::env;
 use crate::{repl::start_repl, script::run_script};
 
 pub mod ast;
+pub mod doc;
 pub mod evaluator;
 pub mod frame;
 pub mod lexer;

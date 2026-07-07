@@ -13,6 +13,7 @@ use crate::ast::statement::struct_statement::StructStatement;
 use crate::ast::statement::val_statement::ValStatement;
 use crate::ast::syntax_error_report::SyntaxErrorReport;
 use crate::ast::syntax_error_report::syntax_error::SyntaxError;
+use crate::doc::traits::statement_traits::Documentable;
 use crate::{
     ast::{
         program::Program,
@@ -38,6 +39,7 @@ pub struct Parser {
     report: SyntaxErrorReport,
     current_token: Token,
     peek_token: Token,
+    pending_doc_comment: Option<Token>,
 }
 
 impl Parser {
@@ -47,6 +49,7 @@ impl Parser {
             report: SyntaxErrorReport::new(),
             current_token: Token::simple(TokenType::Illegal, "\0", 0),
             peek_token: Token::simple(TokenType::Illegal, "\0", 0),
+            pending_doc_comment: None,
         };
 
         // both current_token und peek_token is set
@@ -96,7 +99,12 @@ impl Parser {
         self.report.clear();
         self.report.push_token(&self.current_token);
 
-        match self.current_token.token_type {
+        let statement = match self.current_token.token_type {
+            TokenType::DocComment => {
+                self.pending_doc_comment = Some(self.current_token.clone());
+                self.next_token();
+                return self.parse_statement();
+            }
             TokenType::KwLet => self.parse_let(),
             TokenType::KwVal => self.parse_val(),
             TokenType::KwReturn => self.parse_return(),
@@ -109,7 +117,17 @@ impl Parser {
             TokenType::KwLaunch => self.parse_launch_statement(),
             TokenType::KwEnum => self.parse_enum_statement(),
             _ => self.parse_expression_statement(),
+        };
+
+        if self.pending_doc_comment.is_some() {
+            //TODO: panic if unexpected doc comment
+            //return Err(SyntaxError::UnexpectedDocComment(
+            //     self.get_current_line(),
+            // ));
+            self.pending_doc_comment = None;
         }
+
+        statement
     }
 
     fn parse_let(&mut self) -> Result<Statement, SyntaxError> {
@@ -133,10 +151,17 @@ impl Parser {
             self.next_token();
         }
 
-        Ok(Statement::Let(LetStatement {
+        let mut statement = LetStatement {
             token: curr_token,
             assignment,
-        }))
+            doc_comment: None,
+        };
+
+        if let Some(doc_comment) = self.pending_doc_comment.take() {
+            statement.set_doc_comment(doc_comment);
+        }
+
+        Ok(Statement::Let(statement))
     }
 
     fn parse_val(&mut self) -> Result<Statement, SyntaxError> {
@@ -160,10 +185,16 @@ impl Parser {
             self.next_token();
         }
 
-        Ok(Statement::Val(ValStatement {
+        let mut statement = ValStatement {
             token: curr_token,
             assignment,
-        }))
+            doc_comment: None,
+        };
+
+        if let Some(doc_comment) = self.pending_doc_comment.take() {
+            statement.set_doc_comment(doc_comment);
+        }
+        Ok(Statement::Val(statement))
     }
 
     fn parse_continue(&mut self) -> Result<Statement, SyntaxError> {
@@ -214,6 +245,10 @@ impl Parser {
         self.next_token();
 
         function.block = self.parse_block_statement()?;
+
+        if let Some(doc_comment) = self.pending_doc_comment.take() {
+            function.set_doc_comment(doc_comment);
+        }
 
         Ok(Statement::Function(function))
     }
@@ -421,12 +456,19 @@ impl Parser {
             self.next_token();
         }
 
-        Ok(Statement::Struct(StructStatement {
+        let mut statement = StructStatement {
             token,
             name,
             attributes,
             methods,
-        }))
+            doc_comment: None,
+        };
+
+        if let Some(doc_comment) = self.pending_doc_comment.take() {
+            statement.set_doc_comment(doc_comment);
+        }
+
+        Ok(Statement::Struct(statement))
     }
 
     fn parse_struct_body(
@@ -444,7 +486,14 @@ impl Parser {
         while self.peek_token.token_type != TokenType::RBrace {
             self.next_token();
             match self.current_token.token_type {
+                TokenType::DocComment => {
+                    self.pending_doc_comment = Some(self.current_token.clone());
+                }
                 TokenType::Identifier => {
+                    // Struct attributes are currently not documentable.
+                    // Drop a pending doc comment instead of attaching it to a later method.
+                    self.pending_doc_comment = None;
+
                     let attribute = self.parse_identifier();
 
                     if self.peek_token.token_type != TokenType::Semicolon {
@@ -532,11 +581,18 @@ impl Parser {
             self.next_token();
         }
 
-        Ok(Statement::Enum(EnumStatement {
+        let mut statement = EnumStatement {
             token,
             name,
             values,
-        }))
+            doc_comment: None,
+        };
+
+        if let Some(doc_comment) = self.pending_doc_comment.take() {
+            statement.set_doc_comment(doc_comment);
+        }
+
+        Ok(Statement::Enum(statement))
     }
 
     fn parse_enum_body(&mut self, enum_name: &str) -> Result<Vec<Expression>, SyntaxError> {

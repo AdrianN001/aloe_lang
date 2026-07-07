@@ -70,6 +70,204 @@ fn test_return_statement() {
 }
 
 #[test]
+fn test_doc_comment_attached_to_let_statement() {
+    let input = r#"
+##
+# let-doc
+##
+let x = 5;
+"#;
+
+    let lexer = Lexer::new(input.to_string());
+    let parser = Parser::new(lexer);
+    let program = parser.into_a_program().unwrap();
+
+    let let_stmt = match &program.statements[0] {
+        Statement::Let(stmt) => stmt,
+        _ => panic!("expected let statement"),
+    };
+
+    let doc_comment = let_stmt.doc_comment.as_ref().expect("missing doc comment");
+    assert_eq!(doc_comment.raw_content, "let-doc");
+}
+
+#[test]
+fn test_doc_comment_attached_to_val_statement() {
+    let input = r#"
+##
+# val-doc
+##
+val x = 5;
+"#;
+
+    let lexer = Lexer::new(input.to_string());
+    let parser = Parser::new(lexer);
+    let program = parser.into_a_program().unwrap();
+
+    let val_stmt = match &program.statements[0] {
+        Statement::Val(stmt) => stmt,
+        _ => panic!("expected val statement"),
+    };
+
+    let doc_comment = val_stmt.doc_comment.as_ref().expect("missing doc comment");
+    assert_eq!(doc_comment.raw_content, "val-doc");
+}
+
+#[test]
+fn test_doc_comment_attached_to_struct_statement() {
+    let input = r#"
+##
+# struct-doc
+##
+struct Person{};
+"#;
+
+    let lexer = Lexer::new(input.to_string());
+    let parser = Parser::new(lexer);
+    let program = parser.into_a_program().unwrap();
+
+    let struct_stmt = match &program.statements[0] {
+        Statement::Struct(stmt) => stmt,
+        _ => panic!("expected struct statement"),
+    };
+
+    let doc_comment = struct_stmt
+        .doc_comment
+        .as_ref()
+        .expect("missing doc comment");
+    assert_eq!(doc_comment.raw_content, "struct-doc");
+}
+
+#[test]
+fn test_doc_comment_attached_to_enum_statement() {
+    let input = r#"
+##
+# enum-doc
+##
+enum State{};
+"#;
+
+    let lexer = Lexer::new(input.to_string());
+    let parser = Parser::new(lexer);
+    let program = parser.into_a_program().unwrap();
+
+    let enum_stmt = match &program.statements[0] {
+        Statement::Enum(stmt) => stmt,
+        _ => panic!("expected enum statement"),
+    };
+
+    let doc_comment = enum_stmt.doc_comment.as_ref().expect("missing doc comment");
+    assert_eq!(doc_comment.raw_content, "enum-doc");
+}
+
+#[test]
+fn test_doc_comment_attached_to_function_statement() {
+    let input = r#"
+##
+# function-doc
+##
+fun ping(){}
+"#;
+
+    let lexer = Lexer::new(input.to_string());
+    let parser = Parser::new(lexer);
+    let program = parser.into_a_program().unwrap();
+
+    let function_stmt = match &program.statements[0] {
+        Statement::Function(stmt) => stmt,
+        _ => panic!("expected function statement"),
+    };
+
+    let doc_comment = function_stmt
+        .doc_comment
+        .as_ref()
+        .expect("missing doc comment");
+    assert_eq!(doc_comment.raw_content, "function-doc");
+}
+
+#[test]
+fn test_doc_comment_attached_to_async_statement() {
+    let input = r#"
+##
+# async-doc
+##
+async fun ping(){}
+"#;
+
+    let lexer = Lexer::new(input.to_string());
+    let parser = Parser::new(lexer);
+    let program = parser.into_a_program().unwrap();
+
+    let async_stmt = match &program.statements[0] {
+        Statement::AsyncFunction(stmt) => stmt,
+        _ => panic!("expected async function statement"),
+    };
+
+    let function_stmt = match async_stmt.function.as_ref() {
+        Statement::Function(stmt) => stmt,
+        _ => panic!("expected nested function statement"),
+    };
+
+    let doc_comment = function_stmt
+        .doc_comment
+        .as_ref()
+        .expect("missing doc comment");
+    assert_eq!(doc_comment.raw_content, "async-doc");
+}
+
+#[test]
+fn test_doc_comment_attached_to_struct_methods() {
+    let input = r#"
+struct Worker {
+##
+# sync-method-doc
+##
+fun sync(this) {}
+
+##
+# async-method-doc
+##
+async fun background(this) {}
+}
+"#;
+
+    let lexer = Lexer::new(input.to_string());
+    let parser = Parser::new(lexer);
+    let program = parser.into_a_program().unwrap();
+
+    let struct_stmt = match &program.statements[0] {
+        Statement::Struct(stmt) => stmt,
+        _ => panic!("expected struct statement"),
+    };
+
+    assert_eq!(struct_stmt.methods.len(), 2);
+
+    let sync_method = match &struct_stmt.methods[0] {
+        Statement::Function(stmt) => stmt,
+        _ => panic!("expected sync function statement"),
+    };
+    let sync_doc = sync_method
+        .doc_comment
+        .as_ref()
+        .expect("missing sync method doc comment");
+    assert_eq!(sync_doc.raw_content, "sync-method-doc");
+
+    let async_method = match &struct_stmt.methods[1] {
+        Statement::AsyncFunction(stmt) => stmt,
+        _ => panic!("expected async function statement"),
+    };
+    let nested_function = match async_method.function.as_ref() {
+        Statement::Function(stmt) => stmt,
+        _ => panic!("expected nested function statement"),
+    };
+    let async_doc = nested_function
+        .doc_comment
+        .as_ref()
+        .expect("missing async method doc comment");
+    assert_eq!(async_doc.raw_content, "async-method-doc");
+}
+
+#[test]
 fn test_val_statement_parsing() {
     let input = "val x = 5;";
     let lexer = Lexer::new(input.to_string());

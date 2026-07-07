@@ -1,5 +1,6 @@
 use crate::{
     ast::{expression::identifier::Identifier, statement::block_statement::BlockStatement},
+    doc::{doc_comment::DocComment, traits::statement_traits::Documentable},
     token::Token,
 };
 
@@ -9,6 +10,7 @@ pub struct FunctionStatement {
     pub name: String,
     pub parameters: Vec<Identifier>,
     pub block: BlockStatement,
+    pub doc_comment: Option<DocComment>,
 }
 
 impl FunctionStatement {
@@ -32,5 +34,11 @@ impl FunctionStatement {
         buffer.push_str(&self.block.to_string());
 
         buffer
+    }
+}
+
+impl Documentable for FunctionStatement {
+    fn set_doc_comment(&mut self, doc_comment: Token) {
+        self.doc_comment = Some(DocComment::new_from_token(doc_comment));
     }
 }

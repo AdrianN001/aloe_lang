@@ -35,11 +35,66 @@ impl Lexer {
         }
     }
 
-    fn skip_whitespace(&mut self) {
-        while self.character.is_whitespace() || self.character == '#' {
-            if self.character == '#' {
-                self.skip_comment();
+    fn read_doc_comment(&mut self) -> String {
+        let mut lines = Vec::new();
+
+        // Consume opening "##" and move to the next line.
+        self.read_char();
+        self.read_char();
+
+        if self.character == '\n' {
+            self.read_char();
+        }
+
+        while self.character != '\0' {
+            // End marker: "##"
+            if self.character == '#' && self.peek() == Some('#') {
+                self.read_char();
+                self.read_char();
+                break;
             }
+
+            if self.character != '#' {
+                while self.character != '\0' && self.character != '\n' {
+                    self.read_char();
+                }
+                if self.character == '\n' {
+                    self.read_char();
+                }
+                continue;
+            }
+
+            // Consume line-leading '#', and one optional space after it.
+            self.read_char();
+            if self.character == ' ' {
+                self.read_char();
+            }
+
+            if self.character == '\n' || self.character == '\0' {
+                lines.push(String::new());
+            } else {
+                let start_pos = self.position;
+                while self.character != '\0' && self.character != '\n' {
+                    self.read_char();
+                }
+                lines.push(
+                    self.input[start_pos..self.position]
+                        .iter()
+                        .copied()
+                        .collect::<String>(),
+                );
+            }
+
+            if self.character == '\n' {
+                self.read_char();
+            }
+        }
+
+        lines.join("\n")
+    }
+
+    fn skip_whitespace(&mut self) {
+        while self.character.is_whitespace() {
             self.read_char();
         }
     }
@@ -258,6 +313,17 @@ impl Lexer {
         self.skip_whitespace();
 
         let next_token = match self.character {
+            '#' => match self.peek() {
+                Some('#') => {
+                    let line = self.current_line;
+                    let comment = self.read_doc_comment();
+                    return Token::new(TokenType::DocComment, comment, line);
+                }
+                _ => {
+                    self.skip_comment();
+                    return self.next_token();
+                }
+            },
             '=' => {
                 if let Some(next_char) = self.peek()
                     && next_char == '='

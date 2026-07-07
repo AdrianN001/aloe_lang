@@ -7,6 +7,7 @@ impl fmt::Display for TokenType {
             TokenType::Illegal => "ILLEGAL",
             TokenType::Eof => "EOF",
             TokenType::Comment => "#",
+            TokenType::DocComment => "##",
 
             TokenType::Identifier => "identifier",
             TokenType::Integer => "int",

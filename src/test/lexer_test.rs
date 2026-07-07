@@ -338,3 +338,90 @@ launch main();";
         assert_eq!(expected_token, lexer_token);
     });
 }
+
+#[test]
+fn test_doc_comment_block_in_lexer() {
+    let input = r#"##
+# datatype: bool
+# Truth value
+#
+##
+let value = true;
+"#;
+
+    let mut lexer = Lexer::new(input.to_string());
+
+    let expected_tokens = [
+        Token::simple(TokenType::DocComment, "datatype: bool\nTruth value\n", 1),
+        Token::simple(TokenType::KwLet, "let", 6),
+        Token::simple(TokenType::Identifier, "value", 6),
+        Token::simple(TokenType::Assign, "=", 6),
+        Token::simple(TokenType::KwTrue, "true", 6),
+        Token::simple(TokenType::Semicolon, ";", 6),
+        Token::simple(TokenType::Eof, "", 6),
+    ];
+
+    expected_tokens.iter().for_each(|expected_token| {
+        let lexer_token = &lexer.next_token();
+
+        assert_eq!(expected_token, lexer_token);
+    });
+}
+
+#[test]
+fn test_normal_comments_are_skipped_in_lexer() {
+    let input = "let a = 1; # this is a normal comment\nlet b = 2;";
+    let mut lexer = Lexer::new(input.to_string());
+
+    let expected_tokens = [
+        Token::simple(TokenType::KwLet, "let", 1),
+        Token::simple(TokenType::Identifier, "a", 1),
+        Token::simple(TokenType::Assign, "=", 1),
+        Token::simple(TokenType::Integer, "1", 1),
+        Token::simple(TokenType::Semicolon, ";", 1),
+        Token::simple(TokenType::KwLet, "let", 2),
+        Token::simple(TokenType::Identifier, "b", 2),
+        Token::simple(TokenType::Assign, "=", 2),
+        Token::simple(TokenType::Integer, "2", 2),
+        Token::simple(TokenType::Semicolon, ";", 2),
+        Token::simple(TokenType::Eof, "", 2),
+    ];
+
+    expected_tokens.iter().for_each(|expected_token| {
+        let lexer_token = &lexer.next_token();
+
+        assert_eq!(expected_token, lexer_token);
+    });
+}
+
+#[test]
+fn test_normal_comments_are_skipped_in_lexer_multiline() {
+    let input = r#"
+# file header comment
+let a = 1; # inline comment
+# full line between statements
+    # indented full-line comment
+let b = 2;
+"#;
+    let mut lexer = Lexer::new(input.to_string());
+
+    let expected_tokens = [
+        Token::simple(TokenType::KwLet, "let", 3),
+        Token::simple(TokenType::Identifier, "a", 3),
+        Token::simple(TokenType::Assign, "=", 3),
+        Token::simple(TokenType::Integer, "1", 3),
+        Token::simple(TokenType::Semicolon, ";", 3),
+        Token::simple(TokenType::KwLet, "let", 6),
+        Token::simple(TokenType::Identifier, "b", 6),
+        Token::simple(TokenType::Assign, "=", 6),
+        Token::simple(TokenType::Integer, "2", 6),
+        Token::simple(TokenType::Semicolon, ";", 6),
+        Token::simple(TokenType::Eof, "", 6),
+    ];
+
+    expected_tokens.iter().for_each(|expected_token| {
+        let lexer_token = &lexer.next_token();
+
+        assert_eq!(expected_token, lexer_token);
+    });
+}

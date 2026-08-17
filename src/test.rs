@@ -20,3 +20,6 @@ pub mod operator_test;
 pub mod parser_test;
 #[cfg(test)]
 pub mod string_test;
+
+#[cfg(test)]
+pub mod symbol_test;

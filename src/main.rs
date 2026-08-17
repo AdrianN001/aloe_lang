@@ -12,6 +12,7 @@ pub mod object;
 pub mod repl;
 pub mod scheduler;
 pub mod script;
+pub mod symbol;
 pub mod token;
 pub mod version;
 

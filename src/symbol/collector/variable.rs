@@ -22,6 +22,9 @@ impl SymbolCollector {
                 ));
             }
         };
+
+        self.collect_expression(&*&value_assignment_expr.right)?;
+
         match &*value_assignment_expr.left {
             //multiple
             Expression::Array(variable_list_expr) => {
@@ -74,6 +77,9 @@ impl SymbolCollector {
                 ));
             }
         };
+
+        self.collect_expression(&*&value_assignment_expr.right)?;
+
         match &*value_assignment_expr.left {
             //multiple
             Expression::Array(variable_list_expr) => {

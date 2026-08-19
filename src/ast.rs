@@ -450,6 +450,8 @@ impl Parser {
         }
         self.next_token();
 
+        let potential_doc_comment_for_struct = self.pending_doc_comment.take();
+
         let (attributes, methods) = self.parse_struct_body(&name_of_the_struct_raw)?;
 
         if self.peek_token.token_type == TokenType::Semicolon {
@@ -464,7 +466,7 @@ impl Parser {
             doc_comment: None,
         };
 
-        if let Some(doc_comment) = self.pending_doc_comment.take() {
+        if let Some(doc_comment) = potential_doc_comment_for_struct {
             statement.set_doc_comment(doc_comment);
         }
 

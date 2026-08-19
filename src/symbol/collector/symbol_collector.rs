@@ -1,7 +1,8 @@
-use std::panic;
-
 use crate::{
-    ast::{program::Program, statement::Statement, syntax_error_report::syntax_error::SyntaxError},
+    ast::{
+        expression::Expression, program::Program, statement::Statement,
+        syntax_error_report::syntax_error::SyntaxError,
+    },
     symbol::{
         scope::{Scope, ScopeID},
         table::SymbolTable,
@@ -44,7 +45,26 @@ impl SymbolCollector {
             Statement::Import(import_stmt) => self.handle_import_statement(import_stmt),
             Statement::Enum(enum_stmt) => self.handle_enum_statement(enum_stmt),
             Statement::Function(function_stmt) => self.handle_function_statement(function_stmt),
-            _ => panic!(),
+            Statement::AsyncFunction(async_function_stmt) => {
+                self.handle_async_function(async_function_stmt)
+            }
+            Statement::Struct(struct_model_stmt) => self.handle_struct_statement(struct_model_stmt),
+
+            Statement::Expression(expression_stmt) => {
+                self.collect_expression(&expression_stmt.expression)
+            }
+            _ => Ok(()),
+        }
+    }
+
+    pub fn collect_expression(&mut self, expression: &Expression) -> Result<(), SyntaxError> {
+        match expression {
+            Expression::If(if_expr) => self.handle_if_expression(&if_expr),
+            Expression::WhileLoop(while_loop_expr) => {
+                self.handle_while_expression(&while_loop_expr)
+            }
+            Expression::ForLoop(for_loop_expr) => self.handle_for_expression(&for_loop_expr),
+            _ => Ok(()),
         }
     }
 }

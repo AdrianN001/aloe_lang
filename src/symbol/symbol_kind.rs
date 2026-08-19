@@ -5,5 +5,6 @@ pub enum SymbolKind {
     Function,
     Struct,
     Enum,
+    EnumVariant,
     Module,
 }

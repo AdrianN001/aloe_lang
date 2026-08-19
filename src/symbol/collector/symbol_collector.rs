@@ -29,6 +29,8 @@ impl SymbolCollector {
         match statement {
             Statement::Let(let_stmt) => self.handle_let_statement(let_stmt),
             Statement::Val(val_stmt) => self.handle_val_statement(val_stmt),
+            Statement::Import(import_stmt) => self.handle_import_statement(import_stmt),
+            Statement::Enum(enum_stmt) => self.handle_enum_statement(enum_stmt),
             _ => panic!(),
         }
     }

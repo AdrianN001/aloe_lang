@@ -24,16 +24,10 @@ impl SymbolCollector {
                 for expression_element in &variable_list_expr.elements {
                     match expression_element {
                         Expression::Identifier(variable_name_expression) => {
-                            if let Some(doc_comment) = &let_stmt.doc_comment {
-                                self.register_let_variable_with_doc(
-                                    &variable_name_expression.value,
-                                    doc_comment,
-                                )
-                            } else {
-                                self.register_let_variable_without_doc(
-                                    &variable_name_expression.value,
-                                );
-                            }
+                            self.register_let_variable(
+                                &variable_name_expression.value,
+                                let_stmt.doc_comment.clone(),
+                            );
                         }
                         other => {
                             return Err(SyntaxError::UnexpectedExpression(
@@ -48,14 +42,11 @@ impl SymbolCollector {
             }
             //single
             Expression::Identifier(variable_name_expression) => {
-                if let Some(doc_comment) = &let_stmt.doc_comment {
-                    self.register_let_variable_with_doc(
-                        &variable_name_expression.value,
-                        doc_comment,
-                    )
-                } else {
-                    self.register_let_variable_without_doc(&variable_name_expression.value);
-                }
+                self.register_let_variable(
+                    &variable_name_expression.value,
+                    let_stmt.doc_comment.clone(),
+                );
+
                 Ok(())
             }
 
@@ -74,16 +65,10 @@ impl SymbolCollector {
                 for expression_element in &variable_list_expr.elements {
                     match expression_element {
                         Expression::Identifier(variable_name_expression) => {
-                            if let Some(doc_comment) = &val_stmt.doc_comment {
-                                self.register_val_variable_with_doc(
-                                    &variable_name_expression.value,
-                                    doc_comment,
-                                )
-                            } else {
-                                self.register_val_variable_without_doc(
-                                    &variable_name_expression.value,
-                                );
-                            }
+                            self.register_val_variable(
+                                &variable_name_expression.value,
+                                val_stmt.doc_comment.clone(),
+                            );
                         }
                         other => {
                             return Err(SyntaxError::UnexpectedExpression(
@@ -98,14 +83,10 @@ impl SymbolCollector {
             }
             //single
             Expression::Identifier(variable_name_expression) => {
-                if let Some(doc_comment) = &val_stmt.doc_comment {
-                    self.register_val_variable_with_doc(
-                        &variable_name_expression.value,
-                        doc_comment,
-                    )
-                } else {
-                    self.register_val_variable_without_doc(&variable_name_expression.value);
-                }
+                self.register_val_variable(
+                    &variable_name_expression.value,
+                    val_stmt.doc_comment.clone(),
+                );
                 Ok(())
             }
 
@@ -113,52 +94,26 @@ impl SymbolCollector {
         }
     }
 
-    fn register_let_variable_with_doc(&mut self, name: &str, doc_comment: &DocComment) {
+    fn register_let_variable(&mut self, name: &str, doc_comment: Option<DocComment>) {
         let new_symbol_id = self.table.generate_id();
         let new_symbol = Symbol {
             id: new_symbol_id,
             name: name.to_string(),
             kind: SymbolKind::LetVariable,
             owner: None,
-            doc: Some(doc_comment.clone()),
+            doc: doc_comment,
         };
 
         self.table.register(new_symbol);
     }
-    fn register_let_variable_without_doc(&mut self, name: &str) {
-        let new_symbol_id = self.table.generate_id();
-
-        let new_symbol = Symbol {
-            id: new_symbol_id,
-            name: name.to_string(),
-            kind: SymbolKind::LetVariable,
-            owner: None,
-            doc: None,
-        };
-
-        self.table.register(new_symbol);
-    }
-    fn register_val_variable_with_doc(&mut self, name: &str, doc_comment: &DocComment) {
+    fn register_val_variable(&mut self, name: &str, doc_comment: Option<DocComment>) {
         let new_symbol_id = self.table.generate_id();
         let new_symbol = Symbol {
             id: new_symbol_id,
             name: name.to_string(),
             kind: SymbolKind::ValVariable,
             owner: None,
-            doc: Some(doc_comment.clone()),
-        };
-
-        self.table.register(new_symbol);
-    }
-    fn register_val_variable_without_doc(&mut self, name: &str) {
-        let new_symbol_id = self.table.generate_id();
-
-        let new_symbol = Symbol {
-            id: new_symbol_id,
-            name: name.to_string(),
-            kind: SymbolKind::ValVariable,
-            owner: None,
-            doc: None,
+            doc: doc_comment,
         };
 
         self.table.register(new_symbol);

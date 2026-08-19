@@ -1,5 +1,3 @@
-use std::unreachable;
-
 use crate::{
     ast::{
         expression::Expression,
@@ -16,7 +14,13 @@ impl SymbolCollector {
     pub fn handle_let_statement(&mut self, let_stmt: &LetStatement) -> Result<(), SyntaxError> {
         let value_assignment_expr = match &let_stmt.assignment {
             Expression::ValueAssign(value_assign) => value_assign,
-            _ => unreachable!(),
+            other => {
+                return Err(SyntaxError::UnexpectedExpression(
+                    vec!["value assignment"],
+                    other.clone(),
+                    let_stmt.token.line_number,
+                ));
+            }
         };
         match &*value_assignment_expr.left {
             //multiple
@@ -49,15 +53,26 @@ impl SymbolCollector {
 
                 Ok(())
             }
-
-            _ => unreachable!(),
+            other => {
+                return Err(SyntaxError::UnexpectedExpression(
+                    vec!["array expression", "identifier"],
+                    other.clone(),
+                    let_stmt.token.line_number,
+                ));
+            }
         }
     }
 
     pub fn handle_val_statement(&mut self, val_stmt: &ValStatement) -> Result<(), SyntaxError> {
         let value_assignment_expr = match &val_stmt.assignment {
             Expression::ValueAssign(value_assign) => value_assign,
-            _ => unreachable!(),
+            other => {
+                return Err(SyntaxError::UnexpectedExpression(
+                    vec!["value assignment"],
+                    other.clone(),
+                    val_stmt.token.line_number,
+                ));
+            }
         };
         match &*value_assignment_expr.left {
             //multiple
@@ -90,12 +105,18 @@ impl SymbolCollector {
                 Ok(())
             }
 
-            _ => unreachable!(),
+            other => {
+                return Err(SyntaxError::UnexpectedExpression(
+                    vec!["array expression", "identifier"],
+                    other.clone(),
+                    val_stmt.token.line_number,
+                ));
+            }
         }
     }
 
     fn register_let_variable(&mut self, name: &str, doc_comment: Option<DocComment>) {
-        let new_symbol_id = self.table.generate_id();
+        let new_symbol_id = self.table.generate_symbol_id();
         let new_symbol = Symbol {
             id: new_symbol_id,
             name: name.to_string(),
@@ -104,10 +125,12 @@ impl SymbolCollector {
             doc: doc_comment,
         };
 
-        self.table.register(new_symbol);
+        self.table.register_to_symbolmap(new_symbol.clone());
+        self.table
+            .register_to_scope(self.current_scope_id, new_symbol);
     }
     fn register_val_variable(&mut self, name: &str, doc_comment: Option<DocComment>) {
-        let new_symbol_id = self.table.generate_id();
+        let new_symbol_id = self.table.generate_symbol_id();
         let new_symbol = Symbol {
             id: new_symbol_id,
             name: name.to_string(),
@@ -116,6 +139,8 @@ impl SymbolCollector {
             doc: doc_comment,
         };
 
-        self.table.register(new_symbol);
+        self.table.register_to_symbolmap(new_symbol.clone());
+        self.table
+            .register_to_scope(self.current_scope_id, new_symbol);
     }
 }

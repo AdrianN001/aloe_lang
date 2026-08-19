@@ -20,7 +20,7 @@ impl SymbolCollector {
     }
 
     fn register_new_module(&mut self, name: &str) {
-        let new_symbol_id = self.table.generate_id();
+        let new_symbol_id = self.table.generate_symbol_id();
         let new_symbol = Symbol {
             id: new_symbol_id,
             name: name.to_string(),
@@ -29,6 +29,8 @@ impl SymbolCollector {
             doc: None,
         };
 
-        self.table.register(new_symbol);
+        self.table.register_to_symbolmap(new_symbol.clone());
+        self.table
+            .register_to_scope(self.current_scope_id, new_symbol);
     }
 }

@@ -1,27 +1,53 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, unreachable};
 
-use crate::symbol::symbol::{Symbol, SymbolID};
+use crate::symbol::{
+    scope::{Scope, ScopeID},
+    symbol::{Symbol, SymbolID},
+};
 
 pub struct SymbolTable {
-    next_id: u64,
+    next_symbol_id: u64,
+    next_scope_id: u32,
     pub symbol_map: HashMap<SymbolID, Symbol>,
+    pub scopes: HashMap<ScopeID, Scope>,
 }
 
 impl SymbolTable {
     pub fn new() -> Self {
         Self {
-            next_id: 1,
+            next_symbol_id: 1,
+            next_scope_id: 2,
             symbol_map: HashMap::new(),
+            scopes: HashMap::new(),
         }
     }
 
-    pub fn register(&mut self, symbol: Symbol) {
+    pub fn register_to_symbolmap(&mut self, symbol: Symbol) {
         self.symbol_map.insert(symbol.id, symbol);
     }
 
-    pub fn generate_id(&mut self) -> SymbolID {
-        let id = SymbolID(self.next_id);
-        self.next_id += 1;
+    pub fn register_to_scope(&mut self, current_scope_id: ScopeID, symbol: Symbol) {
+        let current_scope = match self.scopes.get_mut(&current_scope_id) {
+            Some(current_scope) => current_scope,
+            None => unreachable!(),
+        };
+
+        current_scope.symbols.insert(symbol.name, symbol.id);
+    }
+
+    pub fn register_new_scope(&mut self, scope: Scope) {
+        self.scopes.insert(scope.id, scope);
+    }
+
+    pub fn generate_symbol_id(&mut self) -> SymbolID {
+        let id = SymbolID(self.next_symbol_id);
+        self.next_symbol_id += 1;
+        id
+    }
+
+    pub fn generate_scope_id(&mut self) -> ScopeID {
+        let id = ScopeID(self.next_scope_id);
+        self.next_scope_id += 1;
         id
     }
 }

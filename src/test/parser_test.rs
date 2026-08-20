@@ -1205,6 +1205,23 @@ fn test_while_loop_parse() {
 }
 
 #[test]
+fn test_struct_statement_with_tab_indentation() {
+    let input = "struct Person {\n\tname;\n\tfun get_name(this) {\n\t\treturn this.name;\n\t}\n\tasync fun reset(this) {\n\t\tthis.name = \"\";\n\t}\n}";
+
+    let lexer = Lexer::new(input.to_string());
+    let parser = Parser::new(lexer);
+    let program = parser.into_a_program().unwrap();
+
+    let struct_statement = match &program.statements[0] {
+        Statement::Struct(statement) => statement,
+        _ => panic!("expected struct statement"),
+    };
+
+    assert_eq!(struct_statement.attributes.len(), 1);
+    assert_eq!(struct_statement.methods.len(), 2);
+}
+
+#[test]
 fn test_enum_statement() {
     let testcases = [
         (

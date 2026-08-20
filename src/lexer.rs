@@ -47,8 +47,42 @@ impl Lexer {
         }
 
         while self.character != '\0' {
+            while self.character == ' ' || self.character == '\t' || self.character == '\r' {
+                self.read_char();
+            }
+
             // End marker: "##"
             if self.character == '#' && self.peek() == Some('#') {
+                let character_after_end_marker = self.input.get(self.read_pos + 1).copied();
+                let mut next_line_pos = self.read_pos + 1;
+                while matches!(self.input.get(next_line_pos), Some(' ' | '\t' | '\r')) {
+                    next_line_pos += 1;
+                }
+                if self.input.get(next_line_pos) == Some(&'\n') {
+                    next_line_pos += 1;
+                    while matches!(self.input.get(next_line_pos), Some(' ' | '\t' | '\r')) {
+                        next_line_pos += 1;
+                    }
+                }
+                let next_line_is_doc_comment = self.input.get(next_line_pos) == Some(&'#');
+
+                if matches!(
+                    character_after_end_marker,
+                    Some(' ') | Some('\t') | Some('\r')
+                ) && next_line_is_doc_comment
+                {
+                    self.read_char();
+                    self.read_char();
+                    while self.character == ' ' || self.character == '\t' || self.character == '\r'
+                    {
+                        self.read_char();
+                    }
+                    if self.character == '\n' {
+                        self.read_char();
+                    }
+                    continue;
+                }
+
                 self.read_char();
                 self.read_char();
                 break;

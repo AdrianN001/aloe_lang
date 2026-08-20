@@ -766,18 +766,19 @@ struct Person{
 # Person documentation
 ##
 struct Person{
-##
-# sync_method documentation
-##
-fun sync_method(){}
-##
-# sync_method2 documentation
-##
-fun sync_method2(){}
-##
-# async_method documentation
-##
-async fun async_method(){}
+    ##
+    # sync_method documentation
+    ##
+    fun sync_method(){}
+    ##
+    ## 
+    # sync_method2 documentation
+    ##
+    fun sync_method2(){}
+    ##
+    # async_method documentation
+    ##
+    async fun async_method(){}
 }",
             vec![
                 (

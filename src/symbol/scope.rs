@@ -1,8 +1,10 @@
 use std::collections::HashMap;
 
+use serde::{Deserialize, Serialize};
+
 use crate::symbol::symbol::{Symbol, SymbolID};
 
-#[derive(PartialEq, Eq, Debug, Hash, Clone, Copy)]
+#[derive(PartialEq, Eq, Debug, Hash, Clone, Copy, Serialize, Deserialize)]
 pub struct ScopeID(pub u32);
 
 pub struct Scope {

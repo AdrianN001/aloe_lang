@@ -1,4 +1,6 @@
-#[derive(PartialEq, Eq, Debug, Clone, Copy, Hash)]
+use serde::{Deserialize, Serialize};
+
+#[derive(PartialEq, Eq, Debug, Clone, Copy, Hash, Serialize, Deserialize)]
 pub enum SymbolKind {
     LetVariable,
     ValVariable,

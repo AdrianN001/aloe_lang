@@ -7,7 +7,9 @@ use crate::{
     },
 };
 
-#[derive(Clone)]
+use serde::{Deserialize, Serialize};
+
+#[derive(Clone, Serialize, Deserialize)]
 pub struct DocSymbol {
     pub id: SymbolID,
     pub scope_id: ScopeID,

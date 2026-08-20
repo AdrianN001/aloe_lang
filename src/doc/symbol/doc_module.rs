@@ -1,5 +1,7 @@
 use std::{collections::HashMap, unreachable};
 
+use serde::{Deserialize, Serialize};
+
 use crate::{
     doc::symbol::doc_symbol::DocSymbol,
     symbol::{
@@ -9,6 +11,7 @@ use crate::{
     },
 };
 
+#[derive(Serialize, Deserialize)]
 pub struct DocModule {
     pub name: String,
     pub root_symbols: Vec<DocSymbol>,

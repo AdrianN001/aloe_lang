@@ -1,6 +1,8 @@
+use serde::{Deserialize, Serialize};
+
 use crate::token::Token;
 
-#[derive(Hash, PartialOrd, Ord, Clone, PartialEq, Eq, Debug)]
+#[derive(Hash, PartialOrd, Ord, Clone, PartialEq, Eq, Debug, Serialize, Deserialize)]
 pub struct DocComment {
     pub raw_content: String,
 }

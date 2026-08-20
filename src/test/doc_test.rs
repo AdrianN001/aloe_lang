@@ -1,15 +1,8 @@
 use std::assert_eq;
 
 use crate::{
-    ast::Parser,
-    doc::symbol::{
-        doc_module::{self, DocModule},
-        doc_symbol::DocSymbol,
-    },
-    lexer::Lexer,
-    symbol::{
-        collector::symbol_collector::SymbolCollector, symbol::SymbolID, symbol_kind::SymbolKind,
-    },
+    doc::symbol::{doc_symbol::DocSymbol, documentation::Documentation},
+    symbol::{symbol::SymbolID, symbol_kind::SymbolKind},
 };
 
 struct SimplifiedDocSymbol {
@@ -251,19 +244,9 @@ struct Person{
         let input = testcase.0;
         let expected_symbols: &Vec<SimplifiedDocSymbol> = &testcase.1;
 
-        let lexer = Lexer::new(input.to_string());
-        let parser = Parser::new(lexer);
-        let program = parser.into_a_program().unwrap();
+        let documentation = Documentation::from_single_input(input).unwrap();
 
-        let collector = match SymbolCollector::collect_from_program(&program) {
-            Ok(collector) => collector,
-            Err(_) => {
-                assert!(false);
-                return;
-            }
-        };
-
-        let doc_module = DocModule::from_symbol_collector("test_name", &collector);
+        let doc_module = &documentation.modules[0];
 
         assert_eq!(doc_module.root_symbols.len(), expected_symbols.len());
 
@@ -303,4 +286,39 @@ fn compare_root_symbol_with_expected(
                 &expected_symbol.children,
             );
         });
+}
+
+#[test]
+fn test_documentation_export() {
+    let testcases = [
+        (
+            "
+        struct Person{}
+        ",
+            "{\"modules\":[{\"name\":\"single unit\",\"root_symbols\":[{\"id\":1,\"scope_id\":1,\"name\":\"Person\",\"kind\":\"Struct\",\"doc\":null,\"children\":[]}]}]}",
+        ),
+        (
+            "
+    ##
+    # Person documentation
+    ##
+        struct Person{}
+        ",
+            "{\"modules\":[{\"name\":\"single unit\",\"root_symbols\":[{\"id\":1,\"scope_id\":1,\"name\":\"Person\",\"kind\":\"Struct\",\"doc\":{\"raw_content\":\"Person documentation\"},\"children\":[]}]}]}",
+        ),
+    ];
+
+    testcases.iter().for_each(|(input, expected_json_output)| {
+        let documentation = Documentation::from_single_input(input).unwrap();
+
+        let exported_json = match documentation.export_to_json_str() {
+            Ok(json) => json,
+            Err(_) => {
+                assert!(false);
+                return;
+            }
+        };
+
+        assert_eq!(*expected_json_output, exported_json);
+    });
 }

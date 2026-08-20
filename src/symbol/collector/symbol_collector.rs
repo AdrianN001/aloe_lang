@@ -1,3 +1,5 @@
+use std::{collections::HashMap, unreachable};
+
 use crate::{
     ast::{
         expression::Expression, program::Program, statement::Statement,
@@ -5,6 +7,7 @@ use crate::{
     },
     symbol::{
         scope::{Scope, ScopeID},
+        symbol::{Symbol, SymbolID},
         table::SymbolTable,
     },
 };
@@ -16,7 +19,7 @@ pub struct SymbolCollector {
 
 impl SymbolCollector {
     fn new() -> Self {
-        let global_scope_id = ScopeID(1);
+        let global_scope_id = SymbolTable::GLOBAL_SCOPE_ID;
         let global_scope = Scope::new_global_scope(global_scope_id);
 
         let mut new_collector = Self {
@@ -66,5 +69,19 @@ impl SymbolCollector {
             Expression::ForLoop(for_loop_expr) => self.handle_for_expression(&for_loop_expr),
             _ => Ok(()),
         }
+    }
+
+    pub fn get_top_level_symbol_map<'a>(&'a self) -> &'a HashMap<SymbolID, Symbol> {
+        let global_scope_id = SymbolTable::GLOBAL_SCOPE_ID;
+        let global_scope = match self.table.scopes.get(&global_scope_id) {
+            Some(scope) => scope,
+            None => unreachable!(),
+        };
+
+        &global_scope.local_symbol_map
+    }
+
+    pub fn get_global_symbol_map<'a>(&'a self) -> &'a HashMap<SymbolID, Symbol> {
+        &self.table.symbol_map
     }
 }

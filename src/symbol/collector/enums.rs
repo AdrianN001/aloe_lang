@@ -48,6 +48,7 @@ impl SymbolCollector {
         let new_symbol_id = self.table.generate_symbol_id();
         let new_symbol = Symbol {
             id: new_symbol_id,
+            scope_id: self.current_scope_id,
             name: name.to_string(),
             kind: SymbolKind::Enum,
             owner: None,
@@ -64,6 +65,7 @@ impl SymbolCollector {
         let new_symbol_id = self.table.generate_symbol_id();
         let new_symbol = Symbol {
             id: new_symbol_id,
+            scope_id: self.current_scope_id,
             name: name.to_string(),
             kind: SymbolKind::EnumVariant,
             owner: Some(owner_id),

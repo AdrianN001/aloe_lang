@@ -13,6 +13,8 @@ pub struct SymbolTable {
 }
 
 impl SymbolTable {
+    pub const GLOBAL_SCOPE_ID: ScopeID = ScopeID(1);
+
     pub fn new() -> Self {
         Self {
             next_symbol_id: 1,
@@ -32,6 +34,9 @@ impl SymbolTable {
             None => unreachable!(),
         };
 
+        current_scope
+            .local_symbol_map
+            .insert(symbol.id, symbol.clone());
         current_scope.symbols.insert(symbol.name, symbol.id);
     }
 
@@ -49,5 +54,9 @@ impl SymbolTable {
         let id = ScopeID(self.next_scope_id);
         self.next_scope_id += 1;
         id
+    }
+
+    pub fn get_symbol(&mut self, symbol_id: SymbolID) -> Option<&Symbol> {
+        self.symbol_map.get(&symbol_id)
     }
 }

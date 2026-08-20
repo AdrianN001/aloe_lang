@@ -61,6 +61,8 @@ impl SymbolCollector {
         let new_symbol_id = self.table.generate_symbol_id();
         let new_symbol = Symbol {
             id: new_symbol_id,
+
+            scope_id: self.current_scope_id,
             name: name.to_string(),
             kind: SymbolKind::Struct,
             owner: None,
@@ -77,6 +79,8 @@ impl SymbolCollector {
         let new_symbol_id = self.table.generate_symbol_id();
         let new_symbol = Symbol {
             id: new_symbol_id,
+
+            scope_id: self.current_scope_id,
             name: name.to_string(),
             kind: SymbolKind::StructAttribute,
             owner: Some(struct_id),
@@ -131,6 +135,8 @@ impl SymbolCollector {
         let new_symbol = Symbol {
             id: new_symbol_id,
             name: name.to_string(),
+
+            scope_id: self.current_scope_id,
             kind: SymbolKind::StructMethod,
             owner: Some(owner_id),
             doc,
@@ -193,6 +199,7 @@ impl SymbolCollector {
         let new_symbol_id = self.table.generate_symbol_id();
         let new_symbol = Symbol {
             id: new_symbol_id,
+            scope_id: self.current_scope_id,
             name: name.to_string(),
             kind: SymbolKind::StructAsyncMethod,
             owner: Some(owner_id),

@@ -23,3 +23,6 @@ pub mod string_test;
 
 #[cfg(test)]
 pub mod symbol_test;
+
+#[cfg(test)]
+pub mod doc_test;

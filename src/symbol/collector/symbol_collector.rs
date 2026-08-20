@@ -19,15 +19,15 @@ pub struct SymbolCollector {
 
 impl SymbolCollector {
     fn new() -> Self {
-        let global_scope_id = SymbolTable::GLOBAL_SCOPE_ID;
-        let global_scope = Scope::new_global_scope(global_scope_id);
+        let top_level_scope_id = SymbolTable::TOP_LEVEL_SCOPE_ID;
+        let top_level_scope = Scope::new_global_scope(top_level_scope_id);
 
         let mut new_collector = Self {
             table: SymbolTable::new(),
-            current_scope_id: global_scope_id,
+            current_scope_id: top_level_scope_id,
         };
 
-        new_collector.table.register_new_scope(global_scope);
+        new_collector.table.register_new_scope(top_level_scope);
 
         new_collector
     }
@@ -72,7 +72,7 @@ impl SymbolCollector {
     }
 
     pub fn get_top_level_symbol_map<'a>(&'a self) -> &'a HashMap<SymbolID, Symbol> {
-        let global_scope_id = SymbolTable::GLOBAL_SCOPE_ID;
+        let global_scope_id = SymbolTable::TOP_LEVEL_SCOPE_ID;
         let global_scope = match self.table.scopes.get(&global_scope_id) {
             Some(scope) => scope,
             None => unreachable!(),

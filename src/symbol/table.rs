@@ -13,7 +13,7 @@ pub struct SymbolTable {
 }
 
 impl SymbolTable {
-    pub const GLOBAL_SCOPE_ID: ScopeID = ScopeID(1);
+    pub const TOP_LEVEL_SCOPE_ID: ScopeID = ScopeID(1);
 
     pub fn new() -> Self {
         Self {

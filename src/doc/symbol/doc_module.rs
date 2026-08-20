@@ -27,7 +27,7 @@ impl DocModule {
         let ownership_map = DocModule::build_ownership_map(symbol_map);
         let root_symbols = DocModule::make_root_symbols(&ownership_map, symbol_map)
             .iter()
-            .filter(|symbol| symbol.scope_id == SymbolTable::GLOBAL_SCOPE_ID)
+            .filter(|symbol| symbol.scope_id == SymbolTable::TOP_LEVEL_SCOPE_ID)
             .map(|symbol| symbol.clone())
             .collect::<Vec<DocSymbol>>();
 

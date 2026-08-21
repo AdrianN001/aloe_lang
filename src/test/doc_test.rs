@@ -306,6 +306,14 @@ fn test_documentation_export() {
         ",
             "{\"modules\":[{\"name\":\"single unit\",\"root_symbols\":[{\"id\":1,\"scope_id\":1,\"name\":\"Person\",\"kind\":\"Struct\",\"doc\":{\"raw_content\":\"Person documentation\"},\"children\":[]}]}]}",
         ),
+        (
+            "enum State{}",
+            "{\"modules\":[{\"name\":\"single unit\",\"root_symbols\":[{\"id\":1,\"scope_id\":1,\"name\":\"State\",\"kind\":\"Enum\",\"doc\":null,\"children\":[]}]}]}",
+        ),
+        (
+            "enum State{Ready;Stopped;}",
+            "{\"modules\":[{\"name\":\"single unit\",\"root_symbols\":[{\"id\":1,\"scope_id\":1,\"name\":\"State\",\"kind\":\"Enum\",\"doc\":null,\"children\":[{\"id\":2,\"scope_id\":1,\"name\":\"Ready\",\"kind\":\"EnumVariant\",\"doc\":null,\"children\":[]},{\"id\":3,\"scope_id\":1,\"name\":\"Stopped\",\"kind\":\"EnumVariant\",\"doc\":null,\"children\":[]}]}]}]}",
+        ),
     ];
 
     testcases.iter().for_each(|(input, expected_json_output)| {

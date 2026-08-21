@@ -1,8 +1,7 @@
-use std::env;
-
-use crate::{repl::start_repl, script::run_script};
+use crate::cli::parse_cli;
 
 pub mod ast;
+pub mod cli;
 pub mod doc;
 pub mod evaluator;
 pub mod frame;
@@ -17,18 +16,7 @@ pub mod token;
 pub mod version;
 
 fn main() {
-    let args: Vec<String> = env::args().collect();
-
-    if args.len() < 2 {
-        start_repl();
-    } else {
-        match run_script(&args[1]) {
-            Err(error) => {
-                eprintln!("{}", error);
-            }
-            Ok(_) => {}
-        };
-    }
+    parse_cli();
 }
 
 #[cfg(test)]

@@ -6,6 +6,7 @@ use crate::{
     ast::{Parser, syntax_error_report::syntax_error::SyntaxError},
     doc::symbol::doc_module::DocModule,
     lexer::Lexer,
+    module::Module,
     symbol::collector::symbol_collector::SymbolCollector,
 };
 
@@ -27,6 +28,11 @@ impl Documentation {
         Ok(Self {
             modules: vec![doc_module],
         })
+    }
+
+    pub fn from_single_file(path: &str) -> Result<Self, SyntaxError> {
+        let input = Module::read_source_file(path);
+        Self::from_single_input(&input)
     }
 
     pub fn from_project(_path: &str) -> Self {

@@ -26,3 +26,6 @@ pub mod symbol_test;
 
 #[cfg(test)]
 pub mod doc_test;
+
+#[cfg(test)]
+pub mod parsed_doc_comment_test;

@@ -21,8 +21,7 @@ enum Command {
     Doc {
         file: String,
 
-        #[arg(short, long)]
-        hmtl: bool,
+        html: bool,
 
         #[arg(short, long)]
         json: bool,
@@ -48,8 +47,8 @@ pub fn parse_cli() {
                 //todo run main.aloe
             }
         },
-        Command::Doc { file, hmtl, json } => {
-            if hmtl {
+        Command::Doc { file, html, json } => {
+            if html {
                 html_document_a_single_file(&file);
             } else if json {
                 json_document_a_single_file(&file);

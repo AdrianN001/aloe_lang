@@ -304,7 +304,7 @@ fn test_documentation_export() {
     ##
         struct Person{}
         ",
-            "{\"modules\":[{\"name\":\"single unit\",\"root_symbols\":[{\"id\":1,\"scope_id\":1,\"name\":\"Person\",\"kind\":\"Struct\",\"doc\":{\"raw_content\":\"Person documentation\"},\"children\":[]}]}]}",
+            "{\"modules\":[{\"name\":\"single unit\",\"root_symbols\":[{\"id\":1,\"scope_id\":1,\"name\":\"Person\",\"kind\":\"Struct\",\"doc\":{\"raw_content\":\"Person documentation\",\"parsed_content\":{\"Struct\":{\"description\":\"Person documentation\",\"example\":null}}},\"children\":[]}]}]}",
         ),
         (
             "enum State{}",

@@ -38,6 +38,8 @@ impl SymbolCollector {
             collector.collect_statement(statement)?;
         }
 
+        collector.parse_all_doc_comments();
+
         Ok(collector)
     }
 
@@ -83,5 +85,13 @@ impl SymbolCollector {
 
     pub fn get_global_symbol_map<'a>(&'a self) -> &'a HashMap<SymbolID, Symbol> {
         &self.table.symbol_map
+    }
+
+    fn parse_all_doc_comments(&mut self) {
+        for symbol in self.table.symbol_map.values_mut() {
+            if let Some(doc_comment) = &mut symbol.doc {
+                doc_comment.try_parse(symbol.kind);
+            }
+        }
     }
 }

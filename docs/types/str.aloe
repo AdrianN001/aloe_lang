@@ -2,7 +2,7 @@
 # datatype: str
 # UTF-8 encoded immutable string.
 # storage: heap
-# literal syntax:
+# example:
 #
 # ---str-literal.aloe---
 # let name = "Alice";

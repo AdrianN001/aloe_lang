@@ -6,10 +6,13 @@ use crate::{
         symbol_kind::SymbolKind,
     },
 };
+use crate::doc::doc_comment::parsed::ParsedDocComment;
 
+use askama::Template;
 use serde::{Deserialize, Serialize};
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize, Template)]
+#[template(path = "symbol.html")]
 pub struct DocSymbol {
     pub id: SymbolID,
     pub scope_id: ScopeID,

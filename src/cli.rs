@@ -21,6 +21,7 @@ enum Command {
     Doc {
         file: String,
 
+        #[arg(long)]
         html: bool,
 
         #[arg(short, long)]

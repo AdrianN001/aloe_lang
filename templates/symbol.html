@@ -1,0 +1,68 @@
+<div class="symbol-card">
+    <div class="symbol-header">
+        <span class="symbol-name">{{ name }}</span>
+        <span class="symbol-kind">{{ kind }}</span>
+    </div>
+    
+    <div class="symbol-doc">
+        {% if let Some(d) = doc %}
+            {% if let Some(parsed) = d.parsed_content %}
+                {% match parsed %}
+                    {% when ParsedDocComment::Function { declaration, description, panics, errors, example } %}
+                        <div class="doc-section">
+                            <pre class="doc-code-block"><code>{{ declaration }}</code></pre>
+                            <p class="doc-text">{{ description }}</p>
+                            
+                            {% if !panics.is_empty() %}
+                                <h5 class="doc-subtitle">Panics</h5>
+                                <ul class="doc-list">
+                                    {% for panic in panics %}
+                                        <li>{{ panic }}</li>
+                                    {% endfor %}
+                                </ul>
+                            {% endif %}
+
+                            {% if !errors.is_empty() %}
+                                <h5 class="doc-subtitle">Errors</h5>
+                                <ul class="doc-list">
+                                    {% for error in errors %}
+                                        <li>{{ error }}</li>
+                                    {% endfor %}
+                                </ul>
+                            {% endif %}
+
+                            {% if let Some(ex) = example %}
+                                <h5 class="doc-subtitle">Example</h5>
+                                <pre class="doc-code-block"><code>{{ ex }}</code></pre>
+                            {% endif %}
+                        </div>
+
+                    {% when ParsedDocComment::Struct { description, example } %}
+                        <div class="doc-section">
+                            <p class="doc-text">{{ description }}</p>
+                            
+                            {% if let Some(ex) = example %}
+                                <h5 class="doc-subtitle">Example</h5>
+                                <pre class="doc-code-block"><code>{{ ex }}</code></pre>
+                            {% endif %}
+                        </div>
+
+                {% endmatch %}
+            {% else %}
+                <p>{{ d.raw_content }}</p>
+            {% endif %} 
+        {% else %}
+            <!-- <p><em>No documentation provided.</em></p> -->
+        {% endif %}
+    </div>
+
+    {% if !children.is_empty() %}
+        <div class="symbol-children">
+            <h4 style="color: #153221; margin-bottom: 12px;">Members:</h4>
+            {% for child in children %}
+                <!-- Hier geschieht die Magie: Rust rendert das Kind und wir fügen das HTML ein -->
+                {{ child.render().unwrap()|safe }}
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>

@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aloe Documentation</title>
+    <style>
+        /* --- Base Theme (Aloe) --- */
+        :root {
+            --sidebar-bg: #153221;
+            --sidebar-hover: #1e452e;
+            --sidebar-text: #a1b8a8;
+            --sidebar-active-bg: #274d35;
+            --sidebar-active-text: #ffffff;
+            --main-bg: #fdfbf5;
+            --text-main: #1f2937;
+            --text-muted: #4b5563;
+            --accent-orange: #f59e0b;
+            --accent-green: #34d399;
+            --border-color: #e5e7eb;
+        }
+
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            display: flex;
+            height: 100vh;
+            background-color: var(--main-bg);
+            color: var(--text-main);
+        }
+
+        /* --- Sidebar --- */
+        .sidebar {
+            width: 260px;
+            background-color: var(--sidebar-bg);
+            color: var(--sidebar-text);
+            display: flex;
+            flex-direction: column;
+            padding: 20px 0;
+            overflow-y: auto;
+        }
+        .logo-area {
+            padding: 0 24px 24px 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .logo-icon {
+            background-color: var(--accent-orange);
+            color: var(--sidebar-bg);
+            border-radius: 8px;
+            padding: 8px;
+            font-weight: bold;
+        }
+        .nav-section { margin-bottom: 24px; }
+        .nav-title {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 0 24px;
+            margin-bottom: 8px;
+            color: #7b9481;
+        }
+        .nav-item {
+            padding: 8px 24px;
+            display: block;
+            text-decoration: none;
+            color: var(--sidebar-text);
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+        .nav-item:hover {
+            background-color: var(--sidebar-hover);
+            color: white;
+        }
+        .nav-item.active {
+            background-color: var(--sidebar-active-bg);
+            color: var(--sidebar-active-text);
+            border-radius: 0 16px 16px 0;
+            margin-right: 16px;
+        }
+
+        /* --- Main Content --- */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            background: radial-gradient(circle at top right, #f6f0dd, #fdfbf5 40%);
+        }
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            padding: 16px 40px;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            font-size: 0.9rem;
+        }
+        .breadcrumbs { color: var(--text-muted); }
+        .breadcrumbs strong { color: var(--text-main); }
+        
+        .content-area {
+            padding: 40px;
+            max-width: 900px;
+        }
+        h1 {
+            font-size: 3.5rem;
+            color: var(--sidebar-bg);
+            margin-bottom: 16px;
+            letter-spacing: -0.02em;
+        }
+
+        /* --- Documentation Symbols --- */
+        .symbol-card {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+        .symbol-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 12px;
+        }
+        .symbol-name {
+            font-size: 1.5rem;
+            font-weight: 600;
+            font-family: monospace;
+            color: var(--sidebar-bg);
+        }
+        .symbol-kind {
+            background-color: #f3f4f6;
+            color: var(--text-muted);
+            padding: 4px 10px;
+            border-radius: 9999px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+        .symbol-doc {
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+        .symbol-children {
+            margin-top: 20px;
+            padding-left: 24px;
+            border-left: 2px solid var(--border-color);
+        }
+
+/* --- Mobile Responsiveness --- */
+        @media (max-width: 768px) {
+            /* Layout von nebeneinander zu untereinander ändern */
+            body {
+                flex-direction: column;
+                height: auto;
+            }
+
+            /* Sidebar wird zu einem Bereich oben */
+            .sidebar {
+                width: 100%;
+                padding: 16px 0 0 0;
+            }
+
+            .logo-area {
+                padding: 0 20px 16px 20px;
+            }
+
+            /* Navigation horizontal scrollbar machen, damit sie keinen Platz wegnimmt */
+            .nav-section {
+                display: flex;
+                overflow-x: auto;
+                padding: 0 20px 16px 20px;
+                margin-bottom: 0;
+                white-space: nowrap;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            }
+            
+            .nav-title {
+                display: none; /* Auf dem Handy zur Platzersparnis ausblenden */
+            }
+
+            .nav-item {
+                padding: 8px 16px;
+            }
+
+            .nav-item.active {
+                border-radius: 16px; /* Auf Mobile überall abgerundet */
+                margin-right: 8px;
+            }
+
+            /* Hauptinhalt anpassen */
+            .topbar {
+                padding: 16px 20px;
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .content-area {
+                padding: 24px 20px;
+            }
+
+            h1 {
+                font-size: 2.2rem; /* Überschrift verkleinern */
+            }
+
+            /* Symbol-Karten für kleine Bildschirme optimieren */
+            .symbol-card {
+                padding: 16px;
+            }
+
+            .symbol-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+
+            .symbol-name {
+                font-size: 1.2rem;
+                word-break: break-all; /* Lange Funktionsnamen brechen um, statt das Layout zu sprengen */
+            }
+
+            .symbol-children {
+                padding-left: 12px;
+                margin-top: 16px;
+            }
+        }
+
+        /* --- ParsedDocComment Styles --- */
+        .doc-section {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .doc-text {
+            color: var(--text-muted);
+            line-height: 1.6;
+            margin: 0;
+        }
+
+        .doc-subtitle {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--sidebar-bg);
+            margin: 16px 0 4px 0;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 4px;
+        }
+
+        .doc-list {
+            margin: 0;
+            padding-left: 20px;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        .doc-list li {
+            margin-bottom: 4px;
+        }
+
+        /* Styling der Code-Blöcke (Declaration & Examples) angelehnt an das dunkle Aloe-Theme */
+        .doc-code-block {
+            background-color: #0b1f13; /* Sehr dunkles Waldgrün, passend zum Aloe-Terminal */
+            color: #d1d9d3; /* Helles, weiches Grün/Grau für Code */
+            padding: 16px;
+            border-radius: 8px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.9rem;
+            overflow-x: auto;
+            margin: 8px 0;
+            border: 1px solid #1a3c26;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar Layout mimicking grafik.png -->
+    <aside class="sidebar">
+        <div class="logo-area">
+            <div class="logo-icon">🌱</div>
+            <div>
+                <div style="font-weight: bold; color: white;">Aloe</div>
+                <div style="font-size: 0.75rem;">v0.1 · DOCS</div>
+            </div>
+        </div>
+
+        <div class="nav-section">
+            <div class="nav-title">API Reference</div>
+            <a href="#" class="nav-item active">Standard Library</a>
+            <a href="#" class="nav-item">Core Modules</a>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <header class="topbar">
+            <div class="breadcrumbs">
+                Docs / <strong>Standard Library</strong>
+            </div>
+            <div class="github-link">
+                <a href="#" style="color: inherit; text-decoration: none;">GitHub</a>
+            </div>
+        </header>
+
+       <div class="content-area">
+            <h1>API Documentation</h1>
+            <p style="font-size: 1.2rem; color: #4b5563; margin-bottom: 40px;">
+                Explore the built-in types, functions, and modules of Aloe.
+            </p>
+
+            <div class="symbols-list">
+                {% for sym in symbols %}
+                    <!-- Auch hier rendern wir die obersten Root-Symbole -->
+                    {{ sym.render().unwrap()|safe }}
+                {% endfor %}
+            </div>
+        </div> 
+    </main>
+
+</body>
+</html>

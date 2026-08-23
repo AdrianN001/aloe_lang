@@ -7,10 +7,6 @@ use crate::lexer::Lexer;
 
 #[derive(Hash, PartialOrd, Ord, Clone, PartialEq, Eq, Debug, Serialize, Deserialize)]
 pub enum ParsedDocComment {
-    Normal {
-        title: String,
-    },
-
     Function {
         declaration: String,
         description: String,

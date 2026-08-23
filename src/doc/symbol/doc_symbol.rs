@@ -1,3 +1,4 @@
+use crate::doc::doc_comment::parsed::ParsedDocComment;
 use crate::{
     doc::doc_comment::DocComment,
     symbol::{
@@ -6,7 +7,6 @@ use crate::{
         symbol_kind::SymbolKind,
     },
 };
-use crate::doc::doc_comment::parsed::ParsedDocComment;
 
 use askama::Template;
 use serde::{Deserialize, Serialize};
@@ -40,5 +40,24 @@ impl DocSymbol {
 
     pub fn add_child(&mut self, child: Self) {
         self.children.push(child);
+    }
+
+    pub fn get_name(&self) -> &str {
+        if self.kind == SymbolKind::Function
+            || self.kind == SymbolKind::AsyncFunction
+            || self.kind == SymbolKind::StructMethod
+            || self.kind == SymbolKind::StructAsyncMethod
+        {
+            if let Some(doc) = &self.doc {
+                if let Some(parsed) = &doc.parsed_content {
+                    if let ParsedDocComment::Function { declaration, .. } = parsed {
+                        return declaration;
+                    }
+                }
+            }
+            &self.name
+        } else {
+            &self.name
+        }
     }
 }

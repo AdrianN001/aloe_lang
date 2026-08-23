@@ -1,6 +1,6 @@
 <div class="symbol-card">
     <div class="symbol-header">
-        <span class="symbol-name">{{ name }}</span>
+        <span class="symbol-name">{{ self.get_name() }}</span>
         <span class="symbol-kind">{{ kind }}</span>
     </div>
     
@@ -10,7 +10,6 @@
                 {% match parsed %}
                     {% when ParsedDocComment::Function { declaration, description, panics, errors, example } %}
                         <div class="doc-section">
-                            <pre class="doc-code-block"><code>{{ declaration }}</code></pre>
                             <p class="doc-text">{{ description }}</p>
                             
                             {% if !panics.is_empty() %}

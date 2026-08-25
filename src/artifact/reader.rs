@@ -14,6 +14,7 @@ impl Program {
     }
 
     fn check_artifact(_artifact: &Artifact) -> Result<(), Box<dyn std::error::Error>> {
+        //TODO: Implement artifact version and aloe version checks here
         Ok(())
     }
 }

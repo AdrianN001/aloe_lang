@@ -1,10 +1,10 @@
-use std::{
-    collections::HashMap,
-    path::{Path, PathBuf},
-};
+use std::{collections::HashMap, path::PathBuf};
 
 use crate::{
-    module::{Module, ModuleRef, module_error::ModuleError, std_lib::STANDARD_LIBRARY_IDENTIFIER},
+    module::{
+        Module, ModuleRef, module_error::ModuleError, module_kind::ModuleKind,
+        std_lib::STANDARD_LIBRARY_IDENTIFIER,
+    },
     object::panic_obj::RuntimeSignal,
 };
 
@@ -15,10 +15,10 @@ pub struct ModuleLoader {
 }
 
 impl ModuleLoader {
-    pub fn new(root_file: &str) -> Self {
+    pub fn new(root_file: &PathBuf) -> Self {
         Self {
             cache: HashMap::new(),
-            root_file: Path::new(root_file).to_path_buf(),
+            root_file: root_file.to_path_buf(),
         }
     }
 
@@ -52,7 +52,7 @@ impl ModuleLoader {
             return Ok(module.clone());
         }
 
-        let module = Module::new(abs_path_str.to_string())?.to_reference();
+        let module = Module::new(abs_path_str.to_string(), ModuleKind::SourceFile)?.to_reference();
 
         self.set(module.clone());
 

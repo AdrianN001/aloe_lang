@@ -40,6 +40,10 @@ pub struct Parser {
     current_token: Token,
     peek_token: Token,
     pending_doc_comment: Option<Token>,
+
+    // flags
+    ignore_doc_comments: bool,
+    strip_token_value: bool,
 }
 
 impl Parser {
@@ -50,6 +54,8 @@ impl Parser {
             current_token: Token::simple(TokenType::Illegal, "\0", 0),
             peek_token: Token::simple(TokenType::Illegal, "\0", 0),
             pending_doc_comment: None,
+            ignore_doc_comments: false,
+            strip_token_value: false,
         };
 
         // both current_token und peek_token is set
@@ -67,6 +73,16 @@ impl Parser {
         self.report.push_token(&self.peek_token);
 
         self.current_token = self.peek_token.clone();
+
+        if self.strip_token_value
+            && !matches!(
+                self.current_token.token_type,
+                TokenType::Identifier | TokenType::String
+            )
+        {
+            self.current_token.literal = String::new();
+        }
+
         self.peek_token = self.lexer.next_token();
     }
 
@@ -87,6 +103,15 @@ impl Parser {
         }
 
         Ok(program)
+    }
+
+    // flags
+    pub fn set_ignore_doc_comments(&mut self, ignore: bool) {
+        self.ignore_doc_comments = ignore;
+    }
+
+    pub fn set_strip_token_value(&mut self, strip: bool) {
+        self.strip_token_value = strip;
     }
 
     pub fn handle_syntax_error(&mut self, error_feedback: SyntaxError) -> SyntaxErrorReport {
@@ -157,7 +182,9 @@ impl Parser {
             doc_comment: None,
         };
 
-        if let Some(doc_comment) = self.pending_doc_comment.take() {
+        if let Some(doc_comment) = self.pending_doc_comment.take()
+            && !self.ignore_doc_comments
+        {
             statement.set_doc_comment(doc_comment);
         }
 
@@ -191,7 +218,9 @@ impl Parser {
             doc_comment: None,
         };
 
-        if let Some(doc_comment) = self.pending_doc_comment.take() {
+        if let Some(doc_comment) = self.pending_doc_comment.take()
+            && !self.ignore_doc_comments
+        {
             statement.set_doc_comment(doc_comment);
         }
         Ok(Statement::Val(statement))
@@ -246,7 +275,9 @@ impl Parser {
 
         function.block = self.parse_block_statement()?;
 
-        if let Some(doc_comment) = self.pending_doc_comment.take() {
+        if let Some(doc_comment) = self.pending_doc_comment.take()
+            && !self.ignore_doc_comments
+        {
             function.set_doc_comment(doc_comment);
         }
 
@@ -466,7 +497,9 @@ impl Parser {
             doc_comment: None,
         };
 
-        if let Some(doc_comment) = potential_doc_comment_for_struct {
+        if let Some(doc_comment) = potential_doc_comment_for_struct
+            && !self.ignore_doc_comments
+        {
             statement.set_doc_comment(doc_comment);
         }
 
@@ -489,7 +522,9 @@ impl Parser {
             self.next_token();
             match self.current_token.token_type {
                 TokenType::DocComment => {
-                    self.pending_doc_comment = Some(self.current_token.clone());
+                    if !self.ignore_doc_comments {
+                        self.pending_doc_comment = Some(self.current_token.clone());
+                    }
                 }
                 TokenType::Identifier => {
                     // Struct attributes are currently not documentable.
@@ -590,7 +625,9 @@ impl Parser {
             doc_comment: None,
         };
 
-        if let Some(doc_comment) = self.pending_doc_comment.take() {
+        if let Some(doc_comment) = self.pending_doc_comment.take()
+            && !self.ignore_doc_comments
+        {
             statement.set_doc_comment(doc_comment);
         }
 

@@ -1,7 +1,10 @@
 use std::env;
 
 use crate::{
-    module::{Module, ModuleRef, module_error::ModuleError, module_loader::ModuleLoader},
+    module::{
+        Module, ModuleRef, module_error::ModuleError, module_kind::ModuleKind,
+        module_loader::ModuleLoader,
+    },
     object::panic_obj::RuntimeSignal,
     version::CURRENT_VERSION,
 };
@@ -36,7 +39,8 @@ impl ModuleLoader {
             return Ok(module.clone());
         }
 
-        let module = Module::new(module_location_in_std.to_string())?.to_reference();
+        let module =
+            Module::new(module_location_in_std.to_string(), ModuleKind::SourceFile)?.to_reference();
 
         self.set(module.clone());
 

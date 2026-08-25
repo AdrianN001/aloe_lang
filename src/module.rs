@@ -1,13 +1,14 @@
 pub mod module_error;
+pub mod module_kind;
 pub mod module_loader;
 pub mod std_lib;
 
 use std::{cell::RefCell, fs, path::PathBuf, rc::Rc};
 
 use crate::{
-    ast::Parser,
+    ast::{Parser, program::Program},
     lexer::Lexer,
-    module::{module_error::ModuleError, module_loader::ModuleLoader},
+    module::{module_error::ModuleError, module_kind::ModuleKind, module_loader::ModuleLoader},
     object::{
         Object,
         error::panic_type::PanicType,
@@ -28,10 +29,12 @@ pub struct Module {
     rel_path: PathBuf,
     abs_path: PathBuf,
     pub environ: Option<EnvRef>,
+    pub kind: ModuleKind,
 }
 
 impl Module {
-    pub fn new(name: String) -> Result<Self, ModuleError> {
+    //TODO: import
+    pub fn new(name: String, kind: ModuleKind) -> Result<Self, ModuleError> {
         let rel_path = PathBuf::from(name.clone());
 
         if !rel_path.is_file() {
@@ -47,6 +50,7 @@ impl Module {
             },
             rel_path,
             name,
+            kind,
             ..Default::default()
         })
     }
@@ -80,23 +84,16 @@ impl Module {
         self_ref: ModuleRef,
         module_loader: &mut ModuleLoader,
     ) -> Result<(), RuntimeSignal> {
-        let (name, abs_path) = {
+        let kind = {
             let borrow = self_ref.borrow();
-            (borrow.name.clone(), borrow.abs_path.display().to_string())
+            borrow.kind.clone()
         };
 
-        let source_file_content = Self::read_source_file(&abs_path);
-
-        let lexer = Lexer::new(source_file_content);
-        let parser = Parser::new(lexer);
-        let program = match parser.into_a_program() {
-            Ok(program) => program,
-            Err(err) => {
-                return Err(RuntimeSignal::Panic(PanicObj::new(
-                    PanicType::WrongSyntax,
-                    format!("Syntax error in module '{}': \n{}", name, err),
-                    Rc::new(RefCell::new(InterpreterState::default())),
-                )));
+        let program = {
+            let self_borrow = self_ref.borrow();
+            match kind {
+                ModuleKind::SourceFile => self_borrow.get_program_from_source_file()?,
+                ModuleKind::ArtifactFile => self_borrow.get_program_from_artifact_file()?,
             }
         };
 
@@ -137,6 +134,45 @@ impl Module {
             value: module_loader.root_file.display().to_string(),
         })));
         environment.insert_with_val_binding("__main__", root_file);
+    }
+
+    fn get_program_from_source_file(&self) -> Result<Program, RuntimeSignal> {
+        let source_file_content = Self::read_source_file(&self.abs_path.display().to_string());
+
+        let lexer = Lexer::new(source_file_content);
+        let parser = Parser::new(lexer);
+        match parser.into_a_program() {
+            Ok(program) => Ok(program),
+            Err(err) => Err(RuntimeSignal::Panic(PanicObj::new(
+                PanicType::WrongSyntax,
+                format!("Syntax error in module '{}': \n{}", self.name, err),
+                Rc::new(RefCell::new(InterpreterState::default())),
+            ))),
+        }
+    }
+
+    fn get_program_from_artifact_file(&self) -> Result<Program, RuntimeSignal> {
+        let artifact = match crate::artifact::reader::read_artifact_from_file(
+            &self.abs_path.display().to_string(),
+        ) {
+            Ok(artifact) => artifact,
+            Err(err) => {
+                return Err(RuntimeSignal::Panic(PanicObj::new(
+                    PanicType::WrongSyntax,
+                    format!("Error reading artifact file '{}': \n{}", self.name, err),
+                    Rc::new(RefCell::new(InterpreterState::default())),
+                )));
+            }
+        };
+
+        match Program::from_artifact(artifact) {
+            Ok(program) => Ok(program),
+            Err(err) => Err(RuntimeSignal::Panic(PanicObj::new(
+                PanicType::WrongSyntax,
+                format!("Error parsing artifact file '{}': \n{}", self.name, err),
+                Rc::new(RefCell::new(InterpreterState::default())),
+            ))),
+        }
     }
 
     pub fn to_reference(self) -> ModuleRef {

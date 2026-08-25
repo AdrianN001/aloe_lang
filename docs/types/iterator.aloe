@@ -1,0 +1,56 @@
+##
+# datatype: iterator
+# lazily produces a sequence of values.
+# storage: heap
+# example:
+#
+# ---iterator-usage.aloe---
+# let it = [1, 2, 3].as_iter();
+# while it.has_next(){
+#     println(it.next()!);
+# }
+#
+##
+struct iterator{
+
+    ##
+    # iterator.has_next() -> bool
+    # returns true if there are more values to produce.
+    # panics: [WrongArgumentCount]
+    # errors: []
+    # example:
+    #
+    # ---has_next.aloe---
+    # let it = [1].as_iter();
+    # it.has_next(); # true
+    #
+    ##
+    fun has_next(this){}
+
+    ##
+    # iterator.next()? -> any
+    # returns the next value, or an error if the iterator ran out.
+    # panics: [WrongArgumentCount]
+    # errors: [IteratorRanOut]
+    # example:
+    #
+    # ---next.aloe---
+    # let it = [1, 2].as_iter();
+    # it.next()!; # 1
+    #
+    ##
+    fun next(this){}
+
+    ##
+    # iterator.collect() -> array
+    # consumes the iterator and collects all remaining values into an array.
+    # panics: [WrongArgumentCount]
+    # errors: []
+    # example:
+    #
+    # ---collect.aloe---
+    # [1, 2, 3].as_iter().collect(); # [1, 2, 3]
+    #
+    ##
+    fun collect(this){}
+}

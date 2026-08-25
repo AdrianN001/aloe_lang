@@ -12,7 +12,7 @@
 struct str{
 
     ##
-    # str.length() -> int
+    # str.length -> int
     # returns the number of bytes in the string.
     # panics: []
     # errors: []
@@ -20,15 +20,15 @@ struct str{
     #
     # ---length.aloe---
     # let text = "Hello";
-    # text.length(); # 5
+    # text.length; # 5
     #
     ##
-    fun length(this){}
+    fun length(){}
 
     ##
-    # str.reversed()
+    # str.reversed() -> str
     # returns a reversed copy of the string.
-    # panics: []
+    # panics: [WrongArgumentCount]
     # errors: []
     # example:
     #
@@ -42,7 +42,7 @@ struct str{
     ##
     # str.chars() -> iterator
     # returns an iterator over all characters.
-    # panics: []
+    # panics: [WrongArgumentCount]
     # errors: []
     # example:
     #
@@ -57,7 +57,7 @@ struct str{
     ##
     # str.as_float()? -> float
     # converts the string into a float.
-    # panics: []
+    # panics: [WrongArgumentCount]
     # errors: [InvalidFloat]
     # example:
     #
@@ -68,22 +68,22 @@ struct str{
     fun as_float(this){}
 
     ##
-    # str.as_int()? -> int
+    # str.as_int(radix?: int)? -> int
     # converts the string into an integer.
-    # panics: []
-    # errors: [InvalidInteger]
+    # panics: [WrongArgumentCount, WrongArgumentType]
+    # errors: [WrongRadix, InvalidInteger]
     # example:
     #
     # ---as_int.aloe---
     # "42".as_int()!; # 42
     #
     ##
-    fun as_int(this){}
+    fun as_int(this, radix){}
 
     ##
     # str.as_str() -> str
     # returns a copy of the string.
-    # panics: []
+    # panics: [WrongArgumentCount]
     # errors: []
     # example:
     #
@@ -97,7 +97,7 @@ struct str{
     ##
     # str.as_buffer() -> buffer
     # converts the string into a UTF-8 buffer.
-    # panics: []
+    # panics: [WrongArgumentCount]
     # errors: []
     # example:
     #
@@ -108,9 +108,9 @@ struct str{
     fun as_buffer(this){}
 
     ##
-    # str.strip() -> str
+    # str.strip(pattern?: str) -> str
     # removes leading and trailing whitespace.
-    # panics: []
+    # panics: [WrongArgumentCount]
     # errors: []
     # example:
     #
@@ -118,12 +118,12 @@ struct str{
     # " hello ".strip(); # "hello"
     #
     ##
-    fun strip(this){}
+    fun strip(this, pattern){}
 
     ##
-    # str.lstrip() -> str
+    # str.lstrip(pattern?: str) -> str
     # removes leading whitespace.
-    # panics: []
+    # panics: [WrongArgumentCount]
     # errors: []
     # example:
     #
@@ -131,12 +131,12 @@ struct str{
     # " hello".lstrip(); # "hello"
     #
     ##
-    fun lstrip(this){}
+    fun lstrip(this, pattern){}
 
     ##
-    # str.rstrip() -> str
+    # str.rstrip(pattern?: str) -> str
     # removes trailing whitespace.
-    # panics: []
+    # panics: [WrongArgumentCount]
     # errors: []
     # example:
     #
@@ -144,10 +144,10 @@ struct str{
     # "hello ".rstrip(); # "hello"
     #
     ##
-    fun rstrip(this){}
+    fun rstrip(this, pattern){}
 
     ##
-    # str.replace(old: str, new: str) -> str
+    # str.replace(old: str, new: str, count?: int) -> str
     # replaces all occurrences of a substring.
     # panics: [WrongArgumentType, WrongArgumentCount]
     # errors: []
@@ -158,7 +158,7 @@ struct str{
     # # "hexxo"
     #
     ##
-    fun replace(this, old, new){}
+    fun replace(this, old, new, count){}
 
     ##
     # str.contains(value: str) -> bool
@@ -177,7 +177,7 @@ struct str{
     ##
     # str.slice(start: int, end: int) -> str
     # returns a substring.
-    # panics: [IndexOutOfBounds]
+    # panics: [WrongArgumentCount, WrongArgumentType, IndexOutOfBounds]
     # errors: []
     # example:
     #
@@ -189,7 +189,7 @@ struct str{
     fun slice(this, start, end){}
 
     ##
-    # str.split(separator: str) -> array
+    # str.split(separator?: str) -> array
     # splits the string into an array.
     # panics: [WrongArgumentCount, WrongArgumentType]
     # errors: []
@@ -204,7 +204,7 @@ struct str{
     ##
     # str.clone() -> str
     # returns a copy of the string.
-    # panics: []
+    # panics: [WrongArgumentCount]
     # errors: []
     #
     ##
@@ -213,6 +213,8 @@ struct str{
     ##
     # str.to_lower() -> str
     # converts all characters to lowercase.
+    # panics: [WrongArgumentCount]
+    # errors: []
     #
     ##
     fun to_lower(this){}
@@ -220,48 +222,48 @@ struct str{
     ##
     # str.to_upper() -> str
     # converts all characters to uppercase.
-    #
+    # panics: [WrongArgumentCount]
+    # errors: []
     ##
     fun to_upper(this){}
 
     ##
     # str.is_empty() -> bool
     # returns true if the string contains no characters.
-    #
+    # panics: [WrongArgumentCount]
+    # errors: []
     ##
     fun is_empty(this){}
 
     ##
     # str.is_ascii() -> bool
     # returns true if all characters are ASCII.
-    #
+    # panics: [WrongArgumentCount]
+    # errors: []
     ##
     fun is_ascii(this){}
 
     ##
-    # str.is_digit()
+    # str.is_digit() -> bool
     # returns true if all characters are digits.
-    # params: []
-    # returns: bool
-    #
+    # panics: [WrongArgumentCount]
+    # errors: []
     ##
     fun is_digit(this){}
 
     ##
-    # str.starts_with()
+    # str.starts_with(prefix: str) -> bool
     # checks whether the string starts with a prefix.
-    # params: [prefix: str]
-    # returns: bool
-    #
+    # panics: [WrongArgumentCount, WrongArgumentType]
+    # errors: []
     ##
     fun starts_with(this, prefix){}
 
     ##
-    # str.ends_with()
+    # str.ends_with(prefix: str) -> bool
     # checks whether the string ends with a suffix.
-    # params: [suffix: str]
-    # returns: bool
-    #
+    # panics: [WrongArgumentCount, WrongArgumentType]
+    # errors: []
     ##
     fun ends_with(this, suffix){}
 }

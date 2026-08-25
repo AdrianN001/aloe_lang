@@ -24,9 +24,9 @@ impl Buffer {
         state: StateRef,
     ) -> Result<ObjectRef, PanicObj> {
         match name {
-            "clone" => self.clone(),
-            "as_str" => self.to_str(state),
-            "as_arr" => self.to_arr(),
+            "clone" => self.clone(args, state),
+            "as_str" => self.to_str(args, state),
+            "as_arr" => self.to_arr(args, state),
             "slice" => self.slice(args, state),
 
             _ => Err(PanicObj::new(
@@ -45,14 +45,36 @@ impl Buffer {
     }
 
     // methods
-    fn clone(&self) -> Result<ObjectRef, PanicObj> {
+    fn clone(&self, args: &[ObjectRef], state: StateRef) -> Result<ObjectRef, PanicObj> {
+        if args.len() != 0 {
+            return Err(PanicObj::new(
+                PanicType::WrongArgumentCount,
+                format!(
+                    "expected {} arguments for buffer.clone(), got: {}",
+                    0,
+                    args.len()
+                ),
+                state,
+            ));
+        }
         Ok(new_objectref(Object::Buffer(Box::new(Buffer {
             data: self.data.clone(),
             size: self.size,
         }))))
     }
 
-    fn to_str(&self, state: StateRef) -> Result<ObjectRef, PanicObj> {
+    fn to_str(&self, args: &[ObjectRef], state: StateRef) -> Result<ObjectRef, PanicObj> {
+        if args.len() != 0 {
+            return Err(PanicObj::new(
+                PanicType::WrongArgumentCount,
+                format!(
+                    "expected {} arguments for buffer.as_str(), got: {}",
+                    0,
+                    args.len()
+                ),
+                state,
+            ));
+        }
         let str = match str::from_utf8(&self.data) {
             Ok(str) => str.to_string(),
             Err(err_feedback) => {
@@ -69,7 +91,18 @@ impl Buffer {
         }))))
     }
 
-    fn to_arr(&self) -> Result<ObjectRef, PanicObj> {
+    fn to_arr(&self, args: &[ObjectRef], state: StateRef) -> Result<ObjectRef, PanicObj> {
+        if args.len() != 0 {
+            return Err(PanicObj::new(
+                PanicType::WrongArgumentCount,
+                format!(
+                    "expected {} arguments for buffer.as_arr(), got: {}",
+                    0,
+                    args.len()
+                ),
+                state,
+            ));
+        }
         let arr_of_ints = self
             .data
             .iter()

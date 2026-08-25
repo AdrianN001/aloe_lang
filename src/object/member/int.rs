@@ -53,7 +53,7 @@ impl Integer {
 }
 
 impl Integer {
-    // Attributes
+    // Methods
 
     pub fn is_negative(&self) -> ObjectRef {
         new_objectref(Object::Bool(Boolean {
@@ -67,12 +67,10 @@ impl Integer {
         }))
     }
 
-    // Methods
-
     pub fn as_str(&self, args: &[ObjectRef], state: StateRef) -> Result<ObjectRef, PanicObj> {
         let radix = match args.len() {
             0 => 10,
-            _ => match &*args[0].borrow() {
+            1 => match &*args[0].borrow() {
                 Object::Int(int) => {
                     if int.value == 2 || int.value == 8 || int.value == 16 {
                         int.value
@@ -95,6 +93,13 @@ impl Integer {
                     ));
                 }
             },
+            other => {
+                return Err(PanicObj::new(
+                    PanicType::WrongArgumentCount,
+                    format!("expected 0 or 1 arguments for int.as_str(), got: {}", other),
+                    state,
+                ));
+            }
         };
 
         let int_as_str = match radix {

@@ -1,0 +1,216 @@
+##
+# datatype: hashmap
+# unordered collection of key-value pairs.
+# storage: heap
+# example:
+#
+# ---hashmap-literal.aloe---
+# let map = {};
+# map.set("a", 1);
+#
+##
+struct hashmap{
+
+    ##
+    # hashmap.length -> int
+    # returns the number of key-value pairs.
+    # panics: []
+    # errors: []
+    # example:
+    #
+    # ---length.aloe---
+    # let map = {};
+    # map.set("a", 1);
+    # map.length; # 1
+    #
+    ##
+    fun length(){}
+
+    ##
+    # hashmap.keys -> array
+    # returns an array of all keys.
+    # panics: []
+    # errors: []
+    # example:
+    #
+    # ---keys.aloe---
+    # let map = {};
+    # map.set("a", 1);
+    # map.keys; # ["a"]
+    #
+    ##
+    fun keys(){}
+
+    ##
+    # hashmap.values -> array
+    # returns an array of all values.
+    # panics: []
+    # errors: []
+    # example:
+    #
+    # ---values.aloe---
+    # let map = {};
+    # map.set("a", 1);
+    # map.values; # [1]
+    #
+    ##
+    fun values(){}
+
+    ##
+    # hashmap.items -> array
+    # returns an array of [key, value] pairs.
+    # panics: []
+    # errors: []
+    # example:
+    #
+    # ---items.aloe---
+    # let map = {};
+    # map.set("a", 1);
+    # map.items; # [["a", 1]]
+    #
+    ##
+    fun items(){}
+
+    ##
+    # hashmap.set(key: any, value: any) -> any
+    # sets the value for a key and returns it.
+    # panics: [WrongArgumentCount]
+    # errors: [ErrorFromPanic]
+    # example:
+    #
+    # ---set.aloe---
+    # let map = {};
+    # map.set("a", 1); # 1
+    #
+    ##
+    fun set(this, key, value){}
+
+    ##
+    # hashmap.get(key: any, default?: any)? -> any
+    # returns the value for a key, or the given default if the key is missing.
+    # panics: [WrongArgumentCount]
+    # errors: [ErrorFromPanic, ItemNotFound]
+    # example:
+    #
+    # ---get.aloe---
+    # let map = {};
+    # map.set("a", 1);
+    # map.get("a")!; # 1
+    #
+    ##
+    fun get(this, key, default){}
+
+    ##
+    # hashmap.pop(key: any, default?: any)? -> any
+    # removes and returns the value for a key, or the given default if the key is missing.
+    # panics: [WrongArgumentCount]
+    # errors: [ErrorFromPanic, ItemNotFound]
+    # example:
+    #
+    # ---pop.aloe---
+    # let map = {};
+    # map.set("a", 1);
+    # map.pop("a")!; # 1
+    #
+    ##
+    fun pop(this, key, default){}
+
+    ##
+    # hashmap.setdefault(key: any, default?: any) -> any
+    # returns the value for a key, setting it to the given default (or null) first if missing.
+    # panics: [WrongArgumentCount]
+    # errors: [ErrorFromPanic]
+    # example:
+    #
+    # ---setdefault.aloe---
+    # let map = {};
+    # map.setdefault("a", 1); # 1
+    #
+    ##
+    fun setdefault(this, key, default){}
+
+    ##
+    # hashmap.update(other: hashmap|array) -> null
+    # inserts all pairs from another hashmap, or from an array of [key, value] pairs.
+    # panics: [WrongArgumentCount, WrongArgumentType]
+    # errors: [ErrorFromPanic]
+    # example:
+    #
+    # ---update.aloe---
+    # let map = {};
+    # map.update([["a", 1], ["b", 2]]);
+    #
+    ##
+    fun update(this, other){}
+
+    ##
+    # hashmap.remove(key: any) -> bool
+    # removes a key-value pair, returning true if the key existed.
+    # panics: [WrongArgumentCount]
+    # errors: [ErrorFromPanic]
+    # example:
+    #
+    # ---remove.aloe---
+    # let map = {};
+    # map.set("a", 1);
+    # map.remove("a"); # true
+    #
+    ##
+    fun remove(this, key){}
+
+    ##
+    # hashmap.clear() -> null
+    # removes all key-value pairs.
+    # panics: [WrongArgumentCount]
+    # errors: []
+    # example:
+    #
+    # ---clear.aloe---
+    # let map = {};
+    # map.set("a", 1);
+    # map.clear();
+    #
+    ##
+    fun clear(this){}
+
+    ##
+    # hashmap.has_key(key: any) -> bool
+    # checks whether the hashmap contains the given key.
+    # panics: [WrongArgumentCount]
+    # errors: [ErrorFromPanic]
+    # example:
+    #
+    # ---has_key.aloe---
+    # let map = {};
+    # map.set("a", 1);
+    # map.has_key("a"); # true
+    #
+    ##
+    fun has_key(this, key){}
+
+    ##
+    # hashmap.as_iter() -> iterator
+    # returns an iterator yielding [key, value] pairs.
+    # panics: [WrongArgumentCount]
+    # errors: []
+    # example:
+    #
+    # ---as_iter.aloe---
+    # let map = {};
+    # map.set("a", 1);
+    # for pair <- map.as_iter(){
+    #     println(pair);
+    # }
+    #
+    ##
+    fun as_iter(this){}
+
+    ##
+    # hashmap.clone() -> hashmap
+    # returns a deep copy of the hashmap.
+    # panics: [WrongArgumentCount]
+    # errors: []
+    #
+    ##
+    fun clone(this){}
+}

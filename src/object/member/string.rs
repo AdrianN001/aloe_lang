@@ -18,8 +18,7 @@ use crate::object::{
 impl StringObj {
     pub fn apply_attribute(&self, name: &str, state: StateRef) -> Result<ObjectRef, PanicObj> {
         match name {
-            "length" => Ok(self.length()),
-
+            "length" => self.length(),
             _ => Err(PanicObj::new(
                 PanicType::UnknownAttribute,
                 format!("unknown attribute for string: '{}'", name),
@@ -70,15 +69,12 @@ impl StringObj {
         }
     }
 
-    // Attributes
-
-    fn length(&self) -> ObjectRef {
-        Rc::new(RefCell::new(Object::Int(Integer {
-            value: self.value.len() as i64,
-        })))
-    }
-
     // Methods
+    fn length(&self) -> Result<ObjectRef, PanicObj> {
+        Ok(Rc::new(RefCell::new(Object::Int(Integer {
+            value: self.value.len() as i64,
+        }))))
+    }
 
     fn reversed(&self, args: &[ObjectRef], state: StateRef) -> Result<ObjectRef, PanicObj> {
         if !args.is_empty() {
@@ -267,7 +263,7 @@ impl StringObj {
     fn as_int(&self, args: &[ObjectRef], state: StateRef) -> Result<ObjectRef, PanicObj> {
         let radix = match args.len() {
             0 => 10,
-            _ => match &*args[0].borrow() {
+            1 => match &*args[0].borrow() {
                 Object::Int(int) => {
                     if int.value == 2 || int.value == 8 || int.value == 16 {
                         int.value
@@ -290,6 +286,13 @@ impl StringObj {
                     ));
                 }
             },
+            other => {
+                return Err(PanicObj::new(
+                    PanicType::WrongArgumentCount,
+                    format!("expected 0 or 1 arguments for str.as_int(), got: {}", other),
+                    state,
+                ));
+            }
         };
 
         match i64::from_str_radix(&self.value, radix as u32) {
@@ -543,7 +546,7 @@ impl StringObj {
     fn split(&self, args: &[ObjectRef], state: StateRef) -> Result<ObjectRef, PanicObj> {
         let split_value = if args.is_empty() {
             return self.chars(args, state);
-        } else {
+        } else if args.len() == 1 {
             match &*args[0].borrow() {
                 Object::String(str) => str.value.clone(),
                 other_type => {
@@ -557,6 +560,15 @@ impl StringObj {
                     ));
                 }
             }
+        } else {
+            return Err(PanicObj::new(
+                PanicType::WrongArgumentCount,
+                format!(
+                    "expected 0 or 1 arguments for string.split(), got: {}",
+                    args.len()
+                ),
+                state,
+            ));
         };
 
         if split_value.is_empty() {

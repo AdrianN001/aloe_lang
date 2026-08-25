@@ -43,24 +43,24 @@ impl Array {
         state: StateRef,
     ) -> Result<ObjectRef, PanicObj> {
         match name {
-            "reversed" => Ok(self.reversed()),
+            "reversed" => self.reversed(args, state),
             "push" => self.push(args, state),
             "extend" => self.extend(args, state),
-            "clear" => Ok(self.clear()),
+            "clear" => self.clear(args, state),
 
             "remove" => self.remove(args, state),
             "slice" => self.slice(args, state),
             "insert" => self.insert(args, state),
 
-            "clone" => Ok(self.deep_copy()),
+            "clone" => self.deep_copy(args, state),
             "contains" => self.contains(args, state),
 
             "map" => self.map(args, state),
             "filter" => self.filter(args, state),
 
-            "as_iter" => Ok(self.as_iter()),
+            "as_iter" => self.as_iter(args, state),
             "as_buffer" => self.as_buffer(args, state),
-            "enumerate" => self.enumerate(),
+            "enumerate" => self.enumerate(args, state),
             "zip" => self.zip(args, state),
             "join" => self.join(args, state),
 
@@ -82,20 +82,40 @@ impl Array {
 
     // Methods
 
-    fn reversed(&mut self) -> ObjectRef {
-        Rc::new(RefCell::new(Object::Array(Box::new(Array {
+    fn reversed(&mut self, args: &[ObjectRef], state: StateRef) -> Result<ObjectRef, PanicObj> {
+        if !args.is_empty() {
+            return Err(PanicObj::new(
+                PanicType::WrongArgumentCount,
+                format!(
+                    "array.reversed() takes no arguments, but {} were provided",
+                    args.len()
+                ),
+                state,
+            ));
+        }
+        Ok(Rc::new(RefCell::new(Object::Array(Box::new(Array {
             items: self.items.iter().rev().map(|item| item.clone()).collect(),
-        }))))
+        })))))
     }
 
-    fn deep_copy(&self) -> ObjectRef {
-        Rc::new(RefCell::new(Object::Array(Box::new(Array {
+    fn deep_copy(&self, args: &[ObjectRef], state: StateRef) -> Result<ObjectRef, PanicObj> {
+        if !args.is_empty() {
+            return Err(PanicObj::new(
+                PanicType::WrongArgumentCount,
+                format!(
+                    "array.clone() takes no arguments, but {} were provided",
+                    args.len()
+                ),
+                state,
+            ));
+        }
+        Ok(Rc::new(RefCell::new(Object::Array(Box::new(Array {
             items: self
                 .items
                 .iter()
                 .map(|item| Object::deep_copy(item.clone()))
                 .collect(),
-        }))))
+        })))))
     }
 
     fn push(&mut self, args: &[ObjectRef], state: StateRef) -> Result<ObjectRef, PanicObj> {
@@ -272,10 +292,14 @@ impl Array {
     }
 
     fn extend(&mut self, args: &[ObjectRef], state: StateRef) -> Result<ObjectRef, PanicObj> {
-        if args.is_empty() {
+        if args.len() != 1 {
             return Err(PanicObj::new(
                 PanicType::WrongArgumentCount,
-                format!("expected {} arguments for array.extend(), got: {}", 1, 0),
+                format!(
+                    "expected {} arguments for array.extend(), got: {}",
+                    1,
+                    args.len()
+                ),
                 state,
             ));
         }
@@ -293,7 +317,7 @@ impl Array {
                 return Err(PanicObj::new(
                     PanicType::WrongArgumentType,
                     format!(
-                        "expected the first argument to be a list, got: {}",
+                        "expected the first argument to be an array, got: {}",
                         other_type.get_type()
                     ),
                     state,
@@ -304,10 +328,20 @@ impl Array {
         Ok(Rc::new(RefCell::new(Object::Null(Null {}))))
     }
 
-    fn clear(&mut self) -> ObjectRef {
+    fn clear(&mut self, args: &[ObjectRef], state: StateRef) -> Result<ObjectRef, PanicObj> {
+        if !args.is_empty() {
+            return Err(PanicObj::new(
+                PanicType::WrongArgumentCount,
+                format!(
+                    "array.clear() takes no arguments, but {} were provided",
+                    args.len()
+                ),
+                state,
+            ));
+        }
         self.items.clear();
 
-        Rc::new(RefCell::new(Object::Null(Null {})))
+        Ok(Rc::new(RefCell::new(Object::Null(Null {}))))
     }
 
     fn contains(&mut self, args: &[ObjectRef], state: StateRef) -> Result<ObjectRef, PanicObj> {
@@ -329,10 +363,14 @@ impl Array {
     }
 
     fn map(&mut self, args: &[ObjectRef], state: StateRef) -> Result<ObjectRef, PanicObj> {
-        if args.is_empty() {
+        if args.len() != 1 {
             return Err(PanicObj::new(
                 PanicType::WrongArgumentCount,
-                "no function was provided for map".into(),
+                format!(
+                    "expected {} arguments for array.map(), got: {}",
+                    1,
+                    args.len()
+                ),
                 state,
             ));
         }
@@ -373,10 +411,14 @@ impl Array {
     }
 
     fn filter(&mut self, args: &[ObjectRef], state: StateRef) -> Result<ObjectRef, PanicObj> {
-        if args.is_empty() {
+        if args.len() != 1 {
             return Err(PanicObj::new(
                 PanicType::WrongArgumentCount,
-                "expected 1 arguments for array.filter(), got: 0".into(),
+                format!(
+                    "expected {} arguments for array.filter(), got: {}",
+                    1,
+                    args.len()
+                ),
                 state,
             ));
         }
@@ -420,10 +462,20 @@ impl Array {
         ))
     }
 
-    fn as_iter(&self) -> ObjectRef {
-        Rc::new(RefCell::new(Object::Iterator(Box::new(
+    fn as_iter(&self, args: &[ObjectRef], state: StateRef) -> Result<ObjectRef, PanicObj> {
+        if !args.is_empty() {
+            return Err(PanicObj::new(
+                PanicType::WrongArgumentCount,
+                format!(
+                    "expected 0 argument for array.as_iter(), got: {}",
+                    args.len()
+                ),
+                state,
+            ));
+        }
+        Ok(Rc::new(RefCell::new(Object::Iterator(Box::new(
             self.build_iterator(),
-        ))))
+        )))))
     }
 
     fn as_buffer(&self, args: &[ObjectRef], state: StateRef) -> Result<ObjectRef, PanicObj> {
@@ -489,7 +541,7 @@ impl Array {
     fn join(&self, args: &[ObjectRef], state: StateRef) -> Result<ObjectRef, PanicObj> {
         let join_str_value = if args.is_empty() {
             "".to_string()
-        } else {
+        } else if args.len() == 1 {
             match &*args[0].borrow() {
                 Object::String(str) => str.value.clone(),
                 other_type => {
@@ -503,6 +555,15 @@ impl Array {
                     ));
                 }
             }
+        } else {
+            return Err(PanicObj::new(
+                PanicType::WrongArgumentCount,
+                format!(
+                    "expected 0 or 1 argument for array.join(), got: {}",
+                    args.len()
+                ),
+                state,
+            ));
         };
 
         let mut strings = Vec::new();
@@ -533,7 +594,17 @@ impl Array {
         })))))
     }
 
-    fn enumerate(&self) -> Result<ObjectRef, PanicObj> {
+    fn enumerate(&self, args: &[ObjectRef], state: StateRef) -> Result<ObjectRef, PanicObj> {
+        if !args.is_empty() {
+            return Err(PanicObj::new(
+                PanicType::WrongArgumentCount,
+                format!(
+                    "array.enumerate() takes no arguments, but {} were provided",
+                    args.len()
+                ),
+                state,
+            ));
+        }
         let enumerator_iterator = Iterator::EnumeratorIterator(EnumeratorIterator {
             list: self.items.clone(),
             index: 0,

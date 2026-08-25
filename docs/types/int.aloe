@@ -1,130 +1,129 @@
 ##
 # datatype: int
-# Signed 64-bit intger.
+# 64-bit signed integer.
 # storage: stack
-# literal syntax:
-# 
-# ---int-literal.aloe---
-# let n = 42;
-# let big = 1_000_000;
+# example:
 #
-# let hex = 0xc0ffee;
-# let bin = 0b1100_0011;
-# let octa = 0o10;
+# ---int-literal.aloe---
+# let count = 42;
+# let negative = -7;
+#
 ##
 struct int{
-	##
-	# int.is_positive
-	# returns true, if the number is positive.
-	# type: bool
-	# example:
-	#
-	# ---is_positive.aloe---
-	# let number = 10;
-	# number.is_positive # returns true
-	# let negative_number = -10;
-	# negative_number.is_positive # returns false
-	#
-	##
-	fun is_positive(this){}
 
-	##
-	# int.is_negative
-	# returns true, if the number is negative.
-	# type: bool
-	# example:
-	#
-	# ---is_negative.aloe---
-	# let number = 10;
-	# number.is_negative # returns false
-	# let negative_number = -10;
-	# negative_number.is_negative # returns true
-	#
-	##
-	fun is_negative(this){}
+    ##
+    # int.is_negative -> bool
+    # returns true if the value is negative.
+    # panics: []
+    # errors: []
+    # example:
+    #
+    # ---is_negative.aloe---
+    # let n = -5;
+    # n.is_negative; # true
+    #
+    ##
+    fun is_negative(){}
 
-	##
-	# int.as_str()
-	# returns a decimal string representation.
-	# params: []
-	# returns: str
-	# panics: []
-	# errors: []
-	# example:
-	#
-	# ---as_str.aloe---
-	# let number = 10;
-	# let number_str = 10.as_str();  # "10"
-	#
-	##
-	fun as_str(this){}
+    ##
+    # int.is_positive -> bool
+    # returns true if the value is positive.
+    # panics: []
+    # errors: []
+    # example:
+    #
+    # ---is_positive.aloe---
+    # let n = 5;
+    # n.is_positive; # true
+    #
+    ##
+    fun is_positive(){}
 
-	##
-	# int.as_float()
-	# returns a 64-bit float.
-	# params: []
-	# returns: float
-	# panics: []
-	# errors: []
-	# example:
-	#
-	# ---as_float.aloe---
-	# let number = 10;
-	# let number_float = 10.as_float();  # 10.0
-	#
-	##
-	fun as_float(this){}
+    ##
+    # int.as_str(radix?: int) -> str
+    # converts the integer into a string, optionally using a radix (2, 8 or 16).
+    # panics: [WrongArgumentCount, WrongArgumentType]
+    # errors: [WrongRadix]
+    # example:
+    #
+    # ---as_str.aloe---
+    # 42.as_str(); # "42"
+    # 255.as_str(16); # "ff"
+    #
+    ##
+    fun as_str(this, radix){}
 
-	##
-	# int.as_int()
-	# returns a copy of the integer.
-	# params: []
-	# returns: int
-	# panics: []
-	# errors: []
-	# example:
-	#
-	# ---as_int.aloe---
-	# let number = 10;
-	# let other_number = 10.as_int();
-	# number == other_number	# true
-	#
-	##
-	fun as_int(this){}
+    ##
+    # int.as_float() -> float
+    # converts the integer into a float.
+    # panics: [WrongArgumentCount]
+    # errors: []
+    # example:
+    #
+    # ---as_float.aloe---
+    # 42.as_float(); # 42.0
+    #
+    ##
+    fun as_float(this){}
 
-	##
-	# int.as_utf_char()?
-	# return the character, with the UTF code of the integer.
-	# params: []
-	# returns: str
-	# panics: []
-	# errors: [UTFValueCasting]
-	# example:
-	#
-	# ---as_utf_char.aloe---
-	# let number = 65;
-	# let upper_a = number.as_utf_char()!;  # "A"
-	#
-	# let other_number = -10;
-	# let _ = other_number.as_utf_char();   # error
-	# 
-	##
-	fun as_utf_char(this){}
+    ##
+    # int.as_int() -> int
+    # returns a copy of the integer.
+    # panics: [WrongArgumentCount]
+    # errors: []
+    # example:
+    #
+    # ---as_int.aloe---
+    # 42.as_int(); # 42
+    #
+    ##
+    fun as_int(this){}
 
-	##
-	# int.clone()
-	# returns a copy of the integer.
-	# params: []
-	# returns: int
-	# panics: []
-	# errors: []
-	# example:
-	#
-	# ---clone.aloe---
-	# let number = 10;
-	# let other_number = 10.clone();
-	# number == other_number	# true
-	#
-	##
-	fun clone(this){}
+    ##
+    # int.as_utf_char()? -> str
+    # converts the integer into a UTF-8 character.
+    # panics: [WrongArgumentCount]
+    # errors: [UTFValueCasting]
+    # example:
+    #
+    # ---as_utf_char.aloe---
+    # 65.as_utf_char()!; # "A"
+    #
+    ##
+    fun as_utf_char(this){}
+
+    ##
+    # int.as_le_bytes() -> buffer
+    # converts the integer into a buffer of little-endian bytes.
+    # panics: [WrongArgumentCount]
+    # errors: []
+    # example:
+    #
+    # ---as_le_bytes.aloe---
+    # let data = 42.as_le_bytes();
+    #
+    ##
+    fun as_le_bytes(this){}
+
+    ##
+    # int.as_be_bytes() -> buffer
+    # converts the integer into a buffer of big-endian bytes.
+    # panics: [WrongArgumentCount]
+    # errors: []
+    # example:
+    #
+    # ---as_be_bytes.aloe---
+    # let data = 42.as_be_bytes();
+    #
+    ##
+    fun as_be_bytes(this){}
+
+    ##
+    # int.clone() -> int
+    # returns a copy of the integer.
+    # panics: [WrongArgumentCount]
+    # errors: []
+    #
+    ##
+    fun clone(this){}
 }

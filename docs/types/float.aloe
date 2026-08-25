@@ -1,108 +1,89 @@
 ##
 # datatype: float
-# 64-bit, IEEE-754 double-precision number.
+# 64-bit floating point number.
 # storage: stack
-# literal syntax:
+# example:
 #
 # ---float-literal.aloe---
-# let pi = 3.14159;
-# let r  = 2.5;
-# 
-# let area = pi * r * r;
+# let pi = 3.14;
+# let negative = -0.5;
+#
 ##
 struct float{
-	##
-	# float.is_positive
-	# returns true, if the number is positive.
-	# type: bool
-	# example:
-	#
-	# ---is_positive.aloe---
-	# let number = 10.0;
-	# number.is_positive # returns true
-	# let negative_number = -10.0;
-	# negative_number.is_positive # returns false
-	#
-	##
-	fun is_positive(this){}
 
-	##
-	# float.is_negative
-	# returns true, if the number is negative.
-	# type: bool
-	# example:
-	#
-	# ---is_negative.aloe---
-	# let number = 10.0;
-	# number.is_negative # returns false
-	# let negative_number = -10.0;
-	# negative_number.is_negative # returns true
-	#
-	##
-	fun is_negative(this){}
+    ##
+    # float.is_negative -> bool
+    # returns true if the sign of the value is negative.
+    # panics: []
+    # errors: []
+    # example:
+    #
+    # ---is_negative.aloe---
+    # let n = -5.0;
+    # n.is_negative; # true
+    #
+    ##
+    fun is_negative(){}
 
-	##
-	# float.as_str()
-	# returns a decimal string representation.
-	# params: []
-	# returns: str
-	# panics: []
-	# errors: []
-	# example:
-	#
-	# ---as_str.aloe---
-	# let number = 10.0;
-	# let number_str = number.as_str();  # "10.0"
-	#
-	##
-	fun as_str(this){}
+    ##
+    # float.is_positive -> bool
+    # returns true if the sign of the value is positive.
+    # panics: []
+    # errors: []
+    # example:
+    #
+    # ---is_positive.aloe---
+    # let n = 5.0;
+    # n.is_positive; # true
+    #
+    ##
+    fun is_positive(){}
 
-	##
-	# float.as_float()
-	# returns a copy of the number.
-	# params: []
-	# returns: float
-	# panics: []
-	# errors: []
-	# example:
-	#
-	# ---as_float.aloe---
-	# let number = 10.0;
-	# let number_float = number.as_float();  # 10.0
-	#
-	##
-	fun as_float(this){}
+    ##
+    # float.as_str() -> str
+    # converts the float into a string.
+    # panics: [WrongArgumentCount]
+    # errors: []
+    # example:
+    #
+    # ---as_str.aloe---
+    # 3.14.as_str(); # "3.14"
+    #
+    ##
+    fun as_str(this){}
 
-	##
-	# float.clone()
-	# returns a copy of the number.
-	# params: []
-	# returns: float
-	# panics: []
-	# errors: []
-	# example:
-	#
-	# ---as_float.aloe---
-	# let number = 10.0;
-	# let number_float = number.clone();  # 10.0
-	#
-	##
-	fun as_float(this){}
-	
-	##
-	# float.as_int()
-	# returns the integer part of the float.
-	# params: []
-	# returns: int
-	# panics: []
-	# errors: []
-	# example:
-	#
-	# ---as_int.aloe---
-	# let number = 10.4;
-	# let number_int = number.as_int();  # 10
-	#
-	##
-	fun as_int(this){}
+    ##
+    # float.as_int() -> int
+    # converts the float into an integer, truncating the decimal part.
+    # panics: [WrongArgumentCount]
+    # errors: []
+    # example:
+    #
+    # ---as_int.aloe---
+    # 3.99.as_int(); # 3
+    #
+    ##
+    fun as_int(this){}
 
+    ##
+    # float.as_float() -> float
+    # returns a copy of the float.
+    # panics: [WrongArgumentCount]
+    # errors: []
+    # example:
+    #
+    # ---as_float.aloe---
+    # 3.14.as_float(); # 3.14
+    #
+    ##
+    fun as_float(this){}
+
+    ##
+    # float.clone() -> float
+    # returns a copy of the float.
+    # panics: [WrongArgumentCount]
+    # errors: []
+    #
+    ##
+    fun clone(this){}
 }

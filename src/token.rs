@@ -1,9 +1,11 @@
 pub mod display;
 pub mod token_type;
 
+use serde::{Deserialize, Serialize};
+
 use crate::token::token_type::TokenType;
 
-#[derive(Debug, PartialOrd, Ord, PartialEq, Clone, Eq, Hash)]
+#[derive(Debug, PartialOrd, Ord, PartialEq, Clone, Eq, Hash, Serialize, Deserialize)]
 pub struct Token {
     pub token_type: TokenType,
     pub literal: String,

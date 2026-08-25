@@ -2,8 +2,9 @@ use crate::{
     ast::{expression::Expression, statement::block_statement::BlockStatement},
     token::Token,
 };
+use serde::{Deserialize, Serialize};
 
-#[derive(Clone, Hash, PartialOrd, Ord, PartialEq, Eq, Debug)]
+#[derive(Clone, Hash, PartialOrd, Ord, PartialEq, Eq, Debug, Serialize, Deserialize)]
 pub struct ForLoopExpression {
     pub token: Token,
     pub variable: Option<Box<Expression>>,

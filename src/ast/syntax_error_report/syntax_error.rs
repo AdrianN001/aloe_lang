@@ -2,7 +2,7 @@ use core::fmt;
 
 use crate::{ast::expression::Expression, token::token_type::TokenType};
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum SyntaxError {
     UnexpectedKeyword(TokenType, TokenType, usize), // UnexpectedKeyword(expected, got)
     UnexpectedToken(TokenType, TokenType, usize),   // UnexpectedToken(expected, got)

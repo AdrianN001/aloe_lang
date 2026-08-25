@@ -1,6 +1,6 @@
 use crate::ast::statement::Statement;
 
-#[derive(Default)]
+#[derive(Default, Hash, PartialOrd, Ord, Clone, PartialEq, Eq, Debug)]
 pub struct Program {
     pub statements: Vec<Statement>,
 }

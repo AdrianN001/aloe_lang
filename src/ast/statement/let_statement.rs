@@ -3,7 +3,9 @@ use crate::doc::doc_comment::DocComment;
 use crate::doc::traits::statement_traits::Documentable;
 use crate::token::Token;
 
-#[derive(Default, Hash, PartialOrd, Ord, Clone, PartialEq, Eq, Debug)]
+use serde::{Deserialize, Serialize};
+
+#[derive(Default, Hash, PartialOrd, Ord, Clone, PartialEq, Eq, Debug, Serialize, Deserialize)]
 pub struct LetStatement {
     pub token: Token,
     pub assignment: Expression,

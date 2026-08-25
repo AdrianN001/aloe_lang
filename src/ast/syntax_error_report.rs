@@ -4,7 +4,7 @@ use crate::{ast::syntax_error_report::syntax_error::SyntaxError, token::Token};
 
 pub mod syntax_error;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub struct SyntaxErrorReport {
     pub tokens: Vec<Token>,
     pub error: Option<SyntaxError>,

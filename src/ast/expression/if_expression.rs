@@ -2,8 +2,9 @@ use crate::{
     ast::{expression::Expression, statement::block_statement::BlockStatement},
     token::Token,
 };
+use serde::{Deserialize, Serialize};
 
-#[derive(Clone, Hash, PartialOrd, Ord, Default, PartialEq, Eq, Debug)]
+#[derive(Clone, Hash, PartialOrd, Ord, Default, PartialEq, Eq, Debug, Serialize, Deserialize)]
 pub struct IfExpression {
     pub token: Token,
     pub condition: Box<Expression>,

@@ -29,3 +29,6 @@ pub mod doc_test;
 
 #[cfg(test)]
 pub mod parsed_doc_comment_test;
+
+#[cfg(test)]
+pub mod artifact_test;

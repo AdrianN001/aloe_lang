@@ -4,7 +4,9 @@ use crate::{
     token::Token,
 };
 
-#[derive(Clone, Hash, PartialOrd, Ord, PartialEq, Default, Eq, Debug)]
+use serde::{Deserialize, Serialize};
+
+#[derive(Clone, Hash, PartialOrd, Ord, PartialEq, Default, Eq, Debug, Serialize, Deserialize)]
 pub struct FunctionStatement {
     pub token: Token,
     pub name: String,

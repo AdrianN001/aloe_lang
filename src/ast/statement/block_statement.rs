@@ -1,6 +1,8 @@
 use crate::{ast::statement::Statement, token::Token};
 
-#[derive(Default, Hash, PartialOrd, Ord, Clone, PartialEq, Eq, Debug)]
+use serde::{Deserialize, Serialize};
+
+#[derive(Default, Hash, PartialOrd, Ord, Clone, PartialEq, Eq, Debug, Serialize, Deserialize)]
 pub struct BlockStatement {
     pub token: Token,
     pub statements: Vec<Statement>,

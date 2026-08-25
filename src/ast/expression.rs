@@ -41,8 +41,9 @@ use crate::ast::expression::{
     for_loop::ForLoopExpression, null::NullExpression, scope_resolution::ScopeResolutionExpression,
     while_loop::WhileLoopExpression,
 };
+use serde::{Deserialize, Serialize};
 
-#[derive(Default, PartialOrd, Ord, Clone, PartialEq, Eq, Hash, Debug)]
+#[derive(Default, PartialOrd, Ord, Clone, PartialEq, Eq, Hash, Debug, Serialize, Deserialize)]
 pub enum Expression {
     Identifier(Identifier),
     IntegerLiteral(IntegerLiteral),

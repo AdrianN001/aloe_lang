@@ -1,7 +1,9 @@
 use crate::ast::expression::Expression;
 use crate::token::Token;
 
-#[derive(Clone, Hash, PartialOrd, Ord, PartialEq, Eq, Debug)]
+use serde::{Deserialize, Serialize};
+
+#[derive(Clone, Hash, PartialOrd, Ord, PartialEq, Eq, Debug, Serialize, Deserialize)]
 pub struct ReturnStatement {
     pub token: Token,
     pub value: Option<Expression>,

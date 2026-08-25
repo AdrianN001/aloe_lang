@@ -1,4 +1,6 @@
-#[derive(Debug, Hash, PartialOrd, Ord, Clone, PartialEq, Eq)]
+use serde::{Deserialize, Serialize};
+
+#[derive(Debug, Hash, PartialOrd, Ord, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum TokenType {
     Illegal,
     Eof,

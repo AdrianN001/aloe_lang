@@ -1,6 +1,7 @@
 use crate::{ast::expression::Expression, token::Token};
+use serde::{Deserialize, Serialize};
 
-#[derive(Clone, Hash, PartialOrd, Ord, PartialEq, Eq, Debug)]
+#[derive(Clone, Hash, PartialOrd, Ord, PartialEq, Eq, Debug, Serialize, Deserialize)]
 pub struct PrefixExpression {
     pub token: Token,
     pub operator: String,

@@ -1,6 +1,8 @@
 use crate::token::Token;
 
-#[derive(Clone, Hash, PartialOrd, Ord, PartialEq, Eq, Debug)]
+use serde::{Deserialize, Serialize};
+
+#[derive(Clone, Hash, PartialOrd, Ord, PartialEq, Eq, Debug, Serialize, Deserialize)]
 pub struct ContinueStatement {
     pub token: Token,
 }

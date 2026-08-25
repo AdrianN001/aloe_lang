@@ -1,5 +1,6 @@
 use crate::cli::parse_cli;
 
+pub mod artifact;
 pub mod ast;
 pub mod cli;
 pub mod doc;

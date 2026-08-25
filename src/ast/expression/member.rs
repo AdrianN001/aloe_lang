@@ -1,6 +1,7 @@
 use crate::{ast::expression::Expression, token::Token};
+use serde::{Deserialize, Serialize};
 
-#[derive(Default, PartialOrd, Ord, Clone, PartialEq, Eq, Hash, Debug)]
+#[derive(Default, PartialOrd, Ord, Clone, PartialEq, Eq, Hash, Debug, Serialize, Deserialize)]
 pub struct MemberExpression {
     pub token: Token,
 

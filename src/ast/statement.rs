@@ -18,6 +18,7 @@ use expression_statement::ExpressionStatement;
 use import_statement::ImportStatement;
 use let_statement::LetStatement;
 use return_statement::ReturnStatement;
+use serde::{Deserialize, Serialize};
 use struct_statement::StructStatement;
 
 use crate::ast::statement::{
@@ -27,7 +28,7 @@ use crate::ast::statement::{
     val_statement::ValStatement,
 };
 
-#[derive(Clone, Hash, PartialOrd, Ord, PartialEq, Eq, Debug)]
+#[derive(Clone, Hash, PartialOrd, Ord, PartialEq, Eq, Debug, Serialize, Deserialize)]
 pub enum Statement {
     Let(LetStatement),
     Val(ValStatement),

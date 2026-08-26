@@ -2,11 +2,11 @@ mod array_method;
 pub mod async_await;
 mod console;
 mod error;
-mod io;
 mod iterator;
 mod len;
 mod math;
 mod memory;
+mod native;
 mod os;
 mod process;
 mod random;
@@ -27,11 +27,6 @@ use crate::object::{
             console_write_builtin_function, console_writeln_builtin_function,
         },
         error::{error_builtin_function, panic_buitin_function},
-        io::{
-            async_tcp_bind_builtin_function, async_tcp_connect_builtin_function,
-            async_udp_bind_builtin_function, open_builtin_function, path_builtin_function,
-            tcp_bind_builtin_function, tcp_connect_builtin_function, udp_bind_builtin_function,
-        },
         iterator::range_builtin_function,
         len::len_builtin_function,
         memory::{
@@ -42,10 +37,7 @@ use crate::object::{
             get_home_dir_builtin_function, get_temp_dir_builtin_function,
             platform_builtin_function, set_env_builtin_function, unset_env_builtin_function,
         },
-        process::{
-            args_builtin_function, command_builtin_function, exit_builtin_function,
-            pid_builtin_function,
-        },
+        process::{args_builtin_function, exit_builtin_function, pid_builtin_function},
         random::random_builtin_function,
         time::{awaitable_sleep_builtin_function, sleep, time_builtin_function},
         utils::{inspect_builtin_function, line_number_builtin_function, type_builtin_function},
@@ -79,17 +71,7 @@ pub enum BuiltIn {
     Err,
     Panic,
 
-    Open,
-    Path,
-    TCPBind,
-    TCPConnect,
-    ATCPBind,
-    ATCPConnect,
-    AUDPBind,
-    UDPBind,
-
     // Process
-    Cmd,
     Exit,
     Pid,
     Args,
@@ -153,6 +135,9 @@ pub enum BuiltIn {
     TempDir,
     Platform,
     Arch,
+
+    //Native
+    SpawnNative,
 }
 
 impl BuiltIn {
@@ -193,16 +178,6 @@ impl BuiltIn {
             BuiltIn::Err => error_builtin_function(args, state),
             BuiltIn::Panic => panic_buitin_function(args, state),
 
-            BuiltIn::Open => open_builtin_function(args, state),
-            BuiltIn::Path => path_builtin_function(args, state),
-            BuiltIn::TCPBind => tcp_bind_builtin_function(args, state),
-            BuiltIn::TCPConnect => tcp_connect_builtin_function(args, state),
-            BuiltIn::ATCPBind => async_tcp_bind_builtin_function(args, state),
-            BuiltIn::ATCPConnect => async_tcp_connect_builtin_function(args, state),
-            BuiltIn::AUDPBind => async_udp_bind_builtin_function(args, state),
-            BuiltIn::UDPBind => udp_bind_builtin_function(args, state),
-
-            BuiltIn::Cmd => command_builtin_function(args, state),
             BuiltIn::Exit => exit_builtin_function(args, state),
             BuiltIn::Args => args_builtin_function(args, state),
             BuiltIn::Pid => pid_builtin_function(args, state),
@@ -264,6 +239,9 @@ impl BuiltIn {
             BuiltIn::TempDir => get_temp_dir_builtin_function(args, state),
             BuiltIn::Platform => platform_builtin_function(args, state),
             BuiltIn::Arch => arch_builtin_function(args, state),
+
+            //Native
+            BuiltIn::SpawnNative => native::spawn_native_builtin_function(args, environ, state),
         }
     }
 }

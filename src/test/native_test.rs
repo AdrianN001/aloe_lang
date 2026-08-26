@@ -4,22 +4,22 @@ use crate::test::util::test_cases_for_input_output;
 pub fn test_path() {
     let testcases = [
         (
-            "__path(\".\", \"extra_arg\");",
+            "__ntv(\"Path\",\".\", \"extra_arg\");",
             "unexpected number of parameter for __path(). Expected: 1, got: '2'",
         ),
         (
-            "__path(23);",
+            "__ntv(\"Path\",23);",
             "unexpected parameter type for __path(). Expected: 'str', got: '<type int>'",
         ),
-        ("__path(\".\")", "[PathWrapper for \".\"]"),
-        ("__path(\".\").exists;", "true"),
-        ("__path(\"not/existing/path\").exists;", "false"),
-        ("__path(\".\").parent();", "[PathWrapper for \"\"]"),
-        ("__path(\".\").as_absolute().exists;", "true"),
-        ("__path(\".\").is_dir;", "true"),
-        ("__path(\".\").is_file;", "false"),
-        ("__path(\"./Cargo.toml\").is_dir;", "false"),
-        ("__path(\"./Cargo.toml\").is_file;", "true"),
+        ("__ntv(\"Path\",\".\")", "[PathWrapper for \".\"]"),
+        ("__ntv(\"Path\",\".\").exists;", "true"),
+        ("__ntv(\"Path\",\"not/existing/path\").exists;", "false"),
+        ("__ntv(\"Path\",\".\").parent();", "[PathWrapper for \"\"]"),
+        ("__ntv(\"Path\",\".\").as_absolute().exists;", "true"),
+        ("__ntv(\"Path\",\".\").is_dir;", "true"),
+        ("__ntv(\"Path\",\".\").is_file;", "false"),
+        ("__ntv(\"Path\",\"./Cargo.toml\").is_dir;", "false"),
+        ("__ntv(\"Path\",\"./Cargo.toml\").is_file;", "true"),
     ];
 
     test_cases_for_input_output(&testcases);
@@ -30,7 +30,7 @@ pub fn test_cmd() {
     let testcases = [
         (
             "
-        let command = __cmd(\"echo\");
+        let command = __ntv(\"Command\",\"echo\");
         command.add_arg(\"hello, world\");
         command.program
         ",
@@ -38,7 +38,7 @@ pub fn test_cmd() {
         ),
         (
             "
-        let command = __cmd(\"echo\");
+        let command = __ntv(\"Command\",\"echo\");
         command.add_arg(\"hello, world\");
         command.args
         ",
@@ -46,7 +46,7 @@ pub fn test_cmd() {
         ),
         (
             "
-        let command = __cmd(\"echo\");
+        let command = __ntv(\"Command\",\"echo\");
         command.add_arg(\"hello, world\");
         let [status, stdout, stderr] = command.output();
         status
@@ -55,7 +55,7 @@ pub fn test_cmd() {
         ),
         (
             "
-        let command = __cmd(\"echo\");
+        let command = __ntv(\"Command\",\"echo\");
         command.add_arg(\"hello, world\");
         let [status, stdout, stderr] = command.output();
         stdout.as_str
@@ -64,7 +64,7 @@ pub fn test_cmd() {
         ),
         (
             "
-        let command = __cmd(\"echo\");
+        let command = __ntv(\"Command\",\"echo\");
         command.add_arg(\"hello, world\");
         let [status, stdout, stderr] = command.output();
         stderr.as_str

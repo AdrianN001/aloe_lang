@@ -37,16 +37,6 @@ impl Identifier {
             "error" => Some(BuiltIn::Err),
             "panic" => Some(BuiltIn::Panic),
 
-            "__open" => Some(BuiltIn::Open),
-            "__path" => Some(BuiltIn::Path),
-            "__tcp_bind" => Some(BuiltIn::TCPBind),
-            "__tcp_connect" => Some(BuiltIn::TCPConnect),
-            "__atcp_bind" => Some(BuiltIn::ATCPBind),
-            "__atcp_connect" => Some(BuiltIn::ATCPConnect),
-            "__audp_bind" => Some(BuiltIn::AUDPBind),
-            "__udp_bind" => Some(BuiltIn::UDPBind),
-
-            "__cmd" => Some(BuiltIn::Cmd),
             "__exit" => Some(BuiltIn::Exit),
             "__args" => Some(BuiltIn::Args),
             "__pid" => Some(BuiltIn::Pid),
@@ -106,6 +96,8 @@ impl Identifier {
             "__os_get_temp_dir" => Some(BuiltIn::TempDir),
             "__os_platform" => Some(BuiltIn::Platform),
             "__os_arch" => Some(BuiltIn::Arch),
+
+            "__ntv" => Some(BuiltIn::SpawnNative),
             _ => None,
         }
     }

@@ -3,6 +3,7 @@ pub mod file;
 pub mod network;
 pub mod path;
 pub mod process;
+pub mod spawn;
 
 use crate::object::{
     ObjectRef,

@@ -87,7 +87,7 @@ pub enum BuiltIn {
     RefNumber,
     Size,
 
-    //Math
+    //loaded into math module
     Ceil,
     Floor,
     Trunc,

@@ -32,3 +32,6 @@ pub mod parsed_doc_comment_test;
 
 #[cfg(test)]
 pub mod artifact_test;
+
+#[cfg(test)]
+pub mod math_test;

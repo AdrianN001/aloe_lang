@@ -1,3 +1,4 @@
+pub mod builtin;
 pub mod module_error;
 pub mod module_kind;
 pub mod module_loader;
@@ -55,6 +56,16 @@ impl Module {
         })
     }
 
+    pub fn new_dummy(kind: ModuleKind) -> Self {
+        Self {
+            name: ".".to_string(),
+            rel_path: PathBuf::from("."),
+            abs_path: PathBuf::from("."),
+            environ: None,
+            kind,
+        }
+    }
+
     pub fn read_source_file(file_path: &str) -> String {
         fs::read_to_string(file_path).unwrap()
     }
@@ -94,6 +105,7 @@ impl Module {
             match kind {
                 ModuleKind::SourceFile => self_borrow.get_program_from_source_file()?,
                 ModuleKind::ArtifactFile => self_borrow.get_program_from_artifact_file()?,
+                ModuleKind::Prelude => return Ok(()), // Prelude modules do not need execution
             }
         };
 

@@ -35,3 +35,15 @@ pub mod artifact_test;
 
 #[cfg(test)]
 pub mod math_test;
+
+#[cfg(test)]
+pub mod random_test;
+
+#[cfg(test)]
+pub mod os_test;
+
+#[cfg(test)]
+pub mod sys_test;
+
+#[cfg(test)]
+pub mod time_test;

@@ -1,8 +1,9 @@
-pub mod builtin;
 pub mod module_error;
 pub mod module_kind;
 pub mod module_loader;
+pub mod prelude;
 pub mod std_lib;
+pub mod virtual_module;
 
 use std::{cell::RefCell, fs, path::PathBuf, rc::Rc};
 
@@ -105,7 +106,7 @@ impl Module {
             match kind {
                 ModuleKind::SourceFile => self_borrow.get_program_from_source_file()?,
                 ModuleKind::ArtifactFile => self_borrow.get_program_from_artifact_file()?,
-                ModuleKind::Prelude => return Ok(()), // Prelude modules do not need execution
+                ModuleKind::Virtual => return Ok(()), // Virtual modules do not need execution
             }
         };
 
@@ -113,6 +114,10 @@ impl Module {
         {
             let self_borrow = self_ref.borrow();
             self_borrow.load_dunder_into_env(&mut raw_environment, module_loader);
+
+            Self::load_prelude(&mut raw_environment);
+
+            println!("{:?}", raw_environment);
         }
 
         let environment = Rc::new(RefCell::new(raw_environment));

@@ -15,7 +15,7 @@ pub fn sleep(args: &[ObjectRef], state: StateRef) -> Result<ObjectRef, RuntimeSi
     if args.len() != 1 {
         return Err(RuntimeSignal::Panic(PanicObj::new(
             PanicType::WrongArgumentCount,
-            format!("expected 1 argument for __sleep(), got: {}", args.len()),
+            format!("expected 1 argument for _sleep(), got: {}", args.len()),
             state,
         )));
     }
@@ -30,7 +30,7 @@ pub fn sleep(args: &[ObjectRef], state: StateRef) -> Result<ObjectRef, RuntimeSi
             return Err(RuntimeSignal::Panic(PanicObj::new(
                 PanicType::WrongArgumentType,
                 format!(
-                    "expected 'int' as argument type for __sleep(), got: '{}'",
+                    "expected 'int' as argument type for _sleep(), got: '{}'",
                     other_type.get_type()
                 ),
                 state,
@@ -49,7 +49,7 @@ pub fn awaitable_sleep_builtin_function(
     if args.len() != 1 {
         return Err(RuntimeSignal::Panic(PanicObj::new(
             PanicType::WrongArgumentCount,
-            format!("expected 1 argument for __sleep(), got: {}", args.len()),
+            format!("expected 1 argument for _sleep(), got: {}", args.len()),
             state,
         )));
     }
@@ -62,7 +62,7 @@ pub fn awaitable_sleep_builtin_function(
             return Err(RuntimeSignal::Panic(PanicObj::new(
                 PanicType::WrongArgumentType,
                 format!(
-                    "expected 'int' as argument type for __sleep2(), got: '{}'",
+                    "expected 'int' as argument type for _sleep2(), got: '{}'",
                     other_type.get_type()
                 ),
                 state,

@@ -3,5 +3,5 @@ pub enum ModuleKind {
     #[default]
     SourceFile, // .aloe,
     ArtifactFile, // .aloeo
-    Prelude,
+    Virtual,
 }

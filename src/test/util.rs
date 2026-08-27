@@ -58,6 +58,12 @@ impl Module {
         let environment = Rc::new(RefCell::new(raw_environment));
 
         {
+            let mut borrow = environment.borrow_mut();
+
+            Self::load_prelude(&mut borrow);
+        }
+
+        {
             let mut borrow = self_ref.borrow_mut();
             borrow.environ = Some(environment.clone());
         }

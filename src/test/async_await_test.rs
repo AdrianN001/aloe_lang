@@ -7,8 +7,9 @@ fn test_async_await() {
     let testcases = [
         (
             "
+import {_spawn} from \"@std::_async\";
 async fun foo(){ return 42; }
-__spawn((async fn(){
+_spawn((async fn(){
     let y = await foo();
     println(y);
 })())
@@ -17,6 +18,8 @@ __spawn((async fn(){
         ),
         (
             "
+
+import {_spawn} from \"@std::_async\";
 async fun foo(){ return 42; }
 async fun bar(){ return 23; }
 async fun add(x,y,z){ return x; }
@@ -24,22 +27,24 @@ async fun main(){
         let result = await add(await foo(),await foo(), await bar());
         println(result) 
     }
-__spawn(main())",
-            "null",
-        ),
-        (
-            "
-async fun change(x){ return !x; }
-async fun main(){
-        let result = await change(false);
-        println(await change(false));
-    }
-__spawn(main())",
+_spawn(main())",
             "null",
         ),
         (
             "
 
+import {_spawn} from \"@std::_async\";
+async fun change(x){ return !x; }
+async fun main(){
+        let result = await change(false);
+        println(await change(false));
+    }
+_spawn(main())",
+            "null",
+        ),
+        (
+            "
+import {_spawn} from \"@std::_async\";
 async fun get_x(){ return 1; }
 async fun get_y(){ let x = 23; return await get_x();} 
 async fun get_z(){ return 23; }
@@ -51,24 +56,25 @@ async fun main(){
     println(await get_x())
     println(await get_x())
     }
-__spawn(main())",
+_spawn(main())",
             "null",
         ),
         (
             "
-
+import {_spawn} from \"@std::_async\";
 async fun get_list(){ return [1,2,3,4]; } 
 async fun main(){
         println((await get_list())[(await get_list())[0]])
         println((await get_list())[3])
 
 }
-__spawn(main())",
+_spawn(main())",
             "null",
         ),
         (
             "
 
+import {_spawn} from \"@std::_async\";
 async fun get_list(){ return [1,2,3,4]; } 
 async fun main(){
         if false{
@@ -86,11 +92,13 @@ async fun main(){
 
         println(x);
 }
-__spawn(main())",
+_spawn(main())",
             "null",
         ),
         (
             "
+
+import {_spawn} from \"@std::_async\";
 async fun get_number() { return 23; }
 async fun get_string() { return \"test\"; }
 async fun main(){
@@ -102,11 +110,13 @@ async fun main(){
         println(map3);
         println(map4);
 }
-__spawn(main())",
+_spawn(main())",
             "null",
         ),
         (
             "
+
+import {_spawn} from \"@std::_async\";
 async fun get_number() { return 1; }
 async fun get_other_number() { return 3; }
 async fun main(){
@@ -115,11 +125,12 @@ async fun main(){
         let z = (await get_other_number()) - (await get_number()) / (await get_number());
         println(x, y, z, x*(await get_other_number()) );
 }
-__spawn(main())",
+_spawn(main())",
             "null",
         ),
         (
             "
+import {_spawn} from \"@std::_async\";
 async fun get_value() { return 1; }
 async fun get_other_value() { return 3; } 
 async fun get_condition(x) { return x < 3; }
@@ -140,12 +151,13 @@ async fun main(){
 
         println(x);
 }
-__spawn(main())",
+_spawn(main())",
             "null",
         ),
         (
             "
 
+import {_spawn} from \"@std::_async\";
     async fun double(x){ x+x; }
     async fun get_iterator(){
         let x = 0;
@@ -162,12 +174,12 @@ __spawn(main())",
         }
         println(value);
     }
-__spawn(main())",
+_spawn(main())",
             "null",
         ),
         (
             "
-
+import {_spawn} from \"@std::_async\";
     async fun function_that_returns_error(){
         return error(\"CustomError\", \"custom error text \");
     }
@@ -176,11 +188,12 @@ __spawn(main())",
         println(value);
         println(\"dont print this \");
     }
-__spawn(main())",
+_spawn(main())",
             "null",
         ),
         (
             "
+            import {_spawn} from \"@std::_async\";
     async fun function_that_returns_a_str(){ \"hello, world\"; }
     async fun main(){
         let length = (await function_that_returns_a_str()).length;
@@ -196,11 +209,12 @@ __spawn(main())",
         map.set(await function_that_returns_a_str(), await function_that_returns_a_str());
         println(map);
     }
-__spawn(main())",
+_spawn(main())",
             "null",
         ),
         (
             "
+import {_spawn} from \"@std::_async\";
     struct Person{ name; }
 
     async fun main(){
@@ -220,14 +234,17 @@ __spawn(main())",
         println(james);
 
     }
-__spawn(main())",
+_spawn(main())",
             "null",
         ),
         (
             "
+import {_sleep2} from \"@std::_time\";
+import {_spawn} from \"@std::_async\";
+
 async fun a(){
     print(1);
-    await __sleep2(500);
+    await _sleep2(500);
     print(2);
 }
 
@@ -235,19 +252,20 @@ async fun b(){
     print(3);
 }
 
-__spawn(a());
-__spawn(b());
+_spawn(a());
+_spawn(b());
 ",
             "null",
         ),
         (
             "
+            import {_spawn} from \"@std::_async\";
         async fun get_value() { [1,2,3] }
         async fun main(){
             let [a,b] = await get_value();
             println(a,b);
         }
-        __spawn(main())",
+        _spawn(main())",
             "null",
         ),
     ];

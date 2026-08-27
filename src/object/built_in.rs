@@ -1,4 +1,3 @@
-mod array_method;
 pub mod async_await;
 mod console;
 mod error;
@@ -17,10 +16,6 @@ mod utils;
 use crate::object::{
     ObjectRef,
     built_in::{
-        array_method::{
-            first_builtin_function, last_builtin_function, push_builtin_function,
-            rest_builtin_function,
-        },
         async_await::spawn_builtin_function,
         console::{
             console_read_async_builtin_function, console_read_builtin_function,
@@ -51,15 +46,9 @@ use crate::object::{
 pub enum BuiltIn {
     Len, // len(string), len(array)
 
-    Rest,
-    First,
-    Last,
-    Push,
-
     Print,
     Println,
     Read,
-    ARead,
 
     Type,
     Inspect,
@@ -67,22 +56,31 @@ pub enum BuiltIn {
 
     Range,
 
-    Random,
-    Err,
+    Error,
     Panic,
 
-    // Process
+    Assert,
+
+    // loaded into _io module
+    ARead,
+
+    // loaded into random module
+    Random,
+
+    // loaded into _sys module
     Exit,
     Pid,
     Args,
 
+    // loaded into _time module
     Sleep,
     Sleep2,
     Time,
 
+    // loaded into _async module
     Spawn,
 
-    //Memory
+    // loaded into _memory module
     Id,
     RefNumber,
     Size,
@@ -124,9 +122,7 @@ pub enum BuiltIn {
     Lcm,
     Factorial,
 
-    Assert,
-
-    //OS
+    // loaded into _os module
     GetEnv,
     SetEnv,
     UnsetEnv,
@@ -136,7 +132,7 @@ pub enum BuiltIn {
     Platform,
     Arch,
 
-    //Native
+    // loaded into _ntv module
     SpawnNative,
 }
 
@@ -158,11 +154,6 @@ impl BuiltIn {
         match self {
             BuiltIn::Len => len_builtin_function(args, state),
 
-            BuiltIn::Rest => rest_builtin_function(args, state),
-            BuiltIn::First => first_builtin_function(args, state),
-            BuiltIn::Last => last_builtin_function(args, state),
-            BuiltIn::Push => push_builtin_function(args, state),
-
             BuiltIn::Print => Ok(console_write_builtin_function(args, environ)),
             BuiltIn::Println => Ok(console_writeln_builtin_function(args)),
             BuiltIn::Read => Ok(console_read_builtin_function()),
@@ -175,7 +166,7 @@ impl BuiltIn {
             BuiltIn::Range => range_builtin_function(args, state),
             BuiltIn::Random => Ok(random_builtin_function()),
 
-            BuiltIn::Err => error_builtin_function(args, state),
+            BuiltIn::Error => error_builtin_function(args, state),
             BuiltIn::Panic => panic_buitin_function(args, state),
 
             BuiltIn::Exit => exit_builtin_function(args, state),

@@ -5,51 +5,75 @@ fn test_memory_builtin_functions() {
     let testcases = [
         (
             "
+import {_id, _ref_n, _sizeof} from \"@std::_memory\";
 let a = 1;
 let b = a;
-id(a) == id(b);",
+_id(a) == _id(b);",
             "true",
         ),
         (
             "
+
+import {_id, _ref_n, _sizeof} from \"@std::_memory\";
 let a = 1;
 let b = a;
-__ref_n(a) == __ref_n(b);",
+_ref_n(a) == _ref_n(b);",
             "true",
         ),
         (
             "
+
+import {_id, _ref_n, _sizeof} from \"@std::_memory\";
 let a = \"hello\";
 let b = a;
-__sizeof(a) == __sizeof(b);",
+_sizeof(a) == _sizeof(b);",
             "true",
         ),
         (
             "
+
+import {_id, _ref_n, _sizeof} from \"@std::_memory\";
 let a = \"hello\";
-let f = fn(x){ id(x) };
-f(a) == id(a);",
+let f = fn(x){ _id(x) };
+f(a) == _id(a);",
             "true",
         ),
         (
             "
+
+import {_id, _ref_n, _sizeof} from \"@std::_memory\";
 let a = 1;
-let f = fn(x){ __ref_n(x) };
+let f = fn(x){ _ref_n(x) };
 f(a) == 3;",
             "false", // int objects are copied, not shared, so ref count is 1 for each
         ),
         (
             "
+
+import {_id, _ref_n, _sizeof} from \"@std::_memory\";
 let a = 1;
-let f = fn(x){ __sizeof(x) };
-f(a) == __sizeof(a);",
+let f = fn(x){ _sizeof(x) };
+f(a) == _sizeof(a);",
             "true",
         ),
         (
-            "__ref_n();",
+            "
+
+import {_id, _ref_n, _sizeof} from \"@std::_memory\";
+            _ref_n();",
             "number_of_references expects exactly 1 argument",
         ),
     ];
+
+    test_cases_for_input_output(&testcases);
+}
+
+#[test]
+fn test_memory_module_import() {
+    let testcases = [(
+        "import {_id} from \"@std::_memory\"; type(_id(1));",
+        "<type int>",
+    )];
 
     test_cases_for_input_output(&testcases);
 }

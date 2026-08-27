@@ -15,7 +15,7 @@ pub fn spawn_native_builtin_function(
     if args.is_empty() {
         return Err(RuntimeSignal::Panic(PanicObj::new(
             PanicType::WrongArgumentCount,
-            format!("expected a name for __ntv, got: {} argument(s)", args.len()),
+            format!("expected a name for _ntv, got: {} argument(s)", args.len()),
             state,
         )));
     }
@@ -25,7 +25,7 @@ pub fn spawn_native_builtin_function(
         _ => {
             return Err(RuntimeSignal::Panic(PanicObj::new(
                 PanicType::WrongArgumentType,
-                format!("expected a string for __ntv, got: {:?}", args[0]),
+                format!("expected a string for _ntv, got: {:?}", args[0]),
                 state.clone(),
             )));
         }

@@ -13,7 +13,7 @@ pub fn create_math_module() -> ModuleRef {
 
     let module = Module {
         environ: Some(env),
-        kind: ModuleKind::Prelude,
+        kind: ModuleKind::Virtual,
         rel_path: PathBuf::with_capacity(0),
         abs_path: PathBuf::with_capacity(0),
         name: "math".into(),

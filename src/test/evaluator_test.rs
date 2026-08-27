@@ -727,30 +727,12 @@ fn eval_index_operator() {
 #[test]
 fn eval_len_for_strings() {
     let testcases = [
-        (r#" len("hi") "#, 2),
-        (r#" len("hello, world");  "#, 12),
-        (r#" len("");"#, 0),
+        (r#" len("hi") "#, "2"),
+        (r#" len("hello, world");  "#, "12"),
+        (r#" len("");"#, "0"),
     ];
 
-    testcases.iter().for_each(|testcase| {
-        let input = testcase.0.into();
-        let expected_value = testcase.1;
-
-        let lexer = Lexer::new(input);
-        let parser = Parser::new(lexer);
-        let program = parser.into_a_program().unwrap();
-
-        let last_object = match program.evaluate_with_default() {
-            Ok(x) => x,
-            Err(RuntimeSignal::Panic(err)) => panic!("{}", err),
-            _ => todo!(),
-        };
-
-        match &*last_object.borrow() {
-            Object::Int(integer) => assert_eq!(integer.value, expected_value as i64),
-            _ => panic!(),
-        };
-    })
+    test_cases_for_input_output(&testcases);
 }
 
 #[test]
@@ -776,30 +758,12 @@ fn test_array_indexing_edgecases() {
 #[test]
 fn eval_len_for_arrays() {
     let testcases = [
-        (r#" len([]) "#, 0),
-        (r#" len([1]);  "#, 1),
-        (r#" len([1,"a", true]);"#, 3),
+        (r#" len([]) "#, "0"),
+        (r#" len([1]);  "#, "1"),
+        (r#" len([1,"a", true]);"#, "3"),
     ];
 
-    testcases.iter().for_each(|testcase| {
-        let input = testcase.0.into();
-        let expected_value = testcase.1;
-
-        let lexer = Lexer::new(input);
-        let parser = Parser::new(lexer);
-        let program = parser.into_a_program().unwrap();
-
-        let last_object = match program.evaluate_with_default() {
-            Ok(x) => x,
-            Err(RuntimeSignal::Panic(err)) => panic!("{}", err),
-            _ => todo!(),
-        };
-
-        match &*last_object.borrow() {
-            Object::Int(integer) => assert_eq!(integer.value, expected_value as i64),
-            _ => panic!(),
-        };
-    })
+    test_cases_for_input_output(&testcases);
 }
 
 #[test]
@@ -815,88 +779,14 @@ fn eval_math() {
 }
 
 #[test]
-fn eval_rest_builtin() {
-    let testcases = [
-        (r#" rest([1,2,3]) "#, "[2, 3]"),
-        (r#" rest("abcd");  "#, r#"bcd"#),
-        (r#" rest([1]);"#, "[]"),
-        (r#" rest("a");"#, r#""#),
-    ];
-
-    testcases.iter().for_each(|testcase| {
-        let input = testcase.0.into();
-        let expected_value = testcase.1;
-
-        let lexer = Lexer::new(input);
-        let parser = Parser::new(lexer);
-        let program = parser.into_a_program().unwrap();
-
-        let last_object = match program.evaluate_with_default() {
-            Ok(x) => x,
-            Err(RuntimeSignal::Panic(err)) => panic!("{}", err),
-            _ => todo!(),
-        };
-
-        match &*last_object.borrow() {
-            Object::Array(arr) => assert_eq!(arr.inspect(), expected_value),
-            Object::String(str) => assert_eq!(str.inspect(), expected_value),
-            _ => panic!(),
-        };
-    })
-}
-
-#[test]
-fn eval_first_builtin() {
-    let testcases = [
-        (r#" first([1,2,3]) "#, "1"),
-        (r#" first("abcd");  "#, "a"),
-        (r#" first([1]);"#, "1"),
-        (r#" first("a");"#, "a"),
-    ];
-
-    test_cases_for_input_output(&testcases);
-}
-
-#[test]
-fn eval_push_builtin() {
-    let testcases = [
-        (r#" push([1,2,3], 4); "#, "[1, 2, 3, 4]"),
-        (r#" push([1,2], [3,4]);  "#, "[1, 2, 3, 4]"),
-        (r#" push([], [1,2,3,4]);"#, "[1, 2, 3, 4]"),
-        (r#" push("a", "bc");"#, r#"abc"#),
-        (r#" push("", "abc");"#, r#"abc"#),
-    ];
-
-    test_cases_for_input_output(&testcases);
-}
-
-#[test]
 fn eval_hashmap_pair_count() {
     let testcases = [
-        (r#"{"asd": 123, true: "abc"}"#, 2),
-        (r#"{}"#, 0),
-        (r#"{false: fn(){return 5;}()}"#, 1),
+        (r#"{"asd": 123, true: "abc"}.length"#, "2"),
+        (r#"{}.length"#, "0"),
+        (r#"{false: fn(){return 5;}()}.length"#, "1"),
     ];
 
-    testcases.iter().for_each(|testcase| {
-        let input = testcase.0.into();
-        let expected_value = testcase.1;
-
-        let lexer = Lexer::new(input);
-        let parser = Parser::new(lexer);
-        let program = parser.into_a_program().unwrap();
-
-        let last_object = match program.evaluate_with_default() {
-            Ok(x) => x,
-            Err(RuntimeSignal::Panic(err)) => panic!("{}", err),
-            _ => todo!(),
-        };
-
-        match &*last_object.borrow() {
-            Object::HashMap(hashmap) => assert_eq!(hashmap.pairs.len(), expected_value),
-            _ => panic!("unexpected last object"),
-        }
-    })
+    test_cases_for_input_output(&testcases);
 }
 
 #[test]
@@ -958,24 +848,7 @@ fn eval_iterator_collect() {
         ("range(5,1, -2).collect()", "[5, 3]"),
     ];
 
-    testcases.iter().for_each(|testcase| {
-        let input = testcase.0.into();
-        let expected_value = testcase.1;
-
-        let lexer = Lexer::new(input);
-        let parser = Parser::new(lexer);
-        let program = parser.into_a_program().unwrap();
-
-        let last_object = match program.evaluate_with_default() {
-            Ok(x) => x,
-            Err(RuntimeSignal::Panic(err)) => panic!("{}", err),
-            _ => todo!(),
-        };
-
-        assert!(matches!(&*last_object.borrow(), Object::Array(_),));
-
-        assert_eq!(last_object.borrow().inspect(), expected_value)
-    })
+    test_cases_for_input_output(&testcases);
 }
 
 #[test]

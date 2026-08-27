@@ -35,8 +35,8 @@ impl ModuleLoader {
     pub fn import_from_std(&mut self, module_path: &str) -> Result<ModuleRef, ModuleError> {
         let module_location_in_std = ModuleLoader::transfrom_std_path_to_abs(module_path)?;
 
-        if let Some(prelude) = self.check_if_prelude_and_load(module_path)? {
-            return Ok(prelude);
+        if let Some(virtual_module) = self.check_if_virtual_module_and_load(module_path)? {
+            return Ok(virtual_module);
         }
 
         if let Some(module) = self.get(&module_location_in_std) {
@@ -62,16 +62,24 @@ impl ModuleLoader {
         Ok(module)
     }
 
-    pub fn check_if_prelude_and_load(
+    pub fn check_if_virtual_module_and_load(
         &mut self,
         module_path: &str,
     ) -> Result<Option<ModuleRef>, ModuleError> {
-        if !ModuleLoader::PRELUDE_BUILTINS.contains(&module_path) {
+        if !ModuleLoader::VIRTUAL_BUILTINS.contains(&module_path) {
             return Ok(None);
         }
 
         match module_path {
             "@std::math" => Ok(Some(self.try_load_math_module()?)),
+            "@std::random" => Ok(Some(self.try_load_random_module()?)),
+            "@std::_os" => Ok(Some(self.try_load_underscore_os_module()?)),
+            "@std::_sys" => Ok(Some(self.try_load_underscore_sys_module()?)),
+            "@std::_time" => Ok(Some(self.try_load_underscore_time_module()?)),
+            "@std::_async" => Ok(Some(self.try_load_underscore_async_module()?)),
+            "@std::_memory" => Ok(Some(self.try_load_underscore_memory_module()?)),
+            "@std::_ntv" => Ok(Some(self.try_load_underscore_ntv_module()?)),
+            "@std::_io" => Ok(Some(self.try_load_underscore_io_module()?)),
             _ => unreachable!(),
         }
     }

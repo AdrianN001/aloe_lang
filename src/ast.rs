@@ -118,7 +118,6 @@ impl Parser {
                     | TokenType::ScopeResolution
                     | TokenType::IteratorAssign
                     | TokenType::QuestionMark
-                    
             )
         {
             self.current_token.literal = String::new();

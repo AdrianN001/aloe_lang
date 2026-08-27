@@ -7,6 +7,7 @@ use std::{
 use crate::{
     ast::Parser,
     lexer::Lexer,
+    module::Module,
     object::{panic_obj::RuntimeSignal, stack_environment::StackEnvironment},
 };
 
@@ -15,6 +16,11 @@ pub fn start_repl() {
     println!("Type exit to quit.\n");
 
     let environ = Rc::new(RefCell::new(StackEnvironment::new()));
+
+    {
+        let mut environ_borrow = environ.borrow_mut();
+        Module::load_prelude(&mut environ_borrow);
+    }
 
     loop {
         print!(">> ");

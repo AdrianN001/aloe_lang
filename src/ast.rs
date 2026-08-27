@@ -114,6 +114,11 @@ impl Parser {
                     | TokenType::RBrace
                     | TokenType::LBracket
                     | TokenType::RBracket
+                    | TokenType::Dot
+                    | TokenType::ScopeResolution
+                    | TokenType::IteratorAssign
+                    | TokenType::QuestionMark
+                    
             )
         {
             self.current_token.literal = String::new();

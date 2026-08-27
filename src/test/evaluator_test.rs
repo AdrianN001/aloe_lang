@@ -1,8 +1,9 @@
 use crate::{
-    ast::Parser,
+    ast::{Parser, expression::float_literal::FloatLiteral},
     lexer::Lexer,
     object::{Object, error::panic_type::PanicType, panic_obj::RuntimeSignal},
     test::util::test_cases_for_input_output,
+    token::{Token, token_type::TokenType},
 };
 
 #[test]
@@ -77,6 +78,53 @@ fn test_eval_float_object() {
             _ => panic!("Expected FloatObj"),
         }
     })
+}
+
+// FloatLiteral::evaluate() always re-parses `token.literal` and only falls back to
+// `integer_part`/`float_part` when that fails (e.g. an empty literal). That fallback
+// loses leading zeros in the fractional part since `float_part` is a plain u64.
+#[test]
+fn test_float_literal_fallback_loses_leading_zeros_in_fractional_part() {
+    // "1.05" would be represented as integer_part = 1, float_part = 5,
+    // which reconstructs to "1.5" instead of "1.05" once the literal is gone.
+    let float_literal = FloatLiteral {
+        token: Token::simple(TokenType::Float, "", 1),
+        integer_part: 1,
+        float_part: 5,
+    };
+
+    let value = float_literal.evaluate();
+
+    match &*value.borrow() {
+        Object::FloatObj(float) => {
+            assert!(
+                (float.val - 1.5).abs() < f64::EPSILON,
+                "expected the lossy fallback value 1.5, but got {}",
+                float.val
+            );
+        }
+        _ => panic!("Expected FloatObj"),
+    }
+}
+
+// Sanity check for the same fallback path: when the literal is missing/unparsable and
+// there is no fractional part at all, the fallback reconstructs the value correctly.
+#[test]
+fn test_float_literal_fallback_without_fractional_part_is_correct() {
+    let float_literal = FloatLiteral {
+        token: Token::simple(TokenType::Float, "", 1),
+        integer_part: 10,
+        float_part: 0,
+    };
+
+    let value = float_literal.evaluate();
+
+    match &*value.borrow() {
+        Object::FloatObj(float) => {
+            assert!((float.val - 10.0).abs() < f64::EPSILON);
+        }
+        _ => panic!("Expected FloatObj"),
+    }
 }
 
 #[test]

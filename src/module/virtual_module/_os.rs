@@ -23,14 +23,14 @@ pub fn create_underscore_os_module() -> ModuleRef {
 
 fn load_underscore_os_builtins(environ: &mut StackEnvironment) {
     let pairs = [
-        ("__getenv", BuiltIn::GetEnv),
-        ("__setenv", BuiltIn::SetEnv),
-        ("__unsetenv", BuiltIn::UnsetEnv),
-        ("__get_current_dir", BuiltIn::CurrDir),
-        ("__get_home_dir", BuiltIn::HomeDir),
-        ("__get_temp_dir", BuiltIn::TempDir),
-        ("__platform", BuiltIn::Platform),
-        ("__arch", BuiltIn::Arch),
+        ("__getenv", BuiltIn::U_OS_GET_ENV),
+        ("__setenv", BuiltIn::U_OS_SET_ENV),
+        ("__unsetenv", BuiltIn::U_OS_UNSET_ENV),
+        ("__get_current_dir", BuiltIn::U_OS_CURRENT_DIR),
+        ("__get_home_dir", BuiltIn::U_OS_HOME_DIR),
+        ("__get_temp_dir", BuiltIn::U_OS_TEMP_DIR),
+        ("__platform", BuiltIn::U_OS_PLATFORM),
+        ("__arch", BuiltIn::U_OS_ARCH),
     ];
     for (name, builtin) in pairs.iter() {
         environ.insert_with_val_binding(name, new_objectref(Object::BuiltIn(builtin.clone())));

@@ -23,9 +23,9 @@ pub fn create_underscore_memory_module() -> ModuleRef {
 
 fn load_memory_builtins(environ: &mut StackEnvironment) {
     let pairs = [
-        ("_id", BuiltIn::Id),
-        ("_ref_n", BuiltIn::RefNumber),
-        ("_sizeof", BuiltIn::Size),
+        ("_id", BuiltIn::U_MEMORY_ID),
+        ("_ref_n", BuiltIn::U_MEMORY_REF_COUNT),
+        ("_sizeof", BuiltIn::U_MEMORY_SIZE),
     ];
     for (name, builtin) in pairs {
         let builtin_object = new_objectref(Object::BuiltIn(builtin));

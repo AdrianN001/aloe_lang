@@ -5,17 +5,17 @@ use crate::{
 
 impl Module {
     pub const PRELUDES: &[(&'static str, BuiltIn); 11] = &[
-        ("print", BuiltIn::Print),
-        ("println", BuiltIn::Println),
-        ("input", BuiltIn::Read),
-        ("len", BuiltIn::Len),
-        ("range", BuiltIn::Range),
-        ("error", BuiltIn::Error),
-        ("panic", BuiltIn::Panic),
-        ("type", BuiltIn::Type),
-        ("inspect", BuiltIn::Inspect),
-        ("_line_", BuiltIn::Line),
-        ("assert", BuiltIn::Assert),
+        ("print", BuiltIn::P_PRINT),
+        ("println", BuiltIn::P_PRINTLN),
+        ("input", BuiltIn::P_READ),
+        ("len", BuiltIn::P_LEN),
+        ("range", BuiltIn::P_RANGE),
+        ("error", BuiltIn::P_ERROR),
+        ("panic", BuiltIn::P_PANIC),
+        ("type", BuiltIn::P_TYPE),
+        ("inspect", BuiltIn::P_INSPECT),
+        ("_line_", BuiltIn::P_LINE),
+        ("assert", BuiltIn::P_ASSERT),
     ];
 
     pub fn load_prelude(environ: &mut StackEnvironment) {

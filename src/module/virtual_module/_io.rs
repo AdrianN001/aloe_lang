@@ -22,7 +22,7 @@ pub fn create_underscore_io_module() -> ModuleRef {
 }
 
 fn load_io_builtins(environ: &mut StackEnvironment) {
-    let pairs = [("_input_async", BuiltIn::ARead)];
+    let pairs = [("_input_async", BuiltIn::U_IO_READ_ASYNC)];
     for (name, builtin) in pairs {
         let builtin_object = new_objectref(Object::BuiltIn(builtin));
         environ.insert_with_val_binding(name.into(), builtin_object);

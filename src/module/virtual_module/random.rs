@@ -22,7 +22,7 @@ pub fn create_random_module() -> ModuleRef {
 }
 
 fn load_random_builtins(environ: &mut StackEnvironment) {
-    let pairs = [("_rnd", BuiltIn::Random)];
+    let pairs = [("_rnd", BuiltIn::RANDOM_RND)];
     for (name, builtin) in pairs {
         let builtin_object = new_objectref(Object::BuiltIn(builtin));
         environ.insert_with_val_binding(name.into(), builtin_object);

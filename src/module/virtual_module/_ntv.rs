@@ -22,7 +22,7 @@ pub fn create_underscore_ntv_module() -> ModuleRef {
 }
 
 fn load_underscore_ntv_builtins(environ: &mut StackEnvironment) {
-    let pairs = [("_ntv", BuiltIn::SpawnNative)];
+    let pairs = [("_ntv", BuiltIn::U_NTV_SPAWN)];
     for (name, builtin) in pairs {
         let builtin_object = new_objectref(Object::BuiltIn(builtin));
         environ.insert_with_val_binding(name.into(), builtin_object);

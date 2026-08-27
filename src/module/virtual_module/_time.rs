@@ -23,9 +23,9 @@ pub fn create_underscore_time_module() -> ModuleRef {
 
 fn load_underscore_time_builtins(environ: &mut StackEnvironment) {
     let pairs = [
-        ("_sleep", BuiltIn::Sleep),
-        ("_sleep2", BuiltIn::Sleep2),
-        ("_time", BuiltIn::Time),
+        ("_sleep", BuiltIn::U_TIME_SLEEP),
+        ("_sleep2", BuiltIn::U_TIME_SLEEP_ASYNC),
+        ("_time", BuiltIn::U_TIME_TIME),
     ];
     for (name, builtin) in pairs {
         let builtin_object = new_objectref(Object::BuiltIn(builtin));

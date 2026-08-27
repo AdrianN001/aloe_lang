@@ -74,10 +74,46 @@ impl Parser {
 
         self.current_token = self.peek_token.clone();
 
+        // only strip tokens whose literal carries no semantic meaning beyond their
+        // token type (delimiters/keywords); literals/operators/identifiers rely on
+        // their literal text being parsed into a value or matched at runtime.
         if self.strip_token_value
-            && !matches!(
+            && matches!(
                 self.current_token.token_type,
-                TokenType::Identifier | TokenType::String
+                TokenType::Illegal
+                    | TokenType::Eof
+                    | TokenType::KwFunction
+                    | TokenType::KwFunctionStatement
+                    | TokenType::KwLet
+                    | TokenType::KwVal
+                    | TokenType::KwTrue
+                    | TokenType::KwFalse
+                    | TokenType::KwNull
+                    | TokenType::KwIf
+                    | TokenType::KwElif
+                    | TokenType::KwElse
+                    | TokenType::KwReturn
+                    | TokenType::KwImport
+                    | TokenType::KwFrom
+                    | TokenType::KwInto
+                    | TokenType::KwStruct
+                    | TokenType::KwEnum
+                    | TokenType::KwWhile
+                    | TokenType::KwFor
+                    | TokenType::KwBreak
+                    | TokenType::KwContinue
+                    | TokenType::KwAsync
+                    | TokenType::KwAwait
+                    | TokenType::KwLaunch
+                    | TokenType::Colon
+                    | TokenType::Comma
+                    | TokenType::Semicolon
+                    | TokenType::LParen
+                    | TokenType::RParen
+                    | TokenType::LBrace
+                    | TokenType::RBrace
+                    | TokenType::LBracket
+                    | TokenType::RBracket
             )
         {
             self.current_token.literal = String::new();

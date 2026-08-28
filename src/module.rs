@@ -116,8 +116,6 @@ impl Module {
             self_borrow.load_dunder_into_env(&mut raw_environment, module_loader);
 
             Self::load_prelude(&mut raw_environment);
-
-            println!("{:?}", raw_environment);
         }
 
         let environment = Rc::new(RefCell::new(raw_environment));

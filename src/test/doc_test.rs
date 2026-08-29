@@ -17,6 +17,9 @@ fn test_doc_module_parsing() {
     let testcases = [
         (
             "
+##
+# Person documentation
+##
 struct Person{
     fun sync_method(){}
     async fun async_method(){}
@@ -26,7 +29,7 @@ struct Person{
                 name: String::from("Person"),
                 id: SymbolID(1),
                 kind: SymbolKind::Struct,
-                doc: None,
+                doc: Some("Person documentation"),
                 children: vec![
                     SimplifiedDocSymbol {
                         name: String::from("sync_method"),
@@ -47,6 +50,9 @@ struct Person{
         ),
         (
             "
+##
+# Person documentation
+##
 struct Person{
     fun sync_method(){}
     async fun async_method(){}
@@ -58,7 +64,7 @@ struct Person{
                 id: SymbolID(1),
                 kind: SymbolKind::Struct,
 
-                doc: None,
+                doc: Some("Person documentation"),
                 children: vec![
                     SimplifiedDocSymbol {
                         name: String::from("sync_method"),
@@ -106,6 +112,9 @@ struct Person{
         ),
         (
             "
+##
+# Person documentation
+##
 struct Person{
     fun sync_method(){}
     async fun async_method(){}
@@ -119,7 +128,7 @@ if(true){let x = 0;}
                 id: SymbolID(1),
                 kind: SymbolKind::Struct,
 
-                doc: None,
+                doc: Some("Person documentation"),
                 children: vec![
                     SimplifiedDocSymbol {
                         name: String::from("sync_method"),
@@ -293,12 +302,6 @@ fn test_documentation_export() {
     let testcases = [
         (
             "
-        struct Person{}
-        ",
-            "{\"modules\":[{\"name\":\"single unit\",\"root_symbols\":[{\"id\":1,\"scope_id\":1,\"name\":\"Person\",\"kind\":\"Struct\",\"doc\":null,\"children\":[]}]}]}",
-        ),
-        (
-            "
     ##
     # Person documentation
     ##
@@ -307,12 +310,20 @@ fn test_documentation_export() {
             "{\"modules\":[{\"name\":\"single unit\",\"root_symbols\":[{\"id\":1,\"scope_id\":1,\"name\":\"Person\",\"kind\":\"Struct\",\"doc\":{\"raw_content\":\"Person documentation\",\"parsed_content\":{\"Struct\":{\"description\":\"Person documentation\",\"example\":null}}},\"children\":[]}]}]}",
         ),
         (
-            "enum State{}",
-            "{\"modules\":[{\"name\":\"single unit\",\"root_symbols\":[{\"id\":1,\"scope_id\":1,\"name\":\"State\",\"kind\":\"Enum\",\"doc\":null,\"children\":[]}]}]}",
+            "
+            ##
+            # State documentation
+            ##
+            enum State{}",
+            "{\"modules\":[{\"name\":\"single unit\",\"root_symbols\":[{\"id\":1,\"scope_id\":1,\"name\":\"State\",\"kind\":\"Enum\",\"doc\":{\"raw_content\":\"State documentation\",\"parsed_content\":{\"Struct\":{\"description\":\"State documentation\",\"example\":null}}},\"children\":[]}]}]}",
         ),
         (
-            "enum State{Ready;Stopped;}",
-            "{\"modules\":[{\"name\":\"single unit\",\"root_symbols\":[{\"id\":1,\"scope_id\":1,\"name\":\"State\",\"kind\":\"Enum\",\"doc\":null,\"children\":[{\"id\":2,\"scope_id\":1,\"name\":\"Ready\",\"kind\":\"EnumVariant\",\"doc\":null,\"children\":[]},{\"id\":3,\"scope_id\":1,\"name\":\"Stopped\",\"kind\":\"EnumVariant\",\"doc\":null,\"children\":[]}]}]}]}",
+            "
+            ##
+            # State documentation
+            ##
+            enum State{Ready;Stopped;}",
+            "{\"modules\":[{\"name\":\"single unit\",\"root_symbols\":[{\"id\":1,\"scope_id\":1,\"name\":\"State\",\"kind\":\"Enum\",\"doc\":{\"raw_content\":\"State documentation\",\"parsed_content\":{\"Struct\":{\"description\":\"State documentation\",\"example\":null}}},\"children\":[{\"id\":2,\"scope_id\":1,\"name\":\"Ready\",\"kind\":\"EnumVariant\",\"doc\":null,\"children\":[]},{\"id\":3,\"scope_id\":1,\"name\":\"Stopped\",\"kind\":\"EnumVariant\",\"doc\":null,\"children\":[]}]}]}]}",
         ),
     ];
 

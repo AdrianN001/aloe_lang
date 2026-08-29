@@ -7,6 +7,7 @@ use crate::{
     symbol::{
         collector::symbol_collector::SymbolCollector,
         symbol::{Symbol, SymbolID},
+        symbol_kind::SymbolKind,
         table::SymbolTable,
     },
 };
@@ -68,6 +69,7 @@ impl DocModule {
             })
             .collect();
 
+        DocModule::purge_non_documented_symbols(&mut unsorted_symbols);
         unsorted_symbols.sort_by_key(|doc_symbol| doc_symbol.id);
 
         unsorted_symbols
@@ -100,5 +102,22 @@ impl DocModule {
         docsymbol.children.sort_by_key(|doc_symbol| doc_symbol.id);
 
         docsymbol
+    }
+
+    fn purge_non_documented_symbols(symbols: &mut Vec<DocSymbol>) {
+        symbols.retain(|symbol| !Self::should_symbol_be_purged(symbol));
+    }
+
+    fn should_symbol_be_purged(symbol: &DocSymbol) -> bool {
+        symbol.doc.is_none()
+            && matches!(
+                symbol.kind,
+                SymbolKind::Struct
+                    | SymbolKind::Enum
+                    | SymbolKind::AsyncFunction
+                    | SymbolKind::Function
+                    | SymbolKind::StructAsyncMethod
+                    | SymbolKind::StructMethod
+            )
     }
 }

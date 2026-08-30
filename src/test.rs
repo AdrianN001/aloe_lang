@@ -47,3 +47,6 @@ pub mod sys_test;
 
 #[cfg(test)]
 pub mod time_test;
+
+#[cfg(test)]
+pub mod doc_file_system_test;

@@ -1,3 +1,5 @@
+use std::path::PathBuf;
+
 use crate::{artifact::build_flag::BuildFlag, ast::Parser, lexer::Lexer, module::Module};
 
 pub mod artifact;
@@ -6,11 +8,11 @@ pub mod reader;
 pub mod writer;
 
 pub fn write_artifact_to_file(
-    input_path: &str,
-    out_path: &str,
+    input_path: PathBuf,
+    out_path: PathBuf,
     flag: BuildFlag,
 ) -> Result<(), Box<dyn std::error::Error>> {
-    let source_code = Module::read_source_file(input_path);
+    let source_code = Module::read_source_file(&input_path)?;
     let mut parser = Parser::new(Lexer::new(source_code));
 
     if matches!(flag, BuildFlag::SizeOptimized) {

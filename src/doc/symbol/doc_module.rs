@@ -1,9 +1,15 @@
-use std::{collections::HashMap, unreachable};
+use std::{
+    collections::{HashMap, HashSet},
+    path::PathBuf,
+    unreachable,
+};
 
 use serde::{Deserialize, Serialize};
 
 use crate::{
+    ast::{Parser, syntax_error_report::syntax_error::SyntaxError},
     doc::symbol::doc_symbol::DocSymbol,
+    lexer::Lexer,
     symbol::{
         collector::symbol_collector::SymbolCollector,
         symbol::{Symbol, SymbolID},
@@ -15,7 +21,11 @@ use crate::{
 #[derive(Serialize, Deserialize)]
 pub struct DocModule {
     pub name: String,
+    pub path: Option<PathBuf>,
     pub root_symbols: Vec<DocSymbol>,
+
+    pub imports: HashSet<String>,
+    pub all_symbols: Vec<DocSymbol>,
 }
 
 type OwnershipMap = HashMap<Option<SymbolID>, Vec<SymbolID>>;
@@ -24,6 +34,15 @@ type SymbolMap = HashMap<SymbolID, Symbol>;
 impl DocModule {
     pub fn from_symbol_collector(name: &str, collector: &SymbolCollector) -> DocModule {
         let symbol_map = collector.get_global_symbol_map();
+        let all_symbols = {
+            collector
+                .table
+                .symbol_map
+                .values()
+                .filter(|symbol| symbol.scope_id == SymbolTable::TOP_LEVEL_SCOPE_ID)
+                .map(|symbol| DocSymbol::new_from_symbol(symbol))
+                .collect::<Vec<DocSymbol>>()
+        };
 
         let ownership_map = DocModule::build_ownership_map(symbol_map);
         let root_symbols = DocModule::make_root_symbols(&ownership_map, symbol_map)
@@ -35,7 +54,20 @@ impl DocModule {
         DocModule {
             name: name.to_string(),
             root_symbols,
+            imports: collector.imports.iter().cloned().collect(),
+            all_symbols,
+            path: None,
         }
+    }
+
+    pub fn from_single_input(name: &str, input: &str) -> Result<DocModule, SyntaxError> {
+        let lexer = Lexer::new(input.to_string());
+        let parser = Parser::new(lexer);
+        let program = parser.into_a_program().unwrap();
+
+        let collector = SymbolCollector::collect_from_program(&program)?;
+
+        Ok(DocModule::from_symbol_collector(name, &collector))
     }
 
     fn build_ownership_map(symbol_map: &HashMap<SymbolID, Symbol>) -> OwnershipMap {
@@ -59,14 +91,12 @@ impl DocModule {
         // top-level symbols
         let top_level_symbol_ids = match ownership_map.get(&None) {
             Some(top_level_symbol_ids) => top_level_symbol_ids,
-            None => unreachable!(), // es gibt immer a symbol mit keinem "owner"
+            None => &vec![], // es gibt immer a symbol mit keinem "owner"
         };
 
         let mut unsorted_symbols: Vec<DocSymbol> = top_level_symbol_ids
             .iter()
-            .map(|top_level_id| {
-                DocModule::build_doc_symbol(*top_level_id, ownership_map, symbol_map)
-            })
+            .map(|id| DocModule::build_doc_symbol(*id, ownership_map, symbol_map))
             .collect();
 
         DocModule::purge_non_documented_symbols(&mut unsorted_symbols);
@@ -119,5 +149,9 @@ impl DocModule {
                     | SymbolKind::StructAsyncMethod
                     | SymbolKind::StructMethod
             )
+    }
+
+    pub fn set_path(&mut self, path: PathBuf) {
+        self.path = Some(path);
     }
 }

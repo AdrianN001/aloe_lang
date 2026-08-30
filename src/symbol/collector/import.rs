@@ -16,6 +16,7 @@ impl SymbolCollector {
         if let Some(module_name) = &statement.custom_name {
             self.register_new_module(module_name);
         }
+        self.add_import(&statement.module_name);
         Ok(())
     }
 
@@ -34,5 +35,15 @@ impl SymbolCollector {
         self.table.register_to_symbolmap(new_symbol.clone());
         self.table
             .register_to_scope(self.current_scope_id, new_symbol);
+    }
+
+    fn add_import(&mut self, path: &str) {
+        if self.should_add_import(path) {
+            self.imports.insert(path.to_string());
+        }
+    }
+
+    fn should_add_import(&self, path: &str) -> bool {
+        !path.starts_with("@std")
     }
 }

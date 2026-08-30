@@ -4,7 +4,7 @@ use clap::{Parser, Subcommand};
 
 use crate::{
     artifact::{build_flag::BuildFlag, write_artifact_to_file},
-    doc::{html_document_a_single_file, json_document_a_single_file},
+    doc::{html_document_a_project, html_document_a_single_file, json_document_a_single_file},
     repl::start_repl,
     script::{run_artifact, run_script},
 };
@@ -25,18 +25,23 @@ enum Command {
     },
 
     Doc {
-        file: String,
+        file: PathBuf,
+
+        #[arg(long)]
+        project: bool,
 
         #[arg(long)]
         html: bool,
 
         #[arg(short, long)]
         json: bool,
+
+        output_dir: Option<PathBuf>,
     },
 
     Build {
-        file: String,
-        out: String,
+        file: PathBuf,
+        out: PathBuf,
     },
 
     Repl,
@@ -70,15 +75,25 @@ pub fn parse_cli() {
                 //todo run main.aloe
             }
         },
-        Command::Doc { file, html, json } => {
+        Command::Doc {
+            file,
+            project: _,
+            html,
+            json,
+            output_dir,
+        } => {
+            if let Some(output_dir) = output_dir {
+                html_document_a_project(file, output_dir);
+                return;
+            }
             if html {
-                html_document_a_single_file(&file);
+                html_document_a_single_file(file);
             } else if json {
-                json_document_a_single_file(&file);
+                json_document_a_single_file(file);
             }
         }
         Command::Build { file, out } => {
-            write_artifact_to_file(&file, &out, BuildFlag::SizeOptimized).unwrap();
+            write_artifact_to_file(file, out, BuildFlag::SizeOptimized).unwrap();
         }
         Command::Repl => {
             start_repl();

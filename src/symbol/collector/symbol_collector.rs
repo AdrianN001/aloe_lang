@@ -1,4 +1,7 @@
-use std::{collections::HashMap, unreachable};
+use std::{
+    collections::{HashMap, HashSet},
+    unreachable,
+};
 
 use crate::{
     ast::{
@@ -15,6 +18,7 @@ use crate::{
 pub struct SymbolCollector {
     pub table: SymbolTable,
     pub current_scope_id: ScopeID,
+    pub imports: HashSet<String>,
 }
 
 impl SymbolCollector {
@@ -25,6 +29,7 @@ impl SymbolCollector {
         let mut new_collector = Self {
             table: SymbolTable::new(),
             current_scope_id: top_level_scope_id,
+            imports: HashSet::new(),
         };
 
         new_collector.table.register_new_scope(top_level_scope);

@@ -67,8 +67,8 @@ impl Module {
         }
     }
 
-    pub fn read_source_file(file_path: &str) -> String {
-        fs::read_to_string(file_path).unwrap()
+    pub fn read_source_file(file_path: &PathBuf) -> Result<String, Box<dyn std::error::Error>> {
+        fs::read_to_string(file_path).map_err(|e| Box::new(e) as Box<dyn std::error::Error>)
     }
 
     pub fn as_abs_path(&self) -> String {
@@ -152,7 +152,7 @@ impl Module {
     }
 
     fn get_program_from_source_file(&self) -> Result<Program, RuntimeSignal> {
-        let source_file_content = Self::read_source_file(&self.abs_path.display().to_string());
+        let source_file_content = Self::read_source_file(&self.abs_path).unwrap();
 
         let lexer = Lexer::new(source_file_content);
         let parser = Parser::new(lexer);

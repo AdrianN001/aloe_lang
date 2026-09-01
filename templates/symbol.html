@@ -1,10 +1,10 @@
-<div class="symbol-card">
+<div class="symbol-card" id="{{name}}">
     <div class="symbol-header">
         <span class="symbol-name">{{ self.get_name() }}</span>
         <span class="symbol-kind">{{ kind }}</span>
     </div>
     
-    <div class="symbol-doc">
+    <div class="symbol-doc" >
         {% if let Some(d) = doc %}
             {% if let Some(parsed) = d.parsed_content %}
                 {% match parsed %}

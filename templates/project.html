@@ -445,7 +445,7 @@ searchInput.addEventListener("input", () => {
             const kind = document.createElement("span");
 
             result.className = "search-result";
-            result.href = typeof symbol.doc_path === "string" ? symbol.doc_path : "#";
+            result.href = typeof symbol.doc_path === "string" ? `${symbol.doc_path}#${symbol.name}` : "#";
 
             name.className = "search-result-name";
             name.textContent = symbol.name;

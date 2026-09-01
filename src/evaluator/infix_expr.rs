@@ -8,7 +8,7 @@ use crate::{
         boolean::Boolean,
         buffer::Buffer,
         error::panic_type::PanicType,
-        float_obj::FloatObj,
+        float::Float,
         hashmap::HashMap,
         integer::Integer,
         native_object::NativeObject,
@@ -45,7 +45,7 @@ impl InfixExpression {
                     right_side,
                     state,
                 ),
-                Object::FloatObj(float) => {
+                Object::Float(float) => {
                     Self::float_infix_operation_dispatch(float, &self.operator, right_side, state)
                 }
                 Object::String(string) => {
@@ -174,7 +174,7 @@ impl InfixExpression {
     }
 
     fn float_infix_operation_dispatch(
-        float: &FloatObj,
+        float: &Float,
         operator: &str,
         right: ObjectRef,
         state: StateRef,
@@ -396,7 +396,7 @@ impl InfixExpression {
     ) -> Result<(ObjectRef, ObjectRef), RuntimeSignal> {
         let left_bool = match &*left.borrow() {
             Object::Int(int) => int.bool()?,
-            Object::FloatObj(float) => float.bool()?,
+            Object::Float(float) => float.bool()?,
             Object::Bool(_) => left.clone(),
             Object::Array(arr) => arr.bool()?,
             Object::String(str) => str.bool()?,
@@ -413,7 +413,7 @@ impl InfixExpression {
 
         let right_bool = match &*right.borrow() {
             Object::Int(int) => int.bool()?,
-            Object::FloatObj(float) => float.bool()?,
+            Object::Float(float) => float.bool()?,
             Object::Bool(_) => right.clone(),
             Object::Array(arr) => arr.bool()?,
             Object::String(str) => str.bool()?,
@@ -449,7 +449,7 @@ impl InfixExpression {
                 Object::Int(integer) => {
                     Self::integer_infix_operation_dispatch(integer, &operator, right, state)
                 }
-                Object::FloatObj(float) => {
+                Object::Float(float) => {
                     Self::float_infix_operation_dispatch(float, &operator, right, state)
                 }
                 Object::String(string) => {

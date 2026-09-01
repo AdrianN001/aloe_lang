@@ -5,7 +5,7 @@ use crate::object::{
     array::Array,
     buffer::Buffer,
     error::{error_type::ErrorType, panic_type::PanicType},
-    float_obj::FloatObj,
+    float::Float,
     integer::Integer,
     iterator::{Iterator, list_based_iterator::ListBasedIterator},
     new_objectref,
@@ -249,9 +249,7 @@ impl StringObj {
             ));
         }
         Ok(match self.value.parse::<f64>() {
-            Ok(float_value) => Rc::new(RefCell::new(Object::FloatObj(FloatObj {
-                val: float_value,
-            }))),
+            Ok(float_value) => Rc::new(RefCell::new(Object::Float(Float { val: float_value }))),
             Err(err) => Rc::new(RefCell::new(Object::new_error(
                 ErrorType::IllegalCast,
                 err.to_string(),

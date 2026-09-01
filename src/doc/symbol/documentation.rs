@@ -10,6 +10,7 @@ use crate::{
 #[derive(Serialize, Deserialize)]
 pub struct Documentation {
     pub modules: Vec<DocModule>,
+    pub root_dir: Option<PathBuf>,
 }
 
 impl Documentation {
@@ -19,6 +20,7 @@ impl Documentation {
 
         Ok(Self {
             modules: vec![doc_module],
+            root_dir: None,
         })
     }
 
@@ -38,7 +40,9 @@ impl Documentation {
         Self::load_modules(&root_module, &mut modules, &root_path).unwrap();
 
         modules.push(root_module);
-        Ok(Self { modules })
+
+        let root_dir = root_path.parent().map(|p| p.to_path_buf());
+        Ok(Self { modules, root_dir })
     }
 
     fn load_modules(

@@ -36,7 +36,7 @@ impl Object {
 
             Object::String(s) => Rc::new(RefCell::new(Object::String(s.clone()))),
 
-            Object::FloatObj(f) => Rc::new(RefCell::new(Object::FloatObj(f.clone()))),
+            Object::Float(f) => Rc::new(RefCell::new(Object::Float(f.clone()))),
 
             Object::Iterator(iter) => Rc::new(RefCell::new(Object::Iterator(iter.clone()))),
 

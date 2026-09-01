@@ -572,7 +572,7 @@ impl Array {
             match &*item.borrow() {
                 Object::String(str) => strings.push(str.value.clone()),
                 Object::Int(int) => strings.push(int.value.to_string()),
-                Object::FloatObj(float) => strings.push(float.val.to_string()),
+                Object::Float(float) => strings.push(float.val.to_string()),
                 Object::Bool(bool) => strings.push(bool.value.to_string()),
 
                 other_type => {

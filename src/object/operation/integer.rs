@@ -1,7 +1,7 @@
 use crate::object::{
     Object, ObjectRef,
     error::panic_type::PanicType,
-    float_obj::FloatObj,
+    float::Float,
     integer::Integer,
     new_objectref,
     panic_obj::{PanicObj, RuntimeSignal},
@@ -14,7 +14,7 @@ impl Integer {
             Object::Int(right_integer) => Ok(new_objectref(Object::Int(Integer {
                 value: self.value + right_integer.value,
             }))),
-            Object::FloatObj(right_float) => Ok(new_objectref(Object::FloatObj(FloatObj {
+            Object::Float(right_float) => Ok(new_objectref(Object::Float(Float {
                 val: self.value as f64 + right_float.val,
             }))),
             other_type => Err(PanicObj::new(
@@ -35,7 +35,7 @@ impl Integer {
             Object::Int(right_integer) => Ok(new_objectref(Object::Int(Integer {
                 value: self.value - right_integer.value,
             }))),
-            Object::FloatObj(right_float) => Ok(new_objectref(Object::FloatObj(FloatObj {
+            Object::Float(right_float) => Ok(new_objectref(Object::Float(Float {
                 val: self.value as f64 - right_float.val,
             }))),
             other_type => Err(PanicObj::new(
@@ -56,7 +56,7 @@ impl Integer {
             Object::Int(right_integer) => Ok(new_objectref(Object::Int(Integer {
                 value: self.value * right_integer.value,
             }))),
-            Object::FloatObj(right_float) => Ok(new_objectref(Object::FloatObj(FloatObj {
+            Object::Float(right_float) => Ok(new_objectref(Object::Float(Float {
                 val: self.value as f64 * right_float.val,
             }))),
             other_type => Err(PanicObj::new(
@@ -76,7 +76,7 @@ impl Integer {
         match &*right.borrow() {
             Object::Int(right_integer) => {
                 if right_integer.value != 0 {
-                    Ok(new_objectref(Object::FloatObj(FloatObj {
+                    Ok(new_objectref(Object::Float(Float {
                         val: self.value as f64 / right_integer.value as f64,
                     })))
                 } else {
@@ -87,9 +87,9 @@ impl Integer {
                     ))
                 }
             }
-            Object::FloatObj(right_float) => {
+            Object::Float(right_float) => {
                 if right_float.val != 0 as f64 {
-                    Ok(new_objectref(Object::FloatObj(FloatObj {
+                    Ok(new_objectref(Object::Float(Float {
                         val: self.value as f64 / right_float.val,
                     })))
                 } else {
@@ -145,7 +145,7 @@ impl Integer {
         match &*right.borrow() {
             Object::Int(right_integer) => {
                 if right_integer.value < 0 {
-                    Ok(new_objectref(Object::FloatObj(FloatObj {
+                    Ok(new_objectref(Object::Float(Float {
                         val: (self.value as f64).powf(right_integer.value as f64),
                     })))
                 } else {
@@ -154,7 +154,7 @@ impl Integer {
                     })))
                 }
             }
-            Object::FloatObj(right_float) => Ok(new_objectref(Object::FloatObj(FloatObj {
+            Object::Float(right_float) => Ok(new_objectref(Object::Float(Float {
                 val: (self.value as f64).powf(right_float.val),
             }))),
             other_type => Err(PanicObj::new(
@@ -179,7 +179,7 @@ impl Integer {
     pub fn eq(&self, right: ObjectRef) -> Result<ObjectRef, PanicObj> {
         let objects_matches = match &*right.borrow() {
             Object::Int(integer) => integer.value == self.value,
-            Object::FloatObj(float) => {
+            Object::Float(float) => {
                 if float.val.fract() == 0.0 {
                     self.value == (float.val as i64)
                 } else {
@@ -198,7 +198,7 @@ impl Integer {
     pub fn neq(&self, right: ObjectRef) -> Result<ObjectRef, PanicObj> {
         let objects_matches = match &*right.borrow() {
             Object::Int(integer) => integer.value == self.value,
-            Object::FloatObj(float) => {
+            Object::Float(float) => {
                 if float.val.fract() == 0.0 {
                     self.value == (float.val as i64)
                 } else {
@@ -219,7 +219,7 @@ impl Integer {
             Object::Int(right_integer) => Ok(new_objectref(Object::get_native_boolean_object(
                 self.value < right_integer.value,
             ))),
-            Object::FloatObj(right_float) => Ok(new_objectref(Object::get_native_boolean_object(
+            Object::Float(right_float) => Ok(new_objectref(Object::get_native_boolean_object(
                 (self.value as f64) < right_float.val,
             ))),
             other_type => Err(PanicObj::new(
@@ -240,7 +240,7 @@ impl Integer {
             Object::Int(right_integer) => Ok(new_objectref(Object::get_native_boolean_object(
                 self.value <= right_integer.value,
             ))),
-            Object::FloatObj(right_float) => Ok(new_objectref(Object::get_native_boolean_object(
+            Object::Float(right_float) => Ok(new_objectref(Object::get_native_boolean_object(
                 self.value as f64 <= right_float.val,
             ))),
             other_type => Err(PanicObj::new(
@@ -261,7 +261,7 @@ impl Integer {
             Object::Int(right_integer) => Ok(new_objectref(Object::get_native_boolean_object(
                 self.value > right_integer.value,
             ))),
-            Object::FloatObj(right_float) => Ok(new_objectref(Object::get_native_boolean_object(
+            Object::Float(right_float) => Ok(new_objectref(Object::get_native_boolean_object(
                 self.value as f64 > right_float.val,
             ))),
             other_type => Err(PanicObj::new(
@@ -282,7 +282,7 @@ impl Integer {
             Object::Int(right_integer) => Ok(new_objectref(Object::get_native_boolean_object(
                 self.value >= right_integer.value,
             ))),
-            Object::FloatObj(right_float) => Ok(new_objectref(Object::get_native_boolean_object(
+            Object::Float(right_float) => Ok(new_objectref(Object::get_native_boolean_object(
                 self.value as f64 >= right_float.val,
             ))),
             other_type => Err(PanicObj::new(

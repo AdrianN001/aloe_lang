@@ -1,19 +1,19 @@
 use crate::object::{
     Object, ObjectRef,
     error::panic_type::PanicType,
-    float_obj::FloatObj,
+    float::Float,
     new_objectref,
     panic_obj::{PanicObj, RuntimeSignal},
     state::StateRef,
 };
 
-impl FloatObj {
+impl Float {
     pub fn add(&self, right: ObjectRef, _state: StateRef) -> Result<ObjectRef, PanicObj> {
         match &*right.borrow() {
-            Object::Int(right_integer) => Ok(new_objectref(Object::FloatObj(FloatObj {
+            Object::Int(right_integer) => Ok(new_objectref(Object::Float(Float {
                 val: self.val + right_integer.value as f64,
             }))),
-            Object::FloatObj(right_float) => Ok(new_objectref(Object::FloatObj(FloatObj {
+            Object::Float(right_float) => Ok(new_objectref(Object::Float(Float {
                 val: self.val + right_float.val,
             }))),
             other_type => Err(PanicObj::new(
@@ -31,10 +31,10 @@ impl FloatObj {
 
     pub fn sub(&self, right: ObjectRef, _state: StateRef) -> Result<ObjectRef, PanicObj> {
         match &*right.borrow() {
-            Object::Int(right_integer) => Ok(new_objectref(Object::FloatObj(FloatObj {
+            Object::Int(right_integer) => Ok(new_objectref(Object::Float(Float {
                 val: self.val - right_integer.value as f64,
             }))),
-            Object::FloatObj(right_float) => Ok(new_objectref(Object::FloatObj(FloatObj {
+            Object::Float(right_float) => Ok(new_objectref(Object::Float(Float {
                 val: self.val - right_float.val,
             }))),
             other_type => Err(PanicObj::new(
@@ -52,10 +52,10 @@ impl FloatObj {
 
     pub fn mul(&self, right: ObjectRef, _state: StateRef) -> Result<ObjectRef, PanicObj> {
         match &*right.borrow() {
-            Object::Int(right_integer) => Ok(new_objectref(Object::FloatObj(FloatObj {
+            Object::Int(right_integer) => Ok(new_objectref(Object::Float(Float {
                 val: self.val * right_integer.value as f64,
             }))),
-            Object::FloatObj(right_float) => Ok(new_objectref(Object::FloatObj(FloatObj {
+            Object::Float(right_float) => Ok(new_objectref(Object::Float(Float {
                 val: self.val * right_float.val,
             }))),
             other_type => Err(PanicObj::new(
@@ -75,7 +75,7 @@ impl FloatObj {
         match &*right.borrow() {
             Object::Int(right_integer) => {
                 if right_integer.value != 0 {
-                    Ok(new_objectref(Object::FloatObj(FloatObj {
+                    Ok(new_objectref(Object::Float(Float {
                         val: self.val / right_integer.value as f64,
                     })))
                 } else {
@@ -86,9 +86,9 @@ impl FloatObj {
                     ))
                 }
             }
-            Object::FloatObj(right_float) => {
+            Object::Float(right_float) => {
                 if right_float.val != 0 as f64 {
-                    Ok(new_objectref(Object::FloatObj(FloatObj {
+                    Ok(new_objectref(Object::Float(Float {
                         val: self.val / right_float.val,
                     })))
                 } else {
@@ -114,10 +114,10 @@ impl FloatObj {
 
     pub fn power(&self, right: ObjectRef, _state: StateRef) -> Result<ObjectRef, PanicObj> {
         match &*right.borrow() {
-            Object::Int(right_integer) => Ok(new_objectref(Object::FloatObj(FloatObj {
+            Object::Int(right_integer) => Ok(new_objectref(Object::Float(Float {
                 val: self.val.powf(right_integer.value as f64),
             }))),
-            Object::FloatObj(right_float) => Ok(new_objectref(Object::FloatObj(FloatObj {
+            Object::Float(right_float) => Ok(new_objectref(Object::Float(Float {
                 val: self.val.powf(right_float.val),
             }))),
             other_type => Err(PanicObj::new(
@@ -148,7 +148,7 @@ impl FloatObj {
                     false
                 }
             }
-            Object::FloatObj(float) => float.val.to_bits() == self.val.to_bits(),
+            Object::Float(float) => float.val.to_bits() == self.val.to_bits(),
 
             _ => false,
         };
@@ -167,7 +167,7 @@ impl FloatObj {
                     false
                 }
             }
-            Object::FloatObj(float) => float.val.to_bits() == self.val.to_bits(),
+            Object::Float(float) => float.val.to_bits() == self.val.to_bits(),
 
             _ => false,
         };
@@ -182,7 +182,7 @@ impl FloatObj {
             Object::Int(right_integer) => Ok(new_objectref(Object::get_native_boolean_object(
                 self.val < right_integer.value as f64,
             ))),
-            Object::FloatObj(right_float) => Ok(new_objectref(Object::get_native_boolean_object(
+            Object::Float(right_float) => Ok(new_objectref(Object::get_native_boolean_object(
                 self.val < right_float.val,
             ))),
             other_type => Err(PanicObj::new(
@@ -203,7 +203,7 @@ impl FloatObj {
             Object::Int(right_integer) => Ok(new_objectref(Object::get_native_boolean_object(
                 self.val <= right_integer.value as f64,
             ))),
-            Object::FloatObj(right_float) => Ok(new_objectref(Object::get_native_boolean_object(
+            Object::Float(right_float) => Ok(new_objectref(Object::get_native_boolean_object(
                 self.val <= right_float.val,
             ))),
             other_type => Err(PanicObj::new(
@@ -224,7 +224,7 @@ impl FloatObj {
             Object::Int(right_integer) => Ok(new_objectref(Object::get_native_boolean_object(
                 self.val > right_integer.value as f64,
             ))),
-            Object::FloatObj(right_float) => Ok(new_objectref(Object::get_native_boolean_object(
+            Object::Float(right_float) => Ok(new_objectref(Object::get_native_boolean_object(
                 self.val > right_float.val,
             ))),
             other_type => Err(PanicObj::new(
@@ -245,7 +245,7 @@ impl FloatObj {
             Object::Int(right_integer) => Ok(new_objectref(Object::get_native_boolean_object(
                 self.val >= right_integer.value as f64,
             ))),
-            Object::FloatObj(right_float) => Ok(new_objectref(Object::get_native_boolean_object(
+            Object::Float(right_float) => Ok(new_objectref(Object::get_native_boolean_object(
                 self.val >= right_float.val,
             ))),
             other_type => Err(PanicObj::new(

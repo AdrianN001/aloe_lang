@@ -2,7 +2,7 @@ use crate::object::{
     Object, ObjectRef,
     array::Array,
     error::panic_type::PanicType,
-    float_obj::FloatObj,
+    float::Float,
     integer::Integer,
     new_objectref,
     panic_obj::{PanicObj, RuntimeSignal},
@@ -14,7 +14,7 @@ fn make_int(value: i64) -> ObjectRef {
 }
 
 fn make_float(value: f64) -> ObjectRef {
-    new_objectref(Object::FloatObj(FloatObj { val: value }))
+    new_objectref(Object::Float(Float { val: value }))
 }
 
 fn make_array(items: Vec<ObjectRef>) -> ObjectRef {
@@ -23,7 +23,7 @@ fn make_array(items: Vec<ObjectRef>) -> ObjectRef {
 
 fn float_from_object(obj: &Object, state: StateRef) -> Result<f64, RuntimeSignal> {
     match obj {
-        Object::FloatObj(float) => Ok(float.val),
+        Object::Float(float) => Ok(float.val),
         Object::Int(integer) => Ok(integer.value as f64),
         _ => Err(RuntimeSignal::Panic(PanicObj::new(
             PanicType::WrongArgumentType,

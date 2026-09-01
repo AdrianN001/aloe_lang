@@ -3,11 +3,11 @@ use std::hash::{DefaultHasher, Hash, Hasher};
 use crate::object::{hashable::Hashable, hashmap::HashKey};
 
 #[derive(Clone, Debug)]
-pub struct FloatObj {
+pub struct Float {
     pub val: f64,
 }
 
-impl FloatObj {
+impl Float {
     pub fn get_type(&self) -> String {
         "<type float>".into()
     }
@@ -17,7 +17,7 @@ impl FloatObj {
     }
 }
 
-impl Hashable for FloatObj {
+impl Hashable for Float {
     fn hash(&self) -> HashKey {
         let mut hasher = DefaultHasher::new();
         self.val.to_bits().hash(&mut hasher);
@@ -29,10 +29,10 @@ impl Hashable for FloatObj {
     }
 }
 
-impl PartialEq for FloatObj {
-    fn eq(&self, other: &FloatObj) -> bool {
+impl PartialEq for Float {
+    fn eq(&self, other: &Float) -> bool {
         self.val.to_bits() == other.val.to_bits()
     }
 }
 
-impl Eq for FloatObj {}
+impl Eq for Float {}

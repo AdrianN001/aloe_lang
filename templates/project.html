@@ -305,6 +305,7 @@
 }
 
 .search-results {
+    display: none;
     position: absolute;
     left: 16px;
     right: 16px;
@@ -415,39 +416,12 @@
     </main>
 
     <script>
-function relativeUrl(target) {
-    const current = new URL(window.location.href);
-    const targetUrl = new URL(target, current);
-
-    const currentParts = current.pathname.split("/");
-    const targetParts = targetUrl.pathname.split("/");
-
-    // Der letzte Teil von current ist die HTML-Datei
-    currentParts.pop();
-
-    // Gemeinsamen Präfix entfernen
-    while (
-        currentParts.length > 0 &&
-        targetParts.length > 0 &&
-        currentParts[0] === targetParts[0]
-    ) {
-        currentParts.shift();
-        targetParts.shift();
-    }
-
-    const up = currentParts.map(() => "..");
-
-    return [...up, ...targetParts].join("/");
-}
-        
 const searchInput = document.getElementById("symbol-search");
 const searchResults = document.getElementById("search-results");
-const symbols = JSON.parse(symbols_json);
+const symbols = symbols_json;
 
 searchInput.addEventListener("input", () => {
-    console.log(typeof symbols);
     const query = searchInput.value.trim().toLowerCase();
-
     searchResults.innerHTML = "";
 
     if (!query) {
@@ -456,32 +430,31 @@ searchInput.addEventListener("input", () => {
     }
 
     const matches = symbols
-        .filter(symbol =>
-            symbol.name.toLowerCase().includes(query)
-        )
+        .filter(symbol => symbol.name && symbol.name.toLowerCase().includes(query))
         .slice(0, 30);
 
     if (matches.length === 0) {
-        searchResults.innerHTML =
-            '<div class="search-empty">No symbols found.</div>';
+        const empty = document.createElement("div");
+        empty.className = "search-empty";
+        empty.textContent = "No symbols found.";
+        searchResults.appendChild(empty);
     } else {
         for (const symbol of matches) {
             const result = document.createElement("a");
-
-            let base = window.location.href;
+            const name = document.createElement("span");
+            const kind = document.createElement("span");
 
             result.className = "search-result";
-            result.href = symbol.path;
+            result.href = typeof symbol.doc_path === "string" ? symbol.doc_path : "#";
 
-            result.innerHTML = `
-                <span class="search-result-name">
-                    ${symbol.name}
-                </span>
-                <span class="search-result-kind">
-                    ${symbol.symbol_kind}
-                </span>
-            `;
+            name.className = "search-result-name";
+            name.textContent = symbol.name;
 
+            kind.className = "search-result-kind";
+            kind.textContent = symbol.symbol_kind;
+
+            result.appendChild(name);
+            result.appendChild(kind);
             searchResults.appendChild(result);
         }
     }

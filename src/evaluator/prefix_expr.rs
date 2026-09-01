@@ -3,7 +3,7 @@ use std::{cell::RefCell, rc::Rc};
 use crate::object::{
     Object, ObjectRef,
     error::panic_type::PanicType,
-    float_obj::FloatObj,
+    float::Float,
     integer::Integer,
     new_objectref,
     panic_obj::{PanicObj, RuntimeSignal},
@@ -60,7 +60,7 @@ impl Object {
             Object::Int(integer) => Ok(Rc::new(RefCell::new(Object::Int(Integer {
                 value: -integer.value,
             })))),
-            Object::FloatObj(float) => Ok(Rc::new(RefCell::new(Object::FloatObj(FloatObj {
+            Object::Float(float) => Ok(Rc::new(RefCell::new(Object::Float(Float {
                 val: -float.val,
             })))),
 

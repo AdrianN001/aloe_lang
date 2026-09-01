@@ -72,7 +72,7 @@ fn test_eval_float_object() {
         assert_eq!(program.statements.len(), 1);
 
         match &*program.evaluate_with_default().unwrap().borrow() {
-            Object::FloatObj(float) => {
+            Object::Float(float) => {
                 assert!((float.val - expected_value).abs() < f64::EPSILON);
             }
             _ => panic!("Expected FloatObj"),
@@ -96,7 +96,7 @@ fn test_float_literal_fallback_loses_leading_zeros_in_fractional_part() {
     let value = float_literal.evaluate();
 
     match &*value.borrow() {
-        Object::FloatObj(float) => {
+        Object::Float(float) => {
             assert!(
                 (float.val - 1.5).abs() < f64::EPSILON,
                 "expected the lossy fallback value 1.5, but got {}",
@@ -120,7 +120,7 @@ fn test_float_literal_fallback_without_fractional_part_is_correct() {
     let value = float_literal.evaluate();
 
     match &*value.borrow() {
-        Object::FloatObj(float) => {
+        Object::Float(float) => {
             assert!((float.val - 10.0).abs() < f64::EPSILON);
         }
         _ => panic!("Expected FloatObj"),
@@ -150,7 +150,7 @@ fn test_eval_scientific_notation() {
         assert_eq!(program.statements.len(), 1);
 
         match &*program.evaluate_with_default().unwrap().borrow() {
-            Object::FloatObj(float) => {
+            Object::Float(float) => {
                 // Use relative tolerance for scientific notation values
                 let tolerance = (expected_value.abs() * 1e-10).max(1e-10);
                 assert!(
@@ -186,7 +186,7 @@ fn test_eval_scientific_notation_in_expressions() {
         assert_eq!(program.statements.len(), 1);
 
         match &*program.evaluate_with_default().unwrap().borrow() {
-            Object::FloatObj(float) => {
+            Object::Float(float) => {
                 let tolerance = (expected_value.abs() * 1e-10).max(1e-10);
                 assert!(
                     (float.val - expected_value).abs() < tolerance,
@@ -832,7 +832,7 @@ fn eval_floats() {
             _ => todo!(),
         };
 
-        assert!(matches!(&*last_object.borrow(), Object::FloatObj(_),));
+        assert!(matches!(&*last_object.borrow(), Object::Float(_),));
 
         assert_eq!(last_object.borrow().inspect(), expected_value)
     })

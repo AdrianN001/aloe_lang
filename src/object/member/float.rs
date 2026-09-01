@@ -1,12 +1,12 @@
 use std::{cell::RefCell, rc::Rc};
 
 use crate::object::{
-    Object, ObjectRef, boolean::Boolean, error::panic_type::PanicType, float_obj::FloatObj,
+    Object, ObjectRef, boolean::Boolean, error::panic_type::PanicType, float::Float,
     integer::Integer, new_objectref, panic_obj::PanicObj, stack_environment::EnvRef,
     state::StateRef, string_obj::StringObj,
 };
 
-impl FloatObj {
+impl Float {
     pub fn apply_attribute(&self, name: &str, state: StateRef) -> Result<ObjectRef, PanicObj> {
         match name {
             "is_negative" => Ok(self.is_negative()),
@@ -99,7 +99,7 @@ impl FloatObj {
                 state,
             ));
         }
-        Ok(new_objectref(Object::FloatObj(FloatObj { val: self.val })))
+        Ok(new_objectref(Object::Float(Float { val: self.val })))
     }
 
     pub fn deep_copy(&self, args: &[ObjectRef], state: StateRef) -> Result<ObjectRef, PanicObj> {
@@ -113,7 +113,7 @@ impl FloatObj {
                 state,
             ));
         }
-        Ok(Rc::new(RefCell::new(Object::FloatObj(FloatObj {
+        Ok(Rc::new(RefCell::new(Object::Float(Float {
             val: self.val,
         }))))
     }

@@ -74,6 +74,16 @@ pub fn test_math_module() {
             "import {factorial} from \"@std::math\"; factorial(5);",
             "120",
         ),
+        ("import {pi} from \"@std::math\"; pi;", "3.141592653589793"),
+        ("import {e} from \"@std::math\"; e;", "2.718281828459045"),
+        (
+            "import {tau} from \"@std::math\"; tau;",
+            "6.283185307179586",
+        ),
+        (
+            "import {phi} from \"@std::math\"; phi;",
+            "1.618033988749895",
+        ),
     ];
 
     test_cases_for_input_output(&testcases);

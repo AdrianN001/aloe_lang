@@ -5,7 +5,7 @@ use crate::object::{
     boolean::Boolean,
     buffer::Buffer,
     error::{error_type::ErrorType, panic_type::PanicType},
-    float_obj::FloatObj,
+    float::Float,
     integer::Integer,
     new_objectref,
     panic_obj::PanicObj,
@@ -127,7 +127,7 @@ impl Integer {
                 state,
             ));
         }
-        Ok(Rc::new(RefCell::new(Object::FloatObj(FloatObj {
+        Ok(Rc::new(RefCell::new(Object::Float(Float {
             val: self.value as f64,
         }))))
     }

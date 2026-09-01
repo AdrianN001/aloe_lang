@@ -7,7 +7,7 @@ pub mod built_in;
 pub mod copy;
 pub mod enum_model;
 pub mod error;
-pub mod float_obj;
+pub mod float;
 pub mod function;
 pub mod future;
 pub mod hashable;
@@ -34,7 +34,7 @@ use array::Array;
 use boolean::Boolean;
 use built_in::BuiltIn;
 use error::Error;
-use float_obj::FloatObj;
+use float::Float;
 use function::Function;
 use hashmap::HashMap;
 use integer::Integer;
@@ -54,7 +54,7 @@ pub type ObjectRef = Rc<RefCell<Object>>;
 pub enum Object {
     // stack types
     Int(Integer),
-    FloatObj(FloatObj),
+    Float(Float),
     Bool(Boolean),
 
     Null(Null),
@@ -114,7 +114,7 @@ impl Object {
             Object::Error(obj) => obj.get_type(),
             Object::Array(obj) => obj.get_type(),
             Object::HashMap(obj) => obj.get_type(),
-            Object::FloatObj(obj) => obj.get_type(),
+            Object::Float(obj) => obj.get_type(),
             Object::Iterator(obj) => obj.get_type(),
             Object::BreakVal(obj) => obj.get_type(),
             Object::StructModel(obj) => obj.get_type(),
@@ -140,7 +140,7 @@ impl Object {
             Object::Error(obj) => obj.inspect(),
             Object::Array(obj) => obj.inspect(),
             Object::HashMap(obj) => obj.inspect(),
-            Object::FloatObj(obj) => obj.inspect(),
+            Object::Float(obj) => obj.inspect(),
             Object::Iterator(obj) => obj.inspect(),
             Object::BreakVal(obj) => obj.inspect(),
             Object::StructModel(obj) => obj.inspect(),
@@ -160,7 +160,7 @@ impl Object {
             Object::String(s) => Ok(s.hash()),
             Object::Int(i) => Ok(i.hash()),
             Object::Bool(b) => Ok(b.hash()),
-            Object::FloatObj(f) => Ok(f.hash()),
+            Object::Float(f) => Ok(f.hash()),
             _ => Err(format!(
                 "object with type: {} is not hashable",
                 &self.get_type()

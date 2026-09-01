@@ -50,3 +50,6 @@ pub mod time_test;
 
 #[cfg(test)]
 pub mod doc_file_system_test;
+
+#[cfg(test)]
+pub mod doc_project_map_test;

@@ -2,7 +2,7 @@ use std::{cell::RefCell, rc::Rc};
 
 use crate::{
     ast::expression::float_literal::FloatLiteral,
-    object::{Object, ObjectRef, float_obj::FloatObj},
+    object::{Object, ObjectRef, float::Float},
 };
 
 impl FloatLiteral {
@@ -19,8 +19,6 @@ impl FloatLiteral {
                 str.parse::<f64>().unwrap_or(0.0)
             });
 
-        Rc::new(RefCell::new(Object::FloatObj(FloatObj {
-            val: float_value,
-        })))
+        Rc::new(RefCell::new(Object::Float(Float { val: float_value })))
     }
 }

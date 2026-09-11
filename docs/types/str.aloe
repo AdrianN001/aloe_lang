@@ -202,6 +202,19 @@ struct str{
     fun split(this, separator){}
 
     ##
+    # str.lines() -> array
+    # splits the string into lines, accepting LF, CRLF, and CR line endings.
+    # panics: [WrongArgumentCount]
+    # errors: []
+    # example:
+    #
+    # ---lines.aloe---
+    # "first\r\nsecond".lines();
+    #
+    ##
+    fun lines(this){}
+
+    ##
     # str.clone() -> str
     # returns a copy of the string.
     # panics: [WrongArgumentCount]

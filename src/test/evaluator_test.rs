@@ -923,6 +923,21 @@ fn eval_str_split() {
 }
 
 #[test]
+fn eval_str_lines() {
+    let testcases = [
+        (r#""a\nb\nc".lines()"#, r#"[a, b, c]"#),
+        (r#""a\r\nb\r\nc".lines()"#, r#"[a, b, c]"#),
+        (r#""a\rb\rc".lines()"#, r#"[a, b, c]"#),
+        (r#""a\nb\n".lines()"#, r#"[a, b]"#),
+        (
+            r#""a".lines(",")"#,
+            r#"string.lines() takes no arguments, but 1 were provided"#,
+        ),
+    ];
+    test_cases_for_input_output(&testcases);
+}
+
+#[test]
 fn test_range_based_for_loop_evaluation() {
     let testcases = [
         // Break trifft

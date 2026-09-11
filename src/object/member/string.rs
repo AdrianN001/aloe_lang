@@ -49,6 +49,7 @@ impl StringObj {
             "contains" => self.contains(args, state),
             "slice" => self.slice(args, state),
             "split" => self.split(args, state),
+            "lines" => self.lines(args, state),
             "clone" => self.deep_copy(args, state),
 
             "to_lower" => self.to_lower(args, state),
@@ -580,6 +581,33 @@ impl StringObj {
                 .map(|sub_str: &str| {
                     new_objectref(Object::String(Box::new(StringObj {
                         value: sub_str.to_string(),
+                    })))
+                })
+                .collect(),
+        }))))
+    }
+
+    fn lines(&self, args: &[ObjectRef], state: StateRef) -> Result<ObjectRef, PanicObj> {
+        if !args.is_empty() {
+            return Err(PanicObj::new(
+                PanicType::WrongArgumentCount,
+                format!(
+                    "string.lines() takes no arguments, but {} were provided",
+                    args.len()
+                ),
+                state,
+            ));
+        }
+
+        Ok(new_objectref(Object::Array(Box::new(Array {
+            items: self
+                .value
+                .replace("\r\n", "\n")
+                .replace('\r', "\n")
+                .lines()
+                .map(|line| {
+                    new_objectref(Object::String(Box::new(StringObj {
+                        value: line.to_string(),
                     })))
                 })
                 .collect(),

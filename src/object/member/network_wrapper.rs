@@ -329,7 +329,7 @@ impl UDPSocketWrapper {
             return Err(PanicObj::new(
                 PanicType::WrongArgumentCount,
                 format!(
-                    "expected 2 arguments for AUDPSocket.send_to(), got: {}",
+                    "expected 2 arguments for UDPSocket.send_to(), got: {}",
                     args.len()
                 ),
                 state,
@@ -342,7 +342,7 @@ impl UDPSocketWrapper {
                 return Err(PanicObj::new(
                     PanicType::WrongArgumentType,
                     format!(
-                        "expected buffer as the first argument for AUDPSocket.send_to(), got: '{}'",
+                        "expected buffer as the first argument for UDPSocket.send_to(), got: '{}'",
                         other_type.get_type()
                     ),
                     state,
@@ -356,7 +356,7 @@ impl UDPSocketWrapper {
                 return Err(PanicObj::new(
                     PanicType::WrongArgumentType,
                     format!(
-                        "expected string as the second argument for AUDPSocket.send_to(), got: '{}'",
+                        "expected string as the second argument for UDPSocket.send_to(), got: '{}'",
                         other_type.get_type()
                     ),
                     state,
@@ -396,7 +396,7 @@ impl UDPSocketWrapper {
             return Err(PanicObj::new(
                 PanicType::WrongArgumentCount,
                 format!(
-                    "expected 0 arguments for AUDPSocket.recv_from(), got: '{}'",
+                    "expected 0 arguments for UDPSocket.recv_from(), got: '{}'",
                     args.len()
                 ),
                 state,

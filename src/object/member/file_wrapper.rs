@@ -23,14 +23,14 @@ impl FileWrapper {
         state: StateRef,
     ) -> Result<ObjectRef, PanicObj> {
         match name {
-            "get_path" => Ok(self.get_path(state)),
+            "get_path" => self.get_path(args, state),
 
-            "read" => Ok(self.read(state)),
-            "read_async" => Ok(self.read_async(state)),
+            "read" => self.read(args, state),
+            "read_async" => self.read_async(args, state),
             "write" => self.write(args, state),
             "write_byte" => self.write_byte(args, state),
             "seek" => self.seek(args, state),
-            "close" => Ok(self.close(state)),
+            "close" => self.close(args, state),
 
             unknown_method => Err(PanicObj::new(
                 PanicType::UnknownMethod,
@@ -61,19 +61,32 @@ impl FileWrapper {
 impl FileWrapper {
     // attributes
 
-    pub fn get_path(&self, state: StateRef) -> ObjectRef {
+    pub fn get_path(&self, args: &[ObjectRef], state: StateRef) -> Result<ObjectRef, PanicObj> {
+        if args.len() != 0 {
+            return Err(PanicObj::new(
+                PanicType::WrongArgumentCount,
+                format!(
+                    "expected 0 parameters for file.get_path(), got: {}",
+                    args.len()
+                ),
+                state,
+            ));
+        }
+
         let wrapper = match PathWrapper::new(&self.path) {
             Ok(wrapper) => wrapper,
             Err(err_feedback) => {
-                return new_objectref(Object::new_error(
+                return Ok(new_objectref(Object::new_error(
                     ErrorType::PathResolve,
                     err_feedback,
                     state,
-                ));
+                )));
             }
         };
 
-        new_objectref(Object::Native(Box::new(NativeObject::Path(wrapper))))
+        Ok(new_objectref(Object::Native(Box::new(NativeObject::Path(
+            wrapper,
+        )))))
     }
 
     pub fn get_is_open(&self) -> ObjectRef {
@@ -92,37 +105,47 @@ impl FileWrapper {
 
     // methods
 
-    pub fn read(&mut self, state: StateRef) -> ObjectRef {
+    pub fn read(&mut self, args: &[ObjectRef], state: StateRef) -> Result<ObjectRef, PanicObj> {
+        if args.len() != 0 {
+            return Err(PanicObj::new(
+                PanicType::WrongArgumentCount,
+                format!("expected 0 parameters for file.read(), got: {}", args.len()),
+                state,
+            ));
+        }
+
         if self.is_write_only {
-            return new_objectref(Object::new_error(
+            return Ok(new_objectref(Object::new_error(
                 ErrorType::FileMode,
                 "file was opened as \"write-only\"".into(),
                 state,
-            ));
+            )));
         }
 
         let mut native_file = match &self.native_file {
             Some(file) => file,
             None => {
-                return new_objectref(Object::new_error(
+                return Ok(new_objectref(Object::new_error(
                     ErrorType::FileIsClosed,
                     format!("{} is already closed.", self.inspect()),
                     state,
-                ));
+                )));
             }
         };
 
         let mut buffer = String::new();
 
         if let Err(error_feedback) = native_file.read_to_string(&mut buffer) {
-            return new_objectref(Object::new_error(
+            return Ok(new_objectref(Object::new_error(
                 ErrorType::FileRead,
                 error_feedback.to_string(),
                 state,
-            ));
+            )));
         }
 
-        new_objectref(Object::String(Box::new(StringObj { value: buffer })))
+        Ok(new_objectref(Object::String(Box::new(StringObj {
+            value: buffer,
+        }))))
     }
 
     pub fn write_byte(
@@ -284,34 +307,58 @@ impl FileWrapper {
         Ok(new_objectref(Object::NULL_OBJECT))
     }
 
-    pub fn close(&mut self, state: StateRef) -> ObjectRef {
+    pub fn close(&mut self, args: &[ObjectRef], state: StateRef) -> Result<ObjectRef, PanicObj> {
+        if !args.is_empty() {
+            return Err(PanicObj::new(
+                PanicType::WrongArgumentCount,
+                format!(
+                    "expected 0 parameters for file.close(), got: {}",
+                    args.len()
+                ),
+                state,
+            ));
+        }
         if !self.get_is_open_raw() {
-            return new_objectref(Object::new_error(
+            return Ok(new_objectref(Object::new_error(
                 ErrorType::FileIsClosed,
                 format!("{} is already closed.", self.inspect()),
                 state,
-            ));
+            )));
         }
 
         let _ = self.native_file.take();
 
-        new_objectref(Object::NULL_OBJECT)
+        Ok(new_objectref(Object::NULL_OBJECT))
     }
 
-    pub fn read_async(&mut self, state: StateRef) -> ObjectRef {
-        if self.is_write_only {
-            return new_objectref(Object::new_error(
-                ErrorType::FileMode,
-                "file was not opened with read flag".into(),
+    pub fn read_async(
+        &mut self,
+        args: &[ObjectRef],
+        state: StateRef,
+    ) -> Result<ObjectRef, PanicObj> {
+        if !args.is_empty() {
+            return Err(PanicObj::new(
+                PanicType::WrongArgumentCount,
+                format!(
+                    "expected 0 parameters for file.read_async(), got: {}",
+                    args.len()
+                ),
                 state,
             ));
         }
+        if self.is_write_only {
+            return Ok(new_objectref(Object::new_error(
+                ErrorType::FileMode,
+                "file was not opened with read flag".into(),
+                state,
+            )));
+        }
         if !self.get_is_open_raw() {
-            return new_objectref(Object::new_error(
+            return Ok(new_objectref(Object::new_error(
                 ErrorType::FileIsClosed,
                 format!("{} is already closed.", self.inspect()),
                 state,
-            ));
+            )));
         }
 
         let future = new_objectref(Object::Future(Box::new(FutureObj::new(
@@ -337,12 +384,27 @@ impl FileWrapper {
             let runtime = slot.borrow();
 
             runtime.spawn(async move {
-                let result = tokio::fs::read_to_string(path).await.unwrap();
-                tx.send((future_id, MessageOutput::PlainText(result)))
-                    .unwrap();
+                let result = tokio::fs::read_to_string(path).await;
+                match result {
+                    Ok(content) => {
+                        tx.send((future_id, MessageOutput::PlainText(content)))
+                            .unwrap();
+                    }
+                    Err(error) => {
+                        tx.send((
+                            future_id,
+                            MessageOutput::Error((
+                                ErrorType::FileRead,
+                                error.to_string(),
+                                "File.read_async()".to_string(),
+                            )),
+                        ))
+                        .unwrap();
+                    }
+                }
             });
         });
 
-        future
+        Ok(future)
     }
 }

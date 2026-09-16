@@ -323,8 +323,8 @@ impl AUDPSocketWrapper {
         state: StateRef,
     ) -> Result<ObjectRef, PanicObj> {
         match name {
-            "send_to_async" => self.send_to(args, state),
-            "recv_from_async" => self.recv_from(args, state),
+            "send_to" => self.send_to(args, state),
+            "recv_from" => self.recv_from(args, state),
             _ => Err(PanicObj::new(
                 PanicType::UnknownMethod,
                 format!("AUDPSocket has no method named '{}'", name),

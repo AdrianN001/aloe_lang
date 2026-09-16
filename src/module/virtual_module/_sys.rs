@@ -23,9 +23,9 @@ pub fn create_underscore_sys_module() -> ModuleRef {
 
 fn load_underscore_sys_builtins(environ: &mut StackEnvironment) {
     let pairs = [
-        ("__exit", BuiltIn::U_SYS_EXIT),
-        ("__args", BuiltIn::U_SYS_ARGS),
-        ("__pid", BuiltIn::U_SYS_PID),
+        ("_exit", BuiltIn::U_SYS_EXIT),
+        ("_args", BuiltIn::U_SYS_ARGS),
+        ("_pid", BuiltIn::U_SYS_PID),
     ];
     for (name, builtin) in pairs {
         let builtin_object = new_objectref(Object::BuiltIn(builtin));

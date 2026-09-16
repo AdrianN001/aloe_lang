@@ -11,7 +11,7 @@ impl Spawnable for PathWrapper {
     fn spawn(args: &[ObjectRef], state: StateRef) -> Result<ObjectRef, RuntimeSignal> {
         if args.len() != 1 {
             return Err(RuntimeSignal::Panic(PanicObj::new(
-                PanicType::WrongArgumentType,
+                PanicType::WrongArgumentCount,
                 format!(
                     "unexpected number of parameter for __path(). Expected: 1, got: '{}'",
                     args.len()

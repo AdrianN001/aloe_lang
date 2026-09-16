@@ -90,8 +90,8 @@ impl UDPSocketWrapper {
             Ok(socket) => socket,
             Err(err_feedback) => {
                 return Err(new_objectref(Object::new_error(
-                    ErrorType::SocketConnect,
-                    format!("Failed to connect to TCP server: {}", err_feedback),
+                    ErrorType::SocketBind,
+                    format!("Failed to bind to UDP Socket: {}", err_feedback),
                     state,
                 )));
             }

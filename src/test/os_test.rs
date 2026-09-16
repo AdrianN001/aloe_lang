@@ -5,7 +5,7 @@ pub fn test_os_module_import() {
     #[cfg(target_os = "linux")]
     {
         let testcases = [(
-            "import {__platform} from \"@std::_os\"; __platform();",
+            "import {_platform} from \"@std::_os\"; _platform();",
             "linux",
         )];
 

@@ -11,6 +11,9 @@ use crate::{
     },
 };
 
+// golden ratio (phi) is not stabilized
+const GOLDEN_RATIO: f64 = 1.618033988749894848204586834365638118_f64;
+
 pub fn create_math_module() -> ModuleRef {
     let mut environ = StackEnvironment::new();
     load_math_builtins(&mut environ);
@@ -85,7 +88,7 @@ fn load_math_builtins(environ: &mut StackEnvironment) {
         (
             "phi",
             Object::Float(Float {
-                val: std::f64::consts::GOLDEN_RATIO,
+                val: GOLDEN_RATIO,
             }),
         ),
     ];

@@ -49,9 +49,9 @@ impl Module {
         let program = {
             let lexer = Lexer::new(input.into());
             let parser = Parser::new(lexer);
-            let program = parser.into_a_program().unwrap();
+            let program = parser.into_a_program();
             program
-        };
+        }?;
 
         let raw_environment = StackEnvironment::new();
 

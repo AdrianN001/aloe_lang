@@ -1,15 +1,20 @@
 use std::fmt;
 
-use crate::object::{
-    ObjectRef,
-    error::{Error, panic_type::PanicType},
-    future::task::TaskRef,
-    state::StateRef,
+use crate::{
+    ast::syntax_error_report::syntax_error::SyntaxError,
+    object::{
+        ObjectRef,
+        error::{Error, panic_type::PanicType},
+        future::task::TaskRef,
+        state::StateRef,
+    },
 };
 
 #[derive(Debug)]
 pub enum RuntimeSignal {
     Panic(PanicObj),
+    SyntaxError(SyntaxError),
+    GenericError(Box<dyn std::error::Error>),
     Yield(TaskRef),
     Propagation(ObjectRef),
     Return(ObjectRef),

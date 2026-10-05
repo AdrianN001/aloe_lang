@@ -40,7 +40,10 @@ impl WhileLoopExpression {
         environ: EnvRef,
         state: StateRef,
     ) -> Result<ObjectRef, RuntimeSignal> {
-        let condition_expr = self.condition.clone().unwrap();
+        let condition_expr = self
+            .condition
+            .clone()
+            .expect("while should have a condition");
 
         let mut should_run =
             Self::check_if_expression_is_truthy(&condition_expr, environ.clone(), state.clone())?;

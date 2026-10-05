@@ -49,7 +49,10 @@ impl ModuleLoader {
         if ModuleLoader::check_if_std_lib_should_be_imported(module_name) {
             return self.import_from_std(module_name);
         }
-        let root_dir = self.root_file.parent().unwrap();
+        let root_dir = self
+            .root_file
+            .parent()
+            .unwrap_or_else(|| std::path::Path::new(""));
         let abs_path_of_module = root_dir.join(module_name);
 
         let abs_path_str = match abs_path_of_module.to_str() {

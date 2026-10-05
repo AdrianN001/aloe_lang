@@ -75,10 +75,19 @@ pub fn awaitable_sleep_builtin_function(
     ))))
 }
 
-pub fn time_builtin_function() -> Result<ObjectRef, RuntimeSignal> {
+pub fn time_builtin_function(state: StateRef) -> Result<ObjectRef, RuntimeSignal> {
     let start = SystemTime::now();
 
-    let since_epoch = start.duration_since(UNIX_EPOCH).unwrap();
+    let since_epoch = match start.duration_since(UNIX_EPOCH) {
+        Ok(duration) => duration,
+        Err(_) => {
+            return Err(RuntimeSignal::Panic(PanicObj::new(
+                PanicType::OS,
+                "System time is before UNIX_EPOCH".into(),
+                state,
+            )));
+        }
+    };
 
     let in_ms = since_epoch.as_millis() as i64;
 

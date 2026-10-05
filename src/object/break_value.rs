@@ -14,8 +14,4 @@ impl BreakValue {
     pub fn inspect(&self) -> String {
         self.value.borrow().inspect()
     }
-
-    pub fn unwrap_to_value(&self) -> ObjectRef {
-        *self.value.clone()
-    }
 }

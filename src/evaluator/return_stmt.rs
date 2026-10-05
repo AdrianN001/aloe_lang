@@ -41,12 +41,9 @@ impl ReturnStatement {
     ) -> Result<(bool, ObjectRef), RuntimeSignal> {
         match value_res {
             Ok(ok_value) => return Ok((false, ok_value)),
-            Err(RuntimeSignal::Panic(panic_obj)) => return Err(RuntimeSignal::Panic(panic_obj)),
-            Err(RuntimeSignal::Yield(_)) => unreachable!(),
-            Err(RuntimeSignal::Break(val)) => return Err(RuntimeSignal::Break(val)),
-            Err(RuntimeSignal::Continue) => return Err(RuntimeSignal::Continue),
             Err(RuntimeSignal::Propagation(progated_err)) => return Ok((true, progated_err)),
-            Err(RuntimeSignal::Return(val)) => return Err(RuntimeSignal::Return(val)),
+
+            Err(signal) => return Err(signal),
         }
     }
 }

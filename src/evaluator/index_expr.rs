@@ -105,7 +105,7 @@ impl IndexExpression {
                     value: arr_interior_value
                         .chars()
                         .nth(index_interior_value as usize)
-                        .unwrap()
+                        .expect("nth elemenent out of bounds")
                         .to_string(),
                 })))))
             }

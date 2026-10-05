@@ -89,7 +89,7 @@ impl Documentation {
         html: &String,
         html_path: &PathBuf,
     ) -> Result<(), Box<dyn std::error::Error>> {
-        std::fs::create_dir_all(html_path.parent().unwrap())?;
+        std::fs::create_dir_all(html_path.parent().unwrap_or(&PathBuf::from(".")))?;
         std::fs::write(html_path, html)?;
         Ok(())
     }

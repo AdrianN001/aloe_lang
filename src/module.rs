@@ -152,7 +152,10 @@ impl Module {
     }
 
     fn get_program_from_source_file(&self) -> Result<Program, RuntimeSignal> {
-        let source_file_content = Self::read_source_file(&self.abs_path).unwrap();
+        let source_file_content = match Self::read_source_file(&self.abs_path) {
+            Ok(content) => content,
+            Err(err) => return Err(RuntimeSignal::GenericError(err)),
+        };
 
         let lexer = Lexer::new(source_file_content);
         let parser = Parser::new(lexer);

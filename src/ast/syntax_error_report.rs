@@ -1,6 +1,9 @@
 use core::fmt;
 
-use crate::{ast::syntax_error_report::syntax_error::SyntaxError, token::Token};
+use crate::{
+    ast::syntax_error_report::syntax_error::SyntaxError, object::panic_obj::RuntimeSignal,
+    token::Token,
+};
 
 pub mod syntax_error;
 
@@ -51,5 +54,12 @@ impl fmt::Display for SyntaxErrorReport {
         buff.push_str(&format!("\tReason:\n\t\t{}", err));
 
         write!(f, "{}", buff)
+    }
+}
+
+impl From<SyntaxErrorReport> for RuntimeSignal {
+    fn from(value: SyntaxErrorReport) -> Self {
+        let syntax_error_type = &value.error.expect("SyntaxErrorReport must have an error");
+        RuntimeSignal::SyntaxError(syntax_error_type.clone())
     }
 }

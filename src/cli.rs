@@ -5,6 +5,7 @@ use clap::{Parser, Subcommand};
 use crate::{
     artifact::{build_flag::BuildFlag, write_artifact_to_file},
     doc::{html_document_a_project, html_document_a_single_file, json_document_a_single_file},
+    object::panic_obj::RuntimeSignal,
     repl::start_repl,
     script::{run_artifact, run_script},
 };
@@ -47,7 +48,7 @@ enum Command {
     Repl,
 }
 
-pub fn parse_cli() {
+pub fn parse_cli() -> Result<(), RuntimeSignal> {
     let cli = Cli::parse();
 
     match cli.command {
@@ -70,9 +71,11 @@ pub fn parse_cli() {
                     }
                     Ok(_) => {}
                 };
+                Ok(())
             }
             None => {
                 //todo run main.aloe
+                Ok(())
             }
         },
         Command::Doc {
@@ -83,20 +86,23 @@ pub fn parse_cli() {
             output_dir,
         } => {
             if let Some(output_dir) = output_dir {
-                html_document_a_project(file, output_dir);
-                return;
+                html_document_a_project(file, output_dir)?;
+                return Ok(());
             }
             if html {
-                html_document_a_single_file(file);
+                html_document_a_single_file(file)?;
             } else if json {
-                json_document_a_single_file(file);
+                json_document_a_single_file(file)?;
             }
+            Ok(())
         }
         Command::Build { file, out } => {
-            write_artifact_to_file(file, out, BuildFlag::SizeOptimized).unwrap();
+            write_artifact_to_file(file, out, BuildFlag::SizeOptimized)?;
+            Ok(())
         }
         Command::Repl => {
             start_repl();
+            Ok(())
         }
     }
 }

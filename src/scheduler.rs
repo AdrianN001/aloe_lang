@@ -121,6 +121,14 @@ impl Scheduler {
                         return Err(RuntimeSignal::Panic(p));
                     }
 
+                    Err(RuntimeSignal::GenericError(err)) => {
+                        return Err(RuntimeSignal::GenericError(err));
+                    }
+
+                    Err(RuntimeSignal::SyntaxError(err)) => {
+                        return Err(RuntimeSignal::SyntaxError(err));
+                    }
+
                     Err(RuntimeSignal::Return(_)) => {
                         panic!()
                     }

@@ -151,7 +151,7 @@ impl ExpressionFrame {
                     }
                 };
 
-                let value_clone = value.as_ref().unwrap();
+                let value_clone = value.as_ref().expect("value should be evaluated");
                 let value_borrow = value_clone.borrow();
                 Ok(EvaluationResult::Done(value_borrow.evaluate_prefix(
                     &prefix_operator,
@@ -195,8 +195,14 @@ impl ExpressionFrame {
                     }
                 }
 
-                let left = state.indexable.as_ref().unwrap();
-                let right = state.index.as_ref().unwrap();
+                let left = state
+                    .indexable
+                    .as_ref()
+                    .expect("indexable should be already evaluated");
+                let right = state
+                    .index
+                    .as_ref()
+                    .expect("index should be already evaluated");
                 Ok(EvaluationResult::Done(IndexExpression::eval_step(
                     left.clone(),
                     right.clone(),
@@ -301,12 +307,22 @@ impl ExpressionFrame {
                 let current_expression = if current_item % 2 == 0 {
                     // key
                     let current_key = current_item / 2;
-                    let expression = hashmap_expr.pairs.iter().nth(current_key).unwrap().0;
+                    let expression = hashmap_expr
+                        .pairs
+                        .iter()
+                        .nth(current_key)
+                        .expect("nth element should be in the hashmap")
+                        .0;
                     expression
                 } else {
                     // value
                     let current_value = (current_item - 1) / 2;
-                    let expression = hashmap_expr.pairs.iter().nth(current_value).unwrap().1;
+                    let expression = hashmap_expr
+                        .pairs
+                        .iter()
+                        .nth(current_value)
+                        .expect("nth element should be in the hashmap")
+                        .1;
                     expression
                 };
 
@@ -345,8 +361,16 @@ impl ExpressionFrame {
                     }
                     unreachable!();
                 } else {
-                    let left = state.left.as_ref().unwrap().clone();
-                    let right = state.right.as_ref().unwrap().clone();
+                    let left = state
+                        .left
+                        .as_ref()
+                        .expect("left side of infix expression should be already evaluated")
+                        .clone();
+                    let right = state
+                        .right
+                        .as_ref()
+                        .expect("right side of infix expression should be already evaluated")
+                        .clone();
                     let operator = infix_expr.operator.clone();
                     Ok(EvaluationResult::Done(InfixExpression::evaluate_step(
                         left,
@@ -391,7 +415,7 @@ impl ExpressionFrame {
                         || state
                             .conditional_value
                             .as_ref()
-                            .unwrap()
+                            .expect("while expression needs a conditional variable")
                             .borrow()
                             .is_truthy())
                 {
@@ -431,7 +455,11 @@ impl ExpressionFrame {
                     && state.provided_object.is_none()
                 {
                     state.iteration_variable_name = {
-                        match &**for_expr.variable.as_ref().unwrap() {
+                        match &**for_expr
+                            .variable
+                            .as_ref()
+                            .expect("for loop expression should have a variable")
+                        {
                             Expression::Identifier(identifier) => Some(identifier.value.clone()),
                             other_expression_type => {
                                 return Err(RuntimeSignal::Panic(PanicObj::new_simple(

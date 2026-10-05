@@ -388,7 +388,7 @@ impl FileWrapper {
                 match result {
                     Ok(content) => {
                         tx.send((future_id, MessageOutput::PlainText(content)))
-                            .unwrap();
+                            .expect("Failed to send message");
                     }
                     Err(error) => {
                         tx.send((
@@ -399,7 +399,7 @@ impl FileWrapper {
                                 "File.read_async()".to_string(),
                             )),
                         ))
-                        .unwrap();
+                        .expect("Failed to send message");
                     }
                 }
             });

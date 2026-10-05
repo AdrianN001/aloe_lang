@@ -178,7 +178,7 @@ impl Program {
         GLOBAL_SCHEDULER.with(|scheduler| {
             let mut scheduler_borrow = scheduler.borrow_mut();
             scheduler_borrow.run()?;
-            Ok(())
+            Ok::<(), RuntimeSignal>(())
         })?;
 
         Ok(result)
@@ -290,7 +290,7 @@ impl Program {
         GLOBAL_SCHEDULER.with(|scheduler| {
             let mut scheduler_borrow = scheduler.borrow_mut();
             scheduler_borrow.run()?;
-            Ok(())
+            Ok::<(), RuntimeSignal>(())
         })?;
 
         Ok(result)

@@ -176,7 +176,7 @@ impl BuiltIn {
 
             BuiltIn::U_TIME_SLEEP => sleep(args, state),
             BuiltIn::U_TIME_SLEEP_ASYNC => awaitable_sleep_builtin_function(args, state, environ),
-            BuiltIn::U_TIME_TIME => time_builtin_function(),
+            BuiltIn::U_TIME_TIME => time_builtin_function(state),
 
             BuiltIn::U_ASYNC_SPAWN => spawn_builtin_function(args, state),
 

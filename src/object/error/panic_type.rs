@@ -55,6 +55,8 @@ pub enum PanicType {
 
     WrongSyntax,
 
+    OS,
+
     UTF8Conversion, //TODO: error
 }
 
@@ -116,6 +118,8 @@ impl PanicType {
             "AwaitedInNonAsyncContext" => Some(PanicType::AwaitedInNonAsyncContext),
             "WrongSyntax" => Some(PanicType::WrongSyntax),
             "UTF8Conversion" => Some(PanicType::UTF8Conversion),
+
+            "OS" => Some(PanicType::OS),
 
             _ => None,
         }

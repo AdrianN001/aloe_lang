@@ -11,4 +11,23 @@ pub fn test_os_module_import() {
 
         test_cases_for_input_output(&testcases);
     }
+    #[cfg(target_os = "windows")]
+    {
+        let testcases = [(
+            "import {_platform} from \"@std::_os\"; _platform();",
+            "windows",
+        )];
+
+        test_cases_for_input_output(&testcases);
+    }
+
+    #[cfg(target_os = "macos")]
+    {
+        let testcases = [(
+            "import {_platform} from \"@std::_os\"; _platform();",
+            "macos",
+        )];
+
+        test_cases_for_input_output(&testcases);
+    }
 }

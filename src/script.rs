@@ -8,10 +8,7 @@ use crate::{
 };
 
 pub fn run_script(file_path: &PathBuf) -> Result<(), ModuleError> {
-    let main_module = match Module::new(
-        file_path.to_str().unwrap().to_string(),
-        ModuleKind::SourceFile,
-    ) {
+    let main_module = match Module::new(file_path.display().to_string(), ModuleKind::SourceFile) {
         Ok(ok_value) => Rc::new(RefCell::new(ok_value)),
         Err(err) => return Err(err),
     };
@@ -29,10 +26,7 @@ pub fn run_script(file_path: &PathBuf) -> Result<(), ModuleError> {
 }
 
 pub fn run_artifact(file_path: &PathBuf) -> Result<(), ModuleError> {
-    let main_module = match Module::new(
-        file_path.to_str().unwrap().to_string(),
-        ModuleKind::ArtifactFile,
-    ) {
+    let main_module = match Module::new(file_path.display().to_string(), ModuleKind::ArtifactFile) {
         Ok(ok_value) => Rc::new(RefCell::new(ok_value)),
         Err(err) => return Err(err),
     };

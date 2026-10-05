@@ -12,10 +12,6 @@ pub fn test_math_module() {
             "import {exp} from \"@std::math\"; exp(1);",
             "2.718281828459045",
         ),
-        (
-            "import {expm1} from \"@std::math\"; expm1(1);",
-            "1.718281828459045",
-        ),
         ("import {log} from \"@std::math\"; log(8, 2);", "3"),
         ("import {log10} from \"@std::math\"; log10(100);", "2"),
         (

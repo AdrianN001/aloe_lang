@@ -85,12 +85,7 @@ fn load_math_builtins(environ: &mut StackEnvironment) {
                 val: std::f64::consts::TAU,
             }),
         ),
-        (
-            "phi",
-            Object::Float(Float {
-                val: GOLDEN_RATIO,
-            }),
-        ),
+        ("phi", Object::Float(Float { val: GOLDEN_RATIO })),
     ];
     for (name, object) in pairs {
         let builtin_object = new_objectref(object);

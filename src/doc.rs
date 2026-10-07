@@ -1,6 +1,9 @@
 use std::path::PathBuf;
 
-use crate::{doc::symbol::documentation::Documentation, object::panic_obj::RuntimeSignal};
+use crate::{
+    doc::symbol::documentation::Documentation, object::panic_obj::RuntimeSignal,
+    terminal::handler::TerminalHandler,
+};
 
 pub mod doc_comment;
 pub mod export;
@@ -14,7 +17,7 @@ pub fn json_document_a_single_file(file_path: PathBuf) -> Result<(), RuntimeSign
         Err(err) => return Err(RuntimeSignal::GenericError(Box::new(err))),
     };
 
-    println!("{}", json_doc);
+    TerminalHandler::writeln(&json_doc);
     Ok(())
 }
 
@@ -23,7 +26,7 @@ pub fn html_document_a_single_file(file_path: PathBuf) -> Result<(), RuntimeSign
 
     let html_doc = documentation.export_to_single_html_str();
 
-    println!("{}", html_doc);
+    TerminalHandler::writeln(&html_doc);
     Ok(())
 }
 

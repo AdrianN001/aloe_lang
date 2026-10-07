@@ -1,19 +1,20 @@
-use std::fmt;
-
 use crate::{
     ast::syntax_error_report::syntax_error::SyntaxError,
+    module::module_error::ModuleError,
     object::{
         ObjectRef,
         error::{Error, panic_type::PanicType},
         future::task::TaskRef,
         state::StateRef,
     },
+    terminal::formatter::TerminalTextFormatter,
 };
 
 #[derive(Debug)]
 pub enum RuntimeSignal {
     Panic(PanicObj),
     SyntaxError(SyntaxError),
+    ModuleLoadError(ModuleError),
     GenericError(Box<dyn std::error::Error>),
     Yield(TaskRef),
     Propagation(ObjectRef),
@@ -68,18 +69,19 @@ impl PanicObj {
         let mut buffer = String::new();
         let state_borrow = self.state.borrow();
 
-        buffer.push_str("Stack trace:");
+        buffer.push_str(&TerminalTextFormatter::to_underlined("Stack trace:"));
         buffer.push_str("\n\t at ");
         if state_borrow.stack.is_empty() {
             buffer.push_str("<global>");
         } else {
             buffer.push_str(&state_borrow.collect_as_stack_trace().join("\n\t at "));
         }
-
         buffer.push('\n');
         buffer.push_str(&format!(
             "line {}, {:?}Panic: {}",
-            state_borrow.current_line, self.panic_type, self.value
+            TerminalTextFormatter::to_bold(&state_borrow.current_line.to_string()),
+            self.panic_type,
+            self.value
         ));
 
         buffer
@@ -87,11 +89,5 @@ impl PanicObj {
 
     pub fn inspect_message(&self) -> String {
         self.value.clone()
-    }
-}
-
-impl fmt::Display for PanicObj {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.inspect())
     }
 }

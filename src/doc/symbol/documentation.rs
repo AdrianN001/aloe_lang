@@ -2,10 +2,7 @@ use serde::{Deserialize, Serialize};
 
 use std::path::PathBuf;
 
-use crate::{
-    doc::symbol::doc_module::DocModule,
-    module::Module, object::panic_obj::RuntimeSignal,
-};
+use crate::{doc::symbol::doc_module::DocModule, module::Module, object::panic_obj::RuntimeSignal};
 
 #[derive(Serialize, Deserialize)]
 pub struct Documentation {

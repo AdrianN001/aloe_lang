@@ -39,8 +39,7 @@ impl fmt::Display for SyntaxErrorReport {
         let mut buff = String::new();
         let err = self.error.clone().expect("already set");
 
-        buff.push_str("\n\tSyntaxError in the followin statement:\n");
-        buff.push('\t');
+        buff.push_str("SyntaxError in the following statement:\n");
         buff.push('\t');
 
         self.tokens.iter().for_each(|token| {
@@ -51,7 +50,7 @@ impl fmt::Display for SyntaxErrorReport {
 
         buff.push('\n');
         buff.push('\n');
-        buff.push_str(&format!("\tReason:\n\t\t{}", err));
+        buff.push_str(&format!("Reason:\n\t{}", err));
 
         write!(f, "{}", buff)
     }

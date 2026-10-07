@@ -1,5 +1,6 @@
 use core::fmt;
 
+use crate::terminal::formatter::TerminalTextFormatter;
 use crate::{ast::expression::Expression, token::token_type::TokenType};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -32,13 +33,17 @@ impl fmt::Display for SyntaxError {
             SyntaxError::UnexpectedKeyword(expected, got, line_number) => {
                 format!(
                     "line {}, expected Keyword: '{}', but got: '{}'",
-                    line_number, expected, got
+                    TerminalTextFormatter::to_bold(&line_number.to_string()),
+                    expected,
+                    got
                 )
             }
             SyntaxError::UnexpectedToken(expected, got, line_number) => {
                 format!(
                     "line {}, expected '{}', but got: '{}'",
-                    line_number, expected, got
+                    TerminalTextFormatter::to_bold(&line_number.to_string()),
+                    expected,
+                    got
                 )
             }
             SyntaxError::UnexpectedTokenWithMultipleChoice(expected_list, got, line_number) => {
@@ -49,20 +54,25 @@ impl fmt::Display for SyntaxError {
                     .join(" or ");
                 format!(
                     "line {}, expected '{}', but got: '{}'",
-                    line_number, expected_str, got
+                    TerminalTextFormatter::to_bold(&line_number.to_string()),
+                    expected_str,
+                    got
                 )
             }
             SyntaxError::UnexpectedExpression(expected_list, got, line_number) => {
                 let expected_str = expected_list.join(" or ");
                 format!(
                     "line {}, expected '{}', but got: '{}'",
-                    line_number,
+                    TerminalTextFormatter::to_bold(&line_number.to_string()),
                     expected_str,
                     got.to_string()
                 )
             }
             SyntaxError::UnexpectedSemicolon(line_number) => {
-                format!("line {}, unexpeced semicolon (;)", line_number)
+                format!(
+                    "line {}, unexpeced semicolon (;)",
+                    TerminalTextFormatter::to_bold(&line_number.to_string())
+                )
             }
             SyntaxError::UnexpectedTokenInStruct(expected_list, got, struct_name, line_number) => {
                 let expected_str = expected_list
@@ -73,7 +83,10 @@ impl fmt::Display for SyntaxError {
 
                 format!(
                     "line {}, expected '{}' in struct '{}', but got: {}",
-                    line_number, expected_str, struct_name, got
+                    TerminalTextFormatter::to_bold(&line_number.to_string()),
+                    expected_str,
+                    struct_name,
+                    got
                 )
             }
 
@@ -86,7 +99,10 @@ impl fmt::Display for SyntaxError {
 
                 format!(
                     "line {}, expected '{}' in enum '{}', but got: {}",
-                    line_number, expected_str, struct_name, got
+                    TerminalTextFormatter::to_bold(&line_number.to_string()),
+                    expected_str,
+                    struct_name,
+                    got
                 )
             }
             SyntaxError::UnexpectedTokenAfterAsync(expected_list, got, line_number) => {
@@ -98,7 +114,9 @@ impl fmt::Display for SyntaxError {
 
                 format!(
                     "line {}, expected '{}' after async keyword, but got: {}",
-                    line_number, expected_str, got
+                    TerminalTextFormatter::to_bold(&line_number.to_string()),
+                    expected_str,
+                    got
                 )
             }
             SyntaxError::UnexpectedTokenInForLoopHead(expected_list, got, line_number) => {
@@ -106,37 +124,42 @@ impl fmt::Display for SyntaxError {
 
                 format!(
                     "line {}, expected '{}' in for loop head, got: '{}'",
-                    line_number, expected_str, got
+                    TerminalTextFormatter::to_bold(&line_number.to_string()),
+                    expected_str,
+                    got
                 )
             }
             SyntaxError::MethodCallWithoutIdentifier(_, line_number) => {
                 format!(
                     "line {}, method call without identifier is not allowed.",
-                    line_number
+                    TerminalTextFormatter::to_bold(&line_number.to_string())
                 )
             }
             SyntaxError::MemberExpressionWithoutAttributeOrMethodCall(_, line_number) => {
                 format!(
                     "line {}, method expression must have an attribute or a method call in it",
-                    line_number
+                    TerminalTextFormatter::to_bold(&line_number.to_string())
                 )
             }
             SyntaxError::IntegerCanNotBeParsed(received_expression, line_number) => {
                 format!(
                     "line {}, {} can not be parsed into an integer.",
-                    line_number, received_expression
+                    TerminalTextFormatter::to_bold(&line_number.to_string()),
+                    received_expression
                 )
             }
             SyntaxError::FloatCanNotBeParsed(received_expression, line_number) => {
                 format!(
                     "line {}, {} can not be parsed into a float.",
-                    line_number, received_expression
+                    TerminalTextFormatter::to_bold(&line_number.to_string()),
+                    received_expression
                 )
             }
             SyntaxError::TokenCanNotBeParsedCorrectly(received_token, line_number) => {
                 format!(
                     "line {}, '{}' can not be parsed correctly",
-                    line_number, received_token
+                    TerminalTextFormatter::to_bold(&line_number.to_string()),
+                    received_token
                 )
             }
         };

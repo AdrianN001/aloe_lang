@@ -1,4 +1,4 @@
-use crate::cli::parse_cli;
+use crate::{cli::parse_cli, signal_handling::handle_signal};
 
 pub mod artifact;
 pub mod ast;
@@ -16,8 +16,11 @@ pub mod symbol;
 pub mod token;
 pub mod version;
 
+mod signal_handling;
+pub mod terminal;
+
 fn main() {
-    parse_cli();
+    handle_signal(parse_cli());
 }
 
 #[cfg(test)]

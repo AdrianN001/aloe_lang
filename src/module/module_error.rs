@@ -1,5 +1,7 @@
 use core::fmt;
 
+use crate::object::panic_obj::RuntimeSignal;
+
 #[derive(Debug)]
 pub struct ModuleError {
     pub value: String,
@@ -22,5 +24,11 @@ impl fmt::Display for ModuleError {
             "\nError in file: '{}' -> {}\n",
             self.module_name, self.value
         )
+    }
+}
+
+impl From<ModuleError> for RuntimeSignal {
+    fn from(error: ModuleError) -> Self {
+        RuntimeSignal::ModuleLoadError(error)
     }
 }

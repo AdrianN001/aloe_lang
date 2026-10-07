@@ -73,7 +73,7 @@ impl ModuleLoader {
             Err(RuntimeSignal::Panic(e)) => {
                 return Err(ModuleError::new(
                     module_name,
-                    &format!("module execution failed: \n{}", e),
+                    &format!("module execution failed: \n{}", e.inspect()),
                 ));
             }
             _ => unreachable!(),

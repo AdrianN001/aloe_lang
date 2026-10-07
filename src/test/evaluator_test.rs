@@ -609,7 +609,7 @@ fn test_calling_expression() {
 
         let last_object = match program.evaluate_with_default() {
             Ok(x) => x,
-            Err(RuntimeSignal::Panic(err)) => panic!("{}", err),
+            Err(RuntimeSignal::Panic(err)) => panic!("{}", err.inspect()),
             _ => todo!(),
         };
 
@@ -639,7 +639,7 @@ fn test_basic_string_evaluation() {
 
         let last_object = match program.evaluate_with_default() {
             Ok(x) => x,
-            Err(RuntimeSignal::Panic(err)) => panic!("{}", err),
+            Err(RuntimeSignal::Panic(err)) => panic!("{}", err.inspect()),
             _ => todo!(),
         };
 
@@ -697,7 +697,7 @@ fn eval_string_concat() {
 
         let last_object = match program.evaluate_with_default() {
             Ok(x) => x,
-            Err(RuntimeSignal::Panic(err)) => panic!("{}", err),
+            Err(RuntimeSignal::Panic(err)) => panic!("{}", err.inspect()),
             _ => todo!(),
         };
 
@@ -828,7 +828,7 @@ fn eval_floats() {
 
         let last_object = match program.evaluate_with_default() {
             Ok(x) => x,
-            Err(RuntimeSignal::Panic(err)) => panic!("{}", err),
+            Err(RuntimeSignal::Panic(err)) => panic!("{}", err.inspect()),
             _ => todo!(),
         };
 

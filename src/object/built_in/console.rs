@@ -1,8 +1,4 @@
-use std::{
-    cell::RefCell,
-    io::{Write, stdout},
-    rc::Rc,
-};
+use std::{cell::RefCell, io::Write, rc::Rc};
 
 use tokio::io::{self, AsyncBufReadExt};
 
@@ -16,6 +12,7 @@ use crate::{
         string_obj::StringObj,
     },
     scheduler::{SCHEDULER_CHANNEL, TOKIO_RUNTIME, add_io_future, message_output::MessageOutput},
+    terminal::handler::TerminalHandler,
 };
 
 // print(object, ends)
@@ -24,43 +21,39 @@ pub fn console_write_builtin_function(args: &[ObjectRef], _environ: EnvRef) -> O
         return Rc::new(RefCell::new(Object::NULL_OBJECT));
     }
 
-    print!("{}", args[0].borrow().inspect());
+    TerminalHandler::write(&args[0].borrow().inspect());
 
     if args.len() > 1
         && let Object::String(end_str) = &*args[1].borrow()
     {
-        print!("{}", end_str.value);
+        TerminalHandler::write(&end_str.value);
     } else {
-        println!();
+        TerminalHandler::write("\n");
     }
 
-    stdout().flush().unwrap();
+    TerminalHandler::flush();
 
-    Rc::new(RefCell::new(Object::NULL_OBJECT))
+    new_objectref(Object::NULL_OBJECT)
 }
 
 // println(object_0, ...object_n)
 pub fn console_writeln_builtin_function(args: &[ObjectRef]) -> ObjectRef {
     args.iter().for_each(|arg| {
         let borrow = arg.borrow();
-        print!("{}", borrow.inspect());
+        TerminalHandler::write(&borrow.inspect());
     });
-    println!();
-    stdout().flush().unwrap();
+    TerminalHandler::write("\n");
+    TerminalHandler::flush();
 
-    Rc::new(RefCell::new(Object::NULL_OBJECT))
+    new_objectref(Object::NULL_OBJECT)
 }
 
 // input()
 pub fn console_read_builtin_function() -> ObjectRef {
     std::io::stdout().flush().unwrap();
 
-    let mut buffer = String::new();
-
-    std::io::stdin().read_line(&mut buffer).unwrap();
-
-    // \n
-    buffer.pop();
+    let mut buffer = TerminalHandler::read();
+    buffer.pop(); // Remove the trailing newline
 
     new_objectref(Object::String(Box::new(StringObj { value: buffer })))
 }

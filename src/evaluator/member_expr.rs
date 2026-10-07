@@ -1,4 +1,3 @@
-
 use crate::{
     ast::expression::{Expression, call_expression::CallExpression, member::MemberExpression},
     frame::expr_frame::{EvaluationResult, ExpressionFrame},
@@ -229,7 +228,9 @@ impl MemberExpression {
                         true
                     }
                 }
-                Err(RuntimeSignal::SyntaxError(_)) | Err(RuntimeSignal::GenericError(_)) => false,
+                Err(RuntimeSignal::SyntaxError(_))
+                | Err(RuntimeSignal::GenericError(_))
+                | Err(RuntimeSignal::ModuleLoadError(_)) => false,
                 Err(RuntimeSignal::Return(_)) => true,
                 Err(RuntimeSignal::Continue) => false,
                 Err(RuntimeSignal::Break(_)) => false,
@@ -253,7 +254,9 @@ impl MemberExpression {
                     true
                 }
             }
-            Err(RuntimeSignal::SyntaxError(_)) | Err(RuntimeSignal::GenericError(_)) => false,
+            Err(RuntimeSignal::SyntaxError(_))
+            | Err(RuntimeSignal::GenericError(_))
+            | Err(RuntimeSignal::ModuleLoadError(_)) => false,
             Err(RuntimeSignal::Return(_)) => true,
             Err(RuntimeSignal::Break(_)) => false,
             Err(RuntimeSignal::Propagation(_)) => true,

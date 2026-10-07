@@ -129,6 +129,10 @@ impl Scheduler {
                         return Err(RuntimeSignal::SyntaxError(err));
                     }
 
+                    Err(RuntimeSignal::ModuleLoadError(err)) => {
+                        return Err(RuntimeSignal::ModuleLoadError(err));
+                    }
+
                     Err(RuntimeSignal::Return(_)) => {
                         panic!()
                     }

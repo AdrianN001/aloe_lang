@@ -57,7 +57,7 @@ pub fn parse_cli() -> Result<(), RuntimeSignal> {
             artifact,
         } => match file_opt {
             Some(file) => {
-                let result = {
+                let _result = {
                     if artifact {
                         run_artifact(&file)
                     } else {
@@ -65,12 +65,6 @@ pub fn parse_cli() -> Result<(), RuntimeSignal> {
                     }
                 };
 
-                match result {
-                    Err(error) => {
-                        eprintln!("{}", error);
-                    }
-                    Ok(_) => {}
-                };
                 Ok(())
             }
             None => {

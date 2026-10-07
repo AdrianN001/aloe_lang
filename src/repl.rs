@@ -1,19 +1,16 @@
-use std::{
-    cell::RefCell,
-    io::{self, Write},
-    rc::Rc,
-};
+use std::{cell::RefCell, io::Write, rc::Rc};
 
 use crate::{
     ast::Parser,
     lexer::Lexer,
     module::Module,
     object::{panic_obj::RuntimeSignal, stack_environment::StackEnvironment},
+    terminal::handler::TerminalHandler,
 };
 
 pub fn start_repl() {
-    println!("🌿 Aloe REPL 🌿");
-    println!("Type exit to quit.\n");
+    TerminalHandler::writeln("🌿 Aloe REPL 🌿");
+    TerminalHandler::writeln("Type exit to quit.\n");
 
     let environ = Rc::new(RefCell::new(StackEnvironment::new()));
 
@@ -23,11 +20,10 @@ pub fn start_repl() {
     }
 
     loop {
-        print!(">> ");
-        io::stdout().flush().unwrap();
+        TerminalHandler::write(">> ");
+        TerminalHandler::flush();
 
-        let mut input = String::new();
-        io::stdin().read_line(&mut input).unwrap();
+        let input = TerminalHandler::read();
 
         if input.trim() == "exit" {
             break;
@@ -39,15 +35,17 @@ pub fn start_repl() {
         let program = match parser.into_a_program() {
             Ok(program) => program,
             Err(err) => {
-                eprintln!("Syntax error: {}", err);
+                TerminalHandler::writeln_error(&err.to_string());
                 break;
             }
         };
 
         match program.evaluate_as_repl(environ.clone()) {
-            Ok(last_object) => println!("{}", last_object.borrow().inspect()),
+            Ok(last_object) => {
+                TerminalHandler::writeln_italic(&last_object.borrow().inspect());
+            }
             Err(RuntimeSignal::Panic(panic_reason)) => {
-                println!("{}", panic_reason);
+                TerminalHandler::writeln_error(&panic_reason.inspect());
                 break;
             }
             _ => todo!(),

@@ -12,22 +12,15 @@ use crate::{
 pub struct ModuleLoader {
     cache: HashMap<String, ModuleRef>,
     pub root_file: PathBuf,
-    pub virtual_module_cache: HashMap<String, Option<ModuleRef>>,
+    pub virtual_module_cache: HashMap<String, ModuleRef>,
 }
 
 impl ModuleLoader {
     pub fn new(root_file: &PathBuf) -> Self {
-        let virtual_module_cache = {
-            let mut cache = HashMap::new();
-            for &builtin in &ModuleLoader::VIRTUAL_BUILTINS {
-                cache.insert(builtin.to_string(), None);
-            }
-            cache
-        };
         Self {
             cache: HashMap::new(),
             root_file: root_file.to_path_buf(),
-            virtual_module_cache,
+            virtual_module_cache: HashMap::new(),
         }
     }
 

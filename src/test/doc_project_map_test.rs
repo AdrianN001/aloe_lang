@@ -1,4 +1,4 @@
-use crate::doc::export::html::project::project_map::{SymbolEntry, SymbolEntryRelative};
+use crate::doc::export::html::project::project_map::SymbolEntry;
 use crate::symbol::symbol_kind::SymbolKind;
 use std::path::PathBuf;
 

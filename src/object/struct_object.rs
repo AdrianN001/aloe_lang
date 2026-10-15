@@ -9,12 +9,11 @@ use crate::object::{
     panic_obj::{PanicObj, RuntimeSignal},
     stack_environment::EnvRef,
     state::StateRef,
-    struct_model::MethodTableRef,
+    struct_model::{MethodTableRef, StructModel},
 };
 
 #[derive(PartialEq, Eq, Clone, Debug)]
 pub struct StructObject {
-    pub model: ObjectRef,
     pub model_name: String,
 
     pub attribute_table: HashMap<String, ObjectRef>,
@@ -23,27 +22,12 @@ pub struct StructObject {
 
 impl StructObject {
     pub fn create_new_object(
-        model: ObjectRef,
+        boxed_model: &Box<StructModel>,
         args: &[ObjectRef],
-
         state: StateRef,
     ) -> Result<ObjectRef, RuntimeSignal> {
         let (attribute_list, method_table, name) = {
-            let borrow = model.borrow();
-            let model_raw = match &*borrow {
-                Object::StructModel(struct_model) => struct_model,
-                other_type => {
-                    return Err(RuntimeSignal::Panic(PanicObj::new(
-                        PanicType::IllegalExpression,
-                        format!(
-                            "expected to be the model a 'Struct Model', got: {}",
-                            other_type.inspect()
-                        ),
-                        state,
-                    )));
-                }
-            };
-
+            let model_raw = &*boxed_model;
             (
                 model_raw.attributes.clone(),
                 model_raw.methods.clone(),
@@ -62,7 +46,6 @@ impl StructObject {
         };
 
         let mut new_object = Self {
-            model: model.clone(),
             model_name: name.clone(),
 
             attribute_table,

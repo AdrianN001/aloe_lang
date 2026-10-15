@@ -49,8 +49,8 @@ impl ModuleObject {
             Object::BuiltIn(built_in_function) => {
                 built_in_function.call(&args, environ.clone(), state.clone())
             }
-            Object::StructModel(_) => {
-                StructObject::create_new_object(function.clone(), &args, state.clone())
+            Object::StructModel(struct_model) => {
+                StructObject::create_new_object(struct_model, &args, state.clone())
             }
             other_type => Err(RuntimeSignal::Panic(PanicObj::new(
                 PanicType::NonfunctionalObjectCalled,

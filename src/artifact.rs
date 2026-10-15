@@ -36,6 +36,9 @@ pub fn write_artifact_to_file(
         Ok(bytes) => bytes,
         Err(err) => return Err(RuntimeSignal::GenericError(err)),
     };
-    std::fs::write(out_path, bytes);
+    let writer_result = std::fs::write(out_path, bytes);
+    if let Err(err) = writer_result {
+        return Err(RuntimeSignal::GenericError(Box::new(err)));
+    }
     Ok(())
 }

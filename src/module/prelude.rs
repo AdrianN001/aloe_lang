@@ -22,7 +22,7 @@ impl Module {
         for (name, built_in) in Self::PRELUDES {
             let object = new_objectref(Object::BuiltIn(built_in.clone()));
 
-            environ.insert_with_val_binding(name, object);
+            environ.insert_with_val_binding_no_check(name, object);
         }
     }
 }

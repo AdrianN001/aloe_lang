@@ -43,6 +43,7 @@ impl SymbolCollector {
         }
     }
 
+    /// Determines whether an import should be added based on its path. Currently, imports starting with "@std" are ignored.
     fn should_add_import(&self, path: &str) -> bool {
         !path.starts_with("@std")
     }

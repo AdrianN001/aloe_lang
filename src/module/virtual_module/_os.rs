@@ -33,6 +33,9 @@ fn load_underscore_os_builtins(environ: &mut StackEnvironment) {
         ("_arch", BuiltIn::U_OS_ARCH),
     ];
     for (name, builtin) in pairs.iter() {
-        environ.insert_with_val_binding(name, new_objectref(Object::BuiltIn(builtin.clone())));
+        environ.insert_with_val_binding_no_check(
+            name,
+            new_objectref(Object::BuiltIn(builtin.clone())),
+        );
     }
 }

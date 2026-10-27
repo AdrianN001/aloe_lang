@@ -77,7 +77,24 @@ impl StackEnvironment {
         self.map.insert(identifier.into(), value);
     }
 
-    pub fn insert_with_val_binding(&mut self, identifier: &str, value: ObjectRef) {
+    pub fn insert_with_val_binding(
+        &mut self,
+        identifier: &str,
+        value: ObjectRef,
+        state: StateRef,
+    ) -> Result<(), RuntimeSignal> {
+        if self.constants.contains_key(identifier) {
+            return Err(RuntimeSignal::Panic(PanicObj::new(
+                PanicType::AssignToConstant,
+                format!("val {} is a constant value.", identifier),
+                state,
+            )));
+        }
+        self.constants.insert(identifier.into(), value);
+        Ok(())
+    }
+
+    pub fn insert_with_val_binding_no_check(&mut self, identifier: &str, value: ObjectRef) {
         self.constants.insert(identifier.into(), value);
     }
 

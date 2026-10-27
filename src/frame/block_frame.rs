@@ -323,9 +323,11 @@ impl BlockFrame {
 
         match &*assignment_expr.left {
             Expression::Identifier(identifier_expr) => {
-                self.environ
-                    .borrow_mut()
-                    .insert_with_val_binding(&identifier_expr.value, right_value);
+                self.environ.borrow_mut().insert_with_val_binding(
+                    &identifier_expr.value,
+                    right_value,
+                    interpreter_state,
+                )?;
                 Ok(())
             }
             Expression::Array(destruct_arr) => {

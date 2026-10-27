@@ -89,6 +89,6 @@ fn load_math_builtins(environ: &mut StackEnvironment) {
     ];
     for (name, object) in pairs {
         let builtin_object = new_objectref(object);
-        environ.insert_with_val_binding(name.into(), builtin_object);
+        environ.insert_with_val_binding_no_check(name.into(), builtin_object);
     }
 }

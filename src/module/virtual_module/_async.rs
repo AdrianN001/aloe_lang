@@ -25,6 +25,6 @@ fn load_async_builtins(environ: &mut StackEnvironment) {
     let pairs = [("_spawn", BuiltIn::U_ASYNC_SPAWN)];
     for (name, builtin) in pairs {
         let builtin_object = new_objectref(Object::BuiltIn(builtin));
-        environ.insert_with_val_binding(name.into(), builtin_object);
+        environ.insert_with_val_binding_no_check(name.into(), builtin_object);
     }
 }

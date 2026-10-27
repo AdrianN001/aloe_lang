@@ -121,9 +121,11 @@ impl ValueAssignExpression {
                 )
             }
             Expression::Identifier(identifier) => {
-                environ
-                    .borrow_mut()
-                    .insert_with_val_binding(&identifier.value, right.clone());
+                environ.borrow_mut().insert_with_val_binding(
+                    &identifier.value,
+                    right.clone(),
+                    state.clone(),
+                )?;
                 Ok(right)
             }
             other_expression => {
@@ -272,21 +274,26 @@ impl ValueAssignExpression {
             identifiers
                 .iter()
                 .zip(array_items)
-                .for_each(|(identifier, value)| {
-                    environ
-                        .clone()
-                        .borrow_mut()
-                        .insert_with_val_binding(identifier, value);
-                });
+                .map(|(identifier, value)| {
+                    environ.clone().borrow_mut().insert_with_val_binding(
+                        identifier,
+                        value,
+                        state.clone(),
+                    )?;
+                    Ok(())
+                })
+                .collect::<Result<(), RuntimeSignal>>()?;
             Ok(right_side_value.clone())
         } else {
             for indx in 0..identifiers.len() - 1 {
                 let identifier = &identifiers[indx];
                 let value = &array_items[indx];
 
-                environ
-                    .borrow_mut()
-                    .insert_with_val_binding(&identifier, value.clone());
+                environ.borrow_mut().insert_with_val_binding(
+                    &identifier,
+                    value.clone(),
+                    state.clone(),
+                )?;
             }
 
             let last_identifer = identifiers.last().expect("last exists");
@@ -295,9 +302,11 @@ impl ValueAssignExpression {
                 items: sub_array.to_vec(),
             })));
 
-            environ
-                .borrow_mut()
-                .insert_with_val_binding(last_identifer, rest_arr);
+            environ.borrow_mut().insert_with_val_binding(
+                last_identifer,
+                rest_arr,
+                state.clone(),
+            )?;
 
             Ok(right_side_value.clone())
         }

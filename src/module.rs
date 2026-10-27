@@ -138,17 +138,17 @@ impl Module {
         let name = new_objectref(Object::String(Box::new(StringObj {
             value: self.rel_path.display().to_string(),
         })));
-        environment.insert_with_val_binding("__name__", name);
+        environment.insert_with_val_binding_no_check("__name__", name);
 
         let module_path = new_objectref(Object::String(Box::new(StringObj {
             value: self.abs_path.display().to_string(),
         })));
-        environment.insert_with_val_binding("__module__", module_path);
+        environment.insert_with_val_binding_no_check("__module__", module_path);
 
         let root_file = new_objectref(Object::String(Box::new(StringObj {
             value: module_loader.root_file.display().to_string(),
         })));
-        environment.insert_with_val_binding("__main__", root_file);
+        environment.insert_with_val_binding_no_check("__main__", root_file);
     }
 
     fn get_program_from_source_file(&self) -> Result<Program, RuntimeSignal> {

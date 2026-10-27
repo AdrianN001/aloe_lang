@@ -29,6 +29,6 @@ fn load_underscore_time_builtins(environ: &mut StackEnvironment) {
     ];
     for (name, builtin) in pairs {
         let builtin_object = new_objectref(Object::BuiltIn(builtin));
-        environ.insert_with_val_binding(name.into(), builtin_object);
+        environ.insert_with_val_binding_no_check(name.into(), builtin_object);
     }
 }

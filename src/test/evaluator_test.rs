@@ -2591,3 +2591,15 @@ fn test_enum_object() {
 
     test_cases_for_input_output(&testcases);
 }
+
+#[test]
+fn test_variable_shadowing() {
+    let testcases = [
+        ("let x = 5; let x = 3; x;", "3"),
+        ("let x = 5; x = 3; x;", "3"),
+        ("val x = 5; x = 3; x;", "val x is a constant value."),
+        ("val y = 10; val y = 20; y", "val y is a constant value."),
+    ];
+
+    test_cases_for_input_output(&testcases);
+}
